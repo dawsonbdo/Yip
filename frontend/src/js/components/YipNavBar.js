@@ -21,7 +21,7 @@ class YipNavBar extends Component {
                     <Nav.Link href="#link">Link</Nav.Link>
                   </Nav>
                 </Navbar.Collapse>
-                <Form inline className="ml-auto">
+                <Form inline className="ml-auto pt-3">
                 <FormGroup>
                   <FormControl id="searchBar" type="text" placeholder="Search for Reviews and Kennels" />
                   <Button type="submit" variant="primary" >Search</Button>

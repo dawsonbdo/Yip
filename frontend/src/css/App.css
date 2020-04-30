@@ -7,7 +7,7 @@ body {
 }
 
 #searchBar {
-  width: 400px;
+  width: 300px;
 }
 
 #spaceNav {
@@ -20,8 +20,8 @@ body {
 
 #logInLabel {
   background-color: #F58725;
-  outline-color: black;
-  outline-style: solid;
+  /* outline-color: black;
+  outline-style: solid; */
 }
 #signUp {
   background-color: #F58725;
