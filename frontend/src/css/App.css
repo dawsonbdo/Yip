@@ -1,3 +1,35 @@
-Button {
-	background-color: lightblue;
+.color-nav {
+  background-color: #F58725;
+}
+
+body {
+  background-color: antiquewhite;
+}
+
+#searchBar {
+  width: 400px;
+}
+
+#spaceNav {
+  padding-bottom: 60px;
+}
+
+#jumbotron {
+  background-color: antiquewhite;
+}
+
+#logInLabel {
+  background-color: #F58725;
+  outline-color: black;
+  outline-style: solid;
+}
+#signUp {
+  background-color: #F58725;
+}
+
+#registerForm {
+  background-color: #E9E9E9;
+  border-radius: 25px;
+  outline-style: solid;
+  outline-color: black; 
 }
