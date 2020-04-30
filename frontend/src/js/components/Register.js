@@ -7,7 +7,7 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 
-//import corgi from '../assets/corgi_shadow.png';
+import corgi from '../../assets/corgi_shadow.png';
 
 
 
@@ -19,7 +19,7 @@ class Register extends Component {
                     <Col></Col>
                
                     <Col className="text-center">
-                        {/* <img src={corgi}></img> */}
+                        <img src={corgi}></img>
                         <div id="registerForm">
                         <h1 id="signUp"> Sign Up</h1>
                         <Form> 

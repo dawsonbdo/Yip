@@ -5,7 +5,7 @@ import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
-// import corgiImage from '../assets/corgi_shadow.png';
+import corgiImage from '../../assets/corgi_shadow.png';
 
 class Login extends Component {
 
@@ -15,7 +15,7 @@ class Login extends Component {
         <Row className="align-items-center">
           <Col></Col>
           <Col>
-            {/* <img src={corgiImage} /> */}
+            <img src={corgiImage} />
             <h1 id="logInLabel">Log In</h1>
             <Form id>
               <Form.Control type="email" placeholder="Username/Email" />
