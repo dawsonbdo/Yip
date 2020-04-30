@@ -1,8 +1,7 @@
 <h1>How to setup Yip for working locally</h1>
 
-1. Clone this repo.
-2. Get the nightly build for Rust here: https://www.rust-lang.org/tools/install. Do not use the default settings. Instead customize it and ensure that the Nightly build is set.
-3. Open the project and go into the frontend folder. Type 'npm i' in there to initialize/download node_modules.
+1. Get the nightly build for Rust here: https://www.rust-lang.org/tools/install. Do not use the default settings. Instead customize it and ensure that the Nightly build is set.
+2. Open the project and go into the frontend folder. Type 'npm i' in there to initialize/download node_modules.
 
 <h1>How to work on Frontend</h1>
 
