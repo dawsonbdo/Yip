@@ -20,9 +20,21 @@ body {
 
 #logInLabel {
   background-color: #F58725;
-  outline-color: black;
-  outline-style: solid;
+  box-shadow: 0 0 0 1px black, 0 3px 3px grey;
+  border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
 }
+
+#logInForm {
+  background-color: #E9E9E9;
+  box-shadow: 0 0 0 1px #E9E9E9;
+  border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 30px;
+  box-shadow: 0 3px 3px grey;
+}
+
 #signUp {
   background-color: #F58725;
 }
