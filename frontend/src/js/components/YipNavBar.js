@@ -8,6 +8,7 @@ import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import FormGroup from 'react-bootstrap/FormGroup';
+import corgiImage from '../../assets/corgi_shadow.png';
 
 class YipNavBar extends Component {
     render() {
@@ -34,7 +35,8 @@ class YipNavBar extends Component {
                 </NavDropdown>
                 <Link to="/login"><Button type="submit" variant="warning" className="mr-5">Login</Button></Link>
                 <Link to="/register"><Button type="submit" variant="warning" className="mr-5">Register</Button></Link>
-                <Navbar.Brand href="#home" id="yipBrand">Yip</Navbar.Brand>
+                {/* <Navbar.Brand href="#home" id="yipBrand">Yip</Navbar.Brand> */}
+                <Link to="/"><img className="yipIcon" src={corgiImage} /></Link>
               </Navbar>
             </div>
         )

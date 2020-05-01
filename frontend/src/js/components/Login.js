@@ -41,7 +41,7 @@ class Login extends Component {
         <Row className="align-items-center">
           <Col></Col>
           <Col className="text-center">
-            <img src={corgiImage} />
+            <Link to="/"><img src={corgiImage} /></Link>
             <div className="logInForm">
               <h1 className="logInLabel">Log In</h1>
               <Form className="logInEntryContainer">
@@ -52,7 +52,7 @@ class Login extends Component {
                   <Form.Control id="password" className="logInEntry" type="password" placeholder="Password" />
                 </div>
                 <div>
-                  <Form.Text className="text-muted">Forgot Password</Form.Text>
+                  <Link><Button variant="link">Forgot Password?</Button></Link>
                 </div>
                 <div className="logInEntryContainer">
                   <Button onClick={this.attemptLogin} className="logInEntry" variant="primary" type="submit">Submit</Button>

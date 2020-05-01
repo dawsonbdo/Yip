@@ -32,6 +32,14 @@ body {
   padding-bottom: 5px;
 }
 
+.bottomLabel {
+  background-color: #C4C4C4;
+  box-shadow: 0 0 0 1px black, 0 3px 3px grey;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 30px;
+  padding-top: 2px;
+}
+
 .logInForm {
   background-color: #E9E9E9;
   box-shadow: 0 0 0 1px #E9E9E9;
@@ -51,4 +59,9 @@ body {
 
 .logInEntryContainer {
   padding: 5px;
+}
+
+.yipIcon {
+  width: 117px;
+  height: 81px;
 }

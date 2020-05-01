@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
+import {Link} from 'react-router-dom';
 
 import Form from 'react-bootstrap/Form';
-import FormControl from 'react-bootstrap/FormControl';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -19,7 +19,7 @@ class Register extends Component {
                     <Col></Col>
                
                     <Col className="text-center">
-                        <img src={corgi}></img>
+                        <Link to="/"><img src={corgi}></img></Link>
                         <div className="logInForm">
                             <h1 className="logInLabel"> Sign Up</h1>
                             <Form className="logInEntryContainer">
