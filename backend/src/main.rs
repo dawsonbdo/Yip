@@ -19,14 +19,26 @@ use std::io::{self, BufRead};
 use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
 
+#[derive(FromForm)]
+struct UserLogin {
+    login: String,
+    password: String,
+}
+
+// Handle login request
+#[post("/login", data="<input>", rank=1)]
+fn login(input: Form<UserLogin>) -> () {
+	println!("Username/Email: {}", input.login);
+	println!("Password: {}", input.password);
+}
+
 // Load home page for empty file path
-#[get("/<url>", rank=1)]
+#[get("/<url>", rank=2)]
 fn url(url: String) -> Option<NamedFile> {
 	// Empty file path, give home page
 	//NamedFile::open(Path::new("static/pages/homepage.html")).ok()
 	NamedFile::open("static/pages/index.html").ok()
 }
-
 
 // Load home page for empty file path
 #[get("/")]
@@ -44,7 +56,7 @@ fn files(file: PathBuf) -> Option<NamedFile> {
 }
 
 fn rocket() -> rocket::Rocket {
-    rocket::ignite().mount("/", routes![files, home, url])
+    rocket::ignite().mount("/", routes![files, home, url, login])
 }
 
 fn main() {
