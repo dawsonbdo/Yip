@@ -18,7 +18,7 @@ body {
   background-color: antiquewhite;
 }
 
-#logInLabel {
+.logInLabel {
   background-color: #F58725;
   box-shadow: 0 0 0 1px black, 0 3px 3px grey;
   border-top-right-radius: 30px;
@@ -26,7 +26,7 @@ body {
   padding-bottom: 5px;
 }
 
-#logInForm {
+.logInForm {
   background-color: #E9E9E9;
   box-shadow: 0 0 0 1px #E9E9E9;
   border-top-right-radius: 30px;
@@ -36,13 +36,13 @@ body {
   box-shadow: 0 3px 3px grey;
 }
 
-#logInEntry {
+.logInEntry {
   border-radius: 30px;
   border: white; 
   background-color: white;
   color: grey;
 }
 
-#logInEntryContainer {
+.logInEntryContainer {
   padding: 5px;
 }

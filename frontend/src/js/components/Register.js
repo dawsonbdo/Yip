@@ -20,23 +20,23 @@ class Register extends Component {
                
                     <Col className="text-center">
                         <img src={corgi}></img>
-                        <div id="logInForm">
-                            <h1 id="logInLabel"> Sign Up</h1>
-                            <Form id="logInEntryContainer">
-                                <div id="logInEntryContainer">
-                                    <Form.Control id="logInEntry" placeholder="Username"></Form.Control>
+                        <div className="logInForm">
+                            <h1 className="logInLabel"> Sign Up</h1>
+                            <Form className="logInEntryContainer">
+                                <div className="logInEntryContainer">
+                                    <Form.Control className="logInEntry" placeholder="Username"></Form.Control>
                                 </div>
-                                <div id="logInEntryContainer">
-                                    <Form.Control id="logInEntry" placeholder="Email" type="Email"></Form.Control>
+                                <div className="logInEntryContainer">
+                                    <Form.Control className="logInEntry" placeholder="Email" type="Email"></Form.Control>
                                 </div>
-                                <div id="logInEntryContainer">
-                                    <Form.Control id="logInEntry" placeholder="Password" type="Password"></Form.Control>
+                                <div className="logInEntryContainer">
+                                    <Form.Control className="logInEntry" placeholder="Password" type="Password"></Form.Control>
                                 </div>
-                                <div id="logInEntryContainer">
-                                    <Form.Control id="logInEntry" placeholder="Password" type="Password"></Form.Control>
+                                <div className="logInEntryContainer">
+                                    <Form.Control className="logInEntry" placeholder="Password" type="Password"></Form.Control>
                                 </div>
-                                <div id="logInEntryContainer">
-                                    <Button id="logInEntry" type="submit">Submit</Button>
+                                <div className="logInEntryContainer">
+                                    <Button className="logInEntry" type="submit">Submit</Button>
                                 </div>
                             </Form>
                        </div>
