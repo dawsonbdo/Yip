@@ -23,6 +23,7 @@ body {
   box-shadow: 0 0 0 1px black, 0 3px 3px grey;
   border-top-right-radius: 30px;
   border-top-left-radius: 30px;
+  padding-bottom: 5px;
 }
 
 #logInForm {
@@ -35,13 +36,13 @@ body {
   box-shadow: 0 3px 3px grey;
 }
 
-#signUp {
-  background-color: #F58725;
+#logInEntry {
+  border-radius: 30px;
+  border: white; 
+  background-color: white;
+  color: grey;
 }
 
-#registerForm {
-  background-color: #E9E9E9;
-  border-radius: 25px;
-  outline-style: solid;
-  outline-color: black; 
+#logInEntryContainer {
+  padding: 5px;
 }

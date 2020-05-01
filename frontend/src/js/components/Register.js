@@ -20,16 +20,26 @@ class Register extends Component {
                
                     <Col className="text-center">
                         <img src={corgi}></img>
-                        <div id="registerForm">
-                        <h1 id="signUp"> Sign Up</h1>
-                        <Form> 
-                            <FormControl placeholder="Username"></FormControl>
-                            <FormControl type="email" placeholder="Email"></FormControl>
-                            <FormControl type="password" placeholder="Password"></FormControl>
-                            <FormControl type="password" placeholder="Re-type Password"></FormControl>
-                            <Button type="submit">Submit</Button>
-                        </Form>
-                        </div>
+                        <div id="logInForm">
+                            <h1 id="logInLabel"> Sign Up</h1>
+                            <Form id="logInEntryContainer">
+                                <div id="logInEntryContainer">
+                                    <Form.Control id="logInEntry" placeholder="Username"></Form.Control>
+                                </div>
+                                <div id="logInEntryContainer">
+                                    <Form.Control id="logInEntry" placeholder="Email" type="Email"></Form.Control>
+                                </div>
+                                <div id="logInEntryContainer">
+                                    <Form.Control id="logInEntry" placeholder="Password" type="Password"></Form.Control>
+                                </div>
+                                <div id="logInEntryContainer">
+                                    <Form.Control id="logInEntry" placeholder="Password" type="Password"></Form.Control>
+                                </div>
+                                <div id="logInEntryContainer">
+                                    <Button id="logInEntry" type="submit">Submit</Button>
+                                </div>
+                            </Form>
+                       </div>
                     </Col>
 
                     <Col></Col>

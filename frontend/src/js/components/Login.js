@@ -14,20 +14,24 @@ class Login extends Component {
       <Container>
         <Row className="align-items-center">
           <Col></Col>
+
           <Col className="text-center">
             <img src={corgiImage} />
             <div id="logInForm">
               <h1 id="logInLabel">Log In</h1>
-              <Form>
-                <Form.Control type="email" placeholder="Username/Email" />
-
-                <Form.Control type="password" placeholder="Password" />
-                <Form.Text className="text-muted">
-                  Forgot Password
-              </Form.Text>
-                <Button variant="primary" type="submit">
-                  Submit
-              </Button>
+              <Form id="logInEntryContainer">
+                <div id="logInEntryContainer">
+                  <Form.Control id="logInEntry" type="email" placeholder="Username/Email" />
+                </div>
+                <div id="logInEntryContainer">
+                  <Form.Control id="logInEntry" type="password" placeholder="Password" />
+                </div>
+                <div>
+                  <Form.Text className="text-muted">Forgot Password</Form.Text>
+                </div>
+                <div id="logInEntryContainer">
+                  <Button id="logInEntry" variant="primary" type="submit">Submit</Button>
+                </div>
               </Form>
             </div>
           </Col>
