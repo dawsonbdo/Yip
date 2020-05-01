@@ -23,13 +23,32 @@ body {
   /* outline-color: black;
   outline-style: solid; */
 }
-#signUp {
+
+.logInLabel {
   background-color: #F58725;
+  box-shadow: 0 0 0 1px black, 0 3px 3px grey;
+  border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
+  padding-bottom: 5px;
 }
 
-#registerForm {
+.logInForm {
   background-color: #E9E9E9;
-  border-radius: 25px;
-  outline-style: solid;
-  outline-color: black; 
+  box-shadow: 0 0 0 1px #E9E9E9;
+  border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 30px;
+  box-shadow: 0 3px 3px grey;
+}
+
+.logInEntry {
+  border-radius: 30px;
+  border: white; 
+  background-color: white;
+  color: grey;
+}
+
+.logInEntryContainer {
+  padding: 5px;
 }

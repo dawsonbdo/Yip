@@ -20,16 +20,26 @@ class Register extends Component {
                
                     <Col className="text-center">
                         <img src={corgi}></img>
-                        <div id="registerForm">
-                        <h1 id="signUp"> Sign Up</h1>
-                        <Form> 
-                            <FormControl placeholder="Username"></FormControl>
-                            <FormControl type="email" placeholder="Email"></FormControl>
-                            <FormControl type="password" placeholder="Password"></FormControl>
-                            <FormControl type="password" placeholder="Re-type Password"></FormControl>
-                            <Button type="submit">Submit</Button>
-                        </Form>
-                        </div>
+                        <div className="logInForm">
+                            <h1 className="logInLabel"> Sign Up</h1>
+                            <Form className="logInEntryContainer">
+                                <div className="logInEntryContainer">
+                                    <Form.Control className="logInEntry" placeholder="Username"></Form.Control>
+                                </div>
+                                <div className="logInEntryContainer">
+                                    <Form.Control className="logInEntry" placeholder="Email" type="Email"></Form.Control>
+                                </div>
+                                <div className="logInEntryContainer">
+                                    <Form.Control className="logInEntry" placeholder="Password" type="Password"></Form.Control>
+                                </div>
+                                <div className="logInEntryContainer">
+                                    <Form.Control className="logInEntry" placeholder="Password" type="Password"></Form.Control>
+                                </div>
+                                <div className="logInEntryContainer">
+                                    <Button className="logInEntry" type="submit">Submit</Button>
+                                </div>
+                            </Form>
+                       </div>
                     </Col>
 
                     <Col></Col>
