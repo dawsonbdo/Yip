@@ -19,3 +19,13 @@
 2. Do work
 3. Run 'cargo build' to compile
 4. Run 'cargo run'. Go to http://localhost:8000/.
+
+<h1>How to setup Database</h1>
+
+1. Install PostgreSQL here: https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+2. Remember the username and password you use when setting it up (default user is usually "postgres")
+3. Go to backend/.env and change the URL to have your username and password
+4. Navigate to backend folder
+5. Run 'cargo install diesel_cli --no-default-features --features postgres'
+6. Run 'diesel setup'
+7. Run 'diesel migration run'
