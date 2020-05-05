@@ -1,44 +1,21 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use] extern crate rocket;
+#[macro_use] extern crate diesel;
+#[macro_use] extern crate serde_derive;
 
+extern crate dotenv;
 extern crate rocket_contrib;
+extern crate r2d2;
+extern crate r2d2_diesel;
 
 use std::path::{Path, PathBuf};
-use rocket::response::content;
-use rocket::request::Form;
 use rocket::response::NamedFile;
-use std::fs;
 
-use std::fs::OpenOptions;
-use std::io::Write;
-
-use std::fs::File;
-use std::io::{self, BufRead};
-
-use std::hash::{Hash, Hasher};
-use std::collections::hash_map::DefaultHasher;
-
-#[derive(FromForm)]
-struct UserLogin {
-    login: String,
-    password: String,
-}
-
-// Handle login request
-#[post("/login", data="<input>", rank=1)]
-fn login(input: Form<UserLogin>) -> () {
-	println!("Username/Email: {}", input.login);
-	println!("Password: {}", input.password);
-}
-
-// Load home page for empty file path
-#[get("/<url>", rank=2)]
-fn url(url: String) -> Option<NamedFile> {
-	// Empty file path, give home page
-	//NamedFile::open(Path::new("static/pages/homepage.html")).ok()
-	NamedFile::open("static/pages/index.html").ok()
-}
+mod users;
+mod auth;
+mod schema;
+mod db;
 
 // Load home page for empty file path
 #[get("/")]
@@ -48,6 +25,14 @@ fn home() -> Option<NamedFile> {
 	NamedFile::open("static/pages/index.html").ok()
 }
 
+// Load home page for random URL
+#[get("/<_url>", rank=2)]
+fn url(_url: String) -> Option<NamedFile> {
+	// Random file path, give home page
+	NamedFile::open("static/pages/index.html").ok()
+}
+
+
 // Generic static file access
 #[get("/<file..>", rank = 3)]
 fn files(file: PathBuf) -> Option<NamedFile> {
@@ -56,7 +41,16 @@ fn files(file: PathBuf) -> Option<NamedFile> {
 }
 
 fn rocket() -> rocket::Rocket {
-    rocket::ignite().mount("/", routes![files, home, url, login])
+    // Set up db management and mount main routes
+    let mut rocket = rocket::ignite()
+    	.manage(db::init_pool())
+    	.mount("/", routes![files, home, url]);
+
+    // Mount rest of routes
+    rocket = users::mount(rocket);
+
+    // Return the Rocket
+    return rocket;
 }
 
 fn main() {
