@@ -20,15 +20,17 @@
 3. Run 'cargo build' to compile
 4. Run 'cargo run'. Go to http://localhost:8000/.
 
-<h1>How to setup Database</h1>
+<h1>How to view database</h1>
 
 1. Install PostgreSQL here: https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
-2. Remember the username and password you use when setting it up (default user is usually "postgres")
-3. Go to backend/.env and change the URL to have your username and password
-4. Go to backend/src/db.rs and change the URL on line 17 to have your username and password
-5. If on Windows, go to C:/Program Files/PostgresQL/12 (or whatever version) and run pg_env.bat 
-6. Navigate to backend folder in terminal
-8. Run 'cargo install diesel_cli --no-default-features --features postgres'
-9. If you got any errors with the above step, message Sachinda 
-10. Run 'diesel setup'
-11. Run 'diesel migration run'
+2. Open pgAdmin
+3. Navigate to the dashboard and "Add New Server"
+4. Enter whatever name
+5. Navigate to "Connection"
+6. Place this in the host name/address: yip.cdcryg67tbhj.us-east-2.rds.amazonaws.com
+7. Username: postgres
+8. Password: yipyipdb
+9. Hit "Save"
+10. On the File Browser to the left, navigate to the newly connected database
+11. Go to Databases -> postgres -> Schemas -> Tables
+12. Right click on any table and select "View/Edit Data" to view table contents.
