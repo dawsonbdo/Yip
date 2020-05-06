@@ -5,6 +5,7 @@
 3. Run 'npm run build'
 
 <h3>Installing Postgresql and diesel</h3>
+
 1. Install PostgreSQL for your OS here: https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 2. IF YOU'RE ON WINDOWS: Run the batch file here C:\Program Files\PostgreSQL\12\pg_env.bat or wherever you installed postgresql
 3. IF YOU'RE ON UBUNTU: Run this command 'sudo apt install libpq-dev libmysqlclient-dev'
@@ -28,6 +29,7 @@
 4. Run 'cargo run'. Go to http://localhost:8000/.
 
 <h1>How to view database</h1>
+
 1. Open pgAdmin
 2. Navigate to the dashboard and "Add New Server"
 3. Enter whatever name
