@@ -1,14 +1,17 @@
 import React, {Component} from 'react';
+import {Link} from 'react-router-dom';
 
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
+import Image from 'react-bootstrap/Image';
 
-import corgi from '../../assets/corgi_shadow.png';
+import homeIcon from '../../assets/home.png';
+import commentIcon from '../../assets/comment.png';
 
-class Register extends Component {
+class ReviewCard extends Component {
     render() {
         return (
             <Container className="pb-5">
@@ -42,7 +45,8 @@ class Register extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <h4 className="text-left pt-2 pl-2">Kennel</h4>
+                                                <Link to="/"><Image className="float-left" src={commentIcon} /></Link>
+                                                <Link to="/"><Image className="float-left" src={homeIcon} /></Link>
                                             </Col>
                                             <Col>
                                                 <h4 className="text-right pt-2 pl-2">Wag/Growl</h4>
@@ -60,4 +64,4 @@ class Register extends Component {
     }
 }
 
-export default Register
+export default ReviewCard
