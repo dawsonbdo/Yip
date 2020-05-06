@@ -14,7 +14,7 @@ pub fn init_pool() -> Pool {
 }
 
 fn database_url() -> String {
-    return "postgres://postgres:troll1234@localhost/backend".to_string();
+    return "postgres://username:password@localhost/backend".to_string();
 }
 
 pub struct DbConn(pub r2d2::PooledConnection<ConnectionManager<PgConnection>>);
