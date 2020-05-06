@@ -25,7 +25,10 @@
 1. Install PostgreSQL here: https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 2. Remember the username and password you use when setting it up (default user is usually "postgres")
 3. Go to backend/.env and change the URL to have your username and password
-4. Navigate to backend folder
-5. Run 'cargo install diesel_cli --no-default-features --features postgres'
-6. Run 'diesel setup'
-7. Run 'diesel migration run'
+4. Go to backend/src/db.rs and change the URL on line 17 to have your username and password
+5. If on Windows, go to C:/Program Files/PostgresQL/12 (or whatever version) and run pg_env.bat 
+6. Navigate to backend folder in terminal
+8. Run 'cargo install diesel_cli --no-default-features --features postgres'
+9. If you got any errors with the above step, message Sachinda 
+10. Run 'diesel setup'
+11. Run 'diesel migration run'
