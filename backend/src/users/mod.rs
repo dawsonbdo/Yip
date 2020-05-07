@@ -25,6 +25,14 @@ fn error_status(error: Error) -> Status {
 }
 */
 
+
+// Struct with token and password for reseting
+#[derive(Queryable, Serialize, Deserialize)]
+struct TokenPassword {
+    token: String,
+    password: String,
+}
+
 /**
  * Return whether the user is logged in
  * @param token: the jwt used to verify if logged in
@@ -66,30 +74,39 @@ fn list_users(connection: DbConn) -> () {
 
 }
 
-/**
- * Handle register request
+/** 
+ * Handle password reset
  * @param user: the Json representation of a User
  *
- * @return returns a String with authentication token if successfully
- * registered or a fail message
+ * @return returns true or false indicating if password changed sucessfuly
  */
-#[post("/register", data="<user>", rank=1)]
-fn register(user: Json<User>, connection: DbConn) -> String {
-	
-	// Attempt to insert user into database 
-	let successful_registration = handlers::insert(user.into_inner(), &connection);
-	
-    // Return authentication token if successful
-    if successful_registration {
+#[post("/recover_password", data="<user>", rank=1)]
+fn recover_password(user: Json<User>, connection: DbConn) -> String {
 
-    	return auth::create_token();
+	// Get uuid of username/email if they are linked to same account
+	let id = handlers::username_email_linked(&user.username, &user.email, &connection);
 
-    } else { // Return failure if unsuccessful registration
+	// Check that valid id was found
+	if id != uuid::Uuid::nil() {
 
-    	return "loginfail".to_string();
+		// Attempt to change password
+		let successful_change = handlers::update(id, &user.password, &connection);
 
-    }
+		// Prints whether login was successful (indicated by non nill uuid)
+		println!("Password reset {}", successful_change);
 
+		// Returns true if successfully changed
+		if successful_change {
+    		return "true".to_string();
+		}
+	}
+
+	// Prints whether login was successful (indicated by non nill uuid)
+	println!("Password reset failed");
+
+
+	// Return false if unsucessful
+	return "false".to_string();
 }
 
 /** 
@@ -105,13 +122,13 @@ fn login(user: Json<User>, connection: DbConn) -> String {
 	// Attempt to login user by reading database
 	let successful_login = handlers::get(user.into_inner(), &connection);
 
-	// Prints whether login was successful
+	// Prints whether login was successful (indicated by non nill uuid)
 	println!("Login {}", successful_login);
-
+	
 	// Return authentication token if successful login
-	if successful_login {
+	if successful_login != uuid::Uuid::nil() {
 
-    	return auth::create_token();
+    	return auth::create_token(successful_login);
 
 	} else { // Return failure if unsucessful
 	
@@ -122,9 +139,34 @@ fn login(user: Json<User>, connection: DbConn) -> String {
 }
 
 /**
+ * Handle register request
+ * @param user: the Json representation of a User
+ *
+ * @return returns a String with authentication token if successfully
+ * registered or a fail message
+ */
+#[post("/register", data="<user>", rank=1)]
+fn register(user: Json<User>, connection: DbConn) -> String {
+	
+	// Attempt to insert user into database 
+	let successful_registration = handlers::insert(user.into_inner(), &connection);
+	
+    // Return authentication token if successful
+    if successful_registration != uuid::Uuid::nil() {
+
+    	return auth::create_token(successful_registration);
+
+    } else { // Return failure if unsuccessful registration
+
+    	return "loginfail".to_string();
+
+    }
+
+}
+
+/**
  * Mount the user routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket
-        .mount("/", routes![login, register, list_users, auth_test])  
+    rocket.mount("/", routes![login, register, recover_password, list_users, auth_test])  
 }

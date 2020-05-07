@@ -5,9 +5,9 @@ import axios from 'axios';
  * multiple components in the frontend
  */
 
-// Creates a JSON with the User object used in database
+// Creates a JSON User object
 export function createUserJson(username = "", email = "", password = "") {
-    var form = {id: '12345678-1234-4321-4321-123456701234', username: username, email: email, password: password, profilepic: "", sitewideban: false};
+    var form = {username: username, email: email, password: password};
     return form
 };
 

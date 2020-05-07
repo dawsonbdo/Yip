@@ -1,4 +1,13 @@
 table! {
+    kennels (id) {
+        id -> Uuid,
+        name -> Varchar,
+        tags -> Array<Text>,
+        mods -> Array<Uuid>,
+    }
+}
+
+table! {
     reviews (id) {
         id -> Uuid,
         kennelid -> Uuid,
@@ -24,6 +33,7 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
+    kennels,
     reviews,
     users,
 );

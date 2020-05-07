@@ -21,9 +21,42 @@ class Login extends Component {
     this.attemptLogin = this.attemptLogin.bind(this);
   }
 
+
   /**
-    * Function handler for login submit button
-    */ 
+   * Function handler for recovering password, MOVE TO RecoverPassword.js when ready
+   */
+  /*
+  recoverPassword(){
+    // Get the email, username, and password
+    var email = document.getElementById('email').value;
+    var username = document.getElementById('username').value;
+    var password = document.getElementById('password').value
+
+    var form = createUserJson(username, email, password);
+
+    // TODO: Check if any fields empty/passwords same possibly?
+
+    // Send POST request with username, email, and password
+    axios({
+      method: 'post',
+      url: '/recover_password',
+      data: form
+    }).then((response) => {
+  
+      // TODO: Redirect to login screen if successful
+      if ( response.data ){
+  
+      } else {
+  
+      }
+      
+    });
+  }
+  */
+
+  /**
+   * Function handler for login submit button
+   */ 
   attemptLogin(){
 
     // Parses login form with username/email and password
@@ -32,7 +65,7 @@ class Login extends Component {
     var password = document.getElementById('password').value
     var form = createUserJson(username, email, password);
 
-    // TODO: Check if any fields empty?
+    // TODO: Check if any fields empty/matching pw
 
     // Send POST request with username, email, and password
     axios({

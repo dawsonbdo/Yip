@@ -13,6 +13,7 @@ use std::path::{Path, PathBuf};
 use rocket::response::NamedFile;
 
 mod users;
+//mod reviews;
 mod auth;
 mod schema;
 mod db;
@@ -21,7 +22,6 @@ mod db;
 #[get("/")]
 fn home() -> Option<NamedFile> {
 	// Empty file path, give home page
-	//NamedFile::open(Path::new("static/pages/homepage.html")).ok()
 	NamedFile::open("static/pages/index.html").ok()
 }
 
@@ -48,6 +48,7 @@ fn rocket() -> rocket::Rocket {
 
     // Mount rest of routes
     rocket = users::mount(rocket);
+    //rocket = reviews::mount(rocket);
 
     // Return the Rocket
     return rocket;

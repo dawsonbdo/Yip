@@ -1,32 +1,44 @@
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
+// Struct used for creating tokens
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
-    sub: String,
+    sub: uuid::Uuid, // uuid tied to username
     company: String,
     exp: usize,
 }
 
-pub fn create_token() -> String {
+// Function that creates a token using a UUID as payload and CORGI
+pub fn create_token(id: uuid::Uuid) -> String {
     let key = b"secret";
     let my_claims =
-        Claims { sub: "yip.com".to_owned(), company: "CORGI".to_owned(), exp: 10000000000 };
+        Claims { sub: id, company: "CORGI".to_owned(), exp: 10000000000 };
     let _token = match encode(&Header::default(), &my_claims, &EncodingKey::from_secret(key)) {
         Ok(t) => return t,
-        Err(e) => return e.to_string(), // in practice you would return the error
+        Err(e) => return e.to_string(), // returns the error
     };
 }
 
+// Function that validates a token
 pub fn validate_token(token: String) -> bool {
-    //println!("TOKEN: {}", token);
-
     let key = b"secret";
-    let validation = Validation { sub: Some("yip.com".to_string()), ..Validation::default() };
+    let validation = Validation { leeway: 60, ..Validation::default() };
     let _token_data = match decode::<Claims>(&token, &DecodingKey::from_secret(key), &validation) {
         Ok(_c) => return true,
         Err(_err) => return false,
     };
 }
+
+// Function that returns the uuid of a user given their token
+pub fn get_uuid_from_token(token: &str) -> uuid::Uuid {
+    let key = b"secret";
+    let validation = Validation { leeway: 60, ..Validation::default() };
+    let _token_data = match decode::<Claims>(token, &DecodingKey::from_secret(key), &validation) {
+        Ok(d) => return d.claims.sub,
+        Err(_e) => return uuid::Uuid::nil(),
+    };
+}
+
 
     
