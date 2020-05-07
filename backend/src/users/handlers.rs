@@ -77,17 +77,27 @@ pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> uuid
  */
 pub fn insert(user: User, connection: &PgConnection) -> uuid::Uuid {
     // Prints the User information that was received (register)
-    println!("Email: {}", user.email);
     println!("Username: {}", user.username);
+    println!("Email: {}", user.email);
     println!("Password: {}", user.password);
 
-    // Inserts user into database if email or username not taken, returns uuid generated
-    match diesel::insert_into(users::table)
+    // Searches columns for user with username and email and gets User if found
+    let username_search = users::table.filter(users::username.eq(user.username.clone())).load::<DbUser>(&*connection).expect("Error");
+    let email_search = users::table.filter(users::email.eq(user.email.clone())).load::<DbUser>(&*connection).expect("Error");
+
+    // Inserts user into database if email or username not taken, returns uuid generated    
+    if (username_search.iter().len() + email_search.iter().len()) == 0 {
+        match diesel::insert_into(users::table)
         .values(&DbUser::from_user(user))
         .get_result::<DbUser>(connection) {
             Ok(u) => return u.id,
             Err(_e) => return uuid::Uuid::nil(),
         }
+    }
+
+    // Returns nil uuid if not found
+    return uuid::Uuid::nil();
+    
 }
 
 /**

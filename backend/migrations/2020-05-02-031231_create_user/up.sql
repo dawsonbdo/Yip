@@ -5,6 +5,5 @@ CREATE TABLE users (
   email VARCHAR NOT NULL,
   password VARCHAR NOT NULL,
   profilepic VARCHAR NOT NULL,
-  sitewideban BOOLEAN NOT NULL,
-  unique(id, username, email)
+  sitewideban BOOLEAN NOT NULL
 );
