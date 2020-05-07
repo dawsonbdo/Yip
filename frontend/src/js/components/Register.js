@@ -46,7 +46,7 @@ class Register extends Component {
 
             } else {
 
-                // TODO: Update front end indicating failed login
+                // TODO: Update front end indicating failed register
 
             }
 

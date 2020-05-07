@@ -81,9 +81,8 @@ class Login extends Component {
         localStorage.setItem('jwtToken', response.data);
 
       } else {
-
         // TODO: Indicate failed login
-
+        //response.data;
       }
       
     });
