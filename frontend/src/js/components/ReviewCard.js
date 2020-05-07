@@ -9,6 +9,8 @@ import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 
 import homeIcon from '../../assets/home.png';
+import likeIcon from '../../assets/like.png';
+import dislikeIcon from '../../assets/dislike.png';
 import commentIcon from '../../assets/comment.png';
 
 class ReviewCard extends Component {
@@ -49,7 +51,8 @@ class ReviewCard extends Component {
                                                 <Link to="/"><Image className="float-left" src={homeIcon} /></Link>
                                             </Col>
                                             <Col>
-                                                <h4 className="text-right pt-2 pl-2">Wag/Growl</h4>
+                                                <Link to="/"><Image className="float-right" src={likeIcon} /></Link>
+                                                <Link to="/"><Image className="float-right" src={dislikeIcon} /></Link>
                                             </Col>
                                         </Row>
                                     </Container>
