@@ -11,11 +11,12 @@ body {
 }
 
 #spaceNav {
-  padding-bottom: 50px;
+  padding-bottom: 60px;
 }
 
 #jumbotron {
   background-color: antiquewhite;
+  padding-bottom: 0px;
 }
 
 #logInLabel {
