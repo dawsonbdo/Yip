@@ -107,7 +107,7 @@ class Login extends Component {
                   <Form.Control id="password" className="logInEntry" type="password" placeholder="Password" />
                 </div>
                 <div>
-                  <Link><Button variant="link">Forgot Password?</Button></Link>
+                  <Link to="/recoverpassword"><Button variant="link">Forgot Password?</Button></Link>
                 </div>
                 <div className="logInEntryContainer">
                   <Button onClick={this.attemptLogin} className="logInEntry" variant="primary" >Submit</Button>
