@@ -117,7 +117,7 @@ fn recover_password(user: Json<User>, connection: DbConn) -> String {
  * registered or a fail message
  */
 #[post("/login", data="<user>", rank=1)]
-fn login(user: Json<User>, connection: DbConn) -> String {
+fn login(user: Json<User>, connection: DbConn) -> Result<String, ()> { //TODO return meaningful information on error
 
 	// Attempt to login user by reading database
 	let successful_login = handlers::get(user.into_inner(), &connection);
@@ -127,15 +127,12 @@ fn login(user: Json<User>, connection: DbConn) -> String {
 	
 	// Return authentication token if successful login
 	if successful_login != uuid::Uuid::nil() {
-
-    	return auth::create_token(successful_login);
-
+    	if let Ok(str) = auth::create_token(successful_login) {
+			Result::Ok(str)
+		} else { Result::Err(())}
 	} else { // Return failure if unsucessful
-	
-		return "loginfail".to_string();
-
+		Result::Err(())
 	}
-
 }
 
 /**
@@ -153,12 +150,14 @@ fn register(user: Json<User>, connection: DbConn) -> String {
 	
     // Return authentication token if successful
     if successful_registration != uuid::Uuid::nil() {
-
-    	return auth::create_token(successful_registration);
+		match  auth::create_token(successful_registration) {
+			Ok(str) => str,
+			Err(err) => err.to_string() // TODO return an Option or Result
+		}
 
     } else { // Return failure if unsuccessful registration
 
-    	return "loginfail".to_string();
+    	"loginfail".to_string()
 
     }
 
