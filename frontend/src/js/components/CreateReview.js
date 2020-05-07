@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
-
+import ImageUploader from 'react-images-upload';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
@@ -9,6 +9,8 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import corgiImage from '../../assets/corgi_shadow.png';
+import likeIcon from '../../assets/like.png';
+import dislikeIcon from '../../assets/dislike.png'
 
 import axios from 'axios' 
 
@@ -58,6 +60,18 @@ class CreateReview extends Component {
 //     });
 //   }
 
+  constructor(props) {
+    super(props);
+    this.state = { pictures: [] };
+    this.onDrop = this.onDrop.bind(this);
+  }
+
+  onDrop(picture) {
+    this.setState({
+      pictures: this.state.pictures.concat(picture)
+    });
+  }
+
   render() {
     return (
       <Container fluid>
@@ -75,12 +89,7 @@ class CreateReview extends Component {
                   <Form.Control id="password" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" />
                 </div>
                 <div className="logInEntryContainer">
-                    <ButtonToolbar>
-                        <ButtonGroup className="mx-auto" aria-label="First group">
-                            <Button>Wag</Button> 
-                            <Button className="ml-2">Growl</Button> 
-                        </ButtonGroup>
-                    </ButtonToolbar>
+                  <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'}/>
                 </div>
                 <div>
                   <Link><Button variant="link">Forgot Password?</Button></Link>
