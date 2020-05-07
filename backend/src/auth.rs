@@ -1,4 +1,4 @@
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation, errors::Result};
 use serde::{Deserialize, Serialize};
 
 // Struct used for creating tokens
@@ -10,14 +10,11 @@ struct Claims {
 }
 
 // Function that creates a token using a UUID as payload and CORGI
-pub fn create_token(id: uuid::Uuid) -> String {
+pub fn create_token(id: uuid::Uuid) -> Result<String> {
     let key = b"secret";
     let my_claims =
         Claims { sub: id, company: "CORGI".to_owned(), exp: 10000000000 };
-    let _token = match encode(&Header::default(), &my_claims, &EncodingKey::from_secret(key)) {
-        Ok(t) => return t,
-        Err(e) => return e.to_string(), // returns the error
-    };
+    encode(&Header::default(), &my_claims, &EncodingKey::from_secret(key)) 
 }
 
 // Function that validates a token

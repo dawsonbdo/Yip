@@ -81,7 +81,7 @@ fn list_users(connection: DbConn) -> () {
  * @return returns true or false indicating if password changed sucessfuly
  */
 #[post("/recover_password", data="<user>", rank=1)]
-fn recover_password(user: Json<User>, connection: DbConn) -> String {
+fn recover_password(user: Json<User>, connection: DbConn) -> String { //has to return a String for frontend reasons
 
 	// Get uuid of username/email if they are linked to same account
 	let id = handlers::username_email_linked(&user.username, &user.email, &connection);
@@ -113,11 +113,11 @@ fn recover_password(user: Json<User>, connection: DbConn) -> String {
  * Handle login request
  * @param user: the Json representation of a User
  *
- * @return returns a String with authentication token if successfully
- * registered or a fail message
+ * @return returns a Result::Ok with authentication token if successfully
+ * registered
  */
 #[post("/login", data="<user>", rank=1)]
-fn login(user: Json<User>, connection: DbConn) -> String {
+fn login(user: Json<User>, connection: DbConn) -> Result<String, Option<jsonwebtoken::errors::Error>> { //TODO: more sophisticated Error types
 
 	// Attempt to login user by reading database
 	let successful_login = handlers::get(user.into_inner(), &connection);
@@ -127,39 +127,39 @@ fn login(user: Json<User>, connection: DbConn) -> String {
 	
 	// Return authentication token if successful login
 	if successful_login != uuid::Uuid::nil() {
-
-    	return auth::create_token(successful_login);
-
+		match auth::create_token(successful_login) {
+			Result::Ok(str) => Result::Ok(str),
+			Result::Err(err) => Result::Err(Option::Some(err))
+		}
 	} else { // Return failure if unsucessful
-	
-		return "loginfail".to_string();
-
+		Result::Err(Option::None)
 	}
-
 }
 
 /**
  * Handle register request
  * @param user: the Json representation of a User
  *
- * @return returns a String with authentication token if successfully
- * registered or a fail message
+ * @return returns a Result::Ok with authentication token if successfully
+ * registered
  */
 #[post("/register", data="<user>", rank=1)]
-fn register(user: Json<User>, connection: DbConn) -> String {
+fn register(user: Json<User>, connection: DbConn) -> Result<String, Option<jsonwebtoken::errors::Error>> { //TODO return meaningful information on error
 	
 	// Attempt to insert user into database 
 	let successful_registration = handlers::insert(user.into_inner(), &connection);
 	
     // Return authentication token if successful
     if successful_registration != uuid::Uuid::nil() {
-
-    	return auth::create_token(successful_registration);
+		match  auth::create_token(successful_registration) {
+			Result::Ok(str) => Result::Ok(str),
+			Result::Err(err) => Result::Err(Option::Some(err)) // TODO return an Option or Result
+		}
 
     } else { // Return failure if unsuccessful registration
 
-    	return "loginfail".to_string();
-
+    	// "loginfail".to_string()
+		Result::Err(Option::None)
     }
 
 }

@@ -4,6 +4,7 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 import Button from 'react-bootstrap/Button';
 import ReviewCard  from './ReviewCard';
 import YipNavBar from "./YipNavBar";
+import CommentCard from './CommentCard';
 
 import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
 
@@ -51,6 +52,7 @@ class Home extends Component {
                <ReviewCard />
                <ReviewCard />
                <ReviewCard />
+               <CommentCard />
             </div>
         )
     }
