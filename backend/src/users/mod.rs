@@ -6,6 +6,8 @@ use crate::db;
 use handlers::User;
 use rocket_contrib::json::Json;
 
+use rocket::response::status;
+
 use db::DbConn;
 
 /*
@@ -147,13 +149,27 @@ fn login(user: Json<User>, connection: DbConn) -> String { //TODO: more sophisti
  * registered
  */
 #[post("/register", data="<user>", rank=1)]
-fn register(user: Json<User>, connection: DbConn) -> String { //TODO return meaningful information on error
+fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conflict<String>> { //TODO return meaningful information on error
 	
 	// Result<String, Option<jsonwebtoken::errors::Error>>
 
 	// Attempt to insert user into database 
 	let successful_registration = handlers::insert(user.into_inner(), &connection);
 	
+	// Check if successful insertion into database
+	match successful_registration {
+
+		// Successfully registered, create token using id and return it
+		Ok(id) => match auth::create_token(id) {
+					Ok(t) => Ok(t), 
+					Err(e) => Err(status::Conflict(Some(e.to_string()))), // TODO return an Option or Result
+				 },
+		// Unsuccessful registration, return the array indicating existing fields
+		Err(e) => Err(status::Conflict(Some(e.to_string()))),
+	}
+
+	/*
+
     // Return authentication token if successful
     if successful_registration != uuid::Uuid::nil() {
 		match  auth::create_token(successful_registration) {
@@ -162,10 +178,14 @@ fn register(user: Json<User>, connection: DbConn) -> String { //TODO return mean
 		}
 
     } else { // Return failure if unsuccessful registration
-
+    	println!("ERROR: {}", successful_registration);
     	"loginfail".to_string()
 		//Result::Err(Option::None)
     }
+
+    */
+
+    //"loginfail".to_string()
 
 }
 

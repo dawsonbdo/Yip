@@ -1,5 +1,6 @@
 use diesel;
 use diesel::prelude::*;
+use diesel::result::Error;
 use crate::schema::users;
 
 extern crate bcrypt;
@@ -75,7 +76,7 @@ pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> uuid
  * REGISTER: Method that attempts to create a new user in database 
  * if unique user/email and returns if successful
  */
-pub fn insert(user: User, connection: &PgConnection) -> uuid::Uuid {
+pub fn insert(user: User, connection: &PgConnection) -> Result<uuid::Uuid, String> {
     // Prints the User information that was received (register)
     println!("Username: {}", user.username);
     println!("Email: {}", user.email);
@@ -85,18 +86,32 @@ pub fn insert(user: User, connection: &PgConnection) -> uuid::Uuid {
     let username_search = users::table.filter(users::username.eq(user.username.clone())).load::<DbUser>(&*connection).expect("Error");
     let email_search = users::table.filter(users::email.eq(user.email.clone())).load::<DbUser>(&*connection).expect("Error");
 
-    // Inserts user into database if email or username not taken, returns uuid generated    
-    if (username_search.iter().len() + email_search.iter().len()) == 0 {
+    // Creates vector for indicating missing fields
+    let mut errMsg = "".to_string();
+
+    // Username already exists
+    if username_search.iter().len() > 0 {
+        errMsg += "username";
+    }
+
+    // Email already exists
+    if email_search.iter().len() > 0 {
+        errMsg += "email";
+    }
+
+    // Inserts user into database, returns uuid generated    
+    if errMsg.eq("") {
         match diesel::insert_into(users::table)
         .values(&DbUser::from_user(user))
         .get_result::<DbUser>(connection) {
-            Ok(u) => return u.id,
-            Err(_e) => return uuid::Uuid::nil(),
+            Ok(u) => return Ok(u.id),
+            Err(e) => return Err(errMsg),
         }
     }
+    
+    return Err(errMsg);
 
-    // Returns nil uuid if not found
-    return uuid::Uuid::nil();
+    
     
 }
 

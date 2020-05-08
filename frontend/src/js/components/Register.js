@@ -50,6 +50,10 @@ class Register extends Component {
         var repassword = document.getElementById('repassword').value;
         var form = createUserJson(username, email, password);
 
+        // TODO: Check that email and username don't contain whitespace or 
+        //       other unaccepted characters
+
+        // Check that passwords match
         if (password !== repassword) {
             alert('Passwords do not match!');
             return;
@@ -60,18 +64,22 @@ class Register extends Component {
             method: 'post',
             url: '/register',
             data: form
-        }).then((response) => {
+        }).then(response => {
 
-            // If successfully logged in, set access token
-            if (!(response.data == "loginfail")) {
+            // Successfuly logged in, store access token
+            localStorage.setItem('jwtToken', response.data);
 
-                // Store token in local storage
-                localStorage.setItem('jwtToken', response.data);
-                this.setState({ redirect: "/login" });
-            } else {
-                // this.setState({ redirect: "/login" });
-                alert('Username or Email already registered!');
-            }
+            // Redirect to login after registering
+            this.setState({ redirect: "/login" });
+        
+        }).catch(error => {
+
+            // Username or email already exist
+            alert('Username or Email already registered!');
+
+            // This is how to check if username is taken and/or email is taken
+            console.log("User Taken: " + error.response.data.includes("username"));
+            console.log("Email Taken: " + error.response.data.includes("email"));
         });
     }
 
