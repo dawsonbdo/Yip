@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -26,21 +27,17 @@ class ReviewCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <h4 className="text-left pt-2 pl-2">Review</h4>
+                                                <h4 className="text-left pt-2 pl-2">{this.props.reviewName}</h4>
                                             </Col>
                                             <Col>
-                                                <h4 className="text-right pt-2 pl-2">ReviewerName</h4>
+                                                <h4 className="text-right pt-2 pl-2">{this.props.reviewerName}</h4>
                                             </Col>
                                         </Row>
                                     </Container>
                                 </div>
                                 <Form className="logInEntryContainer">
                                     <div className="logInEntryContainer">
-                                        <p>akjahjakjhflkahkljfalkjfhkahfjak
-                                            djahdkjakldakljdkjakjahlkdjakljdhakj
-                                            adhakjdlajkdkjahkdhadhad
-                                            ahskjlfahskjfakjlhflkajhkljgajga
-                                        </p>
+                                        <p>{this.props.reviewPreview}</p>
                                     </div>
                                 </Form>
                                 <div className="bottomLabel">
@@ -68,3 +65,9 @@ class ReviewCard extends Component {
 }
 
 export default ReviewCard
+
+ReviewCard.propTypes = {
+    reviewName: PropTypes.string.isRequired,
+    reviwerName: PropTypes.string.isRequired,
+    reviewPreview: PropTypes.string.isRequired
+}

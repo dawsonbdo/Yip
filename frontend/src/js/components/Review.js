@@ -19,8 +19,8 @@ class Review extends Component {
 			<div>
 				<YipNavBar />
 				<Jumbotron id="jumbotron" className="text-left">
-					<h1>Review Name</h1>
-					<h4>Reviewer Name</h4>
+					<h1>{this.props.reviewName}</h1>
+					<h4>{this.props.reviewerName}</h4>
 				</Jumbotron>
 
 				<Row className="reviewContent">
@@ -40,7 +40,7 @@ class Review extends Component {
 							<h3 className="logInLabel pt-2 pb-2">Leave a Comment</h3>
 							<Form className="logInEntryContainer">
 								<div className="logInEntryContainer">
-									<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="This is a good review!" />
+									<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" />
 								</div>
 								<div className="logInEntryContainer">
 									<Button className="logInEntry" variant="primary">Post</Button>
@@ -51,9 +51,9 @@ class Review extends Component {
 					<Col></Col>
 				</Row>
 
-				<CommentCard />
-				<CommentCard />
-				<CommentCard />
+				<CommentCard commenterName={"Name"} commentText={"Comment"} />
+				<CommentCard commenterName={"Name"} commentText={"Comment"} />
+				<CommentCard commenterName={"Name"} commentText={"Comment"} />
 			</div>
 		);
 	}
@@ -61,8 +61,9 @@ class Review extends Component {
 
 export default Review;
 
-
 Review.propTypes = {
+	reviewName: PropTypes.string.isRequired,
+	reviewerName: PropTypes.string.isRequired,
 	reviewText: PropTypes.string.isRequired,
 	reviewImg: PropTypes.string.isRequired
 };

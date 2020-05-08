@@ -10,7 +10,7 @@ import CreateReview from "./components/CreateReview"
 import RecoverPassword from './components/RecoverPassword';
 import Review from './components/Review';
 
-const temp = 'Ralof: Hey, you. You\'re finally awake. You were trying to cross the border, \
+const temp = ['Ralof: Hey, you. You\'re finally awake. You were trying to cross the border, \
 							right? Walked right into that Imperial ambush, same as us, and that \
 							thief over there. \
 							<br /> <br />  \
@@ -43,7 +43,7 @@ const temp = 'Ralof: Hey, you. You\'re finally awake. You were trying to cross t
 							<br /> <br /> \
 							Ralof: A Nord\'s last thoughts should be of home. \
 							<br /> <br /> \
-							Lokir: Rorikstead. I\'m...I\'m from Rorikstead."';
+							Lokir: Rorikstead. I\'m...I\'m from Rorikstead."', ['https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/ToddHoward2010sm_%28cropped%29.jpg/640px-ToddHoward2010sm_%28cropped%29.jpg']];
 
 function App() {
   
@@ -56,7 +56,7 @@ function App() {
           <Route path="/register" exact component={Register} />
           <Route path="/createreview" exact component={CreateReview} />
           <Route path="/recoverpassword" exact component={RecoverPassword} />
-          <Route path="/review" render={(props) => <Review reviewText={temp} reviewImg={['https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/ToddHoward2010sm_%28cropped%29.jpg/640px-ToddHoward2010sm_%28cropped%29.jpg']} {...props} />} />
+          <Route path="/review" render={(props) => <Review reviewName={"Buy Skyrim"} reviewerName={"Todd Howard"} reviewText={temp[0]} reviewImg={temp[1]} {...props} />} />
         </Switch>
       </div>
     </Router>

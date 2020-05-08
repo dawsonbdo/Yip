@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-
+import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -20,15 +20,14 @@ class CommentCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <h4 className="text-left pt-2 pl-2">Name of Commenter</h4>
+                                                <h4 className="text-left pt-2 pl-2">{this.props.commenterName}</h4>
                                             </Col>
                                         </Row>
                                     </Container>
                                 </div>
                                 <Form className="logInEntryContainer">
                                     <div className="logInEntryContainer">
-                                        <p>comment! comment! comment! comment! comment! comment! comment! comment! comment! comment!
-                                        </p>
+                                        <p>{this.props.commentText}</p>
                                     </div>
                                     <Container>
                                         <Row>
@@ -49,3 +48,8 @@ class CommentCard extends Component {
 }
 
 export default CommentCard
+
+CommentCard.propTypes = {
+    commenterName: PropTypes.string.isRequired,
+    commentText: PropTypes.string.isRequired
+}
