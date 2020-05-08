@@ -20,6 +20,7 @@ class Login extends Component {
 
     this.state = {
       redirect: null,
+      validated: false
     };
 
     // Binds button handler
@@ -29,13 +30,26 @@ class Login extends Component {
   /**
    * Function handler for login submit button
    */
-  attemptLogin() {
+  attemptLogin(event) {
+        var registerForm = event.currentTarget;
+        if (registerForm.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        this.setState({ validated: true });
 
     // Parses login form with username/email and password
     var email = document.getElementById('login').value;
     var username = document.getElementById('login').value;
     var password = document.getElementById('password').value
     var form = createUserJson(username, email, password);
+
+    // Check if any fields empty
+    // if (email === "" || password === "") {
+    //   alert("Empty fields.");
+    //   return;
+    // }
 
     // Send POST request with username, email, and password
     axios({
@@ -53,13 +67,11 @@ class Login extends Component {
 
       } else {
         // TODO: Indicate failed login
-        //response.data;
-        alert("Incorrect username or password.");
+        // this.setState({ redirect: "/" });
+                alert('Username or Password incorrect!');
       }
 
     });
-
-
   }
 
   render() {
@@ -75,18 +87,18 @@ class Login extends Component {
               <Link to="/"><img src={corgiImage} /></Link>
               <div className="logInForm">
                 <h1 className="logInLabel">Log In</h1>
-                <Form onSubmit={this.attemptLogin} className="logInEntryContainer">
+                <Form noValidate validated={this.state.validated} onSubmit={this.attemptLogin} className="logInEntryContainer">
                   <div className="logInEntryContainer">
-                    <Form.Control id="login" className="logInEntry" placeholder="Username/Email" required/>
+                    <Form.Control id="login" className="logInEntry" type="email" placeholder="Username/Email" required />
                   </div>
                   <div className="logInEntryContainer">
-                    <Form.Control id="password" className="logInEntry" type="password" placeholder="Password" required/>
+                    <Form.Control id="password" className="logInEntry" type="password" placeholder="Password" required />
                   </div>
                   <div>
                     <Link to="/recoverpassword"><Button variant="link">Forgot Password?</Button></Link>
                   </div>
                   <div className="logInEntryContainer">
-                    <Button className="logInEntry" type="submit">Submit</Button>
+                    <Button className="logInEntry" type="submit" variant="primary" >Submit</Button>
                   </div>
                 </Form>
               </div>
