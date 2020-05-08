@@ -83,7 +83,7 @@ fn list_users(connection: DbConn) -> () {
  * @return returns true or false indicating if password changed sucessfuly
  */
 #[post("/recover_password", data="<user>", rank=1)]
-fn recover_password(user: Json<User>, connection: DbConn) -> String { //has to return a String for frontend reasons
+fn recover_password(user: Json<User>, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
 
 	// Get uuid of username/email if they are linked to same account
 	let id = handlers::username_email_linked(&user.username, &user.email, &connection);
@@ -99,7 +99,7 @@ fn recover_password(user: Json<User>, connection: DbConn) -> String { //has to r
 
 		// Returns true if successfully changed
 		if successful_change {
-    		return "true".to_string();
+    		return Ok(status::Accepted(None));
 		}
 	}
 
@@ -108,7 +108,7 @@ fn recover_password(user: Json<User>, connection: DbConn) -> String { //has to r
 
 
 	// Return false if unsucessful
-	return "false".to_string();
+	Err(status::Unauthorized(None))
 }
 
 /** 

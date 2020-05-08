@@ -46,22 +46,20 @@ class RecoverPassword extends Component {
         // Send POST request with username, email, and password
         axios({
             method: 'post',
-            url: '/recoverpassword',
+            url: '/recover_password',
             data: form
-        }).then((response) => {
+        }).then(response => {
 
             // TODO: Redirect to login screen if successful
-            if (response.data) {
+            this.setState({ redirect: "/login" });
+            alert("Password successfully reset.");
 
-                this.setState({ redirect: "/login" });
-                alert("Password successfully reset.");
+        }).catch(error => {
+            
+            // Failed recover password
+            alert("Incorrect Username or Email.");
 
-            } else {
-                alert("Incorrect Username or Email.");
-
-            }
-
-        });
+        })
     }
 
     render() {

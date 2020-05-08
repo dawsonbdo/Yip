@@ -87,32 +87,30 @@ pub fn insert(user: User, connection: &PgConnection) -> Result<uuid::Uuid, Strin
     let email_search = users::table.filter(users::email.eq(user.email.clone())).load::<DbUser>(&*connection).expect("Error");
 
     // Creates vector for indicating missing fields
-    let mut errMsg = "".to_string();
+    let mut err_msg = "".to_string();
 
     // Username already exists
     if username_search.iter().len() > 0 {
-        errMsg += "username";
+        err_msg += "username";
     }
 
     // Email already exists
     if email_search.iter().len() > 0 {
-        errMsg += "email";
+        err_msg += "email";
     }
 
     // Inserts user into database, returns uuid generated    
-    if errMsg.eq("") {
+    if err_msg.eq("") {
         match diesel::insert_into(users::table)
         .values(&DbUser::from_user(user))
         .get_result::<DbUser>(connection) {
             Ok(u) => return Ok(u.id),
-            Err(e) => return Err(errMsg),
+            Err(e) => return Err(err_msg),
         }
     }
     
-    return Err(errMsg);
+    return Err(err_msg);
 
-    
-    
 }
 
 /**
