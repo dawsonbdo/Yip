@@ -3,12 +3,15 @@ import {Link} from 'react-router-dom';
 
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import NavItem from 'react-bootstrap/NavItem';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import FormGroup from 'react-bootstrap/FormGroup';
 import corgiImage from '../../assets/corgi_shadow.png';
+import Sidebar from 'react-boostrap-sidebar';
+//import Glyphicon from 'react-boostrap/Glyphicon';
 
 import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
 
@@ -17,7 +20,17 @@ class YipNavBar extends Component {
       super(props);
 
       // Creates state to keep track of if logged in
-      this.state = { loggedIn: false };
+      this.state = { 
+        loggedIn: false,
+        isVisible: false 
+      };
+
+      this.onSeetSidebarOpen = this.onSetSidebarOpen.bind(this);
+    }
+    
+    updateModal(isVisible) {
+    	this.state.isVisible = isVisible;
+      this.forceUpdate();
     }
 
     // After component is loaded, update auth state
@@ -48,6 +61,17 @@ class YipNavBar extends Component {
     render() {
         return (
             <div id="spaceNav">
+              <div>
+                  <Button bsStyle="primary" onClick={ () => this.updateModal(true) }></Button>
+                  <Sidebar side='left' isVisible={ this.state.isVisible } onHide={ () => this.updateModal(false) }>
+                    <Nav>
+                      <NavItem href="#">Link 1</NavItem>
+                      <NavItem href="#">Link 2</NavItem>
+                      <NavItem href="#">Link 3</NavItem>
+                      <NavItem href="#">Link 4</NavItem>
+                    </Nav>
+                  </Sidebar>
+              </div>
               <Navbar className="color-nav" expand="false" fixed="top">
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
