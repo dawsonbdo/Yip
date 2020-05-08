@@ -64,7 +64,7 @@ class Register extends Component {
 
                 // Store token in local storage
                 localStorage.setItem('jwtToken', response.data);
-                
+
                 this.setState({ redirect: "/login" });
             } else {
                 alert('Username or Email already registered!');
