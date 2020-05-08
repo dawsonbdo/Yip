@@ -44,7 +44,7 @@ pub fn insert(review: Review, connection: &PgConnection) -> bool {
  */
 pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> bool {
     match diesel::update(reviews::table.find(id))
-        .set(&DbReview::from_review(review)).unwrap()
+        .set(&DbReview::from_review(review))
         .get_result::<DbReview>(connection) {
             Ok(_u) => return true,
             Err(_e) => return false,
@@ -60,7 +60,7 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
 }
 
 // Struct representing the fields of a review passed in from frontend contains
-#[derive(Queryable, Serialize, Deserialize)]
+#[derive(Queryable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "reviews"]
 pub struct Review {
     pub kennelid: Uuid,

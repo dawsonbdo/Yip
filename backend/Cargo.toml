@@ -19,7 +19,7 @@ bcrypt = "0.7"
 jsonwebtoken = "7"
 cookie = "0.13"
 uuid = { version = "0.6", features = ["serde", "v4"] }
-chrono = "0.4.11"
+chrono = { version = "0.4.11", features = ["serde"] }
 
 [dependencies.rocket_contrib]
 version = "0.4.4"

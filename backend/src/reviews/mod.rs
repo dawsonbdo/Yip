@@ -5,7 +5,7 @@ extern crate chrono;
 use crate::auth;
 use crate::db;
 
-use handlers::Review;
+//use handlers::Review;
 use rocket_contrib::json::Json;
 
 use db::DbConn;

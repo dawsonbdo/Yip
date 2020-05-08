@@ -1,6 +1,5 @@
 use diesel;
 use diesel::prelude::*;
-use diesel::result::Error;
 use crate::schema::users;
 
 extern crate bcrypt;
@@ -105,7 +104,7 @@ pub fn insert(user: User, connection: &PgConnection) -> Result<uuid::Uuid, Strin
         .values(&DbUser::from_user(user))
         .get_result::<DbUser>(connection) {
             Ok(u) => return Ok(u.id),
-            Err(e) => return Err(err_msg),
+            Err(_e) => return Err(err_msg),
         }
     }
     

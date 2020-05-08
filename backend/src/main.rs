@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use rocket::response::NamedFile;
 
 mod users;
-//mod reviews;
+mod reviews;
 mod auth;
 mod schema;
 mod db;
@@ -48,7 +48,7 @@ fn rocket() -> rocket::Rocket {
 
     // Mount rest of routes
     rocket = users::mount(rocket);
-    //rocket = reviews::mount(rocket);
+    rocket = reviews::mount(rocket);
 
     // Return the Rocket
     return rocket;
