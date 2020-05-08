@@ -44,12 +44,10 @@ class ReviewCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <Link to="/"><Image className="float-left" src={commentIcon} /></Link>
-                                                <Link to="/"><Image className="float-left" src={homeIcon} /></Link>
-                                            </Col>
-                                            <Col>
-                                                <Link to="/"><Image className="float-right" src={likeIcon} /></Link>
-                                                <Link to="/"><Image className="float-right" src={dislikeIcon} /></Link>
+                                                <Link to="/"><Image className="float-left likePadding" src={likeIcon} /></Link>
+                                                <Link to="/"><Image className="float-left likePadding" src={dislikeIcon} /></Link>
+                                                <Link to="/"><Image className="float-right" src={commentIcon} /></Link>
+                                                <Link to="/"><Image className="float-right" src={homeIcon} /></Link>
                                             </Col>
                                         </Row>
                                     </Container>

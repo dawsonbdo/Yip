@@ -2,6 +2,10 @@
   background-color: #F58725;
 }
 
+.likePadding {
+  padding-left: 8px;
+}
+
 body {
   background-color: antiquewhite;
 }
@@ -39,6 +43,7 @@ body {
   border-bottom-right-radius: 30px;
   border-bottom-left-radius: 30px;
   padding-top: 2px;
+  padding-bottom: 2px;
 }
 
 .logInForm {
