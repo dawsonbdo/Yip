@@ -89,7 +89,7 @@ class Login extends Component {
                 <h1 className="logInLabel">Log In</h1>
                 <Form noValidate validated={this.state.validated} onSubmit={this.attemptLogin} className="logInEntryContainer">
                   <div className="logInEntryContainer">
-                    <Form.Control id="login" className="logInEntry" type="email" placeholder="Username/Email" required />
+                    <Form.Control id="login" className="logInEntry" type="text" placeholder="Username/Email" required />
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Control id="password" className="logInEntry" type="password" placeholder="Password" required />
