@@ -62,6 +62,17 @@ body {
   padding: 5px;
 }
 
+.reviewContent {
+  padding-left: 32px;
+  padding-bottom: 25px;
+}
+
+.reviewPicture {
+  padding-right: 32px;
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .yipIcon {
   width: 117px;
   height: 81px;
