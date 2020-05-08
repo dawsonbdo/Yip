@@ -94,7 +94,7 @@ class Register extends Component {
                                     <Form.Control id="repassword" className="logInEntry" placeholder="Re-Type Password" type="Password" required></Form.Control>
                                 </div>
                                 <div className="logInEntryContainer">
-                                    <Button className="logInEntry" type="submit">Submit</Button>
+                                    <Button onSubmit={this.attemptRegistration} className="logInEntry" type="submit">Submit</Button>
                                 </div>
                             </Form>
                        </div>

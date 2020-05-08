@@ -61,22 +61,22 @@ class Review extends Component {
                         </p>
 					</Col>
 
-					<Col xs={5} className="reviewPicture text-center">
+					<Col xs={5} className="reviewPicture text-center align">
 						<Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/ToddHoward2010sm_%28cropped%29.jpg/640px-ToddHoward2010sm_%28cropped%29.jpg" />
 					</Col>
 				</Row>
 
-				<Row className="align-items-center reviewContent">
+				<Row className="align-items-center reviewLeaveComment">
 					<Col></Col>
 					<Col className="text-center">
 						<div className="logInForm">
 							<h3 className="logInLabel pt-2 pb-2">Leave a Comment</h3>
 							<Form className="logInEntryContainer">
 								<div className="logInEntryContainer">
-									<Form.Control id="reviewComment" className="logInEntry" size="md" as="textarea" placeholder="This is a good review!" />
+									<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="This is a good review!" />
 								</div>
 								<div className="logInEntryContainer">
-									<Button className="logInEntry" variant="primary">Submit</Button>
+									<Button className="logInEntry" variant="primary">Post</Button>
 								</div>
 							</Form>
 						</div>

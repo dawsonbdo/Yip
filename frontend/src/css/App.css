@@ -73,6 +73,10 @@ body {
   max-height: 100%;
 }
 
+.reviewLeaveComment {
+  padding-bottom: 40px;
+}
+
 .yipIcon {
   width: 117px;
   height: 81px;
