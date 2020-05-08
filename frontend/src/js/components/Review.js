@@ -29,7 +29,7 @@ class Review extends Component {
 					</Col>
 
 					<Col xs={5} className="reviewPicture text-center align">
-						<Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/ToddHoward2010sm_%28cropped%29.jpg/640px-ToddHoward2010sm_%28cropped%29.jpg" />
+						<Image src={this.props.reviewImg[0]} />
 					</Col>
 				</Row>
 
@@ -63,5 +63,6 @@ export default Review;
 
 
 Review.propTypes = {
-	reviewText: PropTypes.string.isRequired
+	reviewText: PropTypes.string.isRequired,
+	reviewImg: PropTypes.string.isRequired
 };

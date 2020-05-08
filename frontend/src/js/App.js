@@ -56,7 +56,7 @@ function App() {
           <Route path="/register" exact component={Register} />
           <Route path="/createreview" exact component={CreateReview} />
           <Route path="/recoverpassword" exact component={RecoverPassword} />
-          <Route path="/review" render={(props) => <Review reviewText={temp} {...props} />} />
+          <Route path="/review" render={(props) => <Review reviewText={temp} reviewImg={['https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/ToddHoward2010sm_%28cropped%29.jpg/640px-ToddHoward2010sm_%28cropped%29.jpg']} {...props} />} />
         </Switch>
       </div>
     </Router>
