@@ -43,8 +43,6 @@ class Login extends Component {
       return;
     }
 
-    this.setState({ redirect: "/" }); // delete later
-
     // Send POST request with username, email, and password
     axios({
       method: 'post',
