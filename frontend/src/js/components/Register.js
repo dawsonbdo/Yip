@@ -39,6 +39,9 @@ class Register extends Component {
         }
 
         this.setState({ validated: true });
+        // if(!this.state.validated) {
+        //     return;
+        // }
 
         // User login form with email, username, and password
         var email = document.getElementById('email').value;
@@ -64,9 +67,9 @@ class Register extends Component {
 
                 // Store token in local storage
                 localStorage.setItem('jwtToken', response.data);
-
                 this.setState({ redirect: "/login" });
             } else {
+                // this.setState({ redirect: "/login" });
                 alert('Username or Email already registered!');
             }
         });
@@ -86,7 +89,7 @@ class Register extends Component {
                             <Link to="/"><img src={corgi}></img></Link>
                             <div className="logInForm">
                                 <h1 className="logInLabel"> Sign Up</h1>
-                                <Form id="form" onSubmit={this.attemptRegistration} className="logInEntryContainer">
+                                <Form noValidate validated={this.state.validated} id="form" onSubmit={this.attemptRegistration} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
                                         <Form.Control id="username" className="logInEntry" placeholder="Username" required></Form.Control>
                                     </div>
