@@ -5,10 +5,47 @@ extern crate chrono;
 use crate::auth;
 use crate::db;
 
-//use handlers::Review;
+use handlers::Review;
 use rocket_contrib::json::Json;
 
 use db::DbConn;
+
+
+/** 
+ * Method that removes a review from database
+ * @param review: Json format of review
+ *
+ * @return returns TBD
+ */
+#[post("/remove_review", data="<review>", rank=1)]
+fn remove_review(review: Json<Review>, connection: DbConn) -> () {
+	
+	
+}
+
+/** 
+ * Method that updates a review
+ * @param review: Json format of review
+ *
+ * @return returns TBD
+ */
+#[post("/edit_review", data="<review>", rank=1)]
+fn edit_review(review: Json<Review>, connection: DbConn) -> () {
+	
+	
+}
+
+/** 
+ * Method that creates a review
+ * @param review: Json format of review
+ *
+ * @return returns TBD
+ */
+#[post("/create_review", data="<review>", rank=1)]
+fn create_review(review: Json<Review>, connection: DbConn) -> () {
+	
+	
+}
 
 /**
  * Print out all reviews
@@ -20,7 +57,7 @@ fn list_reviews(connection: DbConn) -> () {
 	let all_reviews = handlers::all(&connection)
         .map(|review| Json(review));
         
-	// Prints out user/email/pw of each user in database
+	// Prints out title/text/rating of each review in database
 	for vec in all_reviews {
 		for r in vec.iter() {
 			println!("Title: {} Text: {} Rating: {}", r.title, r.review_text, r.rating);
@@ -54,5 +91,5 @@ fn load_reviews(token: String, connection: DbConn) -> () {
  * Mount the review routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![load_reviews, list_reviews])  
+    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review])  
 }
