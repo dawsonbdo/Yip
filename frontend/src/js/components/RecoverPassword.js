@@ -57,6 +57,7 @@ class RecoverPassword extends Component {
                 alert("Password successfully reset.");
 
             } else {
+                alert("Incorrect Username or Email.");
 
             }
 
