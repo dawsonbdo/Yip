@@ -5,6 +5,8 @@ import Button from 'react-bootstrap/Button';
 import ReviewCard  from './ReviewCard';
 import YipNavBar from "./YipNavBar";
 import CommentCard from './CommentCard';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 
 import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
 
