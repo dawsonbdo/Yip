@@ -16,48 +16,6 @@ import { createUserJson } from './BackendHelpers.js';
 
 class CreateReview extends Component {
 
-//   constructor(props){
-//     super(props);
-
-//     // Binds button handler
-//     this.attemptLogin = this.attemptLogin.bind(this);
-//   }
-
-//   /**
-//     * Function handler for login submit button
-//     */ 
-//   attemptLogin(){
-
-//     // Parses login form with username/email and password
-//     var email = document.getElementById('login').value;
-//     var username = document.getElementById('login').value;
-//     var password = document.getElementById('password').value
-//     var form = createUserJson(username, email, password);
-
-//     // TODO: Check if any fields empty?
-
-//     // Send POST request with username, email, and password
-//     axios({
-//       method: 'post',
-//       url: '/login',
-//       data: form
-//     }).then((response) => {
-      
-//       // If successfully logged in, set access token
-//       if ( !(response.data == "loginfail") ){
-
-//         // Store token in local storage
-//         localStorage.setItem('jwtToken', response.data);
-
-//       } else {
-
-//         // TODO: Indicate failed login
-
-//       }
-      
-//     });
-//   }
-
   render() {
     return (
       <Container fluid>

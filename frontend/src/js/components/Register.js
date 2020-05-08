@@ -7,6 +7,8 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 
+import { Redirect } from 'react-router-dom';
+
 import corgi from '../../assets/corgi_shadow.png';
 
 import axios from 'axios';
@@ -18,19 +20,33 @@ class Register extends Component {
     constructor(props){
         super(props);
         this.attemptRegistration = this.attemptRegistration.bind(this);
+        this.state = {validated: false, redirect: null};
     }
 
     /**
      * Function handler for registration submit button
      */
-    attemptRegistration(){
+    attemptRegistration(event){
+        var registerForm = event.currentTarget;
+        if (registerForm.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+  
+        this.setState({validated: true});
 
         // User login form with email, username, and password
         var email = document.getElementById('email').value;
         var username = document.getElementById('username').value;
-        var password = document.getElementById('password').value
+        var password = document.getElementById('password').value;
+        var repassword = document.getElementById('repassword').value;
         var form = createUserJson(username, email, password);
 
+        if(password !== repassword) {
+            alert('Passwords do not match!');
+            return;
+        }
+    
         // Send POST request with database User json
         axios({
             method: 'post',
@@ -43,17 +59,18 @@ class Register extends Component {
 
                 // Store token in local storage
                 localStorage.setItem('jwtToken', response.data);
-
+                
+                this.setState({redirect: true});
             } else {
-
-                // TODO: Update front end indicating failed register
-
+                alert('Username or Email already registered!');
             }
-
         });
     }
 
     render() {
+        if(this.state.redirect) {
+            return <Redirect to={this.state.redirect} />
+        }
         return (
             <Container>
                 <Row>
@@ -63,33 +80,31 @@ class Register extends Component {
                         <Link to="/"><img src={corgi}></img></Link>
                         <div className="logInForm">
                             <h1 className="logInLabel"> Sign Up</h1>
-                            <Form className="logInEntryContainer">
+                            <Form id="form" onSubmit={this.attemptRegistration} className="logInEntryContainer">
                                 <div className="logInEntryContainer">
-                                    <Form.Control id="username" className="logInEntry" placeholder="Username"></Form.Control>
+                                    <Form.Control id="username" className="logInEntry" placeholder="Username" required></Form.Control>
                                 </div>
                                 <div className="logInEntryContainer">
-                                    <Form.Control id="email" className="logInEntry" placeholder="Email" type="Email"></Form.Control>
+                                    <Form.Control id="email" className="logInEntry" placeholder="Email" type="Email" required></Form.Control>
                                 </div>
                                 <div className="logInEntryContainer">
-                                    <Form.Control id="password" className="logInEntry" placeholder="Password" type="Password"></Form.Control>
+                                    <Form.Control id="password" className="logInEntry" placeholder="Password" type="Password" required></Form.Control>
                                 </div>
                                 <div className="logInEntryContainer">
-                                    <Form.Control className="logInEntry" placeholder="Password" type="Password"></Form.Control>
+                                    <Form.Control id="repassword" className="logInEntry" placeholder="Re-Type Password" type="Password" required></Form.Control>
                                 </div>
                                 <div className="logInEntryContainer">
-                                    <Button onClick={this.attemptRegistration} className="logInEntry" >Submit</Button>
+                                    <Button className="logInEntry" type="submit">Submit</Button>
                                 </div>
                             </Form>
                        </div>
                     </Col>
 
                     <Col></Col>
-                 </Row>
+                </Row>
             </Container>
-        )
+        );
     }
-
-    
 }
 
 export default Register
