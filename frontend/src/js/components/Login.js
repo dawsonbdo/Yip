@@ -31,13 +31,16 @@ class Login extends Component {
    * Function handler for login submit button
    */
   attemptLogin(event) {
-        var registerForm = event.currentTarget;
-        if (registerForm.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
+    var registerForm = event.currentTarget;
+    if (registerForm.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.setState({ validated: true });
+      return;
+    }
 
-        this.setState({ validated: true });
+    event.preventDefault();
+    event.stopPropagation();
 
     // Parses login form with username/email and password
     var email = document.getElementById('login').value;
@@ -61,9 +64,10 @@ class Login extends Component {
       // Store token in local storage
       localStorage.setItem('jwtToken', response.data);
       this.setState({ redirect: "/" });
+      alert('SUCCESSFUL LOGIN')
 
 
-    }).catch(error =>{
+    }).catch(error => {
 
       // TODO: Indicate failed login
       // this.setState({ redirect: "/" });
