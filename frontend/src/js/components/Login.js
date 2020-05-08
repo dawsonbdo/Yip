@@ -31,10 +31,11 @@ class Login extends Component {
    * Function handler for login submit button
    */
   attemptLogin(event) {
+
     var registerForm = event.currentTarget;
+    event.preventDefault();
+    event.stopPropagation();
     if (registerForm.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
       this.setState({ validated: true });
       return;
     }
@@ -64,7 +65,6 @@ class Login extends Component {
       // Store token in local storage
       localStorage.setItem('jwtToken', response.data);
       this.setState({ redirect: "/" });
-      alert('SUCCESSFUL LOGIN')
 
 
     }).catch(error => {

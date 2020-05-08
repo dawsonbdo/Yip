@@ -32,13 +32,15 @@ class Register extends Component {
      * Function handler for registration submit button
      */
     attemptRegistration(event) {
+
         var registerForm = event.currentTarget;
+        event.preventDefault();
+        event.stopPropagation();
         if (registerForm.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
+            this.setState({ validated: true });
+            return;
         }
 
-        this.setState({ validated: true });
         // if(!this.state.validated) {
         //     return;
         // }
@@ -71,6 +73,8 @@ class Register extends Component {
 
             // Redirect to login after registering
             this.setState({ redirect: "/login" });
+
+            alert('Account successfully created!');
         
         }).catch(error => {
 
