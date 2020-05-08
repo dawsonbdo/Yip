@@ -37,8 +37,6 @@ class Login extends Component {
     var password = document.getElementById('password').value
     var form = createUserJson(username, email, password);
 
-    this.setState({ redirect: "/" }); // delete later
-
     // Send POST request with username, email, and password
     axios({
       method: 'post',
