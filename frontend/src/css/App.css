@@ -11,11 +11,12 @@ body {
 }
 
 #spaceNav {
-  padding-bottom: 100px;
+  padding-bottom: 60px;
 }
 
 #jumbotron {
   background-color: antiquewhite;
+  padding-bottom: 0px;
 }
 
 #logInLabel {
@@ -59,6 +60,17 @@ body {
 
 .logInEntryContainer {
   padding: 5px;
+}
+
+.reviewContent {
+  padding-left: 32px;
+  padding-bottom: 25px;
+}
+
+.reviewPicture {
+  padding-right: 32px;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .yipIcon {
