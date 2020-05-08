@@ -66,37 +66,21 @@ class Review extends Component {
 					</Col>
 				</Row>
 
-				<Row>
+				<Row className="align-items-center reviewContent">
 					<Col></Col>
-
-					<Col cs={10} className="reviewContent text-center">
-						<Container fluid>
-							<Row className="align-items-center">
-								<Col></Col>
-								<Col className="text-center">
-									<div className="logInForm">
-										<h1 className="logInLabel">CreateReview</h1>
-										<Form className="logInEntryContainer">
-											<div className="logInEntryContainer">
-												<Form.Control id="login" className="logInEntry" size="lg" type="text" placeholder="Title" />
-											</div>
-											<div className="logInEntryContainer">
-												<Form.Control id="password" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" />
-											</div>
-											<div>
-												<Link><Button variant="link">Forgot Password?</Button></Link>
-											</div>
-											<div className="logInEntryContainer">
-												<Button onClick={this.attemptLogin} className="logInEntry" variant="primary">Submit</Button>
-											</div>
-										</Form>
-									</div>
-								</Col>
-								<Col></Col>
-							</Row>
-						</Container>
+					<Col className="text-center">
+						<div className="logInForm">
+							<h3 className="logInLabel pt-2 pb-2">Leave a Comment</h3>
+							<Form className="logInEntryContainer">
+								<div className="logInEntryContainer">
+									<Form.Control id="reviewComment" className="logInEntry" size="md" as="textarea" placeholder="This is a good review!" />
+								</div>
+								<div className="logInEntryContainer">
+									<Button className="logInEntry" variant="primary">Submit</Button>
+								</div>
+							</Form>
+						</div>
 					</Col>
-
 					<Col></Col>
 				</Row>
 
