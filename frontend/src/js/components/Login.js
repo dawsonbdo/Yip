@@ -19,7 +19,7 @@ class Login extends Component {
     super(props);
 
     this.state = {
-      redirect: null
+      redirect: null,
     };
 
     // Binds button handler
@@ -36,12 +36,6 @@ class Login extends Component {
     var username = document.getElementById('login').value;
     var password = document.getElementById('password').value
     var form = createUserJson(username, email, password);
-
-    // Check if any fields empty
-    if (email === "" || password === "") {
-      alert("Empty fields.");
-      return;
-    }
 
     this.setState({ redirect: "/" }); // delete later
 
@@ -62,6 +56,7 @@ class Login extends Component {
       } else {
         // TODO: Indicate failed login
         //response.data;
+        alert("Incorrect username or password.");
       }
 
     });
@@ -82,18 +77,18 @@ class Login extends Component {
               <Link to="/"><img src={corgiImage} /></Link>
               <div className="logInForm">
                 <h1 className="logInLabel">Log In</h1>
-                <Form className="logInEntryContainer">
+                <Form onSubmit={this.attemptLogin} className="logInEntryContainer">
                   <div className="logInEntryContainer">
-                    <Form.Control id="login" className="logInEntry" type="email" placeholder="Username/Email" />
+                    <Form.Control id="login" className="logInEntry" placeholder="Username/Email" required/>
                   </div>
                   <div className="logInEntryContainer">
-                    <Form.Control id="password" className="logInEntry" type="password" placeholder="Password" />
+                    <Form.Control id="password" className="logInEntry" type="password" placeholder="Password" required/>
                   </div>
                   <div>
                     <Link to="/recoverpassword"><Button variant="link">Forgot Password?</Button></Link>
                   </div>
                   <div className="logInEntryContainer">
-                    <Button onClick={this.attemptLogin} className="logInEntry" variant="primary" >Submit</Button>
+                    <Button className="logInEntry" type="submit">Submit</Button>
                   </div>
                 </Form>
               </div>
