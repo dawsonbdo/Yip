@@ -46,13 +46,13 @@ class Home extends Component {
                   <Button variant="warning">Learn more</Button>
                 </p>
               </Jumbotron>
-               <ReviewCard />
-               <ReviewCard />
-               <ReviewCard />
-               <ReviewCard />
-               <ReviewCard />
-               <ReviewCard />
-               <CommentCard />
+               <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+               <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+               <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+               <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+               <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+               <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+               <CommentCard commenterName={"Name"} commentText={"Comment"} />
             </div>
         )
     }

@@ -34,11 +34,7 @@ class RecoverPassword extends Component {
 
         var form = createUserJson(username, email, password);
 
-        // Check if any fields empty/passwords same
-        if (email === "" || username === "" || password === "" || confirmPassword === "") {
-            alert("Empty fields.");
-            return;
-        }
+        // Check if passwords same
         if (password != confirmPassword) {
             alert("Passwords don't match.");
             return;
@@ -58,8 +54,10 @@ class RecoverPassword extends Component {
             if (response.data) {
 
                 this.setState({ redirect: "/login" });
+                alert("Password successfully reset.");
 
             } else {
+                alert("Incorrect Username or Email.");
 
             }
 
@@ -78,22 +76,22 @@ class RecoverPassword extends Component {
                         <Col className="text-center">
                             <Link to="/"><img src={corgiImage} /></Link>
                             <div className="logInForm">
-                                <h1 className="logInLabel">Recover Password</h1>
-                                <Form className="logInEntryContainer">
+                                <h1 className="logInLabel">Reset Password</h1>
+                                <Form onSubmit={this.recoverPassword} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
-                                        <Form.Control id="username" className="logInEntry" placeholder="Username" />
+                                        <Form.Control id="username" className="logInEntry" placeholder="Username" required/>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Form.Control id="email" className="logInEntry" type="email" placeholder="Email" />
+                                        <Form.Control id="email" className="logInEntry" type="email" placeholder="Email" required/>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Form.Control id="password" className="logInEntry" type="password" placeholder="Password" />
+                                        <Form.Control id="password" className="logInEntry" type="password" placeholder="New Password" required/>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Form.Control id="confirmPassword" className="logInEntry" type="password" placeholder="Password" />
+                                        <Form.Control id="confirmPassword" className="logInEntry" type="password" placeholder="Re-Type Password" required/>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Button onClick={this.recoverPassword} className="logInEntry">Submit</Button>
+                                        <Button className="logInEntry" type="submit">Submit</Button>
                                     </div>
                                 </Form>
                             </div>
