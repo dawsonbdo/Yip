@@ -115,13 +115,11 @@ fn recover_password(user: Json<User>, connection: DbConn) -> String { //has to r
  * Handle login request
  * @param user: the Json representation of a User
  *
- * @return returns a Result::Ok with authentication token if successfully
- * registered
+ * @return returns a String with authentication token if successfully logged in, otherwise
+ * returns status error 401 with optional error
  */
 #[post("/login", data="<user>", rank=1)]
-fn login(user: Json<User>, connection: DbConn) -> String { //TODO: more sophisticated Error types
-
-	// Result<String, Option<jsonwebtoken::errors::Error>>
+fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unauthorized<String>> { //TODO: more sophisticated Error types
 
 	// Attempt to login user by reading database
 	let successful_login = handlers::get(user.into_inner(), &connection);
@@ -132,12 +130,11 @@ fn login(user: Json<User>, connection: DbConn) -> String { //TODO: more sophisti
 	// Return authentication token if successful login
 	if successful_login != uuid::Uuid::nil() {
 		match auth::create_token(successful_login) {
-			Result::Ok(str) => str, // Result::Ok(str),
-			Result::Err(err) => "loginfail".to_string(), //Result::Err(Option::Some(err))
+			Ok(t) => Ok(t), 
+			Err(e) => Err(status::Unauthorized(Some(e.to_string()))), 
 		}
 	} else { // Return failure if unsucessful
-		"loginfail".to_string()
-		//Result::Err(Option::None)
+		Err(status::Unauthorized(None))
 	}
 }
 
@@ -145,13 +142,11 @@ fn login(user: Json<User>, connection: DbConn) -> String { //TODO: more sophisti
  * Handle register request
  * @param user: the Json representation of a User
  *
- * @return returns a Result::Ok with authentication token if successfully
- * registered
+ * @return returns a String with auth token if successful registration, otherwise an error
+ * status along with a String indicating the if user/email field was taken
  */
 #[post("/register", data="<user>", rank=1)]
-fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conflict<String>> { //TODO return meaningful information on error
-	
-	// Result<String, Option<jsonwebtoken::errors::Error>>
+fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conflict<String>> { 
 
 	// Attempt to insert user into database 
 	let successful_registration = handlers::insert(user.into_inner(), &connection);
@@ -164,28 +159,9 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
 					Ok(t) => Ok(t), 
 					Err(e) => Err(status::Conflict(Some(e.to_string()))), // TODO return an Option or Result
 				 },
-		// Unsuccessful registration, return the array indicating existing fields
+		// Unsuccessful registration, return the error
 		Err(e) => Err(status::Conflict(Some(e.to_string()))),
 	}
-
-	/*
-
-    // Return authentication token if successful
-    if successful_registration != uuid::Uuid::nil() {
-		match  auth::create_token(successful_registration) {
-			Result::Ok(str) => str, //Result::Ok(str),
-			Result::Err(err) => "loginfail".to_string(), //Result::Err(Option::Some(err)) // TODO return an Option or Result
-		}
-
-    } else { // Return failure if unsuccessful registration
-    	println!("ERROR: {}", successful_registration);
-    	"loginfail".to_string()
-		//Result::Err(Option::None)
-    }
-
-    */
-
-    //"loginfail".to_string()
 
 }
 

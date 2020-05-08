@@ -56,20 +56,18 @@ class Login extends Component {
       method: 'post',
       url: '/login',
       data: form
-    }).then((response) => {
+    }).then(response => {
 
-      // If successfully logged in, set access token
-      if (!(response.data == "loginfail")) {
+      // Store token in local storage
+      localStorage.setItem('jwtToken', response.data);
+      this.setState({ redirect: "/" });
 
-        // Store token in local storage
-        localStorage.setItem('jwtToken', response.data);
-        this.setState({ redirect: "/" });
 
-      } else {
-        // TODO: Indicate failed login
-        // this.setState({ redirect: "/" });
-                alert('Username or Password incorrect!');
-      }
+    }).catch(error =>{
+
+      // TODO: Indicate failed login
+      // this.setState({ redirect: "/" });
+      alert('Username or Password incorrect!');
 
     });
   }
