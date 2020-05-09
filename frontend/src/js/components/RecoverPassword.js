@@ -17,6 +17,7 @@ class RecoverPassword extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            validated: false,
             redirect: null
         };
         this.recoverPassword = this.recoverPassword.bind(this);
@@ -26,6 +27,18 @@ class RecoverPassword extends Component {
       * Function handler for recovering password
       */
     recoverPassword() {
+        // Prevents page from refreshing on submit
+        event.preventDefault();
+        event.stopPropagation();
+
+        var recoverPasswordForm = event.currentTarget;
+
+        // Display error if fields empty or email invalid
+        if (recoverPasswordForm.checkValidity() === false) {
+            this.setState({ validated: true });
+            return;
+        }
+
         // Get the email, username, and password
         var email = document.getElementById('email').value;
         var username = document.getElementById('username').value;
@@ -40,8 +53,6 @@ class RecoverPassword extends Component {
             return;
 
         }
-
-        this.setState({ redirect: "/login" }); // delete later
 
         // Send POST request with username, email, and password
         axios({
@@ -75,7 +86,7 @@ class RecoverPassword extends Component {
                             <Link to="/"><img src={corgiImage} /></Link>
                             <div className="logInForm">
                                 <h1 className="logInLabel">Reset Password</h1>
-                                <Form onSubmit={this.recoverPassword} className="logInEntryContainer">
+                                <Form noValidate validated={this.state.validated} onSubmit={this.recoverPassword} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
                                         <Form.Control id="username" className="logInEntry" placeholder="Username" required/>
                                     </div>
