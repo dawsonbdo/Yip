@@ -52,8 +52,13 @@ class Register extends Component {
         var repassword = document.getElementById('repassword').value;
         var form = createUserJson(username, email, password);
 
-        // TODO: Check that email and username don't contain whitespace or 
-        //       other unaccepted characters
+        // Check that email and username don't contain whitespace or other unaccepted characters
+        var regex = /^[A-Za-z0-9_]+$/;
+        var isValidUsername = regex.test(username);
+        if(!isValidUsername) {
+            alert("Username can only contain letters, numbers, and underscores!");
+            return;
+        }
 
         // Check that passwords match
         if (password !== repassword) {
