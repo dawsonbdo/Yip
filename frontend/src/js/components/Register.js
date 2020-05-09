@@ -33,17 +33,17 @@ class Register extends Component {
      */
     attemptRegistration(event) {
 
-        var registerForm = event.currentTarget;
+        // Prevents page from refreshing on submit
         event.preventDefault();
         event.stopPropagation();
+
+        var registerForm = event.currentTarget;
+
+        // Display error if fields empty or email invalid
         if (registerForm.checkValidity() === false) {
             this.setState({ validated: true });
             return;
         }
-
-        // if(!this.state.validated) {
-        //     return;
-        // }
 
         // User login form with email, username, and password
         var email = document.getElementById('email').value;

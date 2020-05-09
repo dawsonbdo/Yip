@@ -32,28 +32,23 @@ class Login extends Component {
    */
   attemptLogin(event) {
 
-    var registerForm = event.currentTarget;
+    // Prevents page from refreshing on submit
     event.preventDefault();
     event.stopPropagation();
+
+    var registerForm = event.currentTarget;
+
+    // Displays error if fields are empty
     if (registerForm.checkValidity() === false) {
       this.setState({ validated: true });
       return;
     }
-
-    event.preventDefault();
-    event.stopPropagation();
 
     // Parses login form with username/email and password
     var email = document.getElementById('login').value;
     var username = document.getElementById('login').value;
     var password = document.getElementById('password').value
     var form = createUserJson(username, email, password);
-
-    // Check if any fields empty
-    // if (email === "" || password === "") {
-    //   alert("Empty fields.");
-    //   return;
-    // }
 
     // Send POST request with username, email, and password
     axios({
@@ -64,13 +59,14 @@ class Login extends Component {
 
       // Store token in local storage
       localStorage.setItem('jwtToken', response.data);
+
+      // Redirect to home after successful login
       this.setState({ redirect: "/" });
 
 
     }).catch(error => {
 
-      // TODO: Indicate failed login
-      // this.setState({ redirect: "/" });
+      // Error for failed login
       alert('Username or Password incorrect!');
 
     });
