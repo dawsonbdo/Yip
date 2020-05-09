@@ -12,8 +12,11 @@ extern crate r2d2_diesel;
 use std::path::{Path, PathBuf};
 use rocket::response::NamedFile;
 
+// Database tables
 mod users;
 mod reviews;
+mod kennels;
+
 mod auth;
 mod schema;
 mod db;
@@ -49,6 +52,7 @@ fn rocket() -> rocket::Rocket {
     // Mount rest of routes
     rocket = users::mount(rocket);
     rocket = reviews::mount(rocket);
+    rocket = kennels::mount(rocket);
 
     // Return the Rocket
     return rocket;
