@@ -89,15 +89,19 @@ class RecoverPassword extends Component {
                                 <Form noValidate validated={this.state.validated} onSubmit={this.recoverPassword} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
                                         <Form.Control id="username" className="logInEntry" placeholder="Username" required/>
+                                        <Form.Control.Feedback type="invalid">Enter username.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Form.Control id="email" className="logInEntry" type="email" placeholder="Email" required/>
+                                        <Form.Control.Feedback type="invalid">Enter valid email.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Form.Control id="password" className="logInEntry" type="password" placeholder="New Password" required/>
+                                        <Form.Control.Feedback type="invalid">Enter a new password.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Form.Control id="confirmPassword" className="logInEntry" type="password" placeholder="Re-Type Password" required/>
+                                        <Form.Control.Feedback type="invalid">Confirm new password.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Button className="logInEntry" type="submit">Submit</Button>

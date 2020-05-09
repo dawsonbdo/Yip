@@ -36,6 +36,8 @@ class Login extends Component {
     event.preventDefault();
     event.stopPropagation();
 
+    this.setState({ failedLogin: false });
+
     var registerForm = event.currentTarget;
 
     // Displays error if fields are empty
@@ -67,6 +69,7 @@ class Login extends Component {
     }).catch(error => {
 
       // Error for failed login
+      this.setState({ failedLogin: true });
       alert('Username or Password incorrect!');
 
     });
@@ -88,9 +91,11 @@ class Login extends Component {
                 <Form noValidate validated={this.state.validated} onSubmit={this.attemptLogin} className="logInEntryContainer">
                   <div className="logInEntryContainer">
                     <Form.Control id="login" className="logInEntry" type="text" placeholder="Username/Email" required />
+                    <Form.Control.Feedback type="invalid">Enter username/email.</Form.Control.Feedback>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Control id="password" className="logInEntry" type="password" placeholder="Password" required />
+                    <Form.Control.Feedback type="invalid">Enter password.</Form.Control.Feedback>
                   </div>
                   <div>
                     <Link to="/recoverpassword"><Button variant="link">Forgot Password?</Button></Link>

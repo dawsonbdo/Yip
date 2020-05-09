@@ -109,15 +109,19 @@ class Register extends Component {
                                 <Form noValidate validated={this.state.validated} id="form" onSubmit={this.attemptRegistration} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
                                         <Form.Control id="username" className="logInEntry" placeholder="Username" required></Form.Control>
+                                        <Form.Control.Feedback type="invalid">Enter username.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Form.Control id="email" className="logInEntry" placeholder="Email" type="Email" required></Form.Control>
+                                        <Form.Control.Feedback type="invalid">Enter valid email.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Form.Control id="password" className="logInEntry" placeholder="Password" type="Password" required></Form.Control>
+                                        <Form.Control.Feedback type="invalid">Enter password.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Form.Control id="repassword" className="logInEntry" placeholder="Re-Type Password" type="Password" required></Form.Control>
+                                        <Form.Control.Feedback type="invalid">Confirm password.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Button className="logInEntry" type="submit">Submit</Button>
