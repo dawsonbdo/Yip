@@ -6,7 +6,7 @@ CREATE TABLE reviews (
   author UUID NOT NULL,
   date_posted DATE NOT NULL,
   review_text VARCHAR NOT NULL,
-  images JSON NOT NULL,
+  images TEXT[] NOT NULL,
   rating INT NOT NULL,
   tags JSON NOT NULL
 );

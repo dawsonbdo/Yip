@@ -155,7 +155,7 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
 		// Successfully registered, create token using id and return it
 		Ok(id) => match auth::create_token(id) {
 					Ok(t) => Ok(t), 
-					Err(e) => Err(status::Conflict(Some(e.to_string()))), // TODO return an Option or Result
+					Err(e) => Err(status::Conflict(Some(e.to_string()))), 
 				 },
 		// Unsuccessful registration, return the error
 		Err(e) => Err(status::Conflict(Some(e.to_string()))),

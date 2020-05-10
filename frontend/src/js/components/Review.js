@@ -14,6 +14,34 @@ import Button from 'react-bootstrap/Button';
 
 class Review extends Component {
 
+	constructor(props){
+		super(props)
+	}
+
+	componentDidMount(){
+		// Parse the id from URL
+		var reviewId = "1";
+
+		// Send POST request with database User json
+    	axios({
+            method: 'post',
+            url: '/get_review',
+            data: reviewId
+        }).then(response => {
+
+            // TODO: Fill in html using response 
+       		
+
+            alert('Review successfully grabbed from database!');
+        
+        }).catch(error => {
+
+            // Review not found in database
+            alert('Review does not exist');
+
+        });
+	}
+
 	render() {
 		return (
 			<div>

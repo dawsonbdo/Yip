@@ -1,4 +1,14 @@
 table! {
+    comments (id) {
+        id -> Uuid,
+        reviewid -> Uuid,
+        authorid -> Uuid,
+        date_posted -> Date,
+        comment_text -> Varchar,
+    }
+}
+
+table! {
     kennels (id) {
         id -> Uuid,
         name -> Varchar,
@@ -15,7 +25,7 @@ table! {
         author -> Uuid,
         date_posted -> Date,
         review_text -> Varchar,
-        images -> Json,
+        images -> Array<Text>,
         rating -> Int4,
         tags -> Json,
     }
@@ -33,6 +43,7 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
+    comments,
     kennels,
     reviews,
     users,

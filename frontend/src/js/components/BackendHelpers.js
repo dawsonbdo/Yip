@@ -11,6 +11,19 @@ export function createUserJson(username = "", email = "", password = "") {
     return form
 };
 
+// Creates a JSON Review object
+export function createReviewJson(title = "", text = "", author = "") {
+    var form = {kennelid: "00000000-0000-0000-0000-000000000000",
+                title: title,
+                author: author,
+                //date_posted: "2",
+                review_text: text,
+                images: {},
+                rating: 0,
+                tags: {}};
+    return form
+};
+
 // Updates the logged in state of a component that is passed in by checking database
 export async function updateLoggedInState(page){
       // Send POST request with token for authenticatio

@@ -14,62 +14,67 @@ import dislikeIcon from '../../assets/dislike.png'
 
 import axios from 'axios' 
 
-import { createUserJson } from './BackendHelpers.js';
+import { createUserJson, createReviewJson } from './BackendHelpers.js';
 
 class CreateReview extends Component {
-
-//   constructor(props){
-//     super(props);
-
-//     // Binds button handler
-//     this.attemptLogin = this.attemptLogin.bind(this);
-//   }
-
-//   /**
-//     * Function handler for login submit button
-//     */ 
-//   attemptLogin(){
-
-//     // Parses login form with username/email and password
-//     var email = document.getElementById('login').value;
-//     var username = document.getElementById('login').value;
-//     var password = document.getElementById('password').value
-//     var form = createUserJson(username, email, password);
-
-//     // TODO: Check if any fields empty?
-
-//     // Send POST request with username, email, and password
-//     axios({
-//       method: 'post',
-//       url: '/login',
-//       data: form
-//     }).then((response) => {
-      
-//       // If successfully logged in, set access token
-//       if ( !(response.data == "loginfail") ){
-
-//         // Store token in local storage
-//         localStorage.setItem('jwtToken', response.data);
-
-//       } else {
-
-//         // TODO: Indicate failed login
-
-//       }
-      
-//     });
-//   }
 
   constructor(props) {
     super(props);
     this.state = { pictures: [] };
     this.onDrop = this.onDrop.bind(this);
+    this.postReview = this.postReview.bind(this);
   }
 
   onDrop(picture) {
     this.setState({
       pictures: this.state.pictures.concat(picture)
     });
+  }
+
+  postReview(){
+    // Read information in forms
+    var title = document.getElementById('title').value;
+    var text = document.getElementById('text').value;
+    var user = localStorage.getItem('jwtToken');
+    var form = createReviewJson(title, text, user);
+
+    //console.log("IMAGES");
+    //console.log(this.state.pictures);
+
+    // Create form data for POST request and stringify json
+    const fd = new FormData();
+    fd.append('review', JSON.stringify(form));
+
+    // Iterate through all pictures adding image/name to form
+    for ( var idx = 0; idx < this.state.pictures.length; idx++ ){
+
+      // Append current image/name
+      fd.append('image', this.state.pictures[idx]);
+      fd.append('name', this.state.pictures[idx].name);
+    }
+
+    // Send POST request with review multipart
+    axios({
+        method: 'post',
+        url: '/create_review',
+        data: fd
+    }).then(response => {
+
+        // Successfuly created review
+        console.log(response)
+
+        // Redirect to home after posting
+        //this.setState({ redirect: "/" });
+
+        
+    }).catch(error => {
+
+        // Failed to create review
+        alert('Review creation failed');
+
+    });
+
+
   }
 
   render() {
@@ -83,10 +88,10 @@ class CreateReview extends Component {
               <h1 className="logInLabel">Create Review</h1>
               <Form className="logInEntryContainer">
                 <div className="logInEntryContainer">
-                  <Form.Control id="login" className="logInEntry" size="lg" type="text" placeholder="Title" />
+                  <Form.Control id="title" className="logInEntry" size="lg" type="text" placeholder="Title" />
                 </div>
                 <div className="logInEntryContainer">
-                  <Form.Control id="password" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" />
+                  <Form.Control id="text" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" />
                 </div>
                 <div className="logInEntryContainer">
                   <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'}/>
@@ -95,7 +100,7 @@ class CreateReview extends Component {
                   <Link><Button variant="link">Forgot Password?</Button></Link>
                 </div>
                 <div className="logInEntryContainer">
-                  <Button onClick={this.attemptLogin} className="logInEntry" variant="primary">Submit</Button>
+                  <Button onClick={this.postReview} className="logInEntry" variant="primary">Submit</Button>
                 </div>
               </Form>
             </div>

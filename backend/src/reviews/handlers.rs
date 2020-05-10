@@ -4,6 +4,7 @@ use uuid::Uuid;
 use crate::schema::reviews;
 
 extern crate bcrypt;
+use crate::auth;
 
 /**
  * Method that returns a vector with all of the reviews
@@ -25,10 +26,6 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbReview> {
  * CREATE REVIEW: Method that attempts to create a new review in database, returns URL? 
  */
 pub fn insert(review: Review, connection: &PgConnection) -> bool {
-    // Prints the Review information that was received (register)
-    println!("Title: {}", review.title);
-    println!("Text: {}", review.review_text);
-    println!("Rating: {}", review.rating);
 
     // Inserts review into database, returns uuid generated
     match diesel::insert_into(reviews::table)
@@ -60,15 +57,14 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
 }
 
 // Struct representing the fields of a review passed in from frontend contains
-#[derive(Queryable, AsChangeset, Serialize, Deserialize)]
-#[table_name = "reviews"]
+#[derive(Queryable, Serialize, Deserialize, Debug)]
 pub struct Review {
-    pub kennelid: Uuid,
+    pub kennelid: String,
     pub title: String,
-    pub author: Uuid,
-    pub date_posted: chrono::NaiveDate,
+    pub author: String, //jwt
+    //pub date_posted: chrono::NaiveDate,
     pub review_text: String,
-    pub images: serde_json::Value,
+    pub images: Vec<String>,
     pub rating: i32,
     pub tags: serde_json::Value,
 }
@@ -80,10 +76,10 @@ pub struct DbReview {
     pub id: Uuid,
     pub kennelid: Uuid,
     pub title: String,
-    pub author: Uuid,
+    pub author: Uuid, 
     pub date_posted: chrono::NaiveDate,
     pub review_text: String,
-    pub images: serde_json::Value,
+    pub images: Vec<String>,
     pub rating: i32,
     pub tags: serde_json::Value,
 }
@@ -94,10 +90,10 @@ impl DbReview{
     fn from_review(review: Review) -> DbReview {
         DbReview{
             id: Uuid::new_v4(), // generate random uuid for review
-            kennelid: review.kennelid,
+            kennelid: Uuid::parse_str(&review.kennelid[1..37]).unwrap(),
             title: review.title,
-            author: review.author,
-            date_posted: review.date_posted,
+            author: auth::get_uuid_from_token(&review.author),
+            date_posted: chrono::NaiveDate::from_ymd(2015, 6, 3),
             review_text: review.review_text,
             images: review.images,
             rating: review.rating,
