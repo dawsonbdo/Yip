@@ -3,13 +3,36 @@ pub mod handlers;
 use crate::auth;
 use crate::db;
 
-use handlers::User;
+use handlers::{User, DbUser};
 use rocket_contrib::json::Json;
 
 use rocket::response::status;
 
 use db::DbConn;
 
+
+/** 
+ * Method that returns a user from database given the username
+ * @param username: username of user whos data is retrieved
+ *
+ * @return returns JSON of the review or error status
+ */
+#[post("/get_user", data="<username>")]
+fn get_user(username: String, connection: DbConn) -> Result<Json<DbUser>, status::NotFound<String>> {
+
+	// Gets uuid from username
+	let uuid = handlers::get_uuid_from_username(&username, &connection);
+
+	// Get User from database
+	let user = handlers::get_user_from_uuid(uuid, &connection);
+
+	// Pattern match to see if user found successfully
+	match user {
+		Ok(r) => Ok(Json(r)),
+		Err(e) => Err(status::NotFound(e.to_string())),
+	}
+	
+}
 
 /**
  * Return whether the user is logged in
@@ -18,7 +41,7 @@ use db::DbConn;
  * @return returns a String indicating if logged in or not
  */
 #[post("/auth", data="<token>")]
-fn auth_test(token: String) -> String {
+fn auth(token: String) -> String {
 
 	// Check if valid token passed in
 	let is_logged_in = auth::validate_token(token);
@@ -144,5 +167,5 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
  * Mount the user routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![login, register, recover_password, list_users, auth_test])  
+    rocket.mount("/", routes![login, register, recover_password, list_users, auth, get_user])  
 }

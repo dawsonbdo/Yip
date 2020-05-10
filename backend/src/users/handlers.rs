@@ -47,8 +47,7 @@ pub fn get(user: User, connection: &PgConnection) -> Uuid {
     }
 
     // Password incorrect or email incorrect, return nil UUID
-    Uuid::nil();
-
+    Uuid::nil()
 }
 
 
@@ -68,6 +67,14 @@ pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> Uuid
     match users::table.filter(users::username.eq(username)).load::<DbUser>(&*connection){
         Ok(u) => u[0].id,
         Err(_e) => Uuid::nil(),
+    }
+}
+
+// Function that returns the DbUser tied to a uuid
+pub fn get_user_from_uuid(id: Uuid, connection: &PgConnection) -> Result<DbUser, String> {
+    match users::table.find(id).get_result::<DbUser>(connection){
+        Ok(u) => Ok(u),
+        Err(e) => Err(e.to_string()),
     }
 }
 
@@ -108,8 +115,7 @@ pub fn insert(user: User, connection: &PgConnection) -> Result<Uuid, String> {
         }
     }
     
-    Err(err_msg);
-
+    Err(err_msg)
 }
 
 /**
