@@ -10,30 +10,6 @@ use rocket::response::status;
 
 use db::DbConn;
 
-/*
-fn user_created(user: User) -> status::Created<Json<User>> {
-    status::Created(
-        format!("{host}:{port}/users/{username}", host = "localhost", port = 8000, username = user.username).to_string(),
-        Some(Json(user)))
-}
-*/
-
-/*
-fn error_status(error: Error) -> Status {
-    match error {
-        Error::NotFound => Status::NotFound,
-        _ => Status::InternalServerError
-    }
-}
-*/
-
-
-// Struct with token and password for reseting
-#[derive(Queryable, Serialize, Deserialize)]
-struct TokenPassword {
-    token: String,
-    password: String,
-}
 
 /**
  * Return whether the user is logged in
@@ -89,7 +65,7 @@ fn recover_password(user: Json<User>, connection: DbConn) -> Result<status::Acce
 	let id = handlers::username_email_linked(&user.username, &user.email, &connection);
 
 	// Check that valid id was found
-	if id != uuid::Uuid::nil() {
+	if !id.is_nil() {
 
 		// Attempt to change password
 		let successful_change = handlers::update(id, &user.password, &connection);
@@ -106,7 +82,6 @@ fn recover_password(user: Json<User>, connection: DbConn) -> Result<status::Acce
 	// Prints whether login was successful (indicated by non nill uuid)
 	println!("Password reset failed");
 
-
 	// Return false if unsucessful
 	Err(status::Unauthorized(None))
 }
@@ -119,7 +94,7 @@ fn recover_password(user: Json<User>, connection: DbConn) -> Result<status::Acce
  * returns status error 401 with optional error
  */
 #[post("/login", data="<user>", rank=1)]
-fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unauthorized<String>> { //TODO: more sophisticated Error types
+fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unauthorized<String>> { 
 
 	// Attempt to login user by reading database
 	let successful_login = handlers::get(user.into_inner(), &connection);
@@ -128,7 +103,7 @@ fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unautho
 	println!("Login {}", successful_login);
 	
 	// Return authentication token if successful login
-	if successful_login != uuid::Uuid::nil() {
+	if !successful_login.is_nil() {
 		match auth::create_token(successful_login) {
 			Ok(t) => Ok(t), 
 			Err(e) => Err(status::Unauthorized(Some(e.to_string()))), 

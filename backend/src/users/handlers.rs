@@ -1,7 +1,7 @@
 use diesel;
 use diesel::prelude::*;
 use crate::schema::users;
-
+use uuid::Uuid;
 extern crate bcrypt;
 
 /**
@@ -14,7 +14,7 @@ pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbUser>> {
 /**
  * LOGIN: Method that returns UUID if successful login, otherwise nil UUID
  */
-pub fn get(user: User, connection: &PgConnection) -> uuid::Uuid {
+pub fn get(user: User, connection: &PgConnection) -> Uuid {
 
     // Prints the User information that was sent (login)
     println!("Login: {}", user.email);
@@ -47,27 +47,27 @@ pub fn get(user: User, connection: &PgConnection) -> uuid::Uuid {
     }
 
     // Password incorrect or email incorrect, return nil UUID
-    return uuid::Uuid::nil();
+    Uuid::nil();
 
 }
 
 
 // Function that returns the uuid of a user/email if they are linked to same user
-pub fn username_email_linked(username: &str, email: &str, connection: &PgConnection) -> uuid::Uuid {
+pub fn username_email_linked(username: &str, email: &str, connection: &PgConnection) -> Uuid {
 
     // Looks for username in database, if found and username/email belong to same uuid, returns uuid
     match users::table.filter(users::username.eq(username)).load::<DbUser>(&*connection){
-        Ok(u) => return if u.iter().len() != 0 && u[0].username.eq(username) && u[0].email.eq(email) { u[0].id } else { uuid::Uuid::nil() },
-        Err(_e) => return uuid::Uuid::nil(),
+        Ok(u) => if u.iter().len() != 0 && u[0].username.eq(username) && u[0].email.eq(email) { u[0].id } else { Uuid::nil() },
+        Err(_e) => Uuid::nil(),
     }
 
 }
 
 // Function that returns the uuid of a user given their username
-pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> uuid::Uuid {
+pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> Uuid {
     match users::table.filter(users::username.eq(username)).load::<DbUser>(&*connection){
-        Ok(u) => return u[0].id,
-        Err(_e) => return uuid::Uuid::nil(),
+        Ok(u) => u[0].id,
+        Err(_e) => Uuid::nil(),
     }
 }
 
@@ -75,7 +75,7 @@ pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> uuid
  * REGISTER: Method that attempts to create a new user in database 
  * if unique user/email and returns if successful
  */
-pub fn insert(user: User, connection: &PgConnection) -> Result<uuid::Uuid, String> {
+pub fn insert(user: User, connection: &PgConnection) -> Result<Uuid, String> {
     // Prints the User information that was received (register)
     println!("Username: {}", user.username);
     println!("Email: {}", user.email);
@@ -108,23 +108,23 @@ pub fn insert(user: User, connection: &PgConnection) -> Result<uuid::Uuid, Strin
         }
     }
     
-    return Err(err_msg);
+    Err(err_msg);
 
 }
 
 /**
  * CHANGE PASSWORD: Method that attempt to change password of 
  */
-pub fn update(id: uuid::Uuid, new_password: &str, connection: &PgConnection) -> bool {
+pub fn update(id: Uuid, new_password: &str, connection: &PgConnection) -> bool {
     match diesel::update(users::table.find(id))
         .set(users::columns::password.eq(&bcrypt::hash(new_password, 12).unwrap()))
         .get_result::<DbUser>(connection) {
-            Ok(_u) => return true,
-            Err(_e) => return false,
+            Ok(_u) => true,
+            Err(_e) => false,
         }
 }
 
-pub fn delete(id: uuid::Uuid, connection: &PgConnection) -> QueryResult<usize> {
+pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(users::table.find(id))
         .execute(connection)
 }
@@ -142,7 +142,7 @@ pub struct User {
 #[derive(Insertable, Queryable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "users"]
 pub struct DbUser {
-    pub id: uuid::Uuid,
+    pub id: Uuid,
     pub username: String,
     pub email: String,
     pub password: String,
@@ -155,7 +155,7 @@ impl DbUser{
 
     fn from_user(user: User) -> DbUser {
         DbUser{
-            id: uuid::Uuid::new_v4(), // generate random uuid
+            id: Uuid::new_v4(), // generate random uuid
             username: user.username,
             email: user.email,
             password: bcrypt::hash(user.password, 12).expect("Error"),
