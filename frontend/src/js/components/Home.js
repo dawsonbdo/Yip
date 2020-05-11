@@ -10,6 +10,8 @@ import Row from 'react-bootstrap/Row';
 
 import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
 
+import axios from 'axios' 
+
 class Home extends Component {
     constructor(props){
       super(props);
@@ -30,6 +32,57 @@ class Home extends Component {
 
       // Sets HTML on page to display logged in status
       document.getElementById('authstatus').innerHTML = "Logged In: " + isLoggedIn(this);
+
+      // Load reviews
+      axios({
+            method: 'get',
+            url: '/reviews'
+        }).then(response => {
+
+            alert('Listed reviews');
+
+            // Gets list of IDs by splitting up response string by commas
+            var reviewIds = response.data.split(",");
+
+            // Go through reviews filling up the review cards
+            for ( int i = 1; i < reviewIds.length; i++ ){
+
+              // Index 1 is the starting point
+              var reviewId = reviewIds[i];
+            
+              // Figures out url of GET request
+              var reqUrl = "/get_review/" + reviewId;
+
+              // Send GET request with review id as query string
+              axios({
+                  method: 'get',
+                  url: reqUrl
+              }).then(review => {
+
+                  alert('Review successfully grabbed from database!');
+
+                  // TODO: Fill in review cards using returned reviews
+                  var card1 = document.getElementById('c1');
+                    
+                  //card1.setState({reviewName: review.data.title});
+                  //card1.props.reviewerName = review.data.author;
+                  //card1.props.reviewPreview = review.data.review_text;
+                   
+              }).catch(error2 => {
+
+                  // Review not found in database
+                  alert('Review does not exist');
+
+              });
+      
+            }
+        
+        }).catch(error => {
+
+            // Review not found in database
+            alert('Failed to list reviews');
+
+        });
     }
 
     render() {
@@ -48,7 +101,7 @@ class Home extends Component {
                   <Button variant="warning">Learn more</Button>
                 </p>
               </Jumbotron>
-               <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+               <ReviewCard id="c1" reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />

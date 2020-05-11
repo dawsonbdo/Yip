@@ -22,7 +22,7 @@ class Review extends Component {
 
 	componentDidMount(){
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
-		var reviewId = "692bb316-9b88-441e-a79a-4f34aaa143ea";
+		var reviewId = "61167269-a55f-40be-ba01-904d732362ba";
 
 		// Format URL to send in GET request
 		var reqUrl = "/get_review/" + reviewId;

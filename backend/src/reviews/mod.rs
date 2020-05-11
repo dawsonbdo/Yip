@@ -128,19 +128,25 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, st
  * Print out all reviews
  */
 #[get("/reviews", rank=1)]
-fn list_reviews(connection: DbConn) -> () {
+fn list_reviews(connection: DbConn) -> String {
 
 	// Makes database call to get all users
 	let all_reviews = handlers::all(&connection)
         .map(|review| Json(review));
         
+
+    let mut reviewIds = "".to_string();
+
 	// Prints out title/text/id of each review in database
 	for vec in all_reviews {
 		for r in vec.iter() {
 			println!("Title: {} Text: {} Id: {}", r.title, r.review_text, r.id);
+			reviewIds = format!("{},{}", reviewIds, &r.id.hyphenated().to_string());
 		} 
 	}
 
+	// Return vector with all the ids
+	reviewIds
 }
 
 /** 
