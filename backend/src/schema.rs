@@ -23,7 +23,7 @@ table! {
         kennelid -> Uuid,
         title -> Varchar,
         author -> Uuid,
-        date_posted -> Date,
+        date_posted -> Timestamp,
         review_text -> Varchar,
         images -> Array<Text>,
         rating -> Int4,

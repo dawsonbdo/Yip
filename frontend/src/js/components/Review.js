@@ -12,6 +12,8 @@ import commentIcon from '../../assets/comment.png';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
+import axios from 'axios' 
+
 class Review extends Component {
 
 	constructor(props){
@@ -19,20 +21,25 @@ class Review extends Component {
 	}
 
 	componentDidMount(){
-		// Parse the id from URL
-		var reviewId = "1";
+		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
+		var reviewId = "692bb316-9b88-441e-a79a-4f34aaa143ea";
 
-		// Send POST request with database User json
+		// Format URL to send in GET request
+		var reqUrl = "/get_review/" + reviewId;
+
+		// Send GET request with review id as query string
     	axios({
-            method: 'post',
-            url: '/get_review',
-            data: reviewId
+            method: 'get',
+            url: reqUrl
         }).then(response => {
 
-            // TODO: Fill in html using response 
-       		
-
             alert('Review successfully grabbed from database!');
+
+            // TODO: Fill in html using response 
+            document.getElementById('title').innerHTML = response.data.title;
+            document.getElementById('author').innerHTML = response.data.author;
+            document.getElementById('img').src = response.data.images[0];
+            document.getElementById('text').innerHTML = response.data.review_text; 
         
         }).catch(error => {
 
@@ -47,17 +54,17 @@ class Review extends Component {
 			<div>
 				<YipNavBar />
 				<Jumbotron id="jumbotron" className="text-left">
-					<h1>{this.props.reviewName}</h1>
-					<h4>{this.props.reviewerName}</h4>
+					<h1 id="title">{this.props.reviewName}</h1>
+					<h4 id="author">{this.props.reviewerName}</h4>
 				</Jumbotron>
 
 				<Row className="reviewContent">
 					<Col xs={7} className="text-left">
-						<p dangerouslySetInnerHTML={{__html: this.props.reviewText}}></p>
+						<p id="text" dangerouslySetInnerHTML={{__html: this.props.reviewText}}></p>
 					</Col>
 
 					<Col xs={5} className="reviewPicture text-center align">
-						<Image src={this.props.reviewImg[0]} />
+						<Image id="img" src={this.props.reviewImg[0]} />
 					</Col>
 				</Row>
 

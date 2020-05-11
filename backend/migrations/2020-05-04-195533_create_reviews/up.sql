@@ -4,7 +4,7 @@ CREATE TABLE reviews (
   kennelid UUID NOT NULL,
   title VARCHAR NOT NULL,
   author UUID NOT NULL,
-  date_posted DATE NOT NULL,
+  date_posted TIMESTAMP NOT NULL,
   review_text VARCHAR NOT NULL,
   images TEXT[] NOT NULL,
   rating INT NOT NULL,

@@ -12,11 +12,11 @@ export function createUserJson(username = "", email = "", password = "") {
 };
 
 // Creates a JSON Review object
-export function createReviewJson(title = "", text = "", author = "") {
+export function createReviewJson(title = "", text = "", author = "", dateTime = "") {
     var form = {kennelid: "00000000-0000-0000-0000-000000000000",
                 title: title,
                 author: author,
-                //date_posted: "2",
+                date_posted: dateTime,
                 review_text: text,
                 images: {},
                 rating: 0,

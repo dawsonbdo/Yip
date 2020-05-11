@@ -7,7 +7,7 @@ extern crate json;
 use crate::auth;
 use crate::db;
 
-use handlers::{Review, DbReview};
+use handlers::{Review, DbReview, DisplayReview};
 use rocket_contrib::json::{Json, JsonValue};
 
 use db::DbConn;
@@ -20,7 +20,22 @@ use std::fs::File;
 
 use reviewmultipart::ReviewMultipart;
 
-use serde_json::Value;
+use serde_json::{Value, Map};
+
+fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -> Review {
+	let r = Review {
+		kennelid: review_obj.get("kennelid").unwrap().to_string(),
+		title: review_obj.get("title").unwrap().to_string(),
+		author: review_obj.get("author").unwrap().to_string(),
+		date_posted: review_obj.get("date_posted").unwrap().to_string(),
+		review_text: review_obj.get("review_text").unwrap().to_string(),
+		images: paths,
+		rating: review_obj.get("rating").unwrap().as_i64().unwrap() as i32,
+		tags: json!(null),
+	};
+
+	return r;
+}
 
 /** 
  * Method that returns a review from database given the ID
@@ -28,8 +43,8 @@ use serde_json::Value;
  *
  * @return returns JSON of the review or error status
  */
-#[post("/get_review/<id>")]
-fn get_review(id: String, connection: DbConn) -> Result<Json<DbReview>, status::NotFound<String>> {
+#[get("/get_review/<id>")]
+fn get_review(id: String, connection: DbConn) -> Result<Json<DisplayReview>, status::NotFound<String>> {
 
 	// Converts string to a uuid
 	let uuid = Uuid::parse_str(&id).unwrap();
@@ -76,9 +91,7 @@ fn edit_review(review: Json<Review>, connection: DbConn) -> () {
  * @return returns TBD
  */
 #[post("/create_review", data="<data>")]
-fn create_review(data: ReviewMultipart, connection: DbConn) -> std::io::Result<()> { //Result<String, status::Conflict<String>> {
-
-	// println!("Review: {}", data.review);
+fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, status::Conflict<String>> { 
 
 	// Create object from stringified version passed in
 	let review_value : Value = serde_json::from_str(&data.review).unwrap();
@@ -92,33 +105,23 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> std::io::Result<(
 
 		// Create file path using filename, create file with it, write the image
 		let file_path = format!("static/reviewpics/{}", &data.names[i]);
-		let mut buffer = File::create(file_path.clone())?;
+		let mut buffer = File::create(file_path.clone()).unwrap();
 		buffer.write(&img);
 
 		// Add path to vector
-		paths.push(file_path);
+		paths.push(format!("reviewpics/{}", &data.names[i]));
 	}
 
 	// Create review object in correct format
-	let review = Review {
-		kennelid: review_obj.get("kennelid").unwrap().to_string(),
-		title: review_obj.get("title").unwrap().to_string(),
-		author: review_obj.get("author").unwrap().to_string(),
-		review_text: review_obj.get("review_text").unwrap().to_string(),
-		images: paths,
-		rating: review_obj.get("rating").unwrap().as_i64().unwrap() as i32,
-		tags: json!(null),
-	};
+	let review = review_creation_helper(review_obj, paths);
 	
 	// Attempt to insert review into database
-	let created_review = handlers::insert(review, &connection);
+	match handlers::insert(review, &connection){
+		Ok(r) => Ok(r.id.hyphenated().to_string()),
+		Err(e) => Err(status::Conflict(Some(e.to_string()))),
+	}
 
-	println!("REVIEW POSTED: {}", created_review);
-
-	Ok(())
-	
 }
-
 
 
 /**
@@ -131,10 +134,10 @@ fn list_reviews(connection: DbConn) -> () {
 	let all_reviews = handlers::all(&connection)
         .map(|review| Json(review));
         
-	// Prints out title/text/rating of each review in database
+	// Prints out title/text/id of each review in database
 	for vec in all_reviews {
 		for r in vec.iter() {
-			println!("Title: {} Text: {} Rating: {}", r.title, r.review_text, r.rating);
+			println!("Title: {} Text: {} Id: {}", r.title, r.review_text, r.id);
 		} 
 	}
 

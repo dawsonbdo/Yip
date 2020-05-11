@@ -32,14 +32,19 @@ class CreateReview extends Component {
   }
 
   postReview(){
+    // TODO: Get UTC time or something standard instead of just local time
+
+    // Get date/time of post 
+    var today = new Date();
+    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date+' '+time;
+
     // Read information in forms
     var title = document.getElementById('title').value;
     var text = document.getElementById('text').value;
     var user = localStorage.getItem('jwtToken');
-    var form = createReviewJson(title, text, user);
-
-    //console.log("IMAGES");
-    //console.log(this.state.pictures);
+    var form = createReviewJson(title, text, user, dateTime);
 
     // Create form data for POST request and stringify json
     const fd = new FormData();
@@ -61,11 +66,10 @@ class CreateReview extends Component {
     }).then(response => {
 
         // Successfuly created review
-        console.log(response)
+        alert('Review creation success');
 
-        // Redirect to home after posting
+        // Redirect to review after posting
         //this.setState({ redirect: "/" });
-
         
     }).catch(error => {
 
