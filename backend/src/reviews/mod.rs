@@ -39,6 +39,18 @@ fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -
 	return r;
 }
 
+/**
+ * Method that returns username corresponding to token, "" if none
+ */
+fn token_to_username(token: String, connection: &DbConn) -> String {
+	// Get username from token passed in
+	let profile_uuid = auth::get_uuid_from_token(&token);
+	match super::users::handlers::get_user_from_uuid(profile_uuid, connection){
+		Ok(u) => u.username,
+		Err(_e) => "".to_string(),
+	}
+}
+
 /** 
  * Method that returns a review from database given the ID
  * @param id: Uuid of review as a string
@@ -54,12 +66,8 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 	// Get Review from database
 	let review = handlers::get(review_uuid, &connection);
 
-	// Get profile uuid from token passed in
-	let profile_uuid = auth::get_uuid_from_token(&token);
-	let profile_username = match super::users::handlers::get_user_from_uuid(profile_uuid, &connection){
-		Ok(u) => u.username,
-		Err(_e) => "".to_string(),
-	};
+	// Get username from token passed in
+	let profile_username = token_to_username(token, &connection);
 
 	// Pattern match to see if review found successfully
 	match review {
@@ -73,16 +81,47 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 	
 }
 
+// Struct with review ID and user jwt for editing/deleting kennels
+#[derive(Queryable, Serialize, Deserialize)]
+struct ReviewToken {
+    review_uuid: String,
+    token: String,
+}
+
 /** 
- * Method that removes a review from database
- * @param review: Json format of review
+ * Method that removes a review from database if token matches author of review
+ * @param review: Json with uuid and token
  *
  * @return returns TBD
  */
 #[post("/remove_review", data="<review>")]
-fn remove_review(review: Json<Review>, connection: DbConn) -> () {
-	
-	
+fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
+
+	// Get tokens username
+	let profile_username = token_to_username(review.token.clone(), &connection);
+
+	// Converts string to a uuid
+	let uuid = Uuid::parse_str(&review.review_uuid).unwrap();
+
+	// Get Review from database
+	let review = handlers::get(uuid, &connection);
+
+	// Pattern match to see if review found successfully
+	match review {
+		Ok(r) => {
+			// If token matches author of review, attempt to delete
+			if profile_username.eq(&r.author) { 
+				match handlers::delete(uuid, &connection){
+					Ok(_u) => Ok(status::Accepted(None)),
+					Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
+				}
+			} else {
+				Err(status::Unauthorized(Some("User is not the author".to_string())))
+			}
+		},
+		// Review not found in database
+		Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
+	}
 }
 
 /** 
