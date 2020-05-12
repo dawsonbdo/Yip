@@ -45,7 +45,7 @@ class Home extends Component {
             var reviewIds = response.data.split(",");
 
             // Go through reviews filling up the review cards
-            for ( int i = 1; i < reviewIds.length; i++ ){
+            for ( var i = 1; i < reviewIds.length; i++ ){
 
               // Index 1 is the starting point
               var reviewId = reviewIds[i];

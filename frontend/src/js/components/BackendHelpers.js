@@ -13,11 +13,11 @@ export function createUserJson(username = "", email = "", password = "") {
 
 // Creates a JSON Review object
 export function createReviewJson(title = "", text = "", author = "", dateTime = "") {
-    var form = {kennelid: "00000000-0000-0000-0000-000000000000",
+    var form = {kennel_uuid: "f37c4d54-ab18-4e33-bd89-b4209ecd0f13",
                 title: title,
                 author: author,
-                date_posted: dateTime,
-                review_text: text,
+                timestamp: dateTime,
+                text: text,
                 images: {},
                 rating: 0,
                 tags: {}};

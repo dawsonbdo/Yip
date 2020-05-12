@@ -101,6 +101,7 @@ pub struct DbReview {
 impl DbReview{
 
     fn from_review(review: Review) -> DbReview {
+
         DbReview{
             review_uuid: Uuid::new_v4(), // generate random uuid for review
             kennel_uuid: Uuid::parse_str(&review.kennel_uuid[1..37]).unwrap(),
@@ -119,15 +120,23 @@ impl DbReview{
     }
 
     fn to_review(review: DbReview, connection: &PgConnection) -> DisplayReview {
+        let vec : Vec<String> = vec![];
+        let vec2 : Vec<String> = vec![];
         DisplayReview{
             kennel_uuid: review.kennel_uuid.to_string(), //TODO Get name of kennel
             title: review.title,
             author: super::super::users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
             timestamp: review.timestamp.unwrap(),
             text: review.text,
-            images: review.images.unwrap(),
+            images: match review.images {
+                Some(t) => t,
+                None => vec,
+            },
             rating: review.rating,
-            tags: review.tags.unwrap(),
+            tags: match review.tags {
+                Some(t) => t,
+                None => vec2,
+            },
         }
     }
 

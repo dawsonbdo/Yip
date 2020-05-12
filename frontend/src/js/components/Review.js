@@ -22,7 +22,7 @@ class Review extends Component {
 
 	componentDidMount(){
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
-		var reviewId = "61167269-a55f-40be-ba01-904d732362ba";
+		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
 
 		// Format URL to send in GET request
 		var reqUrl = "/get_review/" + reviewId;
@@ -38,8 +38,12 @@ class Review extends Component {
             // TODO: Fill in html using response 
             document.getElementById('title').innerHTML = response.data.title;
             document.getElementById('author').innerHTML = response.data.author;
-            document.getElementById('img').src = response.data.images[0];
-            document.getElementById('text').innerHTML = response.data.review_text; 
+            document.getElementById('text').innerHTML = response.data.text; 
+
+            // Check that any images were returned cuz can be undefined
+            if ( response.data.images != undefined ){
+            	document.getElementById('img').src = response.data.images[0];
+            }
         
         }).catch(error => {
 
