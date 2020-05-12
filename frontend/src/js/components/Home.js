@@ -35,54 +35,31 @@ class Home extends Component {
 
       // Load reviews
       axios({
-            method: 'get',
-            url: '/reviews'
-        }).then(response => {
+          method: 'post',
+          url: '/load_reviews',
+          data: localStorage.getItem('jwtToken')
+      }).then(response => {
 
-            alert('Listed reviews');
+          alert('Listed reviews');
 
-            // Gets list of IDs by splitting up response string by commas
-            var reviewIds = response.data.split(",");
+          // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
+          //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
+          
+          // Iterate through reviews
+          for (var i = 0; i < response.data.length; i++ ){
 
-            // Go through reviews filling up the review cards
-            for ( var i = 1; i < reviewIds.length; i++ ){
+            // Print reviews to console for now
+            console.log(response.data[i]);
 
-              // Index 1 is the starting point
-              var reviewId = reviewIds[i];
-            
-              // Figures out url of GET request
-              var reqUrl = "/get_review/" + reviewId;
-
-              // Send GET request with review id as query string
-              axios({
-                  method: 'get',
-                  url: reqUrl
-              }).then(review => {
-
-                  alert('Review successfully grabbed from database!');
-
-                  // TODO: Fill in review cards using returned reviews
-                  var card1 = document.getElementById('c1');
-                    
-                  //card1.setState({reviewName: review.data.title});
-                  //card1.props.reviewerName = review.data.author;
-                  //card1.props.reviewPreview = review.data.review_text;
-                   
-              }).catch(error2 => {
-
-                  // Review not found in database
-                  alert('Review does not exist');
-
-              });
-      
-            }
+          } 
         
-        }).catch(error => {
+      }).catch(error => {
 
-            // Review not found in database
-            alert('Failed to list reviews');
+          // Review not found in database
+          alert('Failed to list reviews');
 
-        });
+      });
+
     }
 
     render() {

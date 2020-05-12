@@ -151,6 +151,53 @@ fn list_reviews(connection: DbConn) -> String {
 	reviewIds
 }
 
+
+/** 
+ * Method that returns a review from database given the ID
+ * @param id: Uuid of review as a string
+ *
+ * @return returns JSON of the review or error status
+ */
+fn review_helper(id: String, connection: &DbConn) -> Result<DisplayReview, status::NotFound<String>> {
+
+	// Converts string to a uuid
+	let uuid = Uuid::parse_str(&id).unwrap();
+
+	// Get Review from database
+	let review = handlers::get(uuid, connection);
+
+	// Pattern match to see if review found successfully
+	match review {
+		Ok(r) => Ok(r),
+		Err(e) => Err(status::NotFound("".to_string())),
+	}
+	
+}
+
+/**
+ * Print out all reviews
+ */
+fn list_helper(connection: &DbConn) -> String {
+
+	// Makes database call to get all users
+	let all_reviews = handlers::all(connection)
+        .map(|review| Json(review));
+        
+
+    let mut reviewIds = "".to_string();
+
+	// Prints out title/text/id of each review in database
+	for vec in all_reviews {
+		for r in vec.iter() {
+			println!("Title: {} Text: {} Id: {}", r.title, r.text, r.review_uuid);
+			reviewIds = format!("{},{}", reviewIds, &r.review_uuid.hyphenated().to_string());
+		} 
+	}
+
+	// Return vector with all the ids
+	reviewIds
+}
+
 /** 
  * Method that loads all of the reviews on home page, given a jwt
  * @param token: the jwt of user, "0" if not logged in
@@ -158,17 +205,36 @@ fn list_reviews(connection: DbConn) -> String {
  * @return returns true or false indicating if password changed sucessfuly
  */
 #[post("/load_reviews", data="<token>", rank=1)]
-fn load_reviews(token: String, connection: DbConn) -> () {
+fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
 	
+	// Create a vector with all of the reviews to display
+	let mut reviews : Vec<DisplayReview> = vec![];
+
+
 	// Check if user is logged in by checking token passed in
 	if auth::validate_token(token) {
 
-		// Generate user specific reviews based on followed kennels
+		// TODO: Generate user specific reviews based on followed kennels
 
 	} else {
 
-		// Generate generic reviews
+		// Generate generic reviews from database
 
+		// Get all of the IDS
+		let r = list_helper(&connection);
+		let reviewIds : Vec<&str> = r.split(",").collect();
+
+		// Iterate through review IDs (starting idx = 1) and add all reviews to vector
+		for i in 1..(reviewIds.iter().len()) {
+			reviews.push(review_helper(reviewIds[i].to_string(), &connection).unwrap());
+		}
+	}
+
+	// Return a Result depending on if reviews were found
+	if ( reviews.iter().len() == 0 ){
+		Err(status::NotFound("No Reviews".to_string()))
+	} else {
+		Ok(Json(reviews))
 	}
 }
 

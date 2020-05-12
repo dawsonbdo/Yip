@@ -58,7 +58,7 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
 // Fields that represent what the review needs to display on front end
 #[derive(Queryable, Serialize, Deserialize, Debug)]
 pub struct DisplayReview {
-    pub kennel_uuid: String, //kennel name
+    pub kennel_name: String, //kennel name
     pub title: String,
     pub author: String, //username
     pub timestamp: NaiveDateTime,
@@ -123,7 +123,7 @@ impl DbReview{
         let vec : Vec<String> = vec![];
         let vec2 : Vec<String> = vec![];
         DisplayReview{
-            kennel_uuid: review.kennel_uuid.to_string(), //TODO Get name of kennel
+            kennel_name: super::super::kennels::handlers::get(review.kennel_uuid, connection).unwrap().kennel_name, //TODO Get name of kennel
             title: review.title,
             author: super::super::users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
             timestamp: review.timestamp.unwrap(),
