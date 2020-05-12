@@ -22,7 +22,7 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbKennel> {
 /**
  * CREATE KENNEL: Method that attempts to create a new kennel in database, returns URL? 
  */
-pub fn insert(kennel: Kennel, connection: &PgConnection) -> bool {
+pub fn insert(kennel: Kennel, connection: &PgConnection) -> Result<Uuid, String> {
     // Prints the Kennel information that was received (register)
     println!("Name: {}", kennel.kennel_name);
     println!("Tags: {}", kennel.tags[0]);
@@ -32,8 +32,8 @@ pub fn insert(kennel: Kennel, connection: &PgConnection) -> bool {
     match diesel::insert_into(kennels::table)
         .values(&DbKennel::from_kennel(kennel))
         .get_result::<DbKennel>(connection) {
-            Ok(_u) => return true,
-            Err(_e) => return false,
+            Ok(u) => Ok(u.kennel_uuid),
+            Err(e) => Err(e.to_string()),
         }
 }
 

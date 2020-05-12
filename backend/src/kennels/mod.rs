@@ -39,7 +39,7 @@ fn list_kennels(connection: DbConn) -> () {
 }
 
 /** 
- * Method that creates a kennel
+ * Method that unfollows a kennel
  * @param kennel: JSON of the kennel
  *
  * @return returns TBD
@@ -51,7 +51,7 @@ fn unfollow_kennel(input: Json<KennelUser>, connection: DbConn) -> () {
 }
 
 /** 
- * Method that creates a kennel
+ * Method that follows a kennel
  * @param kennel: JSON of the kennel
  *
  * @return returns TBD
@@ -70,8 +70,16 @@ fn follow_kennel(input: Json<KennelUser>, connection: DbConn) -> () {
  * @return returns TBD
  */
 #[post("/create_kennel", data="<kennel>", rank=1)]
-fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> () {
+fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
 	
+	// Attempt to insert kennel into database 
+	let successful_creation = handlers::insert(kennel.into_inner(), &connection);
+	
+	// Check if successful insertion into database
+	match successful_creation {
+		Ok(_id) => Ok(status::Accepted(None)),
+		Err(e) => Err(status::Conflict(Some(e.to_string()))),
+	}
 	
 }
 

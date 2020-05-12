@@ -24,6 +24,14 @@ export function createReviewJson(title = "", text = "", author = "", dateTime = 
     return form
 };
 
+// Creates a JSON Kennel object
+export function createKennelJson(name = "", tags = "") {
+    var form = {kennel_uuid: "00000000-0000-0000-0000-000000000000",
+                tags: tags,
+                kennel_name: name};
+    return form
+};
+
 // Updates the logged in state of a component that is passed in by checking database
 export async function updateLoggedInState(page){
       // Send POST request with token for authenticatio

@@ -131,9 +131,31 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
  * @return returns TBD
  */
 #[post("/edit_review", data="<review>")]
-fn edit_review(review: Json<Review>, connection: DbConn) -> () {
+fn edit_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
 	
-	
+	// Get tokens username
+	let profile_username = token_to_username(review.token.clone(), &connection);
+
+	// Converts string to a uuid
+	let uuid = Uuid::parse_str(&review.review_uuid).unwrap();
+
+	// Get Review from database
+	let review = handlers::get(uuid, &connection);
+
+	// Pattern match to see if review found successfully
+	match review {
+		Ok(r) => {
+			// If token matches author of review, TODO: attempt to update
+			if profile_username.eq(&r.author) { 
+				// TODO: Attempt to update
+				Ok(status::Accepted(None))
+			} else {
+				Err(status::Unauthorized(Some("User is not the author".to_string())))
+			}
+		},
+		// Review not found in database
+		Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
+	}
 }
 
 /** 

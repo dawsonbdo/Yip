@@ -15,7 +15,7 @@ use db::DbConn;
  * Method that returns a user from database given the username
  * @param username: username of user whos data is retrieved
  *
- * @return returns JSON of the review or error status
+ * @return returns JSON of the user or error status
  */
 #[post("/get_user", data="<username>")]
 fn get_user(username: String, connection: DbConn) -> Result<Json<DbUser>, status::NotFound<String>> {
