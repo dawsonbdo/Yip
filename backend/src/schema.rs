@@ -24,7 +24,7 @@ table! {
         comment_uuid -> Uuid,
         review_uuid -> Uuid,
         author_uuid -> Uuid,
-        timestamps -> Nullable<Timestamp>,
+        timestamp -> Timestamp,
         text -> Varchar,
     }
 }

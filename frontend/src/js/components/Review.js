@@ -14,13 +14,20 @@ import Button from 'react-bootstrap/Button';
 
 import axios from 'axios' 
 
+import { createCommentJson } from './BackendHelpers.js';
+
 class Review extends Component {
 
 	constructor(props){
 		super(props)
+
+		// Binds button handler
+    	this.postComment = this.postComment.bind(this);
 	}
 
 	componentDidMount(){
+		// TODO: Display stuff based on if logged in or not (ie form to post comment)
+
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
 		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
 		var token = localStorage.getItem('jwtToken');
@@ -57,6 +64,41 @@ class Review extends Component {
         });
 	}
 
+	postComment(){
+		// TODO: Get uuid of review
+		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
+
+		// Get token
+		var token = localStorage.getItem('jwtToken');
+
+		// Get text from comment field
+		var text = document.getElementById('reviewComment').value;
+
+		// Create JSON obj of comment
+		var form = createCommentJson(reviewId, token, text);
+
+		console.log(form);
+
+		// Send POST request
+    	axios({
+            method: 'post',
+            url: '/create_comment',
+            data: form
+        }).then(response => {
+
+            alert('Comment successfully posted to database!');
+
+            // TODO: Update page to display comment
+            
+        
+        }).catch(error => {
+
+            // Failed to post comment
+            alert('Comment post failed');
+
+        });
+	}
+
 	render() {
 		return (
 			<div>
@@ -86,7 +128,7 @@ class Review extends Component {
 									<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" />
 								</div>
 								<div className="logInEntryContainer">
-									<Button className="logInEntry" variant="primary">Post</Button>
+									<Button onClick={this.postComment} className="logInEntry" variant="primary">Post</Button>
 								</div>
 							</Form>
 						</div>

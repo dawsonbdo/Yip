@@ -18,6 +18,7 @@ use rocket::response::NamedFile;
 mod users;
 mod reviews;
 mod kennels;
+mod comments;
 
 mod auth;
 mod schema;
@@ -55,6 +56,7 @@ fn rocket() -> rocket::Rocket {
     rocket = users::mount(rocket);
     rocket = reviews::mount(rocket);
     rocket = kennels::mount(rocket);
+    rocket = comments::mount(rocket);
 
     // Return the Rocket
     return rocket;

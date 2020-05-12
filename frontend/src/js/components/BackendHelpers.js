@@ -32,6 +32,24 @@ export function createKennelJson(name = "", tags = "") {
     return form
 };
 
+// Creates a JSON Comment object
+export function createCommentJson(review_uuid = "", token = "", text = "") {
+    var form = {review_uuid: review_uuid,
+                author_token: token,
+                timestamp: getDateTime(),
+                text: text,
+                };
+    return form
+};
+
+function getDateTime(){
+  var today = new Date();
+  var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  var dateTime = date+' '+time;
+  return dateTime;
+}
+
 // Updates the logged in state of a component that is passed in by checking database
 export async function updateLoggedInState(page){
       // Send POST request with token for authenticatio
