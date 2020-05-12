@@ -45,20 +45,31 @@ fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -
  *
  * @return returns JSON of the review or error status
  */
-#[get("/get_review/<id>")]
-fn get_review(id: String, connection: DbConn) -> Result<Json<DisplayReview>, status::NotFound<String>> {
+#[get("/get_review/<id>/<token>")]
+fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<DisplayReview>, status::NotFound<String>> {
 
-	// Converts string to a uuid
-	let uuid = Uuid::parse_str(&id).unwrap();
+	// Converts review id to a uuid
+	let review_uuid = Uuid::parse_str(&id).unwrap();
 
 	// Get Review from database
-	let review = handlers::get(uuid, &connection);
+	let review = handlers::get(review_uuid, &connection);
+
+	// Get profile uuid from token passed in
+	let profile_uuid = auth::get_uuid_from_token(&token);
+	let profile_username = match super::users::handlers::get_user_from_uuid(profile_uuid, &connection){
+		Ok(u) => u.username,
+		Err(_e) => "".to_string(),
+	};
 
 	// Pattern match to see if review found successfully
 	match review {
-		Ok(r) => Ok(Json(r)),
+		Ok(mut r) => {
+			r.isAuthor = profile_username.eq(&r.author); // set field of DisplayReview
+			Ok(Json(r))
+		},
 		Err(e) => Err(status::NotFound("".to_string())),
 	}
+
 	
 }
 
@@ -209,7 +220,6 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	
 	// Create a vector with all of the reviews to display
 	let mut reviews : Vec<DisplayReview> = vec![];
-
 
 	// Check if user is logged in by checking token passed in
 	if auth::validate_token(token) {

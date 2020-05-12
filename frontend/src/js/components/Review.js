@@ -23,9 +23,10 @@ class Review extends Component {
 	componentDidMount(){
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
 		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
+		var token = localStorage.getItem('jwtToken');
 
 		// Format URL to send in GET request
-		var reqUrl = "/get_review/" + reviewId;
+		var reqUrl = "/get_review/" + reviewId + "/" + token;
 
 		// Send GET request with review id as query string
     	axios({
@@ -44,6 +45,9 @@ class Review extends Component {
             if ( response.data.images != undefined ){
             	document.getElementById('img').src = response.data.images[0];
             }
+
+            // TODO: Render edit/delete buttons depending on if author of review
+            console.log("Is Author: " + response.data.isAuthor);
         
         }).catch(error => {
 

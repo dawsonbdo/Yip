@@ -66,6 +66,7 @@ pub struct DisplayReview {
     pub images: Vec<String>,
     pub rating: i32,
     pub tags: Vec<String>,
+    pub isAuthor: bool,
 }
 
 // Struct representing the fields of a review passed in from frontend contains
@@ -122,7 +123,9 @@ impl DbReview{
     fn to_review(review: DbReview, connection: &PgConnection) -> DisplayReview {
         let vec : Vec<String> = vec![];
         let vec2 : Vec<String> = vec![];
-        DisplayReview{
+        
+        let mut r = 
+         DisplayReview{
             kennel_name: super::super::kennels::handlers::get(review.kennel_uuid, connection).unwrap().kennel_name, //TODO Get name of kennel
             title: review.title,
             author: super::super::users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
@@ -137,7 +140,10 @@ impl DbReview{
                 Some(t) => t,
                 None => vec2,
             },
-        }
+            isAuthor: false,
+        };
+
+        r
     }
 
 }
