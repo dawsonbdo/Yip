@@ -158,7 +158,10 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
 					Err(e) => Err(status::Conflict(Some(e.to_string()))), 
 				 },
 		// Unsuccessful registration, return the error
-		Err(e) => Err(status::Conflict(Some(e.to_string()))),
+		Err(e) => {
+			println!("{}", e.to_string());
+			Err(status::Conflict(Some(e.to_string())))
+		}
 	}
 
 }

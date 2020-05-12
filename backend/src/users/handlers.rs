@@ -31,7 +31,7 @@ pub fn get(user: User, connection: &PgConnection) -> Uuid {
         if bcrypt::verify(&user.password, &username_search[0].password).expect("Error") {
 
             // Returns UUID
-            return username_search[0].id;
+            return username_search[0].profile_uuid;
         }
 
 
@@ -41,7 +41,7 @@ pub fn get(user: User, connection: &PgConnection) -> Uuid {
         if bcrypt::verify(&user.password, &email_search[0].password).expect("Error") {
 
             // Returns UUID
-            return email_search[0].id;
+            return email_search[0].profile_uuid;
         }
 
     }
@@ -56,7 +56,7 @@ pub fn username_email_linked(username: &str, email: &str, connection: &PgConnect
 
     // Looks for username in database, if found and username/email belong to same uuid, returns uuid
     match users::table.filter(users::username.eq(username)).load::<DbUser>(&*connection){
-        Ok(u) => if u.iter().len() != 0 && u[0].username.eq(username) && u[0].email.eq(email) { u[0].id } else { Uuid::nil() },
+        Ok(u) => if u.iter().len() != 0 && u[0].username.eq(username) && u[0].email.eq(email) { u[0].profile_uuid } else { Uuid::nil() },
         Err(_e) => Uuid::nil(),
     }
 
@@ -65,7 +65,7 @@ pub fn username_email_linked(username: &str, email: &str, connection: &PgConnect
 // Function that returns the uuid of a user given their username
 pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> Uuid {
     match users::table.filter(users::username.eq(username)).load::<DbUser>(&*connection){
-        Ok(u) => u[0].id,
+        Ok(u) => u[0].profile_uuid,
         Err(_e) => Uuid::nil(),
     }
 }
@@ -110,8 +110,8 @@ pub fn insert(user: User, connection: &PgConnection) -> Result<Uuid, String> {
         match diesel::insert_into(users::table)
         .values(&DbUser::from_user(user))
         .get_result::<DbUser>(connection) {
-            Ok(u) => return Ok(u.id),
-            Err(_e) => return Err(err_msg),
+            Ok(u) => return Ok(u.profile_uuid),
+            Err(e) => return Err(e.to_string()),
         }
     }
     
@@ -148,11 +148,12 @@ pub struct User {
 #[derive(Insertable, Queryable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "users"]
 pub struct DbUser {
-    pub id: Uuid,
+    pub profile_uuid: Uuid,
     pub username: String,
     pub email: String,
+    pub passwordsalt: i64,
     pub password: String,
-    pub profilepic: String,
+    pub profilepicture: String,
     pub sitewideban: bool,
 }
 
@@ -161,11 +162,12 @@ impl DbUser{
 
     fn from_user(user: User) -> DbUser {
         DbUser{
-            id: Uuid::new_v4(), // generate random uuid
+            profile_uuid: Uuid::new_v4(), // generate random uuid
             username: user.username,
             email: user.email,
+            passwordsalt: 0,
             password: bcrypt::hash(user.password, 12).expect("Error"),
-            profilepic: "".to_string(),
+            profilepicture: "".to_string(),
             sitewideban: false,
         }
     }
