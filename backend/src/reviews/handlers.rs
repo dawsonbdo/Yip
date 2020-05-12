@@ -58,42 +58,43 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
 // Fields that represent what the review needs to display on front end
 #[derive(Queryable, Serialize, Deserialize, Debug)]
 pub struct DisplayReview {
-    pub kennelid: String, //kennel name
+    pub kennel_uuid: String, //kennel name
     pub title: String,
     pub author: String, //username
-    pub date_posted: NaiveDateTime,
-    pub review_text: String,
+    pub timestamp: NaiveDateTime,
+    pub text: String,
     pub images: Vec<String>,
     pub rating: i32,
-    pub tags: serde_json::Value,
+    pub tags: Vec<String>,
 }
 
 // Struct representing the fields of a review passed in from frontend contains
 #[derive(Queryable, Serialize, Deserialize, Debug)]
 pub struct Review {
-    pub kennelid: String,
+    pub kennel_uuid: String,
     pub title: String,
     pub author: String, //jwt
-    pub date_posted: String,
-    pub review_text: String,
-    pub images: Vec<String>,
+    pub timestamp: String,
+    pub text: String,
+    pub images: Option<Vec<String>>,
     pub rating: i32,
-    pub tags: serde_json::Value,
+    pub tags: Option<Vec<String>>,
 }
 
 // Struct represneting the fields of a review that is inserted into database
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
 #[table_name = "reviews"]
 pub struct DbReview {
-    pub id: Uuid,
-    pub kennelid: Uuid,
+    pub review_uuid: Uuid,
+    pub kennel_uuid: Uuid,
     pub title: String,
     pub author: Uuid, 
-    pub date_posted: NaiveDateTime,
-    pub review_text: String,
-    pub images: Vec<String>,
+    pub timestamp: Option<NaiveDateTime>,
+    pub text: String,
     pub rating: i32,
-    pub tags: serde_json::Value,
+    pub tags: Option<Vec<String>>,
+    pub hotness: Option<i32>,
+    pub images: Option<Vec<String>>,
 }
 
 // Converts a Review to an DbReview by calling functions on passed in values
@@ -101,28 +102,32 @@ impl DbReview{
 
     fn from_review(review: Review) -> DbReview {
         DbReview{
-            id: Uuid::new_v4(), // generate random uuid for review
-            kennelid: Uuid::parse_str(&review.kennelid[1..37]).unwrap(),
+            review_uuid: Uuid::new_v4(), // generate random uuid for review
+            kennel_uuid: Uuid::parse_str(&review.kennel_uuid[1..37]).unwrap(),
             title: (&review.title[1..(review.title.len()-1)]).to_string(),
             author: auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]),
-            date_posted: NaiveDateTime::parse_from_str(&review.date_posted, "\"%Y-%m-%d %H:%M:%S\"").unwrap(),
-            review_text: (&review.review_text[1..(review.review_text.len()-1)]).to_string(),
+            timestamp: match NaiveDateTime::parse_from_str(&review.timestamp, "\"%Y-%m-%d %H:%M:%S\"") {
+                Ok(t) => Some(t),
+                Err(e) => None,
+            },
+            text: (&review.text[1..(review.text.len()-1)]).to_string(),
             images: review.images,
             rating: review.rating,
             tags: review.tags,
+            hotness: Some(0),
         }
     }
 
     fn to_review(review: DbReview, connection: &PgConnection) -> DisplayReview {
         DisplayReview{
-            kennelid: review.kennelid.to_string(), //TODO Get name of kennel
+            kennel_uuid: review.kennel_uuid.to_string(), //TODO Get name of kennel
             title: review.title,
             author: super::super::users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
-            date_posted: review.date_posted,
-            review_text: review.review_text,
-            images: review.images,
+            timestamp: review.timestamp.unwrap(),
+            text: review.text,
+            images: review.images.unwrap(),
             rating: review.rating,
-            tags: review.tags,
+            tags: review.tags.unwrap(),
         }
     }
 

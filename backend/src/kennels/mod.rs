@@ -32,7 +32,7 @@ fn list_kennels(connection: DbConn) -> () {
 	// Prints out title/text/rating of each review in database
 	for vec in all_kennels {
 		for k in vec.iter() {
-			println!("Name: {} Tags: {} Mods: {}", k.name, k.tags[0], k.mods[0]);
+			println!("Name: {} Tags: {} Id: {}", k.kennel_name, k.tags.as_ref().unwrap()[0], k.kennel_uuid);
 		} 
 	}
 

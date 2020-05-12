@@ -24,9 +24,9 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbKennel> {
  */
 pub fn insert(kennel: Kennel, connection: &PgConnection) -> bool {
     // Prints the Kennel information that was received (register)
-    println!("Name: {}", kennel.name);
+    println!("Name: {}", kennel.kennel_name);
     println!("Tags: {}", kennel.tags[0]);
-    println!("Mods: {}", kennel.mods[0]);
+    //println!("Mods: {}", kennel.mods[0]);
 
     // Inserts kennel into database, returns uuid generated
     match diesel::insert_into(kennels::table)
@@ -58,22 +58,20 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
 }
 
 // Struct representing the fields of a kennel passed in from frontend contains
-#[derive(Queryable, AsChangeset, Serialize, Deserialize)]
-#[table_name = "kennels"]
+#[derive(Queryable, Serialize, Deserialize)]
 pub struct Kennel {
-    pub name: String,
+    pub kennel_uuid: String,
     pub tags: Vec<String>,
-    pub mods: Vec<Uuid>,
+    pub kennel_name: String,
 }
 
 // Struct represneting the fields of a kennel that is inserted into database
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
 #[table_name = "kennels"]
 pub struct DbKennel {
-    pub id: Uuid,
-    pub name: String,
-    pub tags: Vec<String>,
-    pub mods: Vec<Uuid>,
+    pub kennel_uuid: Uuid,
+    pub tags: Option<Vec<String>>,
+    pub kennel_name: String,
 }
 
 // Converts a Kennel to an DbKennel by calling functions on passed in values
@@ -81,10 +79,9 @@ impl DbKennel{
 
     fn from_kennel(kennel: Kennel) -> DbKennel {
         DbKennel{
-            id: Uuid::new_v4(), // generate random uuid for kennel
-            name: kennel.name,
-            tags: kennel.tags,
-            mods: kennel.mods,
+            kennel_uuid: Uuid::new_v4(), // generate random uuid for kennel
+            kennel_name: kennel.kennel_name,
+            tags: Some(kennel.tags),
         }
     }
 

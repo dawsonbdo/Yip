@@ -23,15 +23,17 @@ use reviewmultipart::ReviewMultipart;
 use serde_json::{Value, Map};
 
 fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -> Review {
+	//let vec = vec![];
+
 	let r = Review {
-		kennelid: review_obj.get("kennelid").unwrap().to_string(),
+		kennel_uuid: review_obj.get("kennel_uuid").unwrap().to_string(),
 		title: review_obj.get("title").unwrap().to_string(),
 		author: review_obj.get("author").unwrap().to_string(),
-		date_posted: review_obj.get("date_posted").unwrap().to_string(),
-		review_text: review_obj.get("review_text").unwrap().to_string(),
-		images: paths,
+		timestamp: review_obj.get("timestamp").unwrap().to_string(),
+		text: review_obj.get("text").unwrap().to_string(),
+		images: if paths.iter().len() == 0 {None} else {Some(paths)},
 		rating: review_obj.get("rating").unwrap().as_i64().unwrap() as i32,
-		tags: json!(null),
+		tags: None,
 	};
 
 	return r;
@@ -117,7 +119,7 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, st
 	
 	// Attempt to insert review into database
 	match handlers::insert(review, &connection){
-		Ok(r) => Ok(r.id.hyphenated().to_string()),
+		Ok(r) => Ok(r.review_uuid.hyphenated().to_string()),
 		Err(e) => Err(status::Conflict(Some(e.to_string()))),
 	}
 
@@ -140,8 +142,8 @@ fn list_reviews(connection: DbConn) -> String {
 	// Prints out title/text/id of each review in database
 	for vec in all_reviews {
 		for r in vec.iter() {
-			println!("Title: {} Text: {} Id: {}", r.title, r.review_text, r.id);
-			reviewIds = format!("{},{}", reviewIds, &r.id.hyphenated().to_string());
+			println!("Title: {} Text: {} Id: {}", r.title, r.text, r.review_uuid);
+			reviewIds = format!("{},{}", reviewIds, &r.review_uuid.hyphenated().to_string());
 		} 
 	}
 

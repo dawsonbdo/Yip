@@ -1,7 +1,7 @@
 use multipart::server::Multipart;
 use rocket::{
     data::{Data, FromData, Outcome, Transform, Transformed},
-    post, routes, Request,
+    Request,
 };
 use std::io::Read;
 

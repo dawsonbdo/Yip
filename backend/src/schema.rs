@@ -107,16 +107,6 @@ table! {
 }
 
 table! {
-    test (id) {
-        id -> Uuid,
-        reviewid -> Uuid,
-        authorid -> Uuid,
-        date_posted -> Date,
-        comment_text -> Varchar,
-    }
-}
-
-table! {
     users (profile_uuid) {
         profile_uuid -> Uuid,
         username -> Varchar,
@@ -163,6 +153,5 @@ allow_tables_to_appear_in_same_query!(
     review_like_relationships,
     reviewer_follow_relationships,
     reviews,
-    test,
     users,
 );

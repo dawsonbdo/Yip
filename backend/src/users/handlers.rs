@@ -151,9 +151,8 @@ pub struct DbUser {
     pub profile_uuid: Uuid,
     pub username: String,
     pub email: String,
-    pub passwordsalt: i64,
     pub password: String,
-    pub profilepicture: String,
+    pub profilepicture: Option<String>,
     pub sitewideban: bool,
 }
 
@@ -165,9 +164,8 @@ impl DbUser{
             profile_uuid: Uuid::new_v4(), // generate random uuid
             username: user.username,
             email: user.email,
-            passwordsalt: 0,
             password: bcrypt::hash(user.password, 12).expect("Error"),
-            profilepicture: "".to_string(),
+            profilepicture: Some("".to_string()),
             sitewideban: false,
         }
     }
