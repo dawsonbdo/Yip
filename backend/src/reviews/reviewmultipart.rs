@@ -5,11 +5,6 @@ use rocket::{
 };
 use std::io::Read;
 
-use rocket::http::ContentType;
-use super::handlers::Review;
-use rocket_contrib::json::Json;
-
-
 #[derive(Debug, Deserialize)]
 pub struct ReviewMultipart {
     pub review: String,

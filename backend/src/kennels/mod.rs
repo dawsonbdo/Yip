@@ -7,7 +7,6 @@ use handlers::{DbKennel, Kennel};
 use rocket_contrib::json::Json;
 
 use db::DbConn;
-use uuid::Uuid;
 
 use rocket::response::status;
 

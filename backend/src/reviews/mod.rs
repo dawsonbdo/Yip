@@ -7,8 +7,8 @@ extern crate json;
 use crate::auth;
 use crate::db;
 
-use handlers::{Review, DbReview, DisplayReview};
-use rocket_contrib::json::{Json, JsonValue};
+use handlers::{Review, DisplayReview};
+use rocket_contrib::json::Json;
 
 use db::DbConn;
 use uuid::Uuid;
@@ -102,10 +102,10 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 	// Pattern match to see if review found successfully
 	match review {
 		Ok(mut r) => {
-			r.isAuthor = profile_username.eq(&r.author); // set field of DisplayReview
+			r.is_author = profile_username.eq(&r.author); // set field of DisplayReview
 			Ok(Json(r))
 		},
-		Err(e) => Err(status::NotFound("".to_string())),
+		Err(e) => Err(status::NotFound(e.to_string())),
 	}
 
 	
@@ -210,7 +210,12 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, st
 		// Create file path using filename, create file with it, write the image
 		let file_path = format!("static/reviewpics/{}", &data.names[i]);
 		let mut buffer = File::create(file_path.clone()).unwrap();
-		buffer.write(&img);
+		
+		// Catch error
+		match buffer.write(&img){
+			Ok(w) => w,
+			Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+		};
 
 		// Add path to vector
 		paths.push(format!("reviewpics/{}", &data.names[i]));
@@ -239,18 +244,18 @@ fn list_reviews(connection: DbConn) -> String {
         .map(|review| Json(review));
         
 
-    let mut reviewIds = "".to_string();
+    let mut review_ids = "".to_string();
 
 	// Prints out title/text/id of each review in database
 	for vec in all_reviews {
 		for r in vec.iter() {
 			println!("Title: {} Text: {} Id: {}", r.title, r.text, r.review_uuid);
-			reviewIds = format!("{},{}", reviewIds, &r.review_uuid.hyphenated().to_string());
+			review_ids = format!("{},{}", review_ids, &r.review_uuid.hyphenated().to_string());
 		} 
 	}
 
 	// Return vector with all the ids
-	reviewIds
+	review_ids
 }
 
 
@@ -271,7 +276,7 @@ fn review_helper(id: String, connection: &DbConn) -> Result<DisplayReview, statu
 	// Pattern match to see if review found successfully
 	match review {
 		Ok(r) => Ok(r),
-		Err(e) => Err(status::NotFound("".to_string())),
+		Err(e) => Err(status::NotFound(e.to_string())),
 	}
 	
 }
@@ -286,18 +291,18 @@ fn list_helper(connection: &DbConn) -> String {
         .map(|review| Json(review));
         
 
-    let mut reviewIds = "".to_string();
+    let mut review_ids = "".to_string();
 
 	// Prints out title/text/id of each review in database
 	for vec in all_reviews {
 		for r in vec.iter() {
 			println!("Title: {} Text: {} Id: {}", r.title, r.text, r.review_uuid);
-			reviewIds = format!("{},{}", reviewIds, &r.review_uuid.hyphenated().to_string());
+			review_ids = format!("{},{}", review_ids, &r.review_uuid.hyphenated().to_string());
 		} 
 	}
 
 	// Return vector with all the ids
-	reviewIds
+	review_ids
 }
 
 /** 
@@ -323,16 +328,16 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 
 		// Get all of the IDS
 		let r = list_helper(&connection);
-		let reviewIds : Vec<&str> = r.split(",").collect();
+		let review_ids : Vec<&str> = r.split(",").collect();
 
 		// Iterate through review IDs (starting idx = 1) and add all reviews to vector
-		for i in 1..(reviewIds.iter().len()) {
-			reviews.push(review_helper(reviewIds[i].to_string(), &connection).unwrap());
+		for i in 1..(review_ids.iter().len()) {
+			reviews.push(review_helper(review_ids[i].to_string(), &connection).unwrap());
 		}
 	}
 
 	// Return a Result depending on if reviews were found
-	if ( reviews.iter().len() == 0 ){
+	if reviews.iter().len() == 0 {
 		Err(status::NotFound("No Reviews".to_string()))
 	} else {
 		Ok(Json(reviews))

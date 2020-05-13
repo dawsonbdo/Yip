@@ -92,7 +92,7 @@ impl DbMessage{
             text: message.text,
             timestamp: match NaiveDateTime::parse_from_str(&message.timestamp, "%Y-%m-%d %H:%M:%S") {
                 Ok(t) => Some(t),
-                Err(e) => None,
+                Err(_e) => None,
             },
         }
     }

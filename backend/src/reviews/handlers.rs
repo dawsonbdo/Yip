@@ -78,7 +78,7 @@ pub struct DisplayReview {
     pub images: Vec<String>,
     pub rating: i32,
     pub tags: Vec<String>,
-    pub isAuthor: bool,
+    pub is_author: bool,
 }
 
 // Struct representing the fields of a review passed in from frontend contains
@@ -122,7 +122,7 @@ impl DbReview{
             author: auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]),
             timestamp: match NaiveDateTime::parse_from_str(&review.timestamp, "\"%Y-%m-%d %H:%M:%S\"") {
                 Ok(t) => Some(t),
-                Err(e) => None,
+                Err(_e) => None,
             },
             text: (&review.text[1..(review.text.len()-1)]).to_string(),
             images: review.images,
@@ -136,8 +136,7 @@ impl DbReview{
         let vec : Vec<String> = vec![];
         let vec2 : Vec<String> = vec![];
         
-        let mut r = 
-         DisplayReview{
+        DisplayReview{
             kennel_name: super::super::kennels::handlers::get(review.kennel_uuid, connection).unwrap().kennel_name, //TODO Get name of kennel
             title: review.title.clone(),
             author: super::super::users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
@@ -152,10 +151,8 @@ impl DbReview{
                 Some(t) => t.to_vec(),
                 None => vec2,
             },
-            isAuthor: false,
-        };
-
-        r
+            is_author: false,
+        }
     }
 
 }

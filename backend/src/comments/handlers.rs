@@ -102,7 +102,7 @@ pub struct DbComment {
 // Converts a Comment to an DbComment by calling functions on passed in values
 impl DbComment{
 
-    fn from_comment(comment: Comment, connection: &PgConnection) -> DbComment {
+    fn from_comment(comment: Comment, _connection: &PgConnection) -> DbComment {
         DbComment{
         	comment_uuid: Uuid::new_v4(),
             review_uuid: comment.review_uuid,
