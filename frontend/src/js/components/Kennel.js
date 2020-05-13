@@ -52,8 +52,6 @@ class Kennel extends Component {
         // Get token
         var token = localStorage.getItem('jwtToken');
 
-        console.log("TOKEN: " + token);
-
         // Create JSON form to send to backend
         var form = followKennelJson(kennelName, token);
 
@@ -64,7 +62,7 @@ class Kennel extends Component {
           data: form
         }).then(response => {
 
-          // Store token in local storage
+          // Successful follow
           alert('Kennel has been followed successfully');
 
 

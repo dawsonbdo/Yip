@@ -22,10 +22,68 @@ use reviewmultipart::ReviewMultipart;
 
 use serde_json::{Value, Map};
 
-fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -> Review {
-	//let vec = vec![];
 
-	let r = Review {
+/** 
+ * Method that returns a Review from database given the ID
+ * @param id: Uuid of review as a string
+ * @param connection: database connection
+ *
+ * @return returns JSON of the review or error status
+ */
+fn get_review_helper(id: String, connection: &DbConn) -> Result<DisplayReview, status::NotFound<String>> {
+
+	// Converts string to a uuid
+	let uuid = Uuid::parse_str(&id).unwrap();
+
+	// Get Review from database
+	let review = handlers::get(uuid, connection);
+
+	// Pattern match to see if review found successfully
+	match review {
+		Ok(r) => Ok(r),
+		Err(e) => Err(status::NotFound(e.to_string())),
+	}
+}
+
+/** 
+ * Helper method that prints out all reviews
+ * @param connection: database connection
+ *
+ * @return returns a vector with the review ids
+ */
+fn list_reviews_helper(connection: &DbConn) -> Json<Vec<String>> {
+
+	// Makes database call to get all users
+	let all_reviews = handlers::all(&connection)
+        .map(|review| Json(review));
+        
+    // Creates vector to store review ids
+    let mut review_ids = vec![];
+
+	// Prints out title/text/id of each review in database
+	for vec in all_reviews {
+		for r in vec.iter() {
+			println!("Title: {} Text: {} Id: {}", r.title, r.text, r.review_uuid);
+			review_ids.push(r.review_uuid.hyphenated().to_string());
+		} 
+	}
+
+	// Return vector with all the ids
+	return Json(review_ids);
+}
+
+/**
+ * Helper method that takes a review map and file paths and creates
+ * a Review object from it
+ * @param review_obj: map of field names and values received
+ * @param paths: list of file paths to pictures
+ *
+ * @return returns a Review object
+ */
+fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -> Review {
+
+	// TODO: Figure out tags once implemented in frontend
+	Review {
 		kennel_uuid: review_obj.get("kennel_uuid").unwrap().to_string(),
 		title: review_obj.get("title").unwrap().to_string(),
 		author: review_obj.get("author").unwrap().to_string(),
@@ -34,26 +92,39 @@ fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -
 		images: if paths.iter().len() == 0 {None} else {Some(paths)},
 		rating: review_obj.get("rating").unwrap().as_i64().unwrap() as i32,
 		tags: None,
-	};
-
-	return r;
+	}
 }
 
 /**
- * Method that returns username corresponding to token, "" if none
+ * Helper method that returns the username corresponding to a token, "" if none
+ * @param token: the token
+ * @param connection: database connection
+ *
+ * @return returns a String corresponding to username of token, "" if none
  */
 fn token_to_username(token: String, connection: &DbConn) -> String {
-	// Get username from token passed in
+
+	// Get uuid from token passed in
 	let profile_uuid = auth::get_uuid_from_token(&token);
+
+	// Look for the username of the uuid in database
 	match super::users::handlers::get_user_from_uuid(profile_uuid, connection){
 		Ok(u) => u.username,
 		Err(_e) => "".to_string(),
 	}
 }
 
+// Struct with review ID and user token for editing/deleting reviews
+#[derive(Queryable, Serialize, Deserialize)]
+struct ReviewToken {
+    review_uuid: String,
+    token: String,
+}
+
 /** 
  * Method that returns vector of kennel reviews
- * @param id: Uuid of review as a string
+ * @param kennel_name: the name of the kennel that is queried
+ * @param connection: database connection
  *
  * @return returns JSON of the review or error status
  */
@@ -63,7 +134,7 @@ fn get_kennel_reviews(kennel_name: String, connection: DbConn) -> Result<Json<Ve
 	// Converts kennel name to kennel id
 	let kennel_uuid = super::kennels::handlers::get_kennel_uuid_from_name(kennel_name, &connection);
 
-	// Check for nil id
+	// Check for nil id (meaning kennel name does not exist)
 	if kennel_uuid.is_nil() {
 		return Err(status::NotFound("Kennel not found".to_string()));
 	}
@@ -82,47 +153,35 @@ fn get_kennel_reviews(kennel_name: String, connection: DbConn) -> Result<Json<Ve
 }
 
 /** 
- * Method that returns a review from database given the ID
+ * Method that returns a Review from database given the ID
  * @param id: Uuid of review as a string
+ * @param token: jwt
+ * @param connection: database connection
  *
  * @return returns JSON of the review or error status
  */
 #[get("/get_review/<id>/<token>")]
 fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<DisplayReview>, status::NotFound<String>> {
 
-	// Converts review id to a uuid
-	let review_uuid = Uuid::parse_str(&id).unwrap();
-
-	// Get Review from database
-	let review = handlers::get(review_uuid, &connection);
-
 	// Get username from token passed in
 	let profile_username = token_to_username(token, &connection);
 
 	// Pattern match to see if review found successfully
-	match review {
+	match get_review_helper(id, &connection) {
 		Ok(mut r) => {
 			r.is_author = profile_username.eq(&r.author); // set field of DisplayReview
 			Ok(Json(r))
 		},
-		Err(e) => Err(status::NotFound(e.to_string())),
+		Err(e) => Err(e),
 	}
-
-	
-}
-
-// Struct with review ID and user jwt for editing/deleting kennels
-#[derive(Queryable, Serialize, Deserialize)]
-struct ReviewToken {
-    review_uuid: String,
-    token: String,
 }
 
 /** 
  * Method that removes a review from database if token matches author of review
  * @param review: Json with uuid and token
- *
- * @return returns TBD
+ * @param connection: database connection
+ * 
+ * @return returns accepted status if removed, other unauthorized
  */
 #[post("/remove_review", data="<review>")]
 fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
@@ -155,8 +214,9 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
 }
 
 /** 
- * Method that updates a review
- * @param review: Json format of review
+ * TODO: Not finished
+ * @param review: Json with Review
+ * @param connection: database connection
  *
  * @return returns TBD
  */
@@ -190,9 +250,10 @@ fn edit_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status::
 
 /** 
  * Method that creates a review
- * @param review: Json format of review
+ * @param data: multipart data with the review contents/files uploaded
+ * @param connection: database connection
  *
- * @return returns TBD
+ * @return returns review uuid if successfuly created, otherwise conflict status
  */
 #[post("/create_review", data="<data>")]
 fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, status::Conflict<String>> { 
@@ -233,76 +294,17 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, st
 }
 
 
-/**
- * Print out all reviews
+/** 
+ * Method that prints out all reviews
+ * @param connection: database connection
+ *
+ * @return returns a vector with the review ids
  */
 #[get("/reviews", rank=1)]
-fn list_reviews(connection: DbConn) -> String {
+fn list_reviews(connection: DbConn) -> Json<Vec<String>> {
 
-	// Makes database call to get all users
-	let all_reviews = handlers::all(&connection)
-        .map(|review| Json(review));
-        
-
-    let mut review_ids = "".to_string();
-
-	// Prints out title/text/id of each review in database
-	for vec in all_reviews {
-		for r in vec.iter() {
-			println!("Title: {} Text: {} Id: {}", r.title, r.text, r.review_uuid);
-			review_ids = format!("{},{}", review_ids, &r.review_uuid.hyphenated().to_string());
-		} 
-	}
-
-	// Return vector with all the ids
-	review_ids
-}
-
-
-/** 
- * Method that returns a review from database given the ID
- * @param id: Uuid of review as a string
- *
- * @return returns JSON of the review or error status
- */
-fn review_helper(id: String, connection: &DbConn) -> Result<DisplayReview, status::NotFound<String>> {
-
-	// Converts string to a uuid
-	let uuid = Uuid::parse_str(&id).unwrap();
-
-	// Get Review from database
-	let review = handlers::get(uuid, connection);
-
-	// Pattern match to see if review found successfully
-	match review {
-		Ok(r) => Ok(r),
-		Err(e) => Err(status::NotFound(e.to_string())),
-	}
-	
-}
-
-/**
- * Print out all reviews
- */
-fn list_helper(connection: &DbConn) -> String {
-
-	// Makes database call to get all users
-	let all_reviews = handlers::all(connection)
-        .map(|review| Json(review));
-        
-
-    let mut review_ids = "".to_string();
-
-	// Prints out title/text/id of each review in database
-	for vec in all_reviews {
-		for r in vec.iter() {
-			println!("Title: {} Text: {} Id: {}", r.title, r.text, r.review_uuid);
-			review_ids = format!("{},{}", review_ids, &r.review_uuid.hyphenated().to_string());
-		} 
-	}
-
-	// Return vector with all the ids
-	review_ids
+	// Calls helper function to get a list of all reviews
+	list_reviews_helper(&connection)
 }
 
 /** 
@@ -322,18 +324,26 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 
 		// TODO: Generate user specific reviews based on followed kennels
 
+		// Get all of the IDs
+		let review_ids = list_reviews_helper(&connection);
+
+		// Iterate through review IDs and add all reviews to vector
+		for id in review_ids.iter() {
+			reviews.push(get_review_helper(id.to_string(), &connection).unwrap());
+		}
+
 	} else {
 
-		// Generate generic reviews from database
+		// TODO: Generate generic most recent popular reviews 
 
-		// Get all of the IDS
-		let r = list_helper(&connection);
-		let review_ids : Vec<&str> = r.split(",").collect();
+		// Get all of the IDs
+		let review_ids = list_reviews_helper(&connection);
 
-		// Iterate through review IDs (starting idx = 1) and add all reviews to vector
-		for i in 1..(review_ids.iter().len()) {
-			reviews.push(review_helper(review_ids[i].to_string(), &connection).unwrap());
+		// Iterate through review IDs and add all reviews to vector
+		for id in review_ids.iter() {
+			reviews.push(get_review_helper(id.to_string(), &connection).unwrap());
 		}
+
 	}
 
 	// Return a Result depending on if reviews were found

@@ -8,36 +8,65 @@ use crate::auth;
 
 use chrono::NaiveDateTime;
 
+use super::super::{kennels, users};
+
 /**
- * Method that returns a vector with all of the reviews for a particular kennel
+ * Method that returns a vector with all reviews in a kennel
+ * @param kennel_uuid: uuid of the kennel
+ * @param connection: database connection
+ *
+ * @return returns vector of reviews in kennel
  */
 pub fn all_kennel_reviews(kennel_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayReview>> {
-    Ok(reviews::table.filter(reviews::kennel_uuid.eq(kennel_uuid)).load::<DbReview>(&*connection)
-    .unwrap()
-    .iter()
-    .map(|review| DbReview::to_review(review, connection))
-    .collect())
+    
+    // Get vector of all reviews in kennel
+    let reviews = reviews::table.filter(reviews::kennel_uuid.eq(kennel_uuid)).load::<DbReview>(&*connection);
+    
+    // Pattern match to make sure successful, convert to DisplayReviews if so
+    match reviews {
+        Ok(r) => Ok(r.iter()
+                     .map(|review| DbReview::to_review(review, connection))
+                     .collect()),
+        Err(e) => Err(e),
+    }
+    
 }
 
 /**
- * Method that returns a vector with all of the reviews
+ * Method that gets returns all reviews in database
+ * @param connection: database connection
+ *
+ * @return returns vector of all DbReviews
  */
 pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbReview>> {
     reviews::table.load::<DbReview>(&*connection)
 }
 
-
 /**
- * LOAD REVIEW: Method that returns a Review given the uuid
+ * Method that gets a Review from the database
+ * @param id: uuid of the review
+ * @param connection: database connection
+ *
+ * @return returns DbReview if found, otherwise error
  */
 pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DisplayReview> {
 
     // Searches review table for the uuid and gets the review
-    Ok(DbReview::to_review(&reviews::table.find(id).get_result::<DbReview>(connection).unwrap(), connection))
+    let review = reviews::table.find(id).get_result::<DbReview>(connection);
+
+    // Pattern matches the review and converts to DisplayReview if no error
+    match review {
+        Ok(r) => Ok(DbReview::to_review(&r, connection)),
+        Err(e) => Err(e),
+    }
 }
 
 /**
- * CREATE REVIEW: Method that attempts to create a new review in database, returns URL? 
+ * Method that creates a Review by inserting into database
+ * @param review: the review that is created
+ * @param connection: database connection
+ *
+ * @return returns DbReview created if succesful, otherwise error
  */
 pub fn insert(review: Review, connection: &PgConnection) -> QueryResult<DbReview> {
 
@@ -48,7 +77,12 @@ pub fn insert(review: Review, connection: &PgConnection) -> QueryResult<DbReview
 }
 
 /**
- * EDIT REVIEW: Method that updates a review in database
+ * Method that edits a Review in database
+ * @param id: uuid of the review
+ * @param review: review that is used to replace current in database
+ * @param connection: database connection
+ *
+ * @return returns a bool if successfuly edited 
  */
 pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> bool {
     match diesel::update(reviews::table.find(id))
@@ -60,7 +94,11 @@ pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> bool {
 }
 
 /**
- * DELETE REVIEW: Method that removes a review in database
+ * Method that deletes a Review from database
+ * @param id: uuid of the review
+ * @param connection: database connection
+ *
+ * @return returns a result 
  */
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(reviews::table.find(id))
@@ -94,7 +132,7 @@ pub struct Review {
     pub tags: Option<Vec<String>>,
 }
 
-// Struct represneting the fields of a review that is inserted into database
+// Struct representing the fields of a review that is inserted into database
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
 #[table_name = "reviews"]
 pub struct DbReview {
@@ -113,8 +151,8 @@ pub struct DbReview {
 // Converts a Review to an DbReview by calling functions on passed in values
 impl DbReview{
 
+    // Converts Review to DbReview
     fn from_review(review: Review) -> DbReview {
-
         DbReview{
             review_uuid: Uuid::new_v4(), // generate random uuid for review
             kennel_uuid: Uuid::parse_str(&review.kennel_uuid[1..37]).unwrap(),
@@ -132,24 +170,25 @@ impl DbReview{
         }
     }
 
+    // Converts DbReview to DisplayReview
     fn to_review(review: &DbReview, connection: &PgConnection) -> DisplayReview {
         let vec : Vec<String> = vec![];
         let vec2 : Vec<String> = vec![];
         
         DisplayReview{
-            kennel_name: super::super::kennels::handlers::get(review.kennel_uuid, connection).unwrap().kennel_name, //TODO Get name of kennel
+            kennel_name: kennels::handlers::get(review.kennel_uuid, connection).unwrap().kennel_name,
             title: review.title.clone(),
-            author: super::super::users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
+            author: users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
             timestamp: review.timestamp.unwrap(),
             text: review.text.clone(),
             images: match &review.images {
                 Some(t) => t.to_vec(),
-                None => vec,
+                None => vec, // empty vector if no images
             },
             rating: review.rating,
             tags: match &review.tags {
                 Some(t) => t.to_vec(),
-                None => vec2,
+                None => vec2, // empty vector if no tags
             },
             is_author: false,
         }
