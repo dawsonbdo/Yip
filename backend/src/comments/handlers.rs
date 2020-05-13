@@ -8,6 +8,17 @@ use chrono::NaiveDateTime;
 use crate::auth;
 
 /**
+ * Method that returns a vector with all of the comments for a particular review
+ */
+pub fn all_review_comments(review_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayComment>> {
+    Ok(comments::table.filter(comments::review_uuid.eq(review_uuid)).load::<DbComment>(&*connection)
+    .unwrap()
+    .iter()
+    .map(|comment| DbComment::to_comment(comment, connection))
+    .collect())
+}
+
+/**
  * Method that returns a vector with all of the comments
  */
 pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbComment>> {
@@ -33,7 +44,7 @@ pub fn insert(comment: Comment, connection: &PgConnection) -> Result<Uuid, Strin
 
     // Inserts comment into database, returns uuid generated
     match diesel::insert_into(comments::table)
-        .values(&DbComment::from_comment(comment))
+        .values(&DbComment::from_comment(comment, connection))
         .get_result::<DbComment>(connection) {
             Ok(c) => Ok(c.comment_uuid),
             Err(e) => Err(e.to_string()),
@@ -45,7 +56,7 @@ pub fn insert(comment: Comment, connection: &PgConnection) -> Result<Uuid, Strin
  */
 pub fn update(id: Uuid, comment: Comment, connection: &PgConnection) -> bool {
     match diesel::update(comments::table.find(id))
-        .set(&DbComment::from_comment(comment))
+        .set(&DbComment::from_comment(comment, connection))
         .get_result::<DbComment>(connection) {
             Ok(_c) => return true,
             Err(_e) => return false,
@@ -58,6 +69,14 @@ pub fn update(id: Uuid, comment: Comment, connection: &PgConnection) -> bool {
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(comments::table.find(id))
         .execute(connection)
+}
+
+// Struct representing the fields of a comment passed in from frontend contains
+#[derive(Queryable, Serialize, Deserialize)]
+pub struct DisplayComment {
+    pub author_name: String,
+    pub timestamp: String,
+    pub text: String,
 }
 
 // Struct representing the fields of a comment passed in from frontend contains
@@ -83,13 +102,21 @@ pub struct DbComment {
 // Converts a Comment to an DbComment by calling functions on passed in values
 impl DbComment{
 
-    fn from_comment(comment: Comment) -> DbComment {
+    fn from_comment(comment: Comment, connection: &PgConnection) -> DbComment {
         DbComment{
         	comment_uuid: Uuid::new_v4(),
             review_uuid: comment.review_uuid,
 		    author_uuid: auth::get_uuid_from_token(&comment.author_token),
 		    timestamp: NaiveDateTime::parse_from_str(&comment.timestamp, "%Y-%m-%d %H:%M:%S").unwrap(),
-		    text: comment.text,
+		    text: comment.text.clone(),
+        }
+    }
+
+    fn to_comment(comment: &DbComment, connection: &PgConnection) -> DisplayComment {
+        DisplayComment{
+        	author_name: super::super::users::handlers::get_user_from_uuid(comment.author_uuid, connection).unwrap().username,
+    		timestamp: comment.timestamp.to_string(),
+    		text: comment.text.clone(),
         }
     }
 

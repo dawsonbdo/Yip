@@ -35,7 +35,7 @@ class Review extends Component {
 		// Format URL to send in GET request
 		var reqUrl = "/get_review/" + reviewId + "/" + token;
 
-		// Send GET request with review id as query string
+		// Send GET request with review id to get review information
     	axios({
             method: 'get',
             url: reqUrl
@@ -62,10 +62,40 @@ class Review extends Component {
             alert('Review does not exist');
 
         });
+
+        reqUrl = "/get_comments/" + reviewId;
+
+        // Send GET request with review id to get comments
+        axios({
+            method: 'get',
+            url: reqUrl
+        }).then(response => {
+
+            alert('Review comments successfully grabbed from database!');
+
+            // TODO: Fill in html using response 
+     
+            // TODO: Populate CommentCards using response.data (this is an array of DisplayComment objs)
+            //       (Fields of DisplayComment: author_name, timestamp, text)
+          
+            // Iterate through comments
+            for (var i = 0; i < response.data.length; i++ ){
+
+              // Print comments to console for now
+              console.log(response.data[i]);
+
+            } 
+        
+        }).catch(error => {
+
+            // Review comments not found in database
+            alert('Review comments not found');
+
+        });
 	}
 
 	postComment(){
-		// TODO: Get uuid of review
+		// TODO: Get uuid of review from url probably
 		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
 
 		// Get token
