@@ -214,7 +214,7 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
 }
 
 /** 
- * TODO: Not finished
+ * TODO: Not finished, look into handlers::DbReview::from_review()
  * @param review: Json with Review
  * @param connection: database connection
  *
