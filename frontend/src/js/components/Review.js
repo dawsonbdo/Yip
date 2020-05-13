@@ -11,21 +11,23 @@ import CommentCard from './CommentCard';
 import commentIcon from '../../assets/comment.png';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import likeIcon from '../../assets/like.png';
+import dislikeIcon from '../../assets/dislike.png';
 
-import axios from 'axios' 
+import axios from 'axios'
 
 import { createCommentJson } from './BackendHelpers.js';
 
 class Review extends Component {
 
-	constructor(props){
+	constructor(props) {
 		super(props)
 
 		// Binds button handler
-    	this.postComment = this.postComment.bind(this);
+		this.postComment = this.postComment.bind(this);
 	}
 
-	componentDidMount(){
+	componentDidMount() {
 		// TODO: Display stuff based on if logged in or not (ie form to post comment)
 
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
@@ -36,65 +38,65 @@ class Review extends Component {
 		var reqUrl = "/get_review/" + reviewId + "/" + token;
 
 		// Send GET request with review id to get review information
-    	axios({
-            method: 'get',
-            url: reqUrl
-        }).then(response => {
+		axios({
+			method: 'get',
+			url: reqUrl
+		}).then(response => {
 
-            alert('Review successfully grabbed from database!');
+			alert('Review successfully grabbed from database!');
 
-            // TODO: Fill in html using response 
-            document.getElementById('title').innerHTML = response.data.title;
-            document.getElementById('author').innerHTML = response.data.author;
-            document.getElementById('text').innerHTML = response.data.text; 
+			// TODO: Fill in html using response 
+			document.getElementById('title').innerHTML = response.data.title;
+			document.getElementById('author').innerHTML = response.data.author;
+			document.getElementById('text').innerHTML = response.data.text; 
 
-            // Check that any images were returned cuz can be undefined
-            if ( response.data.images != undefined ){
-            	document.getElementById('img').src = response.data.images[0];
-            }
+			// Check that any images were returned cuz can be undefined
+			if ( response.data.images != undefined ){
+				document.getElementById('img').src = response.data.images[0];
+			}
 
-            // TODO: Render edit/delete buttons depending on if author of review
-            console.log("Is Author: " + response.data.isAuthor);
-        
-        }).catch(error => {
+			// TODO: Render edit/delete buttons depending on if author of review
+			console.log("Is Author: " + response.data.isAuthor);
 
-            // Review not found in database
-            alert('Review does not exist');
+		}).catch(error => {
 
-        });
+			// Review not found in database
+			alert('Review does not exist');
 
-        reqUrl = "/get_comments/" + reviewId;
+		});
 
-        // Send GET request with review id to get comments
-        axios({
-            method: 'get',
-            url: reqUrl
-        }).then(response => {
+		reqUrl = "/get_comments/" + reviewId;
 
-            alert('Review comments successfully grabbed from database!');
+		// Send GET request with review id to get comments
+		axios({
+			method: 'get',
+			url: reqUrl
+		}).then(response => {
 
-            // TODO: Fill in html using response 
-     
-            // TODO: Populate CommentCards using response.data (this is an array of DisplayComment objs)
-            //       (Fields of DisplayComment: author_name, timestamp, text)
-          
-            // Iterate through comments
-            for (var i = 0; i < response.data.length; i++ ){
+			alert('Review comments successfully grabbed from database!');
 
-              // Print comments to console for now
-              console.log(response.data[i]);
+			// TODO: Fill in html using response 
 
-            } 
-        
-        }).catch(error => {
+			// TODO: Populate CommentCards using response.data (this is an array of DisplayComment objs)
+			//       (Fields of DisplayComment: author_name, timestamp, text)
 
-            // Review comments not found in database
-            alert('Review comments not found');
+			// Iterate through comments
+			for (var i = 0; i < response.data.length; i++) {
 
-        });
+				// Print comments to console for now
+				console.log(response.data[i]);
+
+			}
+
+		}).catch(error => {
+
+			// Review comments not found in database
+			alert('Review comments not found');
+
+		});
 	}
 
-	postComment(){
+	postComment() {
 		// TODO: Get uuid of review from url probably
 		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
 
@@ -110,23 +112,23 @@ class Review extends Component {
 		console.log(form);
 
 		// Send POST request
-    	axios({
-            method: 'post',
-            url: '/create_comment',
-            data: form
-        }).then(response => {
+		axios({
+			method: 'post',
+			url: '/create_comment',
+			data: form
+		}).then(response => {
 
-            alert('Comment successfully posted to database!');
+			alert('Comment successfully posted to database!');
 
-            // TODO: Update page to display comment
-            
-        
-        }).catch(error => {
+			// TODO: Update page to display comment
 
-            // Failed to post comment
-            alert('Comment post failed');
 
-        });
+		}).catch(error => {
+
+			// Failed to post comment
+			alert('Comment post failed');
+
+		});
 	}
 
 	render() {
@@ -136,11 +138,13 @@ class Review extends Component {
 				<Jumbotron id="jumbotron" className="text-left">
 					<h1 id="title">{this.props.reviewName}</h1>
 					<h4 id="author">{this.props.reviewerName}</h4>
+					<Link to="/"><Image className="likePadding" src={likeIcon} /></Link>
+					<Link to="/"><Image className="likePadding" src={dislikeIcon} /></Link>
 				</Jumbotron>
 
 				<Row className="reviewContent">
 					<Col xs={7} className="text-left">
-						<p id="text" dangerouslySetInnerHTML={{__html: this.props.reviewText}}></p>
+						<p id="text" dangerouslySetInnerHTML={{ __html: this.props.reviewText }}></p>
 					</Col>
 
 					<Col xs={5} className="reviewPicture text-center align">
