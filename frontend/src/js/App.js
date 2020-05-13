@@ -9,6 +9,7 @@ import Login from "./components/Login";
 import CreateReview from "./components/CreateReview"
 import RecoverPassword from './components/RecoverPassword';
 import Review from './components/Review';
+import EditKennel from './components/EditKennel';
 
 const temp = ['Ralof: Hey, you. You\'re finally awake. You were trying to cross the border, \
 							right? Walked right into that Imperial ambush, same as us, and that \
@@ -57,6 +58,7 @@ function App() {
           <Route path="/createreview" exact component={CreateReview} />
           <Route path="/recoverpassword" exact component={RecoverPassword} />
           <Route path="/review" render={(props) => <Review reviewName={"Buy Skyrim"} reviewerName={"Todd Howard"} reviewText={temp[0]} reviewImg={temp[1]} {...props} />} />
+		  <Route path="/editkennel" exact component={EditKennel} />
         </Switch>
       </div>
     </Router>
