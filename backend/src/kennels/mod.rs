@@ -10,9 +10,53 @@ use db::DbConn;
 
 use rocket::response::status;
 
+// Struct with kennel id and user jwt for following/unfollowing kennels
+#[derive(Queryable, Serialize, Deserialize)]
+struct KennelUser {
+    kennel_name: String,
+    token: String,
+}
+
+/** 
+ * Helper method that follows or unfollows a kennel given parameter
+ * @param kennel: JSON of a KennelUser (name + token)
+ * @param follow: bool indicating follow or unfollow
+ * @param connetion: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbConn){
+
+	// Converts token into uuid
+	let profile_uuid = auth::get_uuid_from_token(&input.token);
+	
+	// Make sure uuid was found
+	if profile_uuid.is_nil() {
+		return Err(status::BadRequest(Some("Profile not found".to_string())));
+	}
+
+	// Convert kennel name to uuid, check if not found
+	let kennel_uuid = handlers::get_kennel_uuid_from_name(input.kennel_name.clone(), &connection);
+
+	if kennel_uuid.is_nil() {
+
+		// Kennel name could not convert to a uuid (not found)
+		Err(status::BadRequest(Some("Kennel not foudn".to_string())))
+	} else {
+
+		// Attempt to follow or unfollow depending on parameter
+		if follow {
+			handlers::follow(kennel_uuid, profile_uuid, &connection)
+		} else {
+			handlers::unfollow(kennel_uuid, profile_uuid, &connection)
+		}
+	}
+}
+
 /** 
  * Method that returns a kennel from database given the name
- * @param id: Uuid of review as a string
+ * @param name: name of kennel
+ * @param connection: database connection
  *
  * @return returns JSON of the review or error status
  */
@@ -38,7 +82,10 @@ fn get_kennel(name: String, connection: DbConn) -> Result<Json<DbKennel>, status
 }
 
 /**
- * Print out all kennels
+ * Method that prints out all the kennels in database
+ * @param connection: database connection
+ *
+ * @return N/A
  */
 #[get("/kennels", rank=1)]
 fn list_kennels(connection: DbConn) -> () {
@@ -56,81 +103,41 @@ fn list_kennels(connection: DbConn) -> () {
 
 }
 
-// Struct with kennel id and user jwt for following/unfollowing kennels
-#[derive(Queryable, Serialize, Deserialize)]
-struct KennelUser {
-    kennel_name: String,
-    token: String,
-}
-
 /** 
- * Method that unfollows a kennel
- * @param kennel: JSON of the kennel
+ * Handler method that unfollows a kennel
+ * @param kennel: JSON of a KennelUser (name + token)
+ * @param connetion: database connection
  *
- * @return returns TBD
+ * @return returns a result with status Accepted or BadRequest
  */
 #[post("/unfollow_kennel", data="<input>", rank=1)]
 fn unfollow_kennel(input: Json<KennelUser>, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
 	
-	// Converts token into uuid
-	let profile_uuid = auth::get_uuid_from_token(&input.token);
-	
-	// Make sure uuid was found
-	if profile_uuid.is_nil() {
-		return Err(status::BadRequest(Some("Profile not found".to_string())));
-	}
-
-	// Convert kennel name to uuid, check if not found
-	let kennel_uuid = handlers::get_kennel_uuid_from_name(input.kennel_name.clone(), &connection);
-
-	if kennel_uuid.is_nil() {
-
-		// Kennel name could not convert to a uuid (not found)
-		Err(status::BadRequest(Some("Kennel not foudn".to_string())))
-	} else {
-
-		// Attempt to insert the kennel follow to database
-		handlers::unfollow(kennel_uuid, profile_uuid, &connection)
-	}
+	// Call helper with false for unfollow
+	follow_unfollow_helper(input, false, connection)
 }
 
 /** 
- * Method that follows a kennel
- * @param kennel: JSON of the kennel
+ * Handler method that follows a kennel
+ * @param kennel: JSON of a KennelUser (name + token)
+ * @param connetion: database connection
  *
- * @return returns TBD
+ * @return returns a result with status Accepted or BadRequest
  */
 #[post("/follow_kennel", data="<input>", rank=1)]
 fn follow_kennel(input: Json<KennelUser>, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
 	
-	// Converts token into uuid
-	let profile_uuid = auth::get_uuid_from_token(&input.token);
-	
-	// Make sure uuid was found
-	if profile_uuid.is_nil() {
-		return Err(status::BadRequest(Some("Profile not found".to_string())));
-	}
-
-	// Convert kennel name to uuid, check if not found
-	let kennel_uuid = handlers::get_kennel_uuid_from_name(input.kennel_name.clone(), &connection);
-
-	if kennel_uuid.is_nil() {
-
-		// Kennel name could not convert to a uuid (not found)
-		Err(status::BadRequest(Some("Kennel not foudn".to_string())))
-	} else {
-
-		// Attempt to insert the kennel follow to database
-		handlers::follow(kennel_uuid, profile_uuid, &connection)
-	}
+	// Call helper with true for follow
+	follow_unfollow_helper(input, true, connection)
 }
 
 
 /** 
  * Method that creates a kennel
  * @param kennel: JSON of the kennel
+ * @param connection: database connection
  *
- * @return returns TBD
+ * @return returns a result with status Accepted or Unauthorized
  */
 #[post("/create_kennel", data="<kennel>", rank=1)]
 fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
