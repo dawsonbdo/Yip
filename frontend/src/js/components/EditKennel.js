@@ -24,13 +24,13 @@ class EditKennel extends Component {
     };
 
     // Binds button handler
-    this.attemptLogin = this.attemptLogin.bind(this);
+    this.updateKennel = this.updateKennel.bind(this);
   }
 
   /**
-   * Function handler for login submit button
+   * Function handler for edit kennel submit button
    */
-  attemptLogin(event) {
+  updateKennel(event) {
 
     // Prevents page from refreshing on submit
     event.preventDefault();
@@ -88,25 +88,25 @@ class EditKennel extends Component {
               <Link to="/"><img src={corgiImage} /></Link>
               <div className="logInForm">
                 <h1 className="logInLabel">Edit Kennel</h1>
-                <Form noValidate validated={this.state.validated} onSubmit={this.attemptLogin} className="logInEntryContainer">
+                <Form noValidate validated={this.state.validated} onSubmit={this.updateKennel} className="logInEntryContainer">
                   <div className="logInEntryContainer">
                     <Form.Label>Rules</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text" required />
+                    <Form.Control id="login" className="logInEntry" type="text" as="textarea"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Tags</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text" required />
+                    <Form.Control id="login" className="logInEntry" type="text"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Muted Words</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text" required />
+                    <Form.Control id="login" className="logInEntry" type="text"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Banned Reviewers</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text" required />
+                    <Form.Control id="login" className="logInEntry" type="text"/>
                   </div>
                   <div className="logInEntryContainer">
-                    <Button className="logInEntry" type="submit" variant="primary">Save</Button>
+                    <Button className="logInEntry" variant="primary">Save</Button>
                   </div>
                 </Form>
               </div>

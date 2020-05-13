@@ -60,7 +60,7 @@ function App() {
           <Route path="/recoverpassword" exact component={RecoverPassword} />
           <Route path="/review" render={(props) => <Review reviewName={"Buy Skyrim"} reviewerName={"Todd Howard"} reviewText={temp[0]} reviewImg={temp[1]} {...props} />} />
 		  <Route path="/editkennel" exact component={EditKennel} />
-		  <Route path="/kennel" render={(props) => <Kennel kennelName={"kennel name placeholder"}/>} />
+		  <Route path="/kennel" render={(props) => <Kennel kennelName={"GARY'S KENNEL"}/>} />
         </Switch>
       </div>
     </Router>
