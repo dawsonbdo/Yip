@@ -19,7 +19,9 @@ mod users;
 mod reviews;
 mod kennels;
 mod comments;
+mod reports;
 
+// Other stuff
 mod auth;
 mod schema;
 mod db;
@@ -57,6 +59,7 @@ fn rocket() -> rocket::Rocket {
     rocket = reviews::mount(rocket);
     rocket = kennels::mount(rocket);
     rocket = comments::mount(rocket);
+    rocket = reports::mount(rocket);
 
     // Return the Rocket
     return rocket;

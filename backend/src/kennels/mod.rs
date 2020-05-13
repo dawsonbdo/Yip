@@ -84,7 +84,7 @@ fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Acc
 }
 
 /**
- * Mount the review routes
+ * Mount the kennel routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
     rocket.mount("/", routes![create_kennel, list_kennels, follow_kennel, unfollow_kennel])  
