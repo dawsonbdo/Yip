@@ -48,7 +48,7 @@ pub fn get_follower_count(kennel_uuid: Uuid, connection: &PgConnection) -> i32{
 
     // Return the number of rows found with the kennel uuid
     match row {
-        Ok(r) => r.iter().len(),
+        Ok(r) => r.iter().len() as i32,
         Err(_e) => 0,
     }
 }
@@ -114,7 +114,7 @@ pub fn insert(kennel: Kennel, connection: &PgConnection) -> Result<Uuid, String>
 
     // Inserts kennel into database, returns uuid generated
     match diesel::insert_into(kennels::table)
-        .values(&DbKennel::from_kennel(kennel))
+        .values(&DbKennel::from_kennel(kennel, connection))
         .get_result::<DbKennel>(connection) {
             Ok(u) => Ok(u.kennel_uuid),
             Err(e) => Err(e.to_string()),
@@ -126,7 +126,7 @@ pub fn insert(kennel: Kennel, connection: &PgConnection) -> Result<Uuid, String>
  */
 pub fn update(id: Uuid, kennel: Kennel, connection: &PgConnection) -> bool {
     match diesel::update(kennels::table.find(id))
-        .set(&DbKennel::from_kennel(kennel))
+        .set(&DbKennel::from_kennel(kennel, connection))
         .get_result::<DbKennel>(connection) {
             Ok(_u) => return true,
             Err(_e) => return false,
@@ -174,16 +174,20 @@ pub struct DbKennel {
     pub kennel_uuid: Uuid,
     pub tags: Option<Vec<String>>,
     pub kennel_name: String,
+    pub follower_count: Option<i32>,
 }
 
 // Converts a Kennel to an DbKennel by calling functions on passed in values
 impl DbKennel{
 
-    fn from_kennel(kennel: Kennel) -> DbKennel {
+    fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
+        let uuid = get_kennel_uuid_from_name(kennel.kennel_name.clone(), connection);
+
         DbKennel{
-            kennel_uuid: Uuid::new_v4(), // generate random uuid for kennel
+            kennel_uuid: if uuid.is_nil() {Uuid::new_v4()} else {uuid}, // generate random uuid for kennel
             kennel_name: kennel.kennel_name,
             tags: Some(kennel.tags),
+            follower_count: Some(get_follower_count(uuid, connection)),
         }
     }
 

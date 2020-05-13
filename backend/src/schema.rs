@@ -49,6 +49,7 @@ table! {
         kennel_uuid -> Uuid,
         tags -> Nullable<Array<Text>>,
         kennel_name -> Varchar,
+        follower_count -> Nullable<Int4>,
     }
 }
 
