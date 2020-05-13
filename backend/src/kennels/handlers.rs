@@ -88,6 +88,17 @@ pub fn follow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) 
     println!("Kennel uuid: {}", kennel_uuid);
     println!("Profile uuid: {}", profile_uuid);
     
+    // Check if user already following kennel
+    match kennel_follow_relationships::table
+             .filter(kennel_follow_relationships::kennel.eq(kennel_uuid))
+             .filter(kennel_follow_relationships::follower.eq(profile_uuid))
+             .load::<DbFollowKennel>(&*connection){
+                Ok(r) => if r.iter().len() > 0 {
+                            return Err(status::BadRequest(Some("Already following".to_string())));
+                         },
+                Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
+             }
+
     // Creates object to be inserted to the follow kennel table
     let follow_kennel = FollowKennel {
         follower: profile_uuid,
