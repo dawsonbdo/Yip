@@ -11,14 +11,6 @@ use uuid::Uuid;
 
 use rocket::response::status;
 
-// Struct with kennel id and user jwt for following/unfollowing kennels
-#[derive(Queryable, Serialize, Deserialize)]
-struct KennelUser {
-    kennelid: String,
-    token: String,
-}
-
-
 /** 
  * Method that returns a kennel from database given the name
  * @param id: Uuid of review as a string
@@ -65,6 +57,13 @@ fn list_kennels(connection: DbConn) -> () {
 
 }
 
+// Struct with kennel id and user jwt for following/unfollowing kennels
+#[derive(Queryable, Serialize, Deserialize)]
+struct KennelUser {
+    kennel_name: String,
+    token: String,
+}
+
 /** 
  * Method that unfollows a kennel
  * @param kennel: JSON of the kennel
@@ -84,9 +83,28 @@ fn unfollow_kennel(input: Json<KennelUser>, connection: DbConn) -> () {
  * @return returns TBD
  */
 #[post("/follow_kennel", data="<input>", rank=1)]
-fn follow_kennel(input: Json<KennelUser>, connection: DbConn) -> () {
+fn follow_kennel(input: Json<KennelUser>, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
 	
+	// Converts token into uuid
+	let profile_uuid = auth::get_uuid_from_token(&input.token);
 	
+	// Make sure uuid was found
+	if profile_uuid.is_nil() {
+		return Err(status::BadRequest(Some("Profile not found".to_string())));
+	}
+
+	// Convert kennel name to uuid, check if not found
+	let kennel_uuid = handlers::get_kennel_uuid_from_name(input.kennel_name.clone(), &connection);
+
+	if kennel_uuid.is_nil() {
+
+		// Kennel name could not convert to a uuid (not found)
+		Err(status::BadRequest(Some("Kennel not foudn".to_string())))
+	} else {
+
+		// Attempt to insert the kennel follow to database
+		handlers::follow(kennel_uuid, profile_uuid, &connection)
+	}
 }
 
 

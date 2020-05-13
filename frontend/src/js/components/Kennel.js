@@ -15,7 +15,7 @@ import Nav from 'react-bootstrap/Nav';
 
 import axios from 'axios'
 
-import { createUserJson } from './BackendHelpers.js';
+import { followKennelJson } from './BackendHelpers.js';
 
 class Kennel extends Component {
     constructor(props) {
@@ -28,6 +28,7 @@ class Kennel extends Component {
         }
 
         this.handleSelect = this.handleSelect.bind(this);
+        this.followKennel = this.followKennel.bind(this);
     }
 
     handleSelect(eventKey) {
@@ -41,6 +42,38 @@ class Kennel extends Component {
         if (eventKey == "tags") {
             this.setState({ reviews: false, rules: false, tags: true });
         }
+    }
+
+    followKennel(){
+
+        // Get kennel name somehow
+        var kennelName = 'GaryGang';
+
+        // Get token
+        var token = localStorage.getItem('jwtToken');
+
+        console.log("TOKEN: " + token);
+
+        // Create JSON form to send to backend
+        var form = followKennelJson(kennelName, token);
+
+        // Send POST request to follow kennel
+        axios({
+          method: 'post',
+          url: '/follow_kennel',
+          data: form
+        }).then(response => {
+
+          // Store token in local storage
+          alert('Kennel has been followed successfully');
+
+
+        }).catch(error => {
+
+          // Error for failed follow
+          alert('Failed to follow kennel');
+
+        });
     }
 
     componentDidMount(){
@@ -123,7 +156,7 @@ class Kennel extends Component {
                         </Col>
                         <Col>
                             <Link to="/editkennel"><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
-                            <Button className="logInEntry" type="submit" variant="primary">Follow</Button>
+                            <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">Follow</Button>
                         </Col>
                     </Row>
                     {this.state.reviews && (

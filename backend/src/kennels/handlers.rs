@@ -2,6 +2,10 @@ use diesel;
 use diesel::prelude::*;
 use uuid::Uuid;
 use crate::schema::kennels;
+use crate::schema::kennel_follow_relationships;
+
+use rocket::response::status;
+
 
 /**
  * Method that returns a vector with all of the kennels
@@ -30,6 +34,29 @@ pub fn get_kennel_uuid_from_name(kennel_name: String, connection: &PgConnection)
         Err(_e) => Uuid::nil()
     }
 
+}
+
+/**
+ * Follow Kennel: Method that attempts to follow a kennel
+ */
+pub fn follow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+    // Prints the uuids received
+    println!("Kennel uuid: {}", kennel_uuid);
+    println!("Profile uuid: {}", profile_uuid);
+    
+    // Creates object to be inserted to the follow kennel table
+    let follow_kennel = FollowKennel {
+        follower: profile_uuid,
+        kennel: kennel_uuid,
+    };
+
+    // Inserts kennel into database, returns uuid generated
+    match diesel::insert_into(kennel_follow_relationships::table)
+        .values(follow_kennel)
+        .get_result::<FollowKennel>(connection) {
+            Ok(_u) => Ok(status::Accepted(None)),
+            Err(e) => Err(status::BadRequest(Some(e.to_string()))),
+        }
 }
 
 /**
@@ -68,6 +95,14 @@ pub fn update(id: Uuid, kennel: Kennel, connection: &PgConnection) -> bool {
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(kennels::table.find(id))
         .execute(connection)
+}
+
+// Struct represneting the fields of kennel follow table
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "kennel_follow_relationships"]
+pub struct FollowKennel {
+    pub follower: Uuid,
+    pub kennel: Uuid,
 }
 
 // Struct representing the fields of a kennel passed in from frontend contains

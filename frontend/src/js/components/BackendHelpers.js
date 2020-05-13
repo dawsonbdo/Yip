@@ -42,6 +42,12 @@ export function createCommentJson(review_uuid = "", token = "", text = "") {
     return form
 };
 
+// Creates a JSON object for following/unfollowing kennels
+export function followKennelJson(kennel_name = "", token = "") {
+    var form = {kennel_name: kennel_name, token: token};
+    return form
+};
+
 function getDateTime(){
   var today = new Date();
   var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
