@@ -35,7 +35,7 @@ fn get_user(username: String, connection: DbConn) -> Result<Json<DbUser>, status
 }
 
 /**
- * Return whether the user is logged in
+ * Method that returns whether the user is logged in
  * @param token: the jwt used to verify if logged in
  *
  * @return returns a String indicating if logged in or not
@@ -56,7 +56,10 @@ fn auth(token: String) -> String {
 }
 
 /**
- * Print out all users
+ * Method that prints out all the users in database
+ * @param connection: database connection
+ *
+ * @return N/A
  */
 #[get("/users", rank=1)]
 fn list_users(connection: DbConn) -> () {
@@ -76,10 +79,11 @@ fn list_users(connection: DbConn) -> () {
 }
 
 /** 
- * Handle password reset
+ * Method for handling password reset
  * @param user: the Json representation of a User
+ * @param connection: database connection
  *
- * @return returns true or false indicating if password changed sucessfuly
+ * @return returns a result with Accepted or Unauthorized status
  */
 #[post("/recover_password", data="<user>", rank=1)]
 fn recover_password(user: Json<User>, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
@@ -110,8 +114,9 @@ fn recover_password(user: Json<User>, connection: DbConn) -> Result<status::Acce
 }
 
 /** 
- * Handle login request
+ * Method to handle login request
  * @param user: the Json representation of a User
+ * @param connection: database connection
  *
  * @return returns a String with authentication token if successfully logged in, otherwise
  * returns status error 401 with optional error
@@ -137,8 +142,9 @@ fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unautho
 }
 
 /**
- * Handle register request
+ * Method to handle register request
  * @param user: the Json representation of a User
+ * @param connection: database connection
  *
  * @return returns a String with auth token if successful registration, otherwise an error
  * status along with a String indicating the if user/email field was taken

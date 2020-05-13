@@ -6,13 +6,19 @@ extern crate bcrypt;
 
 /**
  * Method that returns a vector with all of the users in database
+ * @param connection: database connection
+ *
+ * @return returns a vector of DbUsers
  */
 pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbUser>> {
     users::table.load::<DbUser>(&*connection)
 }
 
 /**
- * LOGIN: Method that returns UUID if successful login, otherwise nil UUID
+ * Method for logging in by checking if User details are in database
+ * @param user: the User object that is being verified
+ *
+ * @return returns Uuid of User, nil if unsuccsesful login
  */
 pub fn get(user: User, connection: &PgConnection) -> Uuid {
 
@@ -51,7 +57,14 @@ pub fn get(user: User, connection: &PgConnection) -> Uuid {
 }
 
 
-// Function that returns the uuid of a user/email if they are linked to same user
+/**
+ * Method for checking if username and email are linked to same account
+ * @param username: the username
+ * @param email: the email
+ * @param connection: database connection
+ *
+ * @return returns Uuid of User, nil if username/email not linked
+ */
 pub fn username_email_linked(username: &str, email: &str, connection: &PgConnection) -> Uuid {
 
     // Looks for username in database, if found and username/email belong to same uuid, returns uuid
@@ -62,7 +75,13 @@ pub fn username_email_linked(username: &str, email: &str, connection: &PgConnect
 
 }
 
-// Function that returns the uuid of a user given their username
+/**
+ * Method that returns uuid of a user given their username
+ * @param username: the username
+ * @param connection: database connection
+ *
+ * @return returns Uuid of User, nil if username does not exist in database
+ */
 pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> Uuid {
     match users::table.filter(users::username.eq(username)).load::<DbUser>(&*connection){
         Ok(u) => u[0].profile_uuid,
@@ -70,7 +89,13 @@ pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> Uuid
     }
 }
 
-// Function that returns the DbUser tied to a uuid
+/**
+ * Method that returns username of a user given their uuid
+ * @param id: the uuid
+ * @param connection: database connection
+ *
+ * @return returns DbUser if found, otherwise error string
+ */
 pub fn get_user_from_uuid(id: Uuid, connection: &PgConnection) -> Result<DbUser, String> {
     match users::table.find(id).get_result::<DbUser>(connection){
         Ok(u) => Ok(u),
@@ -79,8 +104,11 @@ pub fn get_user_from_uuid(id: Uuid, connection: &PgConnection) -> Result<DbUser,
 }
 
 /**
- * REGISTER: Method that attempts to create a new user in database 
- * if unique user/email and returns if successful
+ * Method for registering by checking if unique email/username
+ * @param user: the User object that is being created potentially
+ *
+ * @return returns Uuid of User if created, otherwise String indicating
+ * which unique fields are taken (email/username)
  */
 pub fn insert(user: User, connection: &PgConnection) -> Result<Uuid, String> {
     // Prints the User information that was received (register)
@@ -119,7 +147,12 @@ pub fn insert(user: User, connection: &PgConnection) -> Result<Uuid, String> {
 }
 
 /**
- * CHANGE PASSWORD: Method that attempt to change password of 
+ * Method for changing password of a User in database
+ * @param id: the uuid of a user
+ * @param new_password: new password of user
+ * @param connection: database connection
+ *
+ * @return returns bool indicating if successful password change
  */
 pub fn update(id: Uuid, new_password: &str, connection: &PgConnection) -> bool {
     match diesel::update(users::table.find(id))
@@ -130,6 +163,13 @@ pub fn update(id: Uuid, new_password: &str, connection: &PgConnection) -> bool {
         }
 }
 
+/**
+ * Method for deleting a User from database
+ * @param id: the uuid of a user
+ * @param connection: database connection
+ *
+ * @return returns result indicating if successful deletion
+ */
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(users::table.find(id))
         .execute(connection)
