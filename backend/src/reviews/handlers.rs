@@ -9,11 +9,23 @@ use crate::auth;
 use chrono::NaiveDateTime;
 
 /**
+ * Method that returns a vector with all of the reviews for a particular kennel
+ */
+pub fn all_kennel_reviews(kennel_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayReview>> {
+    Ok(reviews::table.filter(reviews::kennel_uuid.eq(kennel_uuid)).load::<DbReview>(&*connection)
+    .unwrap()
+    .iter()
+    .map(|review| DbReview::to_review(review, connection))
+    .collect())
+}
+
+/**
  * Method that returns a vector with all of the reviews
  */
 pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbReview>> {
     reviews::table.load::<DbReview>(&*connection)
 }
+
 
 /**
  * LOAD REVIEW: Method that returns a Review given the uuid
@@ -21,7 +33,7 @@ pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbReview>> {
 pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DisplayReview> {
 
     // Searches review table for the uuid and gets the review
-    Ok(DbReview::to_review(reviews::table.find(id).get_result::<DbReview>(connection).unwrap(), connection))
+    Ok(DbReview::to_review(&reviews::table.find(id).get_result::<DbReview>(connection).unwrap(), connection))
 }
 
 /**
@@ -120,24 +132,24 @@ impl DbReview{
         }
     }
 
-    fn to_review(review: DbReview, connection: &PgConnection) -> DisplayReview {
+    fn to_review(review: &DbReview, connection: &PgConnection) -> DisplayReview {
         let vec : Vec<String> = vec![];
         let vec2 : Vec<String> = vec![];
         
         let mut r = 
          DisplayReview{
             kennel_name: super::super::kennels::handlers::get(review.kennel_uuid, connection).unwrap().kennel_name, //TODO Get name of kennel
-            title: review.title,
+            title: review.title.clone(),
             author: super::super::users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
             timestamp: review.timestamp.unwrap(),
-            text: review.text,
-            images: match review.images {
-                Some(t) => t,
+            text: review.text.clone(),
+            images: match &review.images {
+                Some(t) => t.to_vec(),
                 None => vec,
             },
             rating: review.rating,
-            tags: match review.tags {
-                Some(t) => t,
+            tags: match &review.tags {
+                Some(t) => t.to_vec(),
                 None => vec2,
             },
             isAuthor: false,

@@ -3,7 +3,7 @@ pub mod handlers;
 use crate::auth;
 use crate::db;
 
-use handlers::Kennel;
+use handlers::{DbKennel, Kennel};
 use rocket_contrib::json::Json;
 
 use db::DbConn;
@@ -18,6 +18,33 @@ struct KennelUser {
     token: String,
 }
 
+
+/** 
+ * Method that returns a kennel from database given the name
+ * @param id: Uuid of review as a string
+ *
+ * @return returns JSON of the review or error status
+ */
+#[get("/get_kennel/<name>")]
+fn get_kennel(name: String, connection: DbConn) -> Result<Json<DbKennel>, status::NotFound<String>> {
+
+	// Converts kennel name to uuid
+	let kennel_uuid = handlers::get_kennel_uuid_from_name(name, &connection);
+
+	// Check for nil uuid
+	if kennel_uuid.is_nil(){
+
+		Err(status::NotFound("".to_string()))
+	} else {
+
+		// Pattern match the attempt to get kennel from uuid
+		match handlers::get(kennel_uuid, &connection){
+			Ok(k) => Ok(Json(k)),
+			Err(e) => Err(status::NotFound(e.to_string())),
+		}
+	}
+	
+}
 
 /**
  * Print out all kennels
@@ -87,5 +114,5 @@ fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Acc
  * Mount the kennel routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_kennel, list_kennels, follow_kennel, unfollow_kennel])  
+    rocket.mount("/", routes![create_kennel, list_kennels, follow_kennel, unfollow_kennel, get_kennel])  
 }

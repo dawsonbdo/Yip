@@ -20,6 +20,7 @@ mod reviews;
 mod kennels;
 mod comments;
 mod reports;
+mod messages;
 
 // Other stuff
 mod auth;
@@ -60,6 +61,7 @@ fn rocket() -> rocket::Rocket {
     rocket = kennels::mount(rocket);
     rocket = comments::mount(rocket);
     rocket = reports::mount(rocket);
+    rocket = messages::mount(rocket);
 
     // Return the Rocket
     return rocket;

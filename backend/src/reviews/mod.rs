@@ -52,6 +52,36 @@ fn token_to_username(token: String, connection: &DbConn) -> String {
 }
 
 /** 
+ * Method that returns vector of kennel reviews
+ * @param id: Uuid of review as a string
+ *
+ * @return returns JSON of the review or error status
+ */
+#[get("/get_reviews/<kennel_name>")]
+fn get_kennel_reviews(kennel_name: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
+
+	// Converts kennel name to kennel id
+	let kennel_uuid = super::kennels::handlers::get_kennel_uuid_from_name(kennel_name, &connection);
+
+	// Check for nil id
+	if kennel_uuid.is_nil() {
+		return Err(status::NotFound("Kennel not found".to_string()));
+	}
+
+	// Makes database call to get all reviews with kennel uuid
+	let all_reviews = handlers::all_kennel_reviews(kennel_uuid, &connection);
+
+	// Prints out title/text/rating of each review in database
+	for v in &all_reviews {
+		for r in v.iter() {
+			println!("Author Name: {} Title: {} Time: {}", r.author, r.title, r.timestamp.to_string());
+		} 
+	}
+
+	Ok(Json(all_reviews.unwrap()))
+}
+
+/** 
  * Method that returns a review from database given the ID
  * @param id: Uuid of review as a string
  *
@@ -313,5 +343,5 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
  * Mount the review routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review])  
+    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews])  
 }

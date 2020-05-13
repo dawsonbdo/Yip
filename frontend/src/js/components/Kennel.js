@@ -43,6 +43,62 @@ class Kennel extends Component {
         }
     }
 
+    componentDidMount(){
+        // Load kennel page with data from database
+
+        // Get kennel name from URL?
+        var kennelName = 'GaryGang'
+
+        // Format URL to send in GET request
+        var reqUrl = "/get_reviews/" + kennelName;
+
+        // Send GET request with kennel name to get reviews in kennel
+        axios({
+            method: 'get',
+            url: reqUrl
+        }).then(response => {
+
+            alert('Kennel reviews successfully grabbed from database!');
+
+            // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
+            //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
+          
+            // Iterate through reviews
+            for (var i = 0; i < response.data.length; i++ ){
+
+                // Print reviews to console for now
+                console.log(response.data[i]);
+
+            } 
+        
+        }).catch(error => {
+
+            // Review not found in database
+            alert('Kennel does not exist/No reviews in kennel');
+
+        });
+
+        // Format URL to send in GET request
+        reqUrl = "/get_kennel/" + kennelName;
+
+        // Send GET request with kennel name to get kennel information
+        axios({
+            method: 'get',
+            url: reqUrl
+        }).then(response => {
+
+            alert('Kennel info successfully grabbed from database!');
+
+            // TODO: Render kennel information
+            console.log(response.data);
+        
+        }).catch(error => {
+
+            // Review not found in database
+            alert('Kennel does not exist in database');
+
+        });
+    }
 
     render() {
         return (

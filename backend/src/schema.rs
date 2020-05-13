@@ -52,6 +52,16 @@ table! {
 }
 
 table! {
+    messages (message_uuid) {
+        message_uuid -> Uuid,
+        sender -> Uuid,
+        recipient -> Uuid,
+        text -> Text,
+        timestamp -> Nullable<Timestamp>,
+    }
+}
+
+table! {
     moderators (kennel) {
         reviewer -> Uuid,
         kennel -> Uuid,
@@ -147,6 +157,7 @@ allow_tables_to_appear_in_same_query!(
     kennel_bans,
     kennel_follow_relationships,
     kennels,
+    messages,
     moderators,
     reports,
     review_dislike_relationships,

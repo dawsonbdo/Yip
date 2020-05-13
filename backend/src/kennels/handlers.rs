@@ -20,6 +20,19 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbKennel> {
 }
 
 /**
+ * Return uuid of a kennel given the name
+ */
+pub fn get_kennel_uuid_from_name(kennel_name: String, connection: &PgConnection) -> Uuid {
+
+    // Searches kennel table for the uuid and gets the kennel
+    match kennels::table.filter(kennels::kennel_name.eq(kennel_name)).load::<DbKennel>(&*connection) {
+        Ok(k) => k[0].kennel_uuid,
+        Err(_e) => Uuid::nil()
+    }
+
+}
+
+/**
  * CREATE KENNEL: Method that attempts to create a new kennel in database, returns URL? 
  */
 pub fn insert(kennel: Kennel, connection: &PgConnection) -> Result<Uuid, String> {
