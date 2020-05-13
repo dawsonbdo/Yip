@@ -37,9 +37,10 @@ table! {
 }
 
 table! {
-    kennel_follow_relationships (kennel) {
+    kennel_follow_relationships (id) {
         follower -> Uuid,
         kennel -> Uuid,
+        id -> Int4,
     }
 }
 

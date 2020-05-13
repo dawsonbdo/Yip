@@ -71,9 +71,28 @@ struct KennelUser {
  * @return returns TBD
  */
 #[post("/unfollow_kennel", data="<input>", rank=1)]
-fn unfollow_kennel(input: Json<KennelUser>, connection: DbConn) -> () {
+fn unfollow_kennel(input: Json<KennelUser>, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
 	
+	// Converts token into uuid
+	let profile_uuid = auth::get_uuid_from_token(&input.token);
 	
+	// Make sure uuid was found
+	if profile_uuid.is_nil() {
+		return Err(status::BadRequest(Some("Profile not found".to_string())));
+	}
+
+	// Convert kennel name to uuid, check if not found
+	let kennel_uuid = handlers::get_kennel_uuid_from_name(input.kennel_name.clone(), &connection);
+
+	if kennel_uuid.is_nil() {
+
+		// Kennel name could not convert to a uuid (not found)
+		Err(status::BadRequest(Some("Kennel not foudn".to_string())))
+	} else {
+
+		// Attempt to insert the kennel follow to database
+		handlers::unfollow(kennel_uuid, profile_uuid, &connection)
+	}
 }
 
 /** 

@@ -37,6 +37,50 @@ pub fn get_kennel_uuid_from_name(kennel_name: String, connection: &PgConnection)
 }
 
 /**
+ * Returns number of followers in kennel
+ */
+pub fn get_follower_count(kennel_uuid: Uuid, connection: &PgConnection) -> i32{
+
+    // Gets rows that match the kennel uuid
+    let row = kennel_follow_relationships::table
+             .filter(kennel_follow_relationships::kennel.eq(kennel_uuid))
+             .load::<DbFollowKennel>(&*connection);
+
+    // Return the number of rows found with the kennel uuid
+    match row {
+        Ok(r) => r.iter().len(),
+        Err(_e) => 0,
+    }
+}
+
+/**
+ * Unfollow Kennel: Method that attempts to unfollow a kennel
+ */
+pub fn unfollow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+    // Prints the uuids received
+    println!("Kennel uuid: {}", kennel_uuid);
+    println!("Profile uuid: {}", profile_uuid);
+    
+    // Gets DbKennelFollow of row to be deleted
+    let row = kennel_follow_relationships::table
+             .filter(kennel_follow_relationships::kennel.eq(kennel_uuid))
+             .filter(kennel_follow_relationships::follower.eq(profile_uuid))
+             .load::<DbFollowKennel>(&*connection);
+
+    // Check if row was foudn, and delete if so
+    match row {
+        Ok(r) => // Deletes kennel follow relationship from table
+                match diesel::delete(&r[0])
+                        .execute(connection){
+                            Ok(_u) => Ok(status::Accepted(None)),
+                            Err(e) => Err(status::BadRequest(Some(e.to_string()))),
+                },
+        Err(e) => Err(status::BadRequest(Some(e.to_string()))),
+    }
+
+}
+
+/**
  * Follow Kennel: Method that attempts to follow a kennel
  */
 pub fn follow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
@@ -53,7 +97,7 @@ pub fn follow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) 
     // Inserts kennel into database, returns uuid generated
     match diesel::insert_into(kennel_follow_relationships::table)
         .values(follow_kennel)
-        .get_result::<FollowKennel>(connection) {
+        .get_result::<DbFollowKennel>(connection) {
             Ok(_u) => Ok(status::Accepted(None)),
             Err(e) => Err(status::BadRequest(Some(e.to_string()))),
         }
@@ -104,6 +148,16 @@ pub struct FollowKennel {
     pub follower: Uuid,
     pub kennel: Uuid,
 }
+
+// Struct represneting the fields of kennel follow table that is returned by DB
+#[derive(Insertable, Identifiable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "kennel_follow_relationships"]
+pub struct DbFollowKennel {
+    pub follower: Uuid,
+    pub kennel: Uuid,
+    pub id: i32,
+}
+
 
 // Struct representing the fields of a kennel passed in from frontend contains
 #[derive(Queryable, Serialize, Deserialize)]
