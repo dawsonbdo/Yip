@@ -24,6 +24,36 @@ fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnec
 }
 
 /**
+ * Method that gets returns all kennels that user is following
+ * @param id: uuid of user
+ * @param connection: database connection
+ *
+ * @return returns vector of all DbKennels
+ */
+pub fn all_user_kennels(id: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbKennel>> {
+
+    // Loads all rows in kennel table
+    let follow_kennels = kennel_follow_relationships::table
+            .filter(kennel_follow_relationships::follower.eq(id))
+            .load::<DbFollowKennel>(&*connection);
+
+    // Take the kennel ids and convert to DbKennels
+    let mut kennels = vec![];
+
+    // Make sure no error with loading the kennels
+    match follow_kennels {
+        Ok(k) => {
+            for f in k.iter(){
+                kennels.push(get(f.kennel, connection).unwrap());
+            }
+        },
+        Err(e) => return Err(e),
+    }
+
+    Ok(kennels)
+}
+
+/**
  * Method that gets returns all kennels in database
  * @param connection: database connection
  *

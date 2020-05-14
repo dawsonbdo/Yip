@@ -74,6 +74,31 @@ fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbC
  *
  * @return returns JSON of the review or error status
  */
+#[get("/get_followed_kennels/<token>")]
+fn get_followed_kennels(token: String, connection: DbConn) -> Result<Json<Vec<DbKennel>>, status::NotFound<String>> {
+
+	// Get the uuid from token
+	let uuid = auth::get_uuid_from_token(&token);
+
+	// If not nil, return all of the followed kennels
+	if !uuid.is_nil(){
+		match handlers::all_user_kennels(uuid, &connection) {
+			Ok(k) => Ok(Json(k)),
+			Err(_e) => Err(status::NotFound("No kennels".to_string()))
+		}
+	} else {
+		Err(status::NotFound("User not found".to_string()))
+	}
+	
+}
+
+/** 
+ * Method that returns a kennel from database given the name
+ * @param name: name of kennel
+ * @param connection: database connection
+ *
+ * @return returns JSON of the review or error status
+ */
 #[get("/get_kennel/<name>")]
 fn get_kennel(name: String, connection: DbConn) -> Result<Json<DbKennel>, status::NotFound<String>> {
 
@@ -171,5 +196,5 @@ fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Acc
  * Mount the kennel routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_kennel, list_kennels, follow_kennel, unfollow_kennel, get_kennel])  
+    rocket.mount("/", routes![create_kennel, list_kennels, follow_kennel, unfollow_kennel, get_kennel, get_followed_kennels])  
 }
