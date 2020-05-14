@@ -102,25 +102,20 @@ pub fn get_kennel_uuid_from_name(kennel_name: String, connection: &PgConnection)
  *
  * @return N/A
  */
-pub fn update_kennel_followers(kennel_uuid: Uuid, connection: &PgConnection) -> (){
+pub fn update_kennel_followers(kennel_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
 
     // Get kennel from uuid
-    let kennel = get(kennel_uuid, connection);
+    let _kennel = get(kennel_uuid, connection)?;
 
     // Get new follower count
     let new_count = get_follower_count(kennel_uuid, connection);
 
     println!("Kennel Id: {} New Count: {}", kennel_uuid, new_count);
 
-    // Make sure it was foudn
-    match kennel {
-        Ok(_k) => {  diesel::update(kennels::table.find(kennel_uuid))
+    // Make sure it was found
+    diesel::update(kennels::table.find(kennel_uuid))
                         .set(kennels::columns::follower_count.eq(new_count))
-                        .execute(connection);
-                         return
-                     },
-        Err(_e) => return,
-    }
+                        .execute(connection)
 
 }
 
