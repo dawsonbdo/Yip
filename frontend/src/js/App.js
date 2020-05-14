@@ -12,6 +12,7 @@ import Review from './components/Review';
 import Kennel from './components/Kennel';
 import EditKennel from './components/EditKennel';
 import CreateKennel from './components/CreateKennel';
+import SearchResults from './components/SearchResults';
 
 const temp = ['Ralof: Hey, you. You\'re finally awake. You were trying to cross the border, \
 							right? Walked right into that Imperial ambush, same as us, and that \
@@ -62,6 +63,7 @@ function App() {
           <Route path="/review" render={(props) => <Review reviewName={"Buy Skyrim"} reviewerName={"Todd Howard"} reviewText={temp[0]} reviewImg={temp[1]} {...props} />} />
 		  <Route path="/editkennel" exact component={EditKennel} />
 		  <Route path="/createkennel" exact component={CreateKennel} />
+		  <Route path="/searchresults" exact component={SearchResults} />
 		  <Route path="/kennel" render={(props) => <Kennel kennelName={"GARY'S KENNEL"}/>} />
         </Switch>
       </div>
