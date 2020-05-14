@@ -24,7 +24,8 @@ class Kennel extends Component {
         this.state = {
             reviews: true,
             rules: false,
-            tags: false
+            tags: false,
+            reviewArray: []
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -44,7 +45,7 @@ class Kennel extends Component {
         }
     }
 
-    followKennel(){
+    followKennel() {
 
         // Get kennel name somehow
         var kennelName = 'GaryGang';
@@ -57,24 +58,24 @@ class Kennel extends Component {
 
         // Send POST request to follow kennel
         axios({
-          method: 'post',
-          url: '/follow_kennel',
-          data: form
+            method: 'post',
+            url: '/follow_kennel',
+            data: form
         }).then(response => {
 
-          // Successful follow
-          alert('Kennel has been followed successfully');
+            // Successful follow
+            alert('Kennel has been followed successfully');
 
 
         }).catch(error => {
 
-          // Error for failed follow
-          alert('Failed to follow kennel');
+            // Error for failed follow
+            alert('Failed to follow kennel');
 
         });
     }
 
-    componentDidMount(){
+    componentDidMount() {
         // Load kennel page with data from database
 
         // Get kennel name from URL?
@@ -93,15 +94,21 @@ class Kennel extends Component {
 
             // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
             //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
-          
+
             // Iterate through reviews
-            for (var i = 0; i < response.data.length; i++ ){
+            for (var i = 0; i < response.data.length; i++) {
 
                 // Print reviews to console for now
                 console.log(response.data[i]);
+                this.state.reviewArray.push({
+                    title: response.data[i].title,
+                    author: response.data[i].author,
+                    text: response.data[i].text
+                });
+                this.setState();
 
-            } 
-        
+            }
+
         }).catch(error => {
 
             // Review not found in database
@@ -122,7 +129,7 @@ class Kennel extends Component {
 
             // TODO: Render kennel information
             console.log(response.data);
-        
+
         }).catch(error => {
 
             // Review not found in database
@@ -132,6 +139,9 @@ class Kennel extends Component {
     }
 
     render() {
+        const reviews = this.state.reviewArray.map(function(review) {
+            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={review.text}/>
+        });
         return (
             <div>
                 <Container>
@@ -159,23 +169,19 @@ class Kennel extends Component {
                     </Row>
                     {this.state.reviews && (
                         <div>
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+                            {reviews}
                         </div>
                     )}
                     {this.state.rules && (
                         <div>
                             <h1>Rules</h1>
-                            <p>Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary                                
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary                                
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary                                
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary                                
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary                                
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary                                
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary                                
+                            <p>Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
                             </p>
                         </div>
                     )}

@@ -18,6 +18,7 @@ class Home extends Component {
 
       // Creates state to keep track of if logged in
       this.state = { loggedIn: false };
+
     }
 
     // After component is loaded, update auth state
@@ -61,6 +62,8 @@ class Home extends Component {
       });
 
     }
+
+
 
     render() {
 
