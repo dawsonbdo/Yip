@@ -30,11 +30,11 @@ class YipNavBar extends Component {
 
   logout(event) {
     localStorage.removeItem('jwtToken');
-    this.forceUpdate();
+    updateLoggedInState(this);
   }
 
   // After component is loaded, update auth state
-  componentDidUpdate() {
+  componentWillMount() {
 
     // Sets logged in state of the component after loading page
     updateLoggedInState(this);
