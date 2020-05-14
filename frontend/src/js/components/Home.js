@@ -31,7 +31,8 @@ class Home extends Component {
     componentDidUpdate(){
 
       // Sets HTML on page to display logged in status
-      document.getElementById('authstatus').innerHTML = "Logged In: " + isLoggedIn(this);
+      // LOGGED IN WORKS NOW
+      //document.getElementById('authstatus').innerHTML = "Logged In: " + isLoggedIn(this);
 
       // Load reviews
       axios({

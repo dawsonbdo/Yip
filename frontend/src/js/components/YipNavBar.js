@@ -24,34 +24,32 @@ class YipNavBar extends Component {
     this.state = {
       loggedIn: false,
     };
+
+    this.logout = this.logout.bind(this);
+  }
+
+  logout(event) {
+    localStorage.removeItem('jwtToken');
+    this.forceUpdate();
   }
 
   // After component is loaded, update auth state
-  componentDidMount() {
+  componentDidUpdate() {
 
     // Sets logged in state of the component after loading page
     updateLoggedInState(this);
   }
 
-  // Controls login/logout button
-  componentDidUpdate() {
-
-    // If logged in, should be logout button
-    if (isLoggedIn(this)) {
-
-      // TODO: Show logout button
-      document.getElementById('login').innerHTML = "Logout";
-
-    } else { // Otherwise should be login button
-
-      // TODO: Show login button
-      document.getElementById('login').innerHTML = "Login";
-
+  render() {
+    let logBtn;
+    if(isLoggedIn(this))
+    {
+      logBtn = <Button onClick={this.logout} type="submit" variant="warning" className="mr-5">Logout</Button>;
+    } else {
+      logBtn = <Link to="/login"><Button id="login" type="submit" variant="warning" className="mr-5">Login</Button></Link>;
     }
 
-  }
 
-  render() {
     return (
       <div id="spaceNav">
         <Navbar className="color-nav" expand="false" fixed="top">
@@ -73,7 +71,7 @@ class YipNavBar extends Component {
             <NavDropdown.Divider />
             <NavDropdown.Item href="#action/3.2">Kennel</NavDropdown.Item>
           </NavDropdown>
-          <Link to="/login"><Button id="login" type="submit" variant="warning" className="mr-5">Login</Button></Link>
+          {logBtn}
           <Link to="/register"><Button type="submit" variant="warning" className="mr-5">Register</Button></Link>
           <Link to="/"><img className="yipIcon" src={corgiImage} /></Link>
         </Navbar>
