@@ -147,7 +147,7 @@ class Kennel extends Component {
             <div>
                 <Container>
                     <Row className="align-items-center">
-                        <Col className="text-center">
+                        <Col xs={9} className="text-center">
                             <Jumbotron id="jumbotron" className="text-left">
                                 <h1>{this.props.kennelName}</h1>
                                 <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
