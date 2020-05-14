@@ -100,7 +100,7 @@ pub fn dislike(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection
     }
 
     // Attempt to delete from like table
-    delete_like_dislike(comment_uuid, profile_uuid, false, connection);
+    delete_like_dislike(comment_uuid, profile_uuid, true, connection);
 
     // Creates object to be inserted to the like comment table
     let dislike_comment = DislikeComment {
@@ -140,7 +140,7 @@ pub fn like(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -
     }
 
     // Attempt to delete from dislike table
-    delete_like_dislike(comment_uuid, profile_uuid, true, connection);
+    delete_like_dislike(comment_uuid, profile_uuid, false, connection);
 
     // Creates object to be inserted to the like comment table
     let like_comment = LikeComment {
