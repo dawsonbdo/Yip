@@ -39,7 +39,7 @@ fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbC
 	let kennel_uuid = handlers::get_kennel_uuid_from_name(input.kennel_name.clone(), &connection);
 
 	// Return value
-	let mut result;
+	let result;
 
 	// Makes sure kennel was found
 	if kennel_uuid.is_nil() {

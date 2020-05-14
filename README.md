@@ -41,3 +41,26 @@
 9. On the File Browser to the left, navigate to the newly connected database
 10. Go to Databases -> postgres -> Schemas -> Tables
 11. Right click on any table and select "View/Edit Data" to view table contents.
+
+<h1>How to use Docker</h1>
+
+<h3>Using VSCode remote container extension</h3>
+
+1. Open the yip folder in vscode
+2. A popup should ask if you want to reopen the folder in the conatiner
+3. Reopen the folder in the container using the Dockerfile
+4. The first time the image will need to be built which may take a while
+
+<h3>Using the command line</h3>
+
+1. The image can be built by running 'docker build -t yip .' from the yip folder
+
+<h4>Running with the command line option #1</h4>
+
+1. The image can be run with 'docker run --network="host" -it yip /bin/bash'
+2. Run 'cargo build' and then 'cargo run'. Go to http://localhost:8000/. 
+
+<h4>Running with the command line option #2</h4>
+
+1. The image can be run with 'docker run -p 8000:8000 -it yip /bin/bash'
+2. Run 'cargo build' and then 'ROCKET_ENV=stage cargo run'. Go to http://0.0.0.0:8000.
