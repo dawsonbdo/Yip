@@ -66,7 +66,7 @@ function App() {
 		  <Route path="/createkennel" exact component={CreateKennel} />
 		  <Route path="/searchresults" exact component={SearchResults} />
 		  <Route path="/profile" exact component={Profile} />
-		  <Route path="/kennel" render={(props) => <Kennel kennelName={"GARY'S KENNEL"}/>} />
+		  <Route path="/kennel" exact component={Kennel} />
         </Switch>
       </div>
     </Router>
