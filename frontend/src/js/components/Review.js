@@ -13,6 +13,9 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png';
+import shareIcon from '../../assets/share.png';
+import bookmarkIcon from '../../assets/bookmark.png';
+import reportIcon from '../../assets/report.png';
 
 import axios from 'axios'
 
@@ -43,17 +46,17 @@ class Review extends Component {
 			url: reqUrl
 		}).then(response => {
 
-			alert('Review successfully grabbed from database!');
+			// alert('Review successfully grabbed from database!');
 
-			// TODO: Fill in html using response 
-			document.getElementById('title').innerHTML = response.data.title;
-			document.getElementById('author').innerHTML = response.data.author;
-			document.getElementById('text').innerHTML = response.data.text; 
+			// // TODO: Fill in html using response 
+			// document.getElementById('title').innerHTML = response.data.title;
+			// document.getElementById('author').innerHTML = response.data.author;
+			// document.getElementById('text').innerHTML = response.data.text;
 
-			// Check that any images were returned cuz can be undefined
-			if ( response.data.images != undefined ){
-				document.getElementById('img').src = response.data.images[0];
-			}
+			// // Check that any images were returned cuz can be undefined
+			// if (response.data.images != undefined) {
+			// 	document.getElementById('img').src = response.data.images[0];
+			// }
 
 			// TODO: Render edit/delete buttons depending on if author of review
 			console.log("Is Author: " + response.data.isAuthor);
@@ -140,6 +143,9 @@ class Review extends Component {
 					<h4 id="author">{this.props.reviewerName}</h4>
 					<Link to="/"><Image className="likePadding" src={likeIcon} /></Link>
 					<Link to="/"><Image className="likePadding" src={dislikeIcon} /></Link>
+					<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
+					<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
+					<Link to="/"><Image className="likePadding" src={reportIcon} /></Link>
 				</Jumbotron>
 
 				<Row className="reviewContent">
