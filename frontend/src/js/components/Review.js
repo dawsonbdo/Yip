@@ -16,6 +16,7 @@ import dislikeIcon from '../../assets/dislike.png';
 import shareIcon from '../../assets/share.png';
 import bookmarkIcon from '../../assets/bookmark.png';
 import reportIcon from '../../assets/report.png';
+import trashIcon from '../../assets/trash.png';
 
 import axios from 'axios'
 
@@ -145,7 +146,7 @@ class Review extends Component {
 					<Link to="/"><Image className="likePadding" src={dislikeIcon} /></Link>
 					<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
 					<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
-					<Link to="/"><Image className="likePadding" src={reportIcon} /></Link>
+					<Link to="/"><Image className="likePadding" src={trashIcon} /></Link>
 				</Jumbotron>
 
 				<Row className="reviewContent">
