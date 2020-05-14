@@ -32,6 +32,7 @@ class YipNavBar extends Component {
     };
 
     this.logout = this.logout.bind(this);
+    this.handleDropdownClick = this.handleDropdownClick.bind(this);
   }
 
   logout(event) {
@@ -55,8 +56,13 @@ class YipNavBar extends Component {
         this.state.followedKennelsArray.push(response.data[i].kennel_name);
       }
     }).catch(error => {
-      alert('Failed to get kennels');
+      //alert('Failed to get kennels');
     });
+  }
+
+  handleDropdownClick(event) {
+    //alert("TEST")
+    //alert(event.currentTarget.value)
   }
 
   render() {
