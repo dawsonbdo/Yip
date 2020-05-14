@@ -46,7 +46,8 @@ class YipNavBar extends Component {
     {
       logBtn = <Button onClick={this.logout} type="submit" variant="warning" className="mr-5">Logout</Button>;
     } else {
-      logBtn = <Link to="/login"><Button id="login" type="submit" variant="warning" className="mr-5">Login</Button></Link>;
+      logBtn = <div><Link to="/login"><Button id="login" type="submit" variant="warning" className="mr-5">Login</Button></Link>
+               <Link to="/register"><Button type="submit" variant="warning" className="mr-5">Register</Button></Link></div>;
     }
 
 
@@ -72,7 +73,6 @@ class YipNavBar extends Component {
             <NavDropdown.Item href="#action/3.2">Kennel</NavDropdown.Item>
           </NavDropdown>
           {logBtn}
-          <Link to="/register"><Button type="submit" variant="warning" className="mr-5">Register</Button></Link>
           <Link to="/"><img className="yipIcon" src={corgiImage} /></Link>
         </Navbar>
       </div>
