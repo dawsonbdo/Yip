@@ -42,7 +42,7 @@ class Review extends Component {
 		// TODO: Display stuff based on if logged in or not (ie form to post comment)
 
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
-		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
+		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 		var token = localStorage.getItem('jwtToken');
 
 		// Format URL to send in GET request
@@ -56,15 +56,15 @@ class Review extends Component {
 
 			// alert('Review successfully grabbed from database!');
 
-			// // TODO: Fill in html using response 
-			// document.getElementById('title').innerHTML = response.data.title;
-			// document.getElementById('author').innerHTML = response.data.author;
-			// document.getElementById('text').innerHTML = response.data.text;
+			// TODO: Fill in html using response 
+			document.getElementById('title').innerHTML = response.data.title;
+			document.getElementById('author').innerHTML = response.data.author;
+			document.getElementById('text').innerHTML = response.data.text;
 
-			// // Check that any images were returned cuz can be undefined
-			// if (response.data.images != undefined) {
-			// 	document.getElementById('img').src = response.data.images[0];
-			// }
+			// Check that any images were returned cuz can be undefined
+			if (response.data.images != undefined) {
+				document.getElementById('img').src = response.data.images[0];
+			}
 
 			// TODO: Render edit/delete buttons depending on if author of review
 			console.log("Is Author: " + response.data.isAuthor);
@@ -111,7 +111,7 @@ class Review extends Component {
 
 	postComment() {
 		// TODO: Get uuid of review from url probably
-		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
+		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -154,8 +154,8 @@ class Review extends Component {
 				<Jumbotron id="jumbotron">
 					<Row>
 						<Col className="text-left">
-							<h1 id="title">{this.props.reviewName}</h1>
-							<h4 id="author">{this.props.reviewerName}</h4>
+							<h1 id="title"></h1>
+							<h4 id="author"></h4>
 
 						</Col>
 						<Col className="text-right reviewIcon">
@@ -170,11 +170,11 @@ class Review extends Component {
 
 				<Row className="reviewContent">
 					<Col xs={7} className="text-left">
-						<p id="text" dangerouslySetInnerHTML={{ __html: this.props.reviewText }}></p>
+						<p id="text"></p>
 					</Col>
 
 					<Col xs={5} className="reviewPicture text-center align">
-						<Image id="img" src={this.props.reviewImg[0]} />
+						<Image id="img" />
 					</Col>
 				</Row>
 
