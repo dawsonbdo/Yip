@@ -14,7 +14,7 @@ use rocket::response::status;
  *
  * @return returns a result containing DbFollowKennel if found, otherwise error
  */
-fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<DbFollowKennel>{
+fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbFollowKennel>>{
     
     // Filters kennel follow relationship table
     kennel_follow_relationships::table
@@ -66,13 +66,42 @@ pub fn get_kennel_uuid_from_name(kennel_name: String, connection: &PgConnection)
 }
 
 /**
+ * Method that updates the number of followers of a kennel in DB
+ * @param kennel_uuid: uuid of kennel
+ * @param connection: database connection
+ *
+ * @return N/A
+ */
+pub fn update_kennel_followers(kennel_uuid: Uuid, connection: &PgConnection) -> (){
+
+    // Get kennel from uuid
+    let kennel = get(kennel_uuid, connection);
+
+    // Get new follower count
+    let new_count = get_follower_count(kennel_uuid, connection);
+
+    println!("Kennel Id: {} New Count: {}", kennel_uuid, new_count);
+
+    // Make sure it was foudn
+    match kennel {
+        Ok(_k) => {  diesel::update(kennels::table.find(kennel_uuid))
+                        .set(kennels::columns::follower_count.eq(new_count))
+                        .execute(connection);
+                         return
+                     },
+        Err(_e) => return,
+    }
+
+}
+
+/**
  * Method that returns number of followers of a kennel
  * @param kennel_uuid: uuid of kennel
  * @param connection: database connection
  *
  * @return returns number of followers of kennel, 0 if does not exist
  */
-pub fn get_follower_count(kennel_uuid: Uuid, connection: &PgConnection) -> i32{
+pub fn get_follower_count(kennel_uuid: Uuid, connection: &PgConnection) -> i32 {
 
     // Gets rows that match the kennel uuid
     let row = kennel_follow_relationships::table
@@ -101,7 +130,7 @@ pub fn unfollow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection
     // Check if row was foudn, and delete if so
     match row {
         Ok(r) => // Deletes kennel follow relationship from table
-                match diesel::delete(&r[0])
+                match diesel::delete(kennel_follow_relationships::table.find(r[0].pkey))
                         .execute(connection){
                             Ok(_u) => Ok(status::Accepted(None)),
                             Err(e) => Err(status::BadRequest(Some(e.to_string()))),
@@ -209,12 +238,12 @@ pub struct FollowKennel {
 }
 
 // Struct representing the fields of kennel follow table that is returned by DB
-#[derive(Insertable, Identifiable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
 #[table_name = "kennel_follow_relationships"]
 pub struct DbFollowKennel {
+    pub pkey: i64,
     pub follower: Uuid,
     pub kennel: Uuid,
-    pub id: i32,
 }
 
 
@@ -233,7 +262,7 @@ pub struct DbKennel {
     pub kennel_uuid: Uuid,
     pub tags: Option<Vec<String>>,
     pub kennel_name: String,
-    pub follower_count: Option<i32>,
+    pub follower_count: i32,
 }
 
 // Converts a Kennel to an DbKennel by calling functions on passed in values
@@ -246,7 +275,7 @@ impl DbKennel{
             kennel_uuid: if uuid.is_nil() {Uuid::new_v4()} else {uuid}, // generate random uuid for kennel
             kennel_name: kennel.kennel_name,
             tags: Some(kennel.tags),
-            follower_count: Some(get_follower_count(uuid, connection)),
+            follower_count: get_follower_count(uuid, connection),
         }
     }
 

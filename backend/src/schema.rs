@@ -1,19 +1,22 @@
 table! {
-    block_relationships (blocker) {
+    block_relationships (pkey) {
+        pkey -> Int8,
         blocker -> Uuid,
         blockee -> Uuid,
     }
 }
 
 table! {
-    comment_dislike_relationships (comment) {
+    comment_dislike_relationships (pkey) {
+        pkey -> Int8,
         disliker -> Uuid,
         comment -> Uuid,
     }
 }
 
 table! {
-    comment_like_relationships (comment) {
+    comment_like_relationships (pkey) {
+        pkey -> Int8,
         liker -> Uuid,
         comment -> Uuid,
     }
@@ -30,17 +33,18 @@ table! {
 }
 
 table! {
-    kennel_bans (kennel) {
+    kennel_bans (pkey) {
+        pkey -> Int8,
         banned_reviewer -> Uuid,
         kennel -> Uuid,
     }
 }
 
 table! {
-    kennel_follow_relationships (id) {
+    kennel_follow_relationships (pkey) {
+        pkey -> Int8,
         follower -> Uuid,
         kennel -> Uuid,
-        id -> Int4,
     }
 }
 
@@ -49,7 +53,7 @@ table! {
         kennel_uuid -> Uuid,
         tags -> Nullable<Array<Text>>,
         kennel_name -> Varchar,
-        follower_count -> Nullable<Int4>,
+        follower_count -> Int4,
     }
 }
 
@@ -83,21 +87,24 @@ table! {
 }
 
 table! {
-    review_dislike_relationships (review) {
+    review_dislike_relationships (pkey) {
+        pkey -> Int8,
         disliker -> Uuid,
         review -> Uuid,
     }
 }
 
 table! {
-    review_like_relationships (review) {
+    review_like_relationships (pkey) {
+        pkey -> Int8,
         liker -> Uuid,
         review -> Uuid,
     }
 }
 
 table! {
-    reviewer_follow_relationships (follower) {
+    reviewer_follow_relationships (pkey) {
+        pkey -> Int8,
         follower -> Uuid,
         followee -> Uuid,
     }
