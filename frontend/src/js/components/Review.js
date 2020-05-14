@@ -152,14 +152,21 @@ class Review extends Component {
 		return (
 			<div>
 				<YipNavBar />
-				<Jumbotron id="jumbotron" className="text-left">
-					<h1 id="title">{this.props.reviewName}</h1>
-					<h4 id="author">{this.props.reviewerName}</h4>
-					<Link to="/"><Image className="likePadding" src={likeIcon} /></Link>
-					<Link to="/"><Image className="likePadding" src={dislikeIcon} /></Link>
-					<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
-					<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
-					<Link to="/"><Image className="likePadding" src={trashIcon} /></Link>
+				<Jumbotron id="jumbotron">
+					<Row>
+						<Col className="text-left">
+							<h1 id="title">{this.props.reviewName}</h1>
+							<h4 id="author">{this.props.reviewerName}</h4>
+
+						</Col>
+						<Col className="text-right reviewIcon">
+							<Link to="/"><Image className="likePadding" src={likeIcon} /></Link>
+							<Link to="/"><Image className="likePadding" src={dislikeIcon} /></Link>
+							<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
+							<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
+							<Link to="/"><Image className="likePadding" src={trashIcon} /></Link>
+						</Col>
+					</Row>
 				</Jumbotron>
 
 				<Row className="reviewContent">
