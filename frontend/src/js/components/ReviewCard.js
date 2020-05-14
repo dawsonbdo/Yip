@@ -37,7 +37,7 @@ class ReviewCard extends Component {
                                 </div>
                                 <Form className="logInEntryContainer">
                                     <div className="logInEntryContainer">
-                                        <p>{this.props.reviewPreview}</p>
+                                        <p dangerouslySetInnerHTML={this.props.reviewPreview}></p>
                                     </div>
                                 </Form>
                                 <div className="bottomLabel">
