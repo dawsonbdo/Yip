@@ -72,6 +72,11 @@ body {
   padding-bottom: 25px;
 }
 
+.reviewIcon {
+  padding-right: 70px;
+  padding-top: 20px;
+}
+
 .reviewPicture {
   padding-right: 32px;
   max-width: 100%;

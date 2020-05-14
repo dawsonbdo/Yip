@@ -44,7 +44,11 @@ class Review extends Component {
 		// TODO: Display stuff based on if logged in or not (ie form to post comment)
 
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
+<<<<<<< HEAD
 		var reviewId = "b35994c2-3265-4bed-a597-177e170447a8";
+=======
+		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+>>>>>>> e47b1d62a5f078e453186f942d51b44e9fa2f47a
 		var token = localStorage.getItem('jwtToken');
 
 		// Format URL to send in GET request
@@ -58,15 +62,15 @@ class Review extends Component {
 
 			// alert('Review successfully grabbed from database!');
 
-			// // TODO: Fill in html using response 
-			// document.getElementById('title').innerHTML = response.data.title;
-			// document.getElementById('author').innerHTML = response.data.author;
-			// document.getElementById('text').innerHTML = response.data.text;
+			// TODO: Fill in html using response 
+			document.getElementById('title').innerHTML = response.data.title;
+			document.getElementById('author').innerHTML = response.data.author;
+			document.getElementById('text').innerHTML = response.data.text;
 
-			// // Check that any images were returned cuz can be undefined
-			// if (response.data.images != undefined) {
-			// 	document.getElementById('img').src = response.data.images[0];
-			// }
+			// Check that any images were returned cuz can be undefined
+			if (response.data.images != undefined) {
+				document.getElementById('img').src = response.data.images[0];
+			}
 
 			// TODO: Render edit/delete buttons depending on if author of review
 			console.log("Is Author: " + response.data.is_author);
@@ -167,7 +171,7 @@ class Review extends Component {
 
 	postComment() {
 		// TODO: Get uuid of review from url probably
-		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
+		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -207,23 +211,32 @@ class Review extends Component {
 		return (
 			<div>
 				<YipNavBar />
-				<Jumbotron id="jumbotron" className="text-left">
-					<h1 id="title">{this.props.reviewName}</h1>
-					<h4 id="author">{this.props.reviewerName}</h4>
-					<Image onClick={this.likeReview} className="likePadding" src={likeIcon} />
-					<Image onClick={this.dislikeReview} className="likePadding" src={dislikeIcon} />
-					<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
-					<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
-					<Link to="/"><Image className="likePadding" src={trashIcon} /></Link>
+
+				<Jumbotron id="jumbotron">
+					<Row>
+						<Col className="text-left">
+							<h1 id="title"></h1>
+							<h4 id="author"></h4>
+
+						</Col>
+						<Col className="text-right reviewIcon">
+							<Image onClick={this.likeReview} className="likePadding" src={likeIcon} />
+						<Image onClick={this.dislikeReview} className="likePadding" src={dislikeIcon} />
+							<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
+							<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
+							<Link to="/"><Image className="likePadding" src={trashIcon} /></Link>
+						</Col>
+					</Row>
+
 				</Jumbotron>
 
 				<Row className="reviewContent">
 					<Col xs={7} className="text-left">
-						<p id="text" dangerouslySetInnerHTML={{ __html: this.props.reviewText }}></p>
+						<p id="text"></p>
 					</Col>
 
 					<Col xs={5} className="reviewPicture text-center align">
-						<Image id="img" src={this.props.reviewImg[0]} />
+						<Image id="img" />
 					</Col>
 				</Row>
 

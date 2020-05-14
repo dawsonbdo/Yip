@@ -12,6 +12,8 @@ import corgiImage from '../../assets/corgi_shadow.png';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 
+import axios from 'axios'
+
 // import Sidebar from './Sidebar';
 // import Container from 'react-bootstrap/Container';
 // import Col from 'react-bootstrap/Col';
@@ -26,6 +28,7 @@ class YipNavBar extends Component {
     // Creates state to keep track of if logged in
     this.state = {
       loggedIn: false,
+      followedKennelsArray: []
     };
 
     this.logout = this.logout.bind(this);
@@ -41,6 +44,19 @@ class YipNavBar extends Component {
 
     // Sets logged in state of the component after loading page
     updateLoggedInState(this);
+
+    var token = localStorage.getItem('jwtToken');
+    var url = '/get_followed_kennels/' + token;
+    axios({
+      method: 'get',
+      url: url
+    }).then(response => {
+      for (var i = 0; i < response.data.length; i++) {
+        this.state.followedKennelsArray.push(response.data[i].kennel_name);
+      }
+    }).catch(error => {
+      alert('Failed to get kennels');
+    });
   }
 
   render() {
@@ -51,17 +67,18 @@ class YipNavBar extends Component {
       logBtn = <div><Link to="/login"><Button id="login" type="submit" variant="warning" className="mr-5">Login</Button></Link>
         <Link to="/register"><Button type="submit" variant="warning" className="mr-5">Register</Button></Link></div>;
     }
+    const followedKennels = this.state.followedKennelsArray.map(function (kennel) {
+      return <Dropdown.Item as="button">{kennel}</Dropdown.Item>
+    });
 
 
     return (
       <div id="spaceNav">
         <Navbar className="color-nav" expand="false" fixed="top">
           <Link to="/"><img className="yipIcon" src={corgiImage} /></Link>
-          <DropdownButton id="dropdown-item-button" title="Followed Kennels" className="pr-5" variant="warning">
-            <Dropdown.Item as="button">Action</Dropdown.Item>
-            <Dropdown.Item as="button">Another action</Dropdown.Item>
-            <Dropdown.Item as="button">Something else</Dropdown.Item>
-          </DropdownButton>
+          {isLoggedIn(this) && <DropdownButton id="dropdown-item-button" title="Followed Kennels" className="pr-5" variant="warning">
+            {followedKennels}
+          </DropdownButton>}
           {logBtn}
           {/* <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">

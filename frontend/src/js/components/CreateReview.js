@@ -43,6 +43,9 @@ class CreateReview extends Component {
     // Read information in forms
     var title = document.getElementById('title').value;
     var text = document.getElementById('text').value;
+    alert(text);
+    text = text.replace(/(?:\r\n|\r|\n)/g, '<br \/>');    // Replaces newlines with html new line
+    alert(text);
     var user = localStorage.getItem('jwtToken');
     var form = createReviewJson(title, text, user, dateTime);
 
