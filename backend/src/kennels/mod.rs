@@ -61,7 +61,9 @@ fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbC
 	}
 
 	// Update kennel number of followers
-	handlers::update_kennel_followers(kennel_uuid, &connection);
+	if let Err(e) = handlers::update_kennel_followers(kennel_uuid, &connection) {
+		dbg!(e);
+	}
 
 	// Return result
 	result
