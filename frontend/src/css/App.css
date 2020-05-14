@@ -92,6 +92,11 @@ body {
   height: 81px;
 }
 
+.profilePic{
+  width: 117px;
+  height: 81px;
+}
+
 .sidebar {
     position: fixed;
     top: 0;
