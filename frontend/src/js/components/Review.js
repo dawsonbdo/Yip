@@ -159,9 +159,10 @@ class Review extends Component {
 					</Col>
 				</Row>
 
+				<Container className="pb-5">
 				<Row className="align-items-center reviewLeaveComment">
 					<Col></Col>
-					<Col className="text-center">
+					<Col xs={10} className="text-center">
 						<div className="logInForm">
 							<h3 className="logInLabel pt-2 pb-2">Leave a Comment</h3>
 							<Form className="logInEntryContainer">
@@ -176,6 +177,7 @@ class Review extends Component {
 					</Col>
 					<Col></Col>
 				</Row>
+				</Container>
 
 				<CommentCard commenterName={"Name"} commentText={"Comment"} />
 				<CommentCard commenterName={"Name"} commentText={"Comment"} />
