@@ -23,10 +23,14 @@ class Kennel extends Component {
         super(props);
 
         this.state = {
-            reviews: true,
-            rules: false,
-            tags: false,
-            reviewArray: []
+            kennel_name: "",
+            follower_count: null,
+            showReviews: true,
+            showRules: false,
+            showTags: false,
+            isFollowing: false,
+            reviewArray: [],
+            tagsArray: []
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -36,13 +40,13 @@ class Kennel extends Component {
     handleSelect(eventKey) {
 
         if (eventKey == "reviews") {
-            this.setState({ reviews: true, rules: false, tags: false });
+            this.setState({ showReviews: true, showRules: false, showTags: false });
         }
         if (eventKey == "rules") {
-            this.setState({ reviews: false, rules: true, tags: false });
+            this.setState({ showReviews: false, showRules: true, showTags: false });
         }
         if (eventKey == "tags") {
-            this.setState({ reviews: false, rules: false, tags: true });
+            this.setState({ showReviews: false, showRules: false, showTags: true });
         }
     }
 
@@ -93,14 +97,13 @@ class Kennel extends Component {
 
             //alert('Kennel reviews successfully grabbed from database!');
 
-            // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
-            //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
-
             // Iterate through reviews
-            for (var i = 0; i < response.data.length; i++) {
+            for (var i = response.data.length - 1; i >= 0; i--) {
 
                 // Print reviews to console for now
                 console.log(response.data[i]);
+
+                // Add review name, reviewer's username, review text to reviewArray
                 this.state.reviewArray.push({
                     title: response.data[i].title,
                     author: response.data[i].author,
@@ -109,6 +112,7 @@ class Kennel extends Component {
 
             }
 
+            // Renders reviews
             this.forceUpdate();
 
         }).catch(error => {
@@ -132,6 +136,17 @@ class Kennel extends Component {
             // TODO: Render kennel information
             console.log(response.data);
 
+            // Updates kennel name
+            this.setState({ kennel_name: response.data.kennel_name, 
+                follower_count: response.data.follower_count });
+
+            // Iterate through tags
+            for (var i = 0; i < response.data.tags.length; i++) {
+
+                // Add tags to tagsArray
+                this.state.tagsArray.push(response.data.tags[i]);
+            }
+
         }).catch(error => {
 
             // Review not found in database
@@ -141,17 +156,21 @@ class Kennel extends Component {
     }
 
     render() {
-        const reviews = this.state.reviewArray.map(function(review) {
-            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={review.text}/>
+        const reviews = this.state.reviewArray.map(function (review) {
+            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={review.text} />
+        });
+        const tags = this.state.tagsArray.map(function (tag) {
+            return <p>{tag}</p>
         });
         return (
             <div>
-                <YipNavBar/>
+                <YipNavBar />
                 <Container>
                     <Row className="align-items-center">
                         <Col xs={9} className="text-center">
                             <Jumbotron id="jumbotron" className="text-left">
-                                <h1>{this.props.kennelName}</h1>
+                                <h1>{this.state.kennel_name}</h1>
+                                <h4>{this.state.follower_count} Followers</h4>
                                 <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
                                     <Nav.Item as="li">
                                         <Nav.Link eventKey="reviews">Reviews</Nav.Link>
@@ -170,12 +189,10 @@ class Kennel extends Component {
                             <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">Follow</Button>
                         </Col>
                     </Row>
-                    {this.state.reviews && (
-                        <div>
-                            {reviews}
-                        </div>
+                    {this.state.showReviews && (
+                        <div>{reviews}</div>
                     )}
-                    {this.state.rules && (
+                    {this.state.showRules && (
                         <div>
                             <h1>Rules</h1>
                             <p>Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
@@ -188,13 +205,10 @@ class Kennel extends Component {
                             </p>
                         </div>
                     )}
-                    {this.state.tags && (
+                    {this.state.showTags && (
                         <div>
                             <h1>Tags</h1>
-                            <p>#gary #gary #gary #gary #gary #gary #gary #gary #gary #gary #gary
-                            #gary #gary #gary #gary #gary #gary #gary #gary #gary #gary #gary
-                            #gary #gary #gary #gary #gary #gary #gary #gary #gary #gary #gary
-                            </p>
+                            <p>{tags}</p>
                         </div>
                     )}
                 </Container>
@@ -205,7 +219,3 @@ class Kennel extends Component {
 }
 
 export default Kennel;
-
-Kennel.propTypes = {
-    kennelName: PropTypes.string.isRequired,
-};

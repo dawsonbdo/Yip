@@ -37,6 +37,9 @@ class CommentCard extends Component {
                                                 <Link to="/"><Image className="float-left likePadding" src={likeIcon} /></Link>
                                                 <Link to="/"><Image className="float-left likePadding" src={dislikeIcon} /></Link>
                                             </Col>
+                                            <Col>
+                                                <p className="float-right timestamp">Posted on {this.props.timestamp.substring(5, 16)}</p>
+                                            </Col>
                                         </Row>
                                     </Container>
                                 </Form>
@@ -54,5 +57,6 @@ export default CommentCard;
 
 CommentCard.propTypes = {
     commenterName: PropTypes.string.isRequired,
-    commentText: PropTypes.string.isRequired
+    commentText: PropTypes.string.isRequired,
+    timestamp: PropTypes.string.isRequired
 }

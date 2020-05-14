@@ -27,6 +27,13 @@ class Review extends Component {
 	constructor(props) {
 		super(props)
 
+		// States
+		this.state = {
+			loggedIn: false,
+			commentArray: [],
+			commentsListed: false
+		};
+
 		// Binds button handler
 		this.postComment = this.postComment.bind(this);
 	}
@@ -77,19 +84,21 @@ class Review extends Component {
 			url: reqUrl
 		}).then(response => {
 
-			alert('Review comments successfully grabbed from database!');
+			//alert('Review comments successfully grabbed from database!');
 
 			// TODO: Fill in html using response 
 
-			// TODO: Populate CommentCards using response.data (this is an array of DisplayComment objs)
-			//       (Fields of DisplayComment: author_name, timestamp, text)
-
-			// Iterate through comments
-			for (var i = 0; i < response.data.length; i++) {
-
-				// Print comments to console for now
-				console.log(response.data[i]);
-
+			// Fills in commentArray based on response data
+			// Will populate comment cards
+			if(!this.state.commentsListed) {
+				for(var i = response.data.length - 1; i >= 0; i--) {
+					this.state.commentArray.push({
+						author: response.data[i].author_name,
+						text: response.data[i].text,
+						time: response.data[i].timestamp
+					});
+				}
+				this.setState({ commentsListed: true });
 			}
 
 		}).catch(error => {
@@ -126,7 +135,6 @@ class Review extends Component {
 
 			// TODO: Update page to display comment
 
-
 		}).catch(error => {
 
 			// Failed to post comment
@@ -136,6 +144,10 @@ class Review extends Component {
 	}
 
 	render() {
+		const comments = this.state.commentArray.map(function (comment) {
+			return <CommentCard commenterName={comment.author} commentText={comment.text} timestamp={comment.time} />
+		});
+
 		return (
 			<div>
 				<YipNavBar />
@@ -178,10 +190,7 @@ class Review extends Component {
 					<Col></Col>
 				</Row>
 				</Container>
-
-				<CommentCard commenterName={"Name"} commentText={"Comment"} />
-				<CommentCard commenterName={"Name"} commentText={"Comment"} />
-				<CommentCard commenterName={"Name"} commentText={"Comment"} />
+				{comments}
 			</div>
 		);
 	}

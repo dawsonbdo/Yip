@@ -30,6 +30,20 @@ class Home extends Component {
 
     // Updates logged in state of the component
     updateLoggedInState(this);
+
+    /* Testing get followed kennels, move to navbar dropdown when implemented
+    var token = localStorage.getItem('jwtToken');
+    var url = '/get_followed_kennels/' + token;
+    axios({
+      method: 'get',
+      url: url,
+    }).then(response => {
+      for( var i = 0; i < response.data.length; i++ ) {
+        alert("following: " + response.data[i].kennel_name);
+      }
+    }).catch(error => {
+      alert('Failed to get kennels');
+    });*/
   }
 
   // Displays if logged in on home page
@@ -53,7 +67,7 @@ class Home extends Component {
       // Iterate through reviews
 
       if (!this.state.reviewsListed) {
-        for (var i = 0; i < response.data.length; i++) {
+        for (var i = response.data.length - 1; i >= 0; i--) {
 
           // Print reviews to console for now
           console.log(response.data[i]);

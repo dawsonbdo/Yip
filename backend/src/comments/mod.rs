@@ -11,6 +11,84 @@ use rocket_contrib::json::Json;
 
 use rocket::response::status;
 
+// Struct with comment id and user jwt for liking/dislking comments
+#[derive(Queryable, Serialize, Deserialize)]
+struct CommentUser {
+    comment_uuid: String,
+    token: String,
+}
+
+/** 
+ * Helper method that follows or unfollows a kennel given parameter
+ * @param kennel: JSON of a CommentUser (comment + token)
+ * @param like: bool indicating like or dislike
+ * @param connetion: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+fn like_dislike_helper(input: Json<CommentUser>, like: bool, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+
+	// Converts token into uuid
+	let profile_uuid = auth::get_uuid_from_token(&input.token);
+
+	// Makes sure uuid was found 
+	if profile_uuid.is_nil(){
+		return Err(status::BadRequest(Some("Uuid not found".to_string())));
+	}
+
+    // Converts comment uuid string into uuid
+    let comment_uuid = Uuid::parse_str(&input.comment_uuid);
+
+    let result;
+
+    // Makes sure valid comment
+    match comment_uuid {
+    	Ok(uuid) => if like {result = handlers::like(uuid, profile_uuid, &connection);}
+    			 else {result = handlers::dislike(uuid, profile_uuid, &connection);},
+    	// Not a valid comment uuid string
+    	Err(e) => return Err(status::BadRequest(Some("Comment not foudn".to_string()))),
+    }
+    
+
+    // TODO: Update comment net likes
+    /*
+    if let Err(e) = handlers::update_kennel_followers(kennel_uuid, &connection) {
+        dbg!(e);
+    }
+    */
+
+    // Return result
+    result
+}
+
+/** 
+ * Handler method that unfollows a kennel
+ * @param kennel: JSON of a CommentUser (comment + token)
+ * @param connetion: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+#[post("/dislike_comment", data="<input>", rank=1)]
+fn dislike_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+    
+    // Call helper with false for unfollow
+    like_dislike_helper(input, false, connection)
+}
+
+/** 
+ * Handler method that follows a kennel
+ * @param kennel: JSON of a CommentUser (comment + token)
+ * @param connetion: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+#[post("/like_comment", data="<input>", rank=1)]
+fn like_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+    
+    // Call helper with true for follow
+    like_dislike_helper(input, true, connection)
+}
+
 /**
  * Print out all comments of a review
  */
