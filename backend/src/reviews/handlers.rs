@@ -1,14 +1,225 @@
 use diesel;
 use diesel::prelude::*;
 use uuid::Uuid;
+
 use crate::schema::reviews;
+use crate::schema::review_like_relationships;
+use crate::schema::review_dislike_relationships;
 
 extern crate bcrypt;
 use crate::auth;
 
 use chrono::NaiveDateTime;
 
+use rocket::response::status;
+
 use super::super::{kennels, users};
+
+/**
+ * Helper method that returns row in review dislike table based on params
+ * @param review_uuid: the review uuid
+ * @param profile_uuid: the profile uuid
+ * @param connection: database connection
+ *
+ * @return returns a result containing DbDislikeReview if found, otherwise error
+ */
+fn get_relationship_dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbDislikeReview>>{
+    
+    // Filters review like relationship table
+    review_dislike_relationships::table
+             .filter(review_dislike_relationships::review.eq(review_uuid))
+             .filter(review_dislike_relationships::disliker.eq(profile_uuid))
+             .load::<DbDislikeReview>(&*connection)
+}
+
+/**
+ * Helper method that returns row in review like table based on params
+ * @param review_uuid: the review uuid
+ * @param profile_uuid: the profile uuid
+ * @param connection: database connection
+ *
+ * @return returns a result containing DbDislikeReview if found, otherwise error
+ */
+fn get_relationship_like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbLikeReview>>{
+    
+    // Filters review like relationship table
+    review_like_relationships::table
+             .filter(review_like_relationships::review.eq(review_uuid))
+             .filter(review_like_relationships::liker.eq(profile_uuid))
+             .load::<DbLikeReview>(&*connection)
+}
+
+/**
+ * Helper method that attempts to delete from like or dislike review relationship table
+ * @param review_uuid: the review uuid
+ * @param profile_uuid: the profile uuid
+ * @param like: indicates if like table or dislike table
+ * @param connection: database connection
+ *
+ * @return returns a result based on if deleted sucessfully
+ */
+fn delete_like_dislike(review_uuid: Uuid, profile_uuid: Uuid, like: bool, connection: &PgConnection) -> QueryResult<usize>{
+    
+    // Check if deleting from like or dislike table
+    if like {
+
+        // Attempt to delete from like table
+        diesel::delete(review_like_relationships::table
+             .filter(review_like_relationships::review.eq(review_uuid))
+             .filter(review_like_relationships::liker.eq(profile_uuid)))
+        .execute(connection)
+    } else {
+
+        // Attempt to delete from dislike table
+        diesel::delete(review_dislike_relationships::table
+             .filter(review_dislike_relationships::review.eq(review_uuid))
+             .filter(review_dislike_relationships::disliker.eq(profile_uuid)))
+        .execute(connection)
+    }
+
+}
+
+/**
+ * Method that returns rating of a kennel
+ * @param review_uuid: uuid of review
+ * @param connection: database connection
+ *
+ * @return returns rating of review, 0 if does not exist
+ */
+pub fn calculate_rating(review_uuid: Uuid, connection: &PgConnection) -> i32 {
+
+    // Gets rows that match the review uuid in like table
+    let likes = review_like_relationships::table
+             .filter(review_like_relationships::review.eq(review_uuid))
+             .load::<DbLikeReview>(&*connection);
+
+    // Gets rows that match the review uuid in dislike table
+    let dislikes = review_dislike_relationships::table
+             .filter(review_dislike_relationships::review.eq(review_uuid))
+             .load::<DbDislikeReview>(&*connection);
+
+    let mut rating = 0;
+
+    // Get number of likes
+    match likes {
+        Ok(r) => rating += r.iter().len(),
+        Err(_e) => rating += 0,
+    }
+
+    // Get number of dislikes
+    match dislikes {
+        Ok(r) => rating -= r.iter().len(),
+        Err(_e) => rating -= 0,
+    }
+
+    // Return rating
+    rating as i32
+}
+
+/**
+ * Method that updates the rating of a review in DB
+ * @param review_uuid: uuid of review
+ * @param connection: database connection
+ *
+ * @return N/A
+ */
+pub fn update_review_rating(review_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
+
+    // Get review from uuid
+    let _kennel = get(review_uuid, connection)?;
+
+    // Get new rating
+    let new_count = calculate_rating(review_uuid, connection);
+
+    println!("Review Id: {} New Count: {}", review_uuid, new_count);
+
+    // Make sure it was found
+    diesel::update(reviews::table.find(review_uuid))
+                        .set(reviews::columns::rating.eq(new_count))
+                        .execute(connection)
+
+}
+
+
+/**
+ * Method that attempts to dislike a review
+ * @param review_uuid: uuid of review
+ * @param profile_uuid: uuid of user
+ * @param connection: database connection
+ *
+ * @retun returns result of either Accepted or BadRequest status
+ */
+pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+    
+    // Prints the uuids received
+    println!("Review uuid: {}", review_uuid);
+    println!("Profile uuid: {}", profile_uuid);
+    
+    // Check if user already disliked kennel 
+    match get_relationship_dislike(review_uuid, profile_uuid, connection) {
+        Ok(r) => if r.iter().len() > 0 {
+                    return Err(status::BadRequest(Some("Already disliking".to_string())));
+                 },
+        Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
+    }
+
+    // Attempt to delete from like table
+    delete_like_dislike(review_uuid, profile_uuid, true, connection);
+
+    // Creates object to be inserted to the like review table
+    let dislike_review = DislikeReview {
+        disliker: profile_uuid,
+        review: review_uuid,
+    };
+
+    // Inserts dislike review into database, returns result indicating success/error
+    match diesel::insert_into(review_dislike_relationships::table)
+        .values(dislike_review)
+        .get_result::<DbDislikeReview>(connection) {
+            Ok(_u) => Ok(status::Accepted(None)),
+            Err(e) => Err(status::BadRequest(Some(e.to_string()))),
+        }
+}
+
+/**
+ * Method that attempts to like a review
+ * @param review_uuid: uuid of review
+ * @param profile_uuid: uuid of user
+ * @param connection: database connection
+ *
+ * @retun returns result of either Accepted or BadRequest status
+ */
+pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+    
+    // Prints the uuids received
+    println!("Review uuid: {}", review_uuid);
+    println!("Profile uuid: {}", profile_uuid);
+    
+    // Check if user already liked kennel 
+    match get_relationship_like(review_uuid, profile_uuid, connection) {
+        Ok(r) => if r.iter().len() > 0 {
+                    return Err(status::BadRequest(Some("Already liking".to_string())));
+                 },
+        Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
+    }
+
+    // Attempt to delete from dislike table
+    delete_like_dislike(review_uuid, profile_uuid, false, connection);
+
+    // Creates object to be inserted to the like review table
+    let like_review = LikeReview {
+        liker: profile_uuid,
+        review: review_uuid,
+    };
+
+    // Inserts like review into database, returns result indicating success/error
+    match diesel::insert_into(review_like_relationships::table)
+        .values(like_review)
+        .get_result::<DbLikeReview>(connection) {
+            Ok(_u) => Ok(status::Accepted(None)),
+            Err(e) => Err(status::BadRequest(Some(e.to_string()))),
+        }
+}
 
 /**
  * Method that returns a vector with all reviews in a kennel
@@ -103,6 +314,40 @@ pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> bool {
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(reviews::table.find(id))
         .execute(connection)
+}
+
+// Struct representing the fields of review like table
+#[table_name = "review_like_relationships"]
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+pub struct LikeReview {
+    pub liker: Uuid,
+    pub review: Uuid,
+}
+
+// Struct representing the fields of review dislike table
+#[table_name = "review_dislike_relationships"]
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+pub struct DislikeReview {
+    pub disliker: Uuid,
+    pub review: Uuid,
+}
+
+// Struct representing the fields of review like table that is returned by DB
+#[table_name = "review_like_relationships"]
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+pub struct DbLikeReview {
+    pub pkey: i64,
+    pub liker: Uuid,
+    pub review: Uuid,
+}
+
+// Struct representing the fields of review dilike table that is returned by DB
+#[table_name = "review_dislike_relationships"]
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+pub struct DbDislikeReview {
+    pub pkey: i64,
+    pub disliker: Uuid,
+    pub review: Uuid,
 }
 
 // Fields that represent what the review needs to display on front end
