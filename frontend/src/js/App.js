@@ -14,6 +14,7 @@ import EditKennel from './components/EditKennel';
 import CreateKennel from './components/CreateKennel';
 import SearchResults from './components/SearchResults';
 import Profile from './components/Profile';
+import Inbox from './components/Inbox';
 
 function App() {
   
@@ -31,6 +32,7 @@ function App() {
 		  <Route path="/createkennel" exact component={CreateKennel} />
 		  <Route path="/searchresults" exact component={SearchResults} />
 		  <Route path="/profile" exact component={Profile} />
+		  <Route path="/inbox" exact component={Inbox} />
 		  <Route path="/kennel" exact component={Kennel} />
         </Switch>
       </div>

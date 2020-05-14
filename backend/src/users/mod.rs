@@ -6,15 +6,43 @@ use crate::db;
 use handlers::{User, DbUser};
 use rocket_contrib::json::Json;
 
+use std::io::Read;
+use rocket::{Request, Data, Outcome::*};
+use rocket::data::{self, FromDataSimple};
+use rocket::http::{Status};
 use rocket::response::status;
 
 use db::DbConn;
+
+// Limit to prevent DoS attacks.
+const LIMIT: u64 = 256;
 
 // Struct with user name and token for blocking users
 #[derive(Queryable, Serialize, Deserialize)]
 struct TokenUser {
     token: String,
     username: String,
+}
+
+struct Username {
+	name: String
+}
+
+impl FromDataSimple for Username {
+	type Error = String;
+
+    fn from_data(_req: &Request, data: Data) -> data::Outcome<Self, String> {
+		// Possibly need to check the content type is correct first
+
+        // Read the data into a String.
+        let mut name = String::new();
+        if let Err(e) = data.open().take(LIMIT).read_to_string(&mut name) {
+            return Failure((Status::InternalServerError, format!("{}", e)));
+        }
+
+        // Return successfully.
+        Success(Username { name })
+    }
 }
 
 /** 
@@ -55,10 +83,10 @@ fn block_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Acce
  * @return returns JSON of the user or error status
  */
 #[post("/get_user", data="<username>")]
-fn get_user(username: String, connection: DbConn) -> Result<Json<DbUser>, status::NotFound<String>> {
+fn get_user(username: Username, connection: DbConn) -> Result<Json<DbUser>, status::NotFound<String>> {
 
 	// Gets uuid from username
-	let uuid = handlers::get_uuid_from_username(&username, &connection);
+	let uuid = handlers::get_uuid_from_username(&username.name, &connection);
 
 	// Get User from database
 	let user = handlers::get_user_from_uuid(uuid, &connection);

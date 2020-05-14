@@ -114,11 +114,81 @@ fn token_to_username(token: String, connection: &DbConn) -> String {
 	}
 }
 
+/** 
+ * Helper method that likes or dislikes a review given parameter
+ * @param input: JSON of a ReviewToken (review + token)
+ * @param like: bool indicating like or dislike
+ * @param connection: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+fn like_dislike_helper(input: Json<ReviewToken>, like: bool, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+
+	// Converts token into uuid
+	let profile_uuid = auth::get_uuid_from_token(&input.token);
+
+	// Makes sure uuid was found 
+	if profile_uuid.is_nil(){
+		return Err(status::BadRequest(Some("Uuid not found".to_string())));
+	}
+
+    // Converts review uuid string into uuid
+    let review_uuid = Uuid::parse_str(&input.review_uuid);
+
+    let result;
+
+    // Makes sure valid review
+    match review_uuid {
+    	Ok(uuid) => if like {result = handlers::like(uuid, profile_uuid, &connection);}
+    			 else {result = handlers::dislike(uuid, profile_uuid, &connection);},
+    	// Not a valid comment uuid string
+    	Err(e) => return Err(status::BadRequest(Some("Review not foudn".to_string()))),
+    }
+    
+
+    // Update review net rating
+    if let Err(e) = handlers::update_review_rating(review_uuid.unwrap(), &connection) {
+        dbg!(e);
+    }
+
+    // Return result
+    result
+}
+
 // Struct with review ID and user token for editing/deleting reviews
 #[derive(Queryable, Serialize, Deserialize)]
 struct ReviewToken {
     review_uuid: String,
     token: String,
+}
+
+
+/** 
+ * Handler method that likes a review
+ * @param kennel: JSON of a ReviewToken (review + token)
+ * @param connection: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+#[post("/dislike_review", data="<input>", rank=1)]
+fn dislike_review(input: Json<ReviewToken>, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+    
+    // Call helper with false for dislike
+    like_dislike_helper(input, false, connection)
+}
+
+/** 
+ * Handler method that likes a review
+ * @param kennel: JSON of a ReviewToken (review + token)
+ * @param connection: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+#[post("/like_review", data="<input>", rank=1)]
+fn like_review(input: Json<ReviewToken>, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+    
+    // Call helper with true for like
+    like_dislike_helper(input, true, connection)
 }
 
 /** 
@@ -169,6 +239,7 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 	// Pattern match to see if review found successfully
 	match get_review_helper(id, &connection) {
 		Ok(mut r) => {
+			println!("AUTHOR: {} PROFILE: {}", &r.author, &profile_username);
 			r.is_author = profile_username.eq(&r.author); // set field of DisplayReview
 			Ok(Json(r))
 		},
@@ -358,5 +429,5 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
  * Mount the review routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews])  
+    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews, like_review, dislike_review])  
 }
