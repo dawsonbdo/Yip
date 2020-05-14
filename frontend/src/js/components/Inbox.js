@@ -4,16 +4,16 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 import Button from 'react-bootstrap/Button';
 import ReviewCard from './ReviewCard';
 import YipNavBar from "./YipNavBar";
-import CommentCard from './CommentCard';
+import Message from './Message';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
 import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
 
-import axios from 'axios'
+import axios from 'axios';
 
-class SearchResults extends Component {
+class Inbox extends Component {
     constructor(props) {
         super(props);
 
@@ -39,7 +39,7 @@ class SearchResults extends Component {
             data: localStorage.getItem('jwtToken')
         }).then(response => {
 
-            alert('Listed reviews');
+            // alert('Listed reviews');
 
             // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
             //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
@@ -67,23 +67,17 @@ class SearchResults extends Component {
             <div>
                 <YipNavBar />
                 <Jumbotron id="jumbotron" className="text-center">
-                    <h1>Results: </h1>
+                    <h1>Inbox: </h1>
                 </Jumbotron>
                 <Container>
                     <Row>
                         <Col>
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                        </Col>
-                        <Col>
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+				            <Message commenterName={"Name"} commentText={"Comment"} />
+				            <Message commenterName={"Name"} commentText={"Comment"} />
+				            <Message commenterName={"Name"} commentText={"Comment"} />
+				            <Message commenterName={"Name"} commentText={"Comment"} />
+				            <Message commenterName={"Name"} commentText={"Comment"} />
+				            <Message commenterName={"Name"} commentText={"Comment"} />
                         </Col>
                     </Row>
                 </Container>
@@ -92,4 +86,4 @@ class SearchResults extends Component {
     }
 }
 
-export default SearchResults;
+export default Inbox;
