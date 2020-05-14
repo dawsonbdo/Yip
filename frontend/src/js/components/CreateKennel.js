@@ -11,7 +11,7 @@ import { Redirect } from 'react-router-dom';
 
 import axios from 'axios'
 
-import { createUserJson } from './BackendHelpers.js';
+import { createKennelJson } from './BackendHelpers.js';
 
 class CreateKennel extends Component {
 
@@ -24,98 +24,77 @@ class CreateKennel extends Component {
     };
 
     // Binds button handler
-    this.updateKennel = this.updateKennel.bind(this);
+    this.createKennel = this.createKennel.bind(this);
   }
 
   /**
    * Function handler for edit kennel submit button
    */
-  updateKennel(event) {
-
+  createKennel(event) {
+    /* doesn't work yet
+    
     // Prevents page from refreshing on submit
     event.preventDefault();
     event.stopPropagation();
 
-    this.setState({ failedLogin: false });
+    // Parses form for kennel title and tags
+    var title = document.getElementById('title').value;
+    var tagsStr = document.getElementById('tags').value;
+    var tags = tagsStr.split(" ");
+    var form = createKennelJson(title, tags);
 
-    var registerForm = event.currentTarget;
-
-    // Displays error if fields are empty
-    if (registerForm.checkValidity() === false) {
-      this.setState({ validated: true });
-      return;
-    }
-
-    // Parses login form with username/email and password
-    var email = document.getElementById('login').value;
-    var username = document.getElementById('login').value;
-    var password = document.getElementById('password').value
-    var form = createUserJson(username, email, password);
-
-    // Send POST request with username, email, and password
+    // Send POST request with kennel name and tags
     axios({
       method: 'post',
-      url: '/login',
+      url: '/create_kennel',
       data: form
     }).then(response => {
-
-      // Store token in local storage
-      localStorage.setItem('jwtToken', response.data);
-
-      // Redirect to home after successful login
-      this.setState({ redirect: "/" });
-
+      alert("kennel created");
 
     }).catch(error => {
 
-      // Error for failed login
-      this.setState({ failedLogin: true });
-      alert('Username or Password incorrect!');
+      alert('failed kennel creation');
 
     });
+    */
   }
 
   render() {
-    if (this.state.redirect) {
-      return <Redirect to={this.state.redirect} />
-    }
-    else {
-      return (
-        <Container>
-          <Row className="align-items-center">
-            
-            <Col className="text-center">
-              <Link to="/"><img src={corgiImage} /></Link>
-              <div className="logInForm">
-                <h1 className="logInLabel">Create Kennel</h1>
-                <Form noValidate validated={this.state.validated} onSubmit={this.updateKennel} className="logInEntryContainer">
-                  <div className="logInEntryContainer">
-                    <Form.Label>Title</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text"/>
-                  </div>
-                  <div className="logInEntryContainer">
-                    <Form.Label>Rules</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text" as="textarea"/>
-                  </div>
-                  <div className="logInEntryContainer">
-                    <Form.Label>Tags</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text"/>
-                  </div>
-                  <div className="logInEntryContainer">
-                    <Form.Label>Muted Words</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text"/>
-                  </div>
-                  <div className="logInEntryContainer">
-                    <Button className="logInEntry" variant="primary">Save</Button>
-                  </div>
-                </Form>
-              </div>
-            </Col>
-            
-          </Row>
-        </Container>
-      )
-    }
+    return (
+      <Container>
+        <Row className="align-items-center">
+
+          <Col className="text-center">
+            <Link to="/"><img src={corgiImage} /></Link>
+            <div className="logInForm">
+              <h1 className="logInLabel">Create Kennel</h1>
+              <Form noValidate validated={this.state.validated} onSubmit={this.createKennel} className="logInEntryContainer">
+                <div className="logInEntryContainer">
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control id="title" className="logInEntry" type="text" />
+                </div>
+                <div className="logInEntryContainer">
+                  <Form.Label>Rules</Form.Label>
+                  <Form.Control id="rules" className="logInEntry" type="text" as="textarea" />
+                </div>
+                <div className="logInEntryContainer">
+                  <Form.Label>Tags</Form.Label>
+                  <Form.Control id="tags" className="logInEntry" type="text" />
+                </div>
+                <div className="logInEntryContainer">
+                  <Form.Label>Muted Words</Form.Label>
+                  <Form.Control id="mute" className="logInEntry" type="text" />
+                </div>
+                <div className="logInEntryContainer">
+                  <Button className="logInEntry" type="submit" variant="primary">Save</Button>
+                </div>
+              </Form>
+            </div>
+          </Col>
+
+        </Row>
+      </Container>
+    )
   }
 
 }

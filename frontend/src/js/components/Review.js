@@ -135,7 +135,6 @@ class Review extends Component {
 
 			// TODO: Update page to display comment
 
-
 		}).catch(error => {
 
 			// Failed to post comment
