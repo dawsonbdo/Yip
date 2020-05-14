@@ -67,7 +67,7 @@ class Review extends Component {
 			// }
 
 			// TODO: Render edit/delete buttons depending on if author of review
-			console.log("Is Author: " + response.data.isAuthor);
+			console.log("Is Author: " + response.data.is_author);
 
 		}).catch(error => {
 
