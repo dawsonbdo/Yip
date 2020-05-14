@@ -9,7 +9,7 @@ import Image from 'react-bootstrap/Image';
 import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png';
 
-class CommentCard extends Component {
+class Message extends Component {
     render() {
         return (
             <Container className="pb-5">
@@ -29,19 +29,8 @@ class CommentCard extends Component {
                                 </div>
                                 <Form className="logInEntryContainer">
                                     <div className="logInEntryContainer">
-                                        <p>{this.props.commentText}</p>
+                                        <p>Hate message.</p>
                                     </div>
-                                    <Container>
-                                        <Row>
-                                            <Col>
-                                                <Link to="/"><Image className="float-left likePadding" src={likeIcon} /></Link>
-                                                <Link to="/"><Image className="float-left likePadding" src={dislikeIcon} /></Link>
-                                            </Col>
-                                            <Col>
-                                                <p className="float-right timestamp">Posted on {this.props.timestamp.substring(5, 16)}</p>
-                                            </Col>
-                                        </Row>
-                                    </Container>
                                 </Form>
                        </div>
                     </Col>
@@ -53,10 +42,9 @@ class CommentCard extends Component {
     }
 }
 
-export default CommentCard;
+export default Message;
 
-CommentCard.propTypes = {
+Message.propTypes = {
     commenterName: PropTypes.string.isRequired,
-    commentText: PropTypes.string.isRequired,
-    timestamp: PropTypes.string.isRequired
+    commentText: PropTypes.string.isRequired
 }

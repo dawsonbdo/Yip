@@ -24,9 +24,11 @@ class Kennel extends Component {
 
         this.state = {
             kennel_name: "",
+            follower_count: null,
             showReviews: true,
             showRules: false,
             showTags: false,
+            isFollowing: false,
             reviewArray: [],
             tagsArray: []
         }
@@ -135,10 +137,11 @@ class Kennel extends Component {
             console.log(response.data);
 
             // Updates kennel name
-            this.setState({ kennel_name: response.data.kennel_name} );
+            this.setState({ kennel_name: response.data.kennel_name, 
+                follower_count: response.data.follower_count });
 
             // Iterate through tags
-            for( var i = 0; i < response.data.tags.length; i++) {
+            for (var i = 0; i < response.data.tags.length; i++) {
 
                 // Add tags to tagsArray
                 this.state.tagsArray.push(response.data.tags[i]);
@@ -153,20 +156,21 @@ class Kennel extends Component {
     }
 
     render() {
-        const reviews = this.state.reviewArray.map(function(review) {
-            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={review.text}/>
+        const reviews = this.state.reviewArray.map(function (review) {
+            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={review.text} />
         });
-        const tags = this.state.tagsArray.map(function(tag) {
+        const tags = this.state.tagsArray.map(function (tag) {
             return <p>{tag}</p>
         });
         return (
             <div>
-                <YipNavBar/>
+                <YipNavBar />
                 <Container>
                     <Row className="align-items-center">
                         <Col xs={9} className="text-center">
                             <Jumbotron id="jumbotron" className="text-left">
                                 <h1>{this.state.kennel_name}</h1>
+                                <h4>{this.state.follower_count} Followers</h4>
                                 <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
                                     <Nav.Item as="li">
                                         <Nav.Link eventKey="reviews">Reviews</Nav.Link>

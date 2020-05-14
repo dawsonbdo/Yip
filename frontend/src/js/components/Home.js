@@ -30,6 +30,7 @@ class Home extends Component {
 
     // Updates logged in state of the component
     updateLoggedInState(this);
+
   }
 
   // Displays if logged in on home page
