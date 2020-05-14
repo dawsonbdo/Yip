@@ -10,6 +10,43 @@ use rocket::response::status;
 
 use db::DbConn;
 
+// Struct with user name and token for blocking users
+#[derive(Queryable, Serialize, Deserialize)]
+struct TokenUser {
+    token: String,
+    username: String,
+}
+
+/** 
+ * Method that blocks a user
+ * @param kennel: JSON of the report
+ *
+ * @return returns TBD
+ */
+#[post("/block_user", data="<block>", rank=1)]
+fn block_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+	
+	// Get token uuid (blocker)
+	let blocker = auth::get_uuid_from_token(&block.token);
+
+	// Get blockee uuid
+	let blockee = handlers::get_uuid_from_username(&block.username, &connection);
+
+	// Check if either are nil (not found)
+	if blocker.is_nil() || blockee.is_nil() {
+		return Err(status::Conflict(Some("Blocker or blockee not found".to_string())));
+	}
+
+	// Attempt to insert block relation into database 
+	let block = handlers::insert_block(blocker, blockee, &connection);
+	
+	// Check if successful insertion into database
+	match block {
+		Ok(_id) => Ok(status::Accepted(None)),
+		Err(e) => Err(e),
+	}
+	
+}
 
 /** 
  * Method that returns a user from database given the username
@@ -176,5 +213,5 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
  * Mount the user routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![login, register, recover_password, list_users, auth, get_user])  
+    rocket.mount("/", routes![login, register, recover_password, list_users, auth, get_user, block_user])  
 }

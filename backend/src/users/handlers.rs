@@ -1,8 +1,28 @@
 use diesel;
 use diesel::prelude::*;
 use crate::schema::users;
+use crate::schema::block_relationships;
 use uuid::Uuid;
 extern crate bcrypt;
+
+use rocket::response::status;
+
+/**
+ * Helper method that returns the row corresponding to blocker/blockee uuid if exists
+ * @param blocker: the blockee uuid
+ * @param blockee: the blockee uuid
+ * @param connection: database connection
+ *
+ * @return returns a result containing vector of DbBlockUser if found, otherwise error
+ */
+fn get_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbBlockUser>>{
+    
+    // Filters block relationship table
+    block_relationships::table
+             .filter(block_relationships::blocker.eq(blocker))
+             .filter(block_relationships::blockee.eq(blockee))
+             .load::<DbBlockUser>(&*connection)
+}
 
 /**
  * Method that returns a vector with all of the users in database
@@ -104,8 +124,45 @@ pub fn get_user_from_uuid(id: Uuid, connection: &PgConnection) -> Result<DbUser,
 }
 
 /**
+ * Method for blocking another user
+ * @param blocker: the User object that is being created potentially
+ *
+ * @return returns Uuid of User if created, otherwise String indicating
+ * which unique fields are taken (email/username)
+ */
+pub fn insert_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::Conflict<String>> {
+    // Prints the information that was received
+    println!("Blocker: {}", blocker);
+    println!("Blockee: {}", blockee);
+
+    // Check if blocker already blocking blockee
+    match get_relationship(blocker, blockee, connection) {
+        Ok(r) => if r.iter().len() > 0 {
+                    return Err(status::Conflict(Some("Already blocking".to_string())));
+                 },
+        Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+    }
+
+    // Creates object to be inserted to the follow kennel table
+    let block_user = BlockUser {
+        blocker: blocker,
+        blockee: blockee,
+    };
+
+    // Inserts kennel into database, returns uuid generated
+    match diesel::insert_into(block_relationships::table)
+        .values(block_user)
+        .get_result::<DbBlockUser>(connection) {
+            Ok(_u) => Ok(status::Accepted(None)),
+            Err(e) => Err(status::Conflict(Some(e.to_string()))),
+        }
+    
+}
+
+/**
  * Method for registering by checking if unique email/username
  * @param user: the User object that is being created potentially
+ * @param connection: database connection
  *
  * @return returns Uuid of User if created, otherwise String indicating
  * which unique fields are taken (email/username)
@@ -173,6 +230,23 @@ pub fn update(id: Uuid, new_password: &str, connection: &PgConnection) -> bool {
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(users::table.find(id))
         .execute(connection)
+}
+
+// Struct representing the fields of block relationship row that is inserted
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "block_relationships"]
+pub struct BlockUser {
+    pub blocker: Uuid,
+    pub blockee: Uuid,
+}
+
+// Struct representing the fields of block relationship row that is returned by DB
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "block_relationships"]
+pub struct DbBlockUser {
+    pub pkey: i64,
+    pub blocker: Uuid,
+    pub blockee: Uuid,
 }
 
 // Struct representing the fields of a user passed in from frontend contains

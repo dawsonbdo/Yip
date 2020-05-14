@@ -24,6 +24,36 @@ fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnec
 }
 
 /**
+ * Method that gets returns all kennels that user is following
+ * @param id: uuid of user
+ * @param connection: database connection
+ *
+ * @return returns vector of all DbKennels
+ */
+pub fn all_user_kennels(id: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbKennel>> {
+
+    // Loads all rows in kennel table
+    let follow_kennels = kennel_follow_relationships::table
+            .filter(kennel_follow_relationships::follower.eq(id))
+            .load::<DbFollowKennel>(&*connection);
+
+    // Take the kennel ids and convert to DbKennels
+    let mut kennels = vec![];
+
+    // Make sure no error with loading the kennels
+    match follow_kennels {
+        Ok(k) => {
+            for f in k.iter(){
+                kennels.push(get(f.kennel, connection).unwrap());
+            }
+        },
+        Err(e) => return Err(e),
+    }
+
+    Ok(kennels)
+}
+
+/**
  * Method that gets returns all kennels in database
  * @param connection: database connection
  *
@@ -72,25 +102,20 @@ pub fn get_kennel_uuid_from_name(kennel_name: String, connection: &PgConnection)
  *
  * @return N/A
  */
-pub fn update_kennel_followers(kennel_uuid: Uuid, connection: &PgConnection) -> (){
+pub fn update_kennel_followers(kennel_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
 
     // Get kennel from uuid
-    let kennel = get(kennel_uuid, connection);
+    let _kennel = get(kennel_uuid, connection)?;
 
     // Get new follower count
     let new_count = get_follower_count(kennel_uuid, connection);
 
     println!("Kennel Id: {} New Count: {}", kennel_uuid, new_count);
 
-    // Make sure it was foudn
-    match kennel {
-        Ok(_k) => {  diesel::update(kennels::table.find(kennel_uuid))
+    // Make sure it was found
+    diesel::update(kennels::table.find(kennel_uuid))
                         .set(kennels::columns::follower_count.eq(new_count))
-                        .execute(connection);
-                         return
-                     },
-        Err(_e) => return,
-    }
+                        .execute(connection)
 
 }
 
