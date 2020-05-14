@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import Form from 'react-bootstrap/Form';
 import ReviewCard from './ReviewCard';
+import YipNavBar from './YipNavBar';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -145,6 +146,7 @@ class Kennel extends Component {
         });
         return (
             <div>
+                <YipNavBar/>
                 <Container>
                     <Row className="align-items-center">
                         <Col xs={9} className="text-center">
