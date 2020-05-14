@@ -90,7 +90,7 @@ class Kennel extends Component {
             url: reqUrl
         }).then(response => {
 
-            alert('Kennel reviews successfully grabbed from database!');
+            //alert('Kennel reviews successfully grabbed from database!');
 
             // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
             //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
@@ -105,9 +105,10 @@ class Kennel extends Component {
                     author: response.data[i].author,
                     text: response.data[i].text
                 });
-                this.setState();
 
             }
+
+            this.forceUpdate();
 
         }).catch(error => {
 
@@ -125,7 +126,7 @@ class Kennel extends Component {
             url: reqUrl
         }).then(response => {
 
-            alert('Kennel info successfully grabbed from database!');
+            // alert('Kennel info successfully grabbed from database!');
 
             // TODO: Render kennel information
             console.log(response.data);
