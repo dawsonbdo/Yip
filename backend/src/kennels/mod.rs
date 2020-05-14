@@ -25,7 +25,7 @@ struct KennelUser {
  *
  * @return returns a result with status Accepted or BadRequest
  */
-fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbConn){
+fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
 
 	// Converts token into uuid
 	let profile_uuid = auth::get_uuid_from_token(&input.token);
@@ -38,19 +38,33 @@ fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbC
 	// Convert kennel name to uuid, check if not found
 	let kennel_uuid = handlers::get_kennel_uuid_from_name(input.kennel_name.clone(), &connection);
 
+	// Return value
+	let mut result;
+
+	// Makes sure kennel was found
 	if kennel_uuid.is_nil() {
 
 		// Kennel name could not convert to a uuid (not found)
-		Err(status::BadRequest(Some("Kennel not foudn".to_string())))
+		return Err(status::BadRequest(Some("Kennel not foudn".to_string())));
 	} else {
 
 		// Attempt to follow or unfollow depending on parameter
 		if follow {
-			handlers::follow(kennel_uuid, profile_uuid, &connection)
+
+			// Follow
+			result = handlers::follow(kennel_uuid, profile_uuid, &connection);
 		} else {
-			handlers::unfollow(kennel_uuid, profile_uuid, &connection)
+
+			// Unfollow
+			result = handlers::unfollow(kennel_uuid, profile_uuid, &connection);
 		}
 	}
+
+	// Update kennel number of followers
+	handlers::update_kennel_followers(kennel_uuid, &connection);
+
+	// Return result
+	result
 }
 
 /** 
