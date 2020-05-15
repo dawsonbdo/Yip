@@ -50,13 +50,13 @@ export function followKennelJson(kennel_name = "", token = "") {
 
 // Creates a JSON object for liking/dislking reviews
 export function likeDislikeReviewJson(review_uuid = "", token = "") {
-    var form = {review_uuid: reviewId, token: token};
+    var form = {review_uuid: review_uuid, token: token};
     return form
 };
 
 // Creates a JSON object for liking/dislking comments
 export function likeDislikeCommentJson(comment_uuid = "", token = "") {
-    var form = {comment_uuid: reviewId, token: token};
+    var form = {comment_uuid: comment_uuid, token: token};
     return form
 };
 
