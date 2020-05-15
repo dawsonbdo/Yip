@@ -10,7 +10,7 @@ use db::DbConn;
 
 use rocket::response::status;
 
-super::super::{users};
+use super::{users};
 
 // Struct with kennel id and user jwt for following/unfollowing kennels
 #[derive(Queryable, Serialize, Deserialize)]
@@ -82,7 +82,7 @@ fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbC
 fn get_followed_kennels_username(username: String, connection: DbConn) -> Result<Json<Vec<DbKennel>>, status::NotFound<String>> {
 
 	// Get uuid from user
-	let uuid = users::handlers::get_uuid_from_username(username, &connection);
+	let uuid = users::handlers::get_uuid_from_username(&username, &connection);
 
 	// If not nil, return all of the followed kennels
 	if !uuid.is_nil(){
