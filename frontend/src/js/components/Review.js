@@ -44,6 +44,10 @@ class Review extends Component {
 		// TODO: Display stuff based on if logged in or not (ie form to post comment)
 
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
+
+		// SKYRIM REVIEW
+		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		
 		var reviewId = "b35994c2-3265-4bed-a597-177e170447a8";
 
 		var token = localStorage.getItem('jwtToken');
