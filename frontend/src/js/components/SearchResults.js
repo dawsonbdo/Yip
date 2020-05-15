@@ -72,18 +72,18 @@ class SearchResults extends Component {
                 <Container>
                     <Row>
                         <Col>
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
+                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
+                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
+                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
+                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
                         </Col>
                         <Col>
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={"dasfasdfasdf"} />
+                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
+                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
+                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
+                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
+                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
                         </Col>
                     </Row>
                 </Container>
