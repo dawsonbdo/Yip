@@ -22,6 +22,7 @@ use reviewmultipart::ReviewMultipart;
 
 use serde_json::{Value, Map};
 
+use super::users;
 
 /** 
  * Method that returns a Review from database given the ID
@@ -211,6 +212,37 @@ fn get_kennel_reviews(kennel_name: String, connection: DbConn) -> Result<Json<Ve
 
 	// Makes database call to get all reviews with kennel uuid
 	let all_reviews = handlers::all_kennel_reviews(kennel_uuid, &connection);
+
+	// Prints out title/text/rating of each review in database
+	for v in &all_reviews {
+		for r in v.iter() {
+			println!("Author Name: {} Title: {} Time: {}", r.author, r.title, r.timestamp.to_string());
+		} 
+	}
+
+	Ok(Json(all_reviews.unwrap()))
+}
+
+/** 
+ * Method that returns a list of Reviews that a user posted
+ * @param username: username of user
+ * @param connection: database connection
+ *
+ * @return returns JSON of the review or error status
+ */
+#[get("/get_user_reviews/<username>")]
+fn get_user_reviews(username: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
+
+	// Get uuid from username passed in
+	let uuid = users::handlers::get_uuid_from_username(&username, &connection);
+
+	// Check for nil id (meaning kennel name does not exist)
+	if uuid.is_nil() {
+		return Err(status::NotFound("Kennel not found".to_string()));
+	}
+
+	// Makes database call to get all reviews with kennel uuid
+	let all_reviews = handlers::all_user_reviews(uuid, &connection);
 
 	// Prints out title/text/rating of each review in database
 	for v in &all_reviews {
@@ -429,5 +461,5 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
  * Mount the review routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews, like_review, dislike_review])  
+    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews, like_review, dislike_review, get_user_reviews])  
 }

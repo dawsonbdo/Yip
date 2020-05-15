@@ -82,11 +82,11 @@ fn block_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Acce
  *
  * @return returns JSON of the user or error status
  */
-#[post("/get_user", data="<username>")]
-fn get_user(username: Username, connection: DbConn) -> Result<Json<DbUser>, status::NotFound<String>> {
+#[get("/get_user/<username>")]
+fn get_user(username: String, connection: DbConn) -> Result<Json<DbUser>, status::NotFound<String>> {
 
 	// Gets uuid from username
-	let uuid = handlers::get_uuid_from_username(&username.name, &connection);
+	let uuid = handlers::get_uuid_from_username(&username, &connection);
 
 	// Get User from database
 	let user = handlers::get_user_from_uuid(uuid, &connection);
