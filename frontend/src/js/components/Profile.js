@@ -91,7 +91,88 @@ class Profile extends Component {
 */
 // update this for profile
     componentDidMount() {
-        // Load kennel page with data from database
+        // Load user profile (get from URL)
+        var username = 'Todd_Howard'
+
+        // Send GET request with user name to get user information
+        axios({
+            method: 'get',
+            url: '/get_user/' + username,
+        }).then(response => {
+
+            alert('User info successfully grabbed from database!');
+
+            // TODO: Render user information
+            console.log("USER");
+            console.log(response.data);
+
+            // Updates kennel name
+            // this.setState({ kennel_name: response.data.kennel_name });
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('User info does not exist in database');
+
+        });
+
+        // Send GET request with user name to get followed kennels
+        axios({
+            method: 'get',
+            url: '/get_followed_kennels_username/' + username,
+        }).then(response => {
+
+            alert('Users followed kennels info successfully grabbed from database!');
+
+            // TODO: Render user information
+            console.log("FOLLOWED KENNELS");
+            console.log(response.data);
+
+            // Updates kennel name
+            // this.setState({ kennel_name: response.data.kennel_name });
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('User followed kennels does not exist in database');
+
+        });
+
+
+        // Send GET request with user name to get reviews posted
+        axios({
+            method: 'get',
+            url: '/get_user_reviews/' + username,
+        }).then(response => {
+
+            alert('Users posted reviews info successfully grabbed from database!');
+
+            // TODO: Render user information
+            console.log("POSTED REVIEWS");
+            console.log(response.data);
+
+            // Updates kennel name
+            // this.setState({ kennel_name: response.data.kennel_name });
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('User posted reviews does not exist in database');
+
+        });
+
+
+
+
+        // TODO: Remove the stuff below this, all the database calls needed
+        // are above this
+
+
+
+
+
+
+
 
         // Get kennel name from URL?
         var kennelName = 'GaryGang';

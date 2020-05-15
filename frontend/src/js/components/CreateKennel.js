@@ -31,9 +31,8 @@ class CreateKennel extends Component {
    * Function handler for edit kennel submit button
    */
   createKennel(event) {
-    /* doesn't work yet
     
-    // Prevents page from refreshing on submit
+    /*// Prevents page from refreshing on submit
     event.preventDefault();
     event.stopPropagation();
 
@@ -55,8 +54,8 @@ class CreateKennel extends Component {
 
       alert('failed kennel creation');
 
-    });
-    */
+    });*/
+    
   }
 
   render() {

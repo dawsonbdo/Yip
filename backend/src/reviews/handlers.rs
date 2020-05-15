@@ -244,6 +244,28 @@ pub fn all_kennel_reviews(kennel_uuid: Uuid, connection: &PgConnection) -> Query
 }
 
 /**
+ * Method that returns a vector with all reviews posted by a user
+ * @param user_uuid: uuid of the user
+ * @param connection: database connection
+ *
+ * @return returns vector of reviews by user
+ */
+pub fn all_user_reviews(user_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayReview>> {
+    
+    // Get vector of all reviews by user
+    let reviews = reviews::table.filter(reviews::author.eq(user_uuid)).load::<DbReview>(&*connection);
+    
+    // Pattern match to make sure successful, convert to DisplayReviews if so
+    match reviews {
+        Ok(r) => Ok(r.iter()
+                     .map(|review| DbReview::to_review(review, connection))
+                     .collect()),
+        Err(e) => Err(e),
+    }
+    
+}
+
+/**
  * Method that gets returns all reviews in database
  * @param connection: database connection
  *
