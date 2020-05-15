@@ -89,6 +89,7 @@ class Home extends Component {
         return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} />
       });
     } else {
+      // Loading Symbol
       reviews = <Row>
                   <Image className="mx-auto" src={LoadingIcon}></Image>
                 </Row>;

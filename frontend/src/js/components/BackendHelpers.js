@@ -54,6 +54,12 @@ export function likeDislikeReviewJson(review_uuid = "", token = "") {
     return form
 };
 
+// Creates a JSON object for liking/dislking comments
+export function likeDislikeCommentJson(comment_uuid = "", token = "") {
+    var form = {comment_uuid: reviewId, token: token};
+    return form
+};
+
 function getDateTime(){
   var today = new Date();
   var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();

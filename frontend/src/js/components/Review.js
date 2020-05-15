@@ -8,6 +8,7 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 import Image from 'react-bootstrap/Image';
 import YipNavBar from "./YipNavBar";
 import CommentCard from './CommentCard';
+import LoadingIcon from '../../assets/corgi_shadow.png';
 import commentIcon from '../../assets/comment.png';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -31,7 +32,12 @@ class Review extends Component {
 		this.state = {
 			loggedIn: false,
 			commentArray: [],
-			commentsListed: false
+			commentsListed: false,
+			reviewListed: false,
+			reviewTitle: "",
+			reviewAuthor: "",
+			reviewText: "",
+			reviewImgs: []
 		};
 
 		// Binds button handler
@@ -46,9 +52,7 @@ class Review extends Component {
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
 
 		// SKYRIM REVIEW
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
-		
-		var reviewId = "b35994c2-3265-4bed-a597-177e170447a8";
+		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 
 		var token = localStorage.getItem('jwtToken');
 
@@ -62,20 +66,25 @@ class Review extends Component {
 		}).then(response => {
 
 			// alert('Review successfully grabbed from database!');
+			if (!this.reviewListed) {
+				// TODO: Fill in html using response 
+				this.setState({
+					reviewTitle: response.data.title,
+					reviewAuthor: response.data.author,
+					reviewText: response.data.text
+				});
 
-			// TODO: Fill in html using response 
-			document.getElementById('title').innerHTML = response.data.title;
-			document.getElementById('author').innerHTML = response.data.author;
-			document.getElementById('text').innerHTML = response.data.text;
+				// Check that any images were returned cuz can be undefined
+				if (response.data.images != undefined) {
+					this.state.reviewImgs.push(response.data.images[0]);
+				}
 
-			// Check that any images were returned cuz can be undefined
-			if (response.data.images != undefined) {
-				document.getElementById('img').src = response.data.images[0];
+				// TODO: Render edit/delete buttons depending on if author of review
+				console.log("Is Author: " + response.data.is_author);
+
+				this.setState({ reviewListed: true });
+				this.forceUpdate();
 			}
-
-			// TODO: Render edit/delete buttons depending on if author of review
-			console.log("Is Author: " + response.data.is_author);
-
 		}).catch(error => {
 
 			// Review not found in database
@@ -118,7 +127,7 @@ class Review extends Component {
 
 	dislikeReview() {
 		// TODO: Get uuid of review from url probably
-		var reviewId = "b35994c2-3265-4bed-a597-177e170447a8";
+		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -146,7 +155,7 @@ class Review extends Component {
 
 	likeReview() {
 		// TODO: Get uuid of review from url probably
-		var reviewId = "b35994c2-3265-4bed-a597-177e170447a8";
+		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -207,62 +216,77 @@ class Review extends Component {
 	}
 
 	render() {
+
+		// Gets the comments in their comment cards
 		const comments = this.state.commentArray.map(function (comment) {
 			return <CommentCard commenterName={comment.author} commentText={comment.text} timestamp={comment.time} />
 		});
 
+
+		// ONLY DISPLAYS REVIEW CONTENTS WHEN EVERYTHING IS LOADED FROM BACKEND/DATABASE
+		let reviewContent;
+		if (this.state.reviewListed && this.state.commentsListed) {
+			reviewContent =
+				<div>
+					<Jumbotron id="jumbotron">
+						<Row>
+							<Col className="text-left">
+								<h1 id="title">{this.state.reviewTitle}</h1>
+								<h4 id="author">{this.state.reviewAuthor}</h4>
+							</Col>
+							<Col className="text-right reviewIcon">
+								<Image onClick={this.state.likeReview} className="likePadding" src={likeIcon} />
+								<Image onClick={this.state.dislikeReview} className="likePadding" src={dislikeIcon} />
+								<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
+								<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
+								<Link to="/"><Image className="likePadding" src={trashIcon} /></Link>
+							</Col>
+						</Row>
+
+					</Jumbotron>
+
+					<Row className="reviewContent">
+						<Col xs={7} className="text-left">
+							<p id="text" dangerouslySetInnerHTML={{ __html: this.state.reviewText }}></p>
+						</Col>
+
+						<Col xs={5} className="reviewPicture text-center align">
+							<Image id="img" src={this.state.reviewImgs[0]} />
+						</Col>
+					</Row>
+					<Container className="pb-5">
+						<Row className="align-items-center reviewLeaveComment">
+							<Col></Col>
+							<Col xs={10} className="text-center">
+								<div className="logInForm">
+									<h3 className="logInLabel pt-2 pb-2">Leave a Comment</h3>
+									<Form className="logInEntryContainer">
+										<div className="logInEntryContainer">
+											<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" />
+										</div>
+										<div className="logInEntryContainer">
+											<Button onClick={this.postComment} className="logInEntry" variant="primary">Post</Button>
+										</div>
+									</Form>
+								</div>
+							</Col>
+							<Col></Col>
+						</Row>
+					</Container>
+					{comments}
+				</div>;
+		} else {
+
+			// Loading Symbol
+			reviewContent = <Row>
+                  				<Image className="mx-auto loading" src={LoadingIcon}></Image>
+               				</Row>;
+		}
+
 		return (
 			<div>
 				<YipNavBar />
-
-				<Jumbotron id="jumbotron">
-					<Row>
-						<Col className="text-left">
-							<h1 id="title"></h1>
-							<h4 id="author"></h4>
-
-						</Col>
-						<Col className="text-right reviewIcon">
-							<Image onClick={this.likeReview} className="likePadding" src={likeIcon} />
-						<Image onClick={this.dislikeReview} className="likePadding" src={dislikeIcon} />
-							<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
-							<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
-							<Link to="/"><Image className="likePadding" src={trashIcon} /></Link>
-						</Col>
-					</Row>
-
-				</Jumbotron>
-
-				<Row className="reviewContent">
-					<Col xs={7} className="text-left">
-						<p id="text"></p>
-					</Col>
-
-					<Col xs={5} className="reviewPicture text-center align">
-						<Image id="img" />
-					</Col>
-				</Row>
-
-				<Container className="pb-5">
-				<Row className="align-items-center reviewLeaveComment">
-					<Col></Col>
-					<Col xs={10} className="text-center">
-						<div className="logInForm">
-							<h3 className="logInLabel pt-2 pb-2">Leave a Comment</h3>
-							<Form className="logInEntryContainer">
-								<div className="logInEntryContainer">
-									<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" />
-								</div>
-								<div className="logInEntryContainer">
-									<Button onClick={this.postComment} className="logInEntry" variant="primary">Post</Button>
-								</div>
-							</Form>
-						</div>
-					</Col>
-					<Col></Col>
-				</Row>
-				</Container>
-				{comments}
+				{reviewContent}
 			</div>
 		);
 	}

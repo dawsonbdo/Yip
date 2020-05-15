@@ -100,9 +100,6 @@ class Kennel extends Component {
             // Iterate through reviews
             for (var i = response.data.length - 1; i >= 0; i--) {
 
-                // Print reviews to console for now
-                console.log(response.data[i]);
-
                 // Add review name, reviewer's username, review text to reviewArray
                 this.state.reviewArray.push({
                     title: response.data[i].title,
