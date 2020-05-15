@@ -40,13 +40,13 @@ class CommentCard extends Component {
             data: form
         }).then(response => {
 
-            alert('Comment successfully liked or disliked!');
+            alert('Comment successfully liked');
 
 
         }).catch(error => {
 
             // Failed to dislike review
-            alert('Comment like/dislike failed');
+            alert('Comment like failed');
 
         });
     }
@@ -71,13 +71,13 @@ class CommentCard extends Component {
             data: form
         }).then(response => {
 
-            alert('Comment successfully liked or disliked!');
+            alert('Comment successfully disliked!');
 
 
         }).catch(error => {
 
             // Failed to dislike review
-            alert('Comment like/dislike failed');
+            alert('Comment dislike failed');
 
         });
     }
@@ -106,8 +106,8 @@ class CommentCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <Link to="/"><Image onClick={this.like} className="float-left likePadding" src={likeIcon} /></Link>
-                                                <Link to="/"><Image onClick={this.dislike} className="float-left likePadding" src={dislikeIcon} /></Link>
+                                                <Image onClick={this.like} className="float-left likePadding" src={likeIcon} />
+                                                <Image onClick={this.dislike} className="float-left likePadding" src={dislikeIcon} />
                                             </Col>
                                             <Col>
                                                 <p className="float-right timestamp">Posted on {this.props.timestamp.substring(5, 16)}</p>
