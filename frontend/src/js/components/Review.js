@@ -8,7 +8,7 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 import Image from 'react-bootstrap/Image';
 import YipNavBar from "./YipNavBar";
 import CommentCard from './CommentCard';
-import LoadingIcon from '../../assets/corgi_shadow.png';
+import LoadingIcon from '../../assets/LoadingIcon.gif';
 import commentIcon from '../../assets/comment.png';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -280,7 +280,7 @@ class Review extends Component {
 
 			// Loading Symbol
 			reviewContent = <Row>
-                  				<Image className="mx-auto loading" src={LoadingIcon}></Image>
+                  				<Image className="mx-auto loadingIcon loading" src={LoadingIcon}></Image>
                				</Row>;
 		}
 

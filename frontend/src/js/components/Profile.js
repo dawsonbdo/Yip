@@ -159,7 +159,7 @@ class Profile extends Component {
         // TODO: get this persons reviews from the database
         // possibly same thing for this persons kennels
 		const reviews = this.state.reviewArray.map(function(review) {
-            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={review.text}/>
+            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{__html: review.text}}/>
         });
         return (
             <div>
