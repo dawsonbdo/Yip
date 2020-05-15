@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import ReviewCard from './ReviewCard';
 import YipNavBar from "./YipNavBar";
 import Image from 'react-bootstrap/Image';
-import LoadingIcon from '../../assets/corgi_shadow.png';
+import LoadingIcon from '../../assets/loadingIcon.gif';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -91,7 +91,7 @@ class Home extends Component {
     } else {
       // Loading Symbol
       reviews = <Row>
-                  <Image className="mx-auto" src={LoadingIcon}></Image>
+                  <Image className="mx-auto loadingIcon" src={LoadingIcon}></Image>
                 </Row>;
     }
 

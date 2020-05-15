@@ -13,7 +13,10 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png';
-import Review from './Review';
+import Nav from 'react-bootstrap/Nav';
+import ReviewCard from './ReviewCard';
+import ImageUploader from 'react-images-upload';
+import corgiImage from '../../assets/corgi_shadow.png';
 
 import axios from 'axios'
 
@@ -22,165 +25,185 @@ import { createCommentJson } from './BackendHelpers.js';
 class Profile extends Component {
 
 	constructor(props) {
-		super(props)
+        super(props)
+       
+        this.state = {
+            kennel_name: "",
+            showReviews: true,
+            showRules: false,
+            reviewArray: []
+        }
 
-		// Binds button handler
-		this.postComment = this.postComment.bind(this);
-	}
+        this.handleSelect = this.handleSelect.bind(this);
+        this.onDrop = this.onDrop.bind(this);
 
-	componentDidMount() {
-		// TODO: Display stuff based on if logged in or not (ie form to post comment)
+    }
 
-		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
-		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
-		var token = localStorage.getItem('jwtToken');
+    onDrop(picture) {
+        this.setState({
+          pictures: this.state.pictures.concat(picture)
+        });
+    }
+    
+    handleSelect(eventKey) {
 
-		// Format URL to send in GET request
-		var reqUrl = "/get_review/" + reviewId + "/" + token;
+        if (eventKey == "reviews") {
+            this.setState({ showReviews: true, showKennels: false});
+        }
+        if (eventKey == "kennels") {
+            this.setState({ showReviews: false, showKennels: true });
+        }
+    }
 
-		// Send GET request with review id to get review information
-		axios({
-			method: 'get',
-			url: reqUrl
-		}).then(response => {
+/* needs to be followUser
+	followKennel() {
 
-			alert('Review successfully grabbed from database!');
+        // Get kennel name somehow
+        var kennelName = 'GaryGang';
 
-			// TODO: Fill in html using response 
-			document.getElementById('title').innerHTML = response.data.title;
-			document.getElementById('author').innerHTML = response.data.author;
-			document.getElementById('text').innerHTML = response.data.text; 
+        // Get token
+        var token = localStorage.getItem('jwtToken');
 
-			// Check that any images were returned cuz can be undefined
-			if ( response.data.images != undefined ){
-				document.getElementById('img').src = response.data.images[0];
-			}
+        // Create JSON form to send to backend
+        var form = followKennelJson(kennelName, token);
 
-			// TODO: Render edit/delete buttons depending on if author of review
-			console.log("Is Author: " + response.data.isAuthor);
+        // Send POST request to follow kennel
+        axios({
+            method: 'post',
+            url: '/follow_kennel',
+            data: form
+        }).then(response => {
 
-		}).catch(error => {
-
-			// Review not found in database
-			alert('Review does not exist');
-
-		});
-
-		reqUrl = "/get_comments/" + reviewId;
-
-		// Send GET request with review id to get comments
-		axios({
-			method: 'get',
-			url: reqUrl
-		}).then(response => {
-
-			alert('Review comments successfully grabbed from database!');
-
-			// TODO: Fill in html using response 
-
-			// TODO: Populate CommentCards using response.data (this is an array of DisplayComment objs)
-			//       (Fields of DisplayComment: author_name, timestamp, text)
-
-			// Iterate through comments
-			for (var i = 0; i < response.data.length; i++) {
-
-				// Print comments to console for now
-				console.log(response.data[i]);
-
-			}
-
-		}).catch(error => {
-
-			// Review comments not found in database
-			alert('Review comments not found');
-
-		});
-	}
-
-	postComment() {
-		// TODO: Get uuid of review from url probably
-		var reviewId = "dcbcf675-e7a7-44b2-8f7a-ec6f2bbbb039";
-
-		// Get token
-		var token = localStorage.getItem('jwtToken');
-
-		// Get text from comment field
-		var text = document.getElementById('reviewComment').value;
-
-		// Create JSON obj of comment
-		var form = createCommentJson(reviewId, token, text);
-
-		console.log(form);
-
-		// Send POST request
-		axios({
-			method: 'post',
-			url: '/create_comment',
-			data: form
-		}).then(response => {
-
-			alert('Comment successfully posted to database!');
-
-			// TODO: Update page to display comment
+            // Successful follow
+            alert('Kennel has been followed successfully');
 
 
-		}).catch(error => {
+        }).catch(error => {
 
-			// Failed to post comment
-			alert('Comment post failed');
+            // Error for failed follow
+            alert('Failed to follow kennel');
 
-		});
-	}
+        });
+    }
+*/
+// update this for profile
+    componentDidMount() {
+        // Load kennel page with data from database
+
+        // Get kennel name from URL?
+        var kennelName = 'GaryGang'
+
+        // Format URL to send in GET request
+        var reqUrl = "/get_reviews/" + kennelName;
+
+        // Send GET request with kennel name to get reviews in kennel
+        axios({
+            method: 'get',
+            url: reqUrl
+        }).then(response => {
+
+            //alert('Kennel reviews successfully grabbed from database!');
+
+            // Iterate through reviews
+            for (var i = response.data.length - 1; i >= 0; i--) {
+
+                // Print reviews to console for now
+                console.log(response.data[i]);
+
+                // Add review name, reviewer's username, review text to reviewArray
+                this.state.reviewArray.push({
+                    title: response.data[i].title,
+                    author: response.data[i].author,
+                    text: response.data[i].text
+                });
+
+            }
+
+            // Renders reviews
+            this.forceUpdate();
+
+        }).catch(error => {
+
+            // Review not found in database
+            // alert('Kennel does not exist/No reviews in kennel');
+
+        });
+
+        // Format URL to send in GET request
+        reqUrl = "/get_kennel/" + kennelName;
+
+        // Send GET request with kennel name to get kennel information
+        axios({
+            method: 'get',
+            url: reqUrl
+        }).then(response => {
+
+            // alert('Kennel info successfully grabbed from database!');
+
+            // TODO: Render kennel information
+            console.log(response.data);
+
+            // Updates kennel name
+            this.setState({ kennel_name: response.data.kennel_name });
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('Kennel does not exist in database');
+
+        });
+    }
+
 
 	render() {
-		return (
-			<div>
-				<YipNavBar />
-				<Jumbotron id="jumbotron" className="text-left">
-					<h1 id="title">{this.props.reviewName}</h1>
-					<h4 id="author">{this.props.reviewerName}</h4>
-					<Link to="/"><Image className="likePadding" src={likeIcon} /></Link>
-					<Link to="/"><Image className="likePadding" src={dislikeIcon} /></Link>
-				</Jumbotron>
-
-				<Row className="reviewContent">
-					<Col xs={7} className="text-left">
-						<p id="text" dangerouslySetInnerHTML={{ __html: this.props.reviewText }}></p>
-					</Col>
-
-					<Col xs={5} className="reviewPicture text-center align">
-						<Image id="img" src={this.props.reviewImg[0]} />
-					</Col>
-				</Row>
-
-				<Row className="align-items-center reviewLeaveComment">
-					<Col></Col>
-					<Col className="text-center">
-						<div className="logInForm">
-							<h3 className="logInLabel pt-2 pb-2">Leave a Comment</h3>
-							<Form className="logInEntryContainer">
-								<div className="logInEntryContainer">
-									<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" />
-								</div>
-								<div className="logInEntryContainer">
-									<Button onClick={this.postComment} className="logInEntry" variant="primary">Post</Button>
-								</div>
-							</Form>
-						</div>
-					</Col>
-					<Col></Col>
-				</Row>
-
-			</div>
-		);
-	}
+        // TODO: get this persons reviews from the database
+        // possibly same thing for this persons kennels
+		const reviews = this.state.reviewArray.map(function(review) {
+            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={review.text}/>
+        });
+        return (
+            <div>
+                <YipNavBar/>
+                <Container>
+                    <Row className="align-items-center">
+                        <Col xs={9} className="text-center">
+                            <Jumbotron id="jumbotron" className="text-left">
+                                <h1>{this.state.kennel_name}</h1>
+                                <Image id="img" className= "profilePic" src={corgiImage} />
+                                <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
+                                    <Nav.Item as="li">
+                                        <Nav.Link eventKey="reviews">Reviews</Nav.Link>
+                                    </Nav.Item>
+                                    <Nav.Item as="li">
+                                        <Nav.Link eventKey="kennels">Kennels</Nav.Link>
+                                    </Nav.Item>
+                                </Nav>
+                            </Jumbotron>
+                        </Col>
+                        <Col> 
+                            <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">Follow</Button>
+                            <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
+                            <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button>
+                        </Col>
+                    </Row>
+                    {this.state.showReviews && (
+                        <div>{reviews}</div>
+                    )}
+                    {this.state.showKennels && (
+                        <div>
+                            <h1>Kennels</h1>
+                            <ul>
+                                <li>kennel1</li>
+                                <li>kennel2</li>
+                                <li>kennel3</li>
+                            </ul>
+                        </div>
+                    )}
+                </Container>
+            </div>
+        )
+    }
 }
 
 export default Profile;
-
-Review.propTypes = {
-	reviewName: PropTypes.string.isRequired,
-	reviewerName: PropTypes.string.isRequired,
-	reviewText: PropTypes.string.isRequired,
-	reviewImg: PropTypes.string.isRequired
-};
+// only allow line 57 button is another reviewer, maybe gray it out and have no action
