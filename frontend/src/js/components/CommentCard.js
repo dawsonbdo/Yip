@@ -14,7 +14,7 @@ import { likeDislikeCommentJson } from './BackendHelpers.js';
 import axios from 'axios'
 
 class CommentCard extends Component {
-    constructor(){
+    constructor(props){
         super(props);
     
         this.likeClick = this.likeClick.bind(this);
@@ -22,7 +22,7 @@ class CommentCard extends Component {
 
     likeClick(id){
         // TODO: Get uuid of comment from a prop probably
-        var commentId = "b35994c2-3265-4bed-a597-177e170447a8";
+        var commentId = "e7c31945-f06f-4f10-ae28-8e9dbe65c5e9";
 
         // Get token
         var token = localStorage.getItem('jwtToken');
