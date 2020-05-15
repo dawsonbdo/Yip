@@ -257,10 +257,9 @@ class Profile extends Component {
         if (this.state.profileKennelsListed && this.state.profileReviewsListed) {
             profile = <Container>
                 <Row className="align-items-center">
-                    <Col xs={9} className="text-center">
+                    <Col xs={8} className="text-center">
                         <Jumbotron id="jumbotron" className="text-left">
                             <h1>Todd Howard the Almighty</h1>
-                            <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Profile Picture' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'}/>
                             <Image id="img" className="profilePic" src={corgiImage} />
                             <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
                                 <Nav.Item as="li">
@@ -273,6 +272,7 @@ class Profile extends Component {
                         </Jumbotron>
                     </Col>
                     <Col>
+                        <Button className="logInEntry" type="submit" variant="primary">Message</Button>
                         <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">Follow</Button>
                         <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
                         <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button>
