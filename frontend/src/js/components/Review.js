@@ -107,7 +107,7 @@ class Review extends Component {
 			// Fills in commentArray based on response data
 			// Will populate comment cards
 			if(!this.state.commentsListed) {
-				alert("LENGTH:" + response.data.length);
+
 				for(var i = response.data.length - 1; i >= 0; i--) {
 					this.state.commentArray.push({
 						author: response.data[i].author_name,

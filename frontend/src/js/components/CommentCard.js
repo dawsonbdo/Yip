@@ -17,10 +17,11 @@ class CommentCard extends Component {
     constructor(props){
         super(props);
     
-        this.likeClick = this.likeClick.bind(this);
+        this.like = this.like.bind(this);
+        this.dislike = this.dislike.bind(this);
     }
 
-    likeClick(id){
+    like(){
         // TODO: Get uuid of comment from a prop probably
         var commentId = "e7c31945-f06f-4f10-ae28-8e9dbe65c5e9";
 
@@ -30,14 +31,37 @@ class CommentCard extends Component {
         // Create form for request
         var form = likeDislikeCommentJson(commentId, token);
 
-        var url;
+        var url = '/like_comment';
 
-        // Check id to get url
-        if ( id.equals('like') ){
-            url = '/like_comment';
-        } else {
-            url = '/dislike_comment';
-        }
+        // Send POST request
+        axios({
+            method: 'post',
+            url: url,
+            data: form
+        }).then(response => {
+
+            alert('Comment successfully liked or disliked!');
+
+
+        }).catch(error => {
+
+            // Failed to dislike review
+            alert('Comment like/dislike failed');
+
+        });
+    }
+
+    dislike(){
+         // TODO: Get uuid of comment from a prop probably
+        var commentId = "e7c31945-f06f-4f10-ae28-8e9dbe65c5e9";
+
+        // Get token
+        var token = localStorage.getItem('jwtToken');
+
+        // Create form for request
+        var form = likeDislikeCommentJson(commentId, token);
+
+        var url = '/dislike_comment';
 
 
         // Send POST request
@@ -82,8 +106,8 @@ class CommentCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <Link to="/"><Image id="like" onClick={this.likeDislike(this.id)} className="float-left likePadding" src={likeIcon} /></Link>
-                                                <Link to="/"><Image id="dislike" onClick={this.likeDislike(this.id)} className="float-left likePadding" src={dislikeIcon} /></Link>
+                                                <Link to="/"><Image onClick={this.like} className="float-left likePadding" src={likeIcon} /></Link>
+                                                <Link to="/"><Image onClick={this.dislike} className="float-left likePadding" src={dislikeIcon} /></Link>
                                             </Col>
                                             <Col>
                                                 <p className="float-right timestamp">Posted on {this.props.timestamp.substring(5, 16)}</p>
