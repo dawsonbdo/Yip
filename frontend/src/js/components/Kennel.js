@@ -157,7 +157,7 @@ class Kennel extends Component {
 
     render() {
         const reviews = this.state.reviewArray.map(function (review) {
-            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={review.text} />
+            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text}} />
         });
         const tags = this.state.tagsArray.map(function (tag) {
             return <p>{tag}</p>
