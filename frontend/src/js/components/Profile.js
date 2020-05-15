@@ -21,7 +21,7 @@ import corgiImage from '../../assets/corgi_shadow.png';
 
 import axios from 'axios'
 
-import { createCommentJson } from './BackendHelpers.js';
+import { createCommentJson, followUserJson } from './BackendHelpers.js';
 
 class Profile extends Component {
 
@@ -39,7 +39,38 @@ class Profile extends Component {
 
         this.handleSelect = this.handleSelect.bind(this);
         this.onDrop = this.onDrop.bind(this);
+        this.followProfile = this.followProfile.bind(this);
 
+    }
+
+    followProfile(){
+        // Load user profile (get from URL)
+        var username = 'Todd_Howard'
+
+        var token = localStorage.getItem('jwtToken');
+
+        var form = followUserJson(username, token);
+
+        // Send POST request with user name to follow
+        axios({
+            method: 'post',
+            url: '/follow_user',
+            data: form,
+        }).then(response => {
+
+            alert('User successfully followed');
+
+            // TODO: Render user information
+
+            // Updates kennel name
+            // this.setState({ kennel_name: response.data.kennel_name });
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('User failed to follow');
+
+        });
     }
 
     onDrop(picture) {

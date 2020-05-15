@@ -48,6 +48,12 @@ export function followKennelJson(kennel_name = "", token = "") {
     return form
 };
 
+// Creates a JSON object for following/unfollowing kennels
+export function followUserJson(username = "", token = "") {
+    var form = {token: token, username: username};
+    return form
+};
+
 // Creates a JSON object for liking/dislking reviews
 export function likeDislikeReviewJson(review_uuid = "", token = "") {
     var form = {review_uuid: review_uuid, token: token};
