@@ -6,6 +6,8 @@ import ReviewCard from './ReviewCard';
 import YipNavBar from "./YipNavBar";
 import CommentCard from './CommentCard';
 import Container from 'react-bootstrap/Container';
+import LoadingIcon from '../../assets/LoadingIcon.gif';
+import Image from 'react-bootstrap/Image';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
@@ -18,18 +20,15 @@ class SearchResults extends Component {
         super(props);
 
         // Creates state to keep track of if logged in
-        this.state = { loggedIn: false };
+        this.state = { 
+            loggedIn: false,
+            searchDisplay: false
+        };
     }
 
-    // After component is loaded, update auth state
-    componentDidMount() {
-
-        // Updates logged in state of the component
-        updateLoggedInState(this);
-    }
 
     // Displays if logged in on home page
-    componentDidUpdate() {
+    componentDidMount() {
 
 
         // Load reviews
@@ -39,7 +38,6 @@ class SearchResults extends Component {
             data: localStorage.getItem('jwtToken')
         }).then(response => {
 
-            alert('Listed reviews');
 
             // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
             //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
@@ -52,6 +50,8 @@ class SearchResults extends Component {
 
             }
 
+            this.setState({searchDisplay: true});
+
         }).catch(error => {
 
             // Review not found in database
@@ -63,30 +63,43 @@ class SearchResults extends Component {
 
     render() {
 
+        let search;
+        if (this.state.searchDisplay) {
+            search = 
+                <div>
+                    <Jumbotron id="jumbotron" className="text-center">
+                        <h1>Results: </h1>
+                    </Jumbotron>
+                    <Container>
+                        <Row>
+                            <Col>
+                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                            </Col>
+                            <Col>
+                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+        } else {
+            search =
+                <Row>
+                    <Image className="mx-auto loadingIcon loading" src={LoadingIcon}></Image>
+                </Row>;
+        }
+
         return (
             <div>
                 <YipNavBar />
-                <Jumbotron id="jumbotron" className="text-center">
-                    <h1>Results: </h1>
-                </Jumbotron>
-                <Container>
-                    <Row>
-                        <Col>
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
-                        </Col>
-                        <Col>
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
-                            <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{__html: "dasfasdfasdf"}} />
-                        </Col>
-                    </Row>
-                </Container>
+                {search}
             </div>
         )
     }
