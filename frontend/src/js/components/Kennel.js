@@ -8,9 +8,10 @@ import YipNavBar from './YipNavBar';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Jumbotron from "react-bootstrap/Jumbotron";
-import corgiImage from '../../assets/corgi_shadow.png';
+import LoadingIcon from '../../assets/LoadingIcon.gif';
 import { Redirect } from 'react-router-dom';
 import Nav from 'react-bootstrap/Nav';
 
@@ -30,7 +31,9 @@ class Kennel extends Component {
             showTags: false,
             isFollowing: false,
             reviewArray: [],
-            tagsArray: []
+            tagsArray: [],
+            kennelReviewsListed: false,
+            kennelInfoListed: false
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -98,15 +101,18 @@ class Kennel extends Component {
             //alert('Kennel reviews successfully grabbed from database!');
 
             // Iterate through reviews
-            for (var i = response.data.length - 1; i >= 0; i--) {
+            if (!this.kennelReviewsListed) {
+                for (var i = response.data.length - 1; i >= 0; i--) {
 
-                // Add review name, reviewer's username, review text to reviewArray
-                this.state.reviewArray.push({
-                    title: response.data[i].title,
-                    author: response.data[i].author,
-                    text: response.data[i].text
-                });
+                    // Add review name, reviewer's username, review text to reviewArray
+                    this.state.reviewArray.push({
+                        title: response.data[i].title,
+                        author: response.data[i].author,
+                        text: response.data[i].text
+                    });
 
+                }
+                this.setState({kennelReviewsListed: true});
             }
 
             // Renders reviews
@@ -143,6 +149,7 @@ class Kennel extends Component {
                 // Add tags to tagsArray
                 this.state.tagsArray.push(response.data.tags[i]);
             }
+            this.setState({kennelInfoListed: true});
 
         }).catch(error => {
 
@@ -154,61 +161,73 @@ class Kennel extends Component {
 
     render() {
         const reviews = this.state.reviewArray.map(function (review) {
-            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text}} />
+            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} />
         });
+
         const tags = this.state.tagsArray.map(function (tag) {
             return <p>{tag}</p>
         });
+
+        let kennel;
+        if (this.state.kennelInfoListed && this.state.kennelReviewsListed) {
+            kennel = <Container>
+                <Row className="align-items-center">
+                    <Col xs={9} className="text-center">
+                        <Jumbotron id="jumbotron" className="text-left">
+                            <h1>{this.state.kennel_name}</h1>
+                            <h4>{this.state.follower_count} Followers</h4>
+                            <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
+                                <Nav.Item as="li">
+                                    <Nav.Link eventKey="reviews">Reviews</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item as="li">
+                                    <Nav.Link eventKey="rules">Rules</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item as="li">
+                                    <Nav.Link eventKey="tags">Tags</Nav.Link>
+                                </Nav.Item>
+                            </Nav>
+                        </Jumbotron>
+                    </Col>
+                    <Col>
+                        <Link to="/editkennel"><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
+                        <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">Follow</Button>
+                    </Col>
+                </Row>
+                {this.state.showReviews && (
+                    <div>{reviews}</div>
+                )}
+                {this.state.showRules && (
+                    <div>
+                        <h1>Rules</h1>
+                        <p>Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
+                    </p>
+                    </div>
+                )}
+                {this.state.showTags && (
+                    <div>
+                        <h1>Tags</h1>
+                        <p>{tags}</p>
+                    </div>
+                )}
+            </Container>
+        } else {
+            kennel = <Row>
+                <Image className="mx-auto loadingIcon loading" src={LoadingIcon}></Image>
+            </Row>;
+
+        }
+
         return (
             <div>
                 <YipNavBar />
-                <Container>
-                    <Row className="align-items-center">
-                        <Col xs={9} className="text-center">
-                            <Jumbotron id="jumbotron" className="text-left">
-                                <h1>{this.state.kennel_name}</h1>
-                                <h4>{this.state.follower_count} Followers</h4>
-                                <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
-                                    <Nav.Item as="li">
-                                        <Nav.Link eventKey="reviews">Reviews</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item as="li">
-                                        <Nav.Link eventKey="rules">Rules</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item as="li">
-                                        <Nav.Link eventKey="tags">Tags</Nav.Link>
-                                    </Nav.Item>
-                                </Nav>
-                            </Jumbotron>
-                        </Col>
-                        <Col>
-                            <Link to="/editkennel"><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
-                            <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">Follow</Button>
-                        </Col>
-                    </Row>
-                    {this.state.showReviews && (
-                        <div>{reviews}</div>
-                    )}
-                    {this.state.showRules && (
-                        <div>
-                            <h1>Rules</h1>
-                            <p>Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                            Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                            </p>
-                        </div>
-                    )}
-                    {this.state.showTags && (
-                        <div>
-                            <h1>Tags</h1>
-                            <p>{tags}</p>
-                        </div>
-                    )}
-                </Container>
+                {kennel}
             </div>
         )
     }

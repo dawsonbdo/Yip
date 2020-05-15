@@ -7,6 +7,7 @@ import Container from 'react-bootstrap/Container';
 import Jumbotron from "react-bootstrap/Jumbotron";
 import Image from 'react-bootstrap/Image';
 import YipNavBar from "./YipNavBar";
+import LoadingIcon from '../../assets/LoadingIcon.gif';
 import CommentCard from './CommentCard';
 import commentIcon from '../../assets/comment.png';
 import Form from 'react-bootstrap/Form';
@@ -31,7 +32,9 @@ class Profile extends Component {
             kennel_name: "",
             showReviews: true,
             showRules: false,
-            reviewArray: []
+            reviewArray: [],
+            profileReviewsListed: false,
+            profileKennelsListed: false
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -172,7 +175,7 @@ class Profile extends Component {
 
 
         // Get kennel name from URL?
-        var kennelName = 'GaryGang'
+        var kennelName = 'GaryGang';
 
         // Format URL to send in GET request
         var reqUrl = "/get_reviews/" + kennelName;
@@ -199,6 +202,10 @@ class Profile extends Component {
                 });
 
             }
+
+            this.setState({profileReviewsListed: true});
+
+
 
             // Renders reviews
             this.forceUpdate();
@@ -227,60 +234,74 @@ class Profile extends Component {
             // Updates kennel name
             this.setState({ kennel_name: response.data.kennel_name });
 
+            this.setState({profileKennelsListed: true});
+
         }).catch(error => {
 
             // Review not found in database
             alert('Kennel does not exist in database');
 
         });
+
     }
 
 
-	render() {
+    render() {
         // TODO: get this persons reviews from the database
         // possibly same thing for this persons kennels
-		const reviews = this.state.reviewArray.map(function(review) {
-            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{__html: review.text}}/>
+        const reviews = this.state.reviewArray.map(function (review) {
+            return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} />
         });
+
+        let profile;
+        if (this.state.profileKennelsListed && this.state.profileReviewsListed) {
+            profile = <Container>
+                <Row className="align-items-center">
+                    <Col xs={9} className="text-center">
+                        <Jumbotron id="jumbotron" className="text-left">
+                            <h1>Todd Howard the Almighty</h1>
+                            <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Profile Picture' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'}/>
+                            <Image id="img" className="profilePic" src={corgiImage} />
+                            <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
+                                <Nav.Item as="li">
+                                    <Nav.Link eventKey="reviews">Reviews</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item as="li">
+                                    <Nav.Link eventKey="kennels">Kennels</Nav.Link>
+                                </Nav.Item>
+                            </Nav>
+                        </Jumbotron>
+                    </Col>
+                    <Col>
+                        <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">Follow</Button>
+                        <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
+                        <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button>
+                    </Col>
+                </Row>
+                {this.state.showReviews && (
+                    <div>{reviews}</div>
+                )}
+                {this.state.showKennels && (
+                    <div>
+                        <h1>Kennels</h1>
+                        <ul>
+                            <li>kennel1</li>
+                            <li>kennel2</li>
+                            <li>kennel3</li>
+                        </ul>
+                    </div>
+                )}
+            </Container>
+        } else {
+            profile = <Row>
+                <Image className="mx-auto loadingIcon loading" src={LoadingIcon}></Image>
+            </Row>;
+        }
+
         return (
             <div>
                 <YipNavBar/>
-                <Container>
-                    <Row className="align-items-center">
-                        <Col xs={9} className="text-center">
-                            <Jumbotron id="jumbotron" className="text-left">
-                                <h1>{this.state.kennel_name}</h1>
-                                <Image id="img" className= "profilePic" src={corgiImage} />
-                                <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
-                                    <Nav.Item as="li">
-                                        <Nav.Link eventKey="reviews">Reviews</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item as="li">
-                                        <Nav.Link eventKey="kennels">Kennels</Nav.Link>
-                                    </Nav.Item>
-                                </Nav>
-                            </Jumbotron>
-                        </Col>
-                        <Col> 
-                            <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">Follow</Button>
-                            <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
-                            <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button>
-                        </Col>
-                    </Row>
-                    {this.state.showReviews && (
-                        <div>{reviews}</div>
-                    )}
-                    {this.state.showKennels && (
-                        <div>
-                            <h1>Kennels</h1>
-                            <ul>
-                                <li>kennel1</li>
-                                <li>kennel2</li>
-                                <li>kennel3</li>
-                            </ul>
-                        </div>
-                    )}
-                </Container>
+                {profile}
             </div>
         )
     }
