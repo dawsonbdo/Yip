@@ -40,7 +40,7 @@ class Profile extends Component {
         this.handleSelect = this.handleSelect.bind(this);
         this.onDrop = this.onDrop.bind(this);
         this.followProfile = this.followProfile.bind(this);
-
+        this.blockProfile = this.blockProfile.bind(this);
     }
 
     followProfile(){
@@ -60,8 +60,6 @@ class Profile extends Component {
 
             alert('User successfully followed');
 
-            // TODO: Render user information
-
             // Updates kennel name
             // this.setState({ kennel_name: response.data.kennel_name });
 
@@ -69,6 +67,31 @@ class Profile extends Component {
 
             // Review not found in database
             alert('User failed to follow');
+
+        });
+    }
+
+    blockProfile(){
+        // Load user profile (get from URL)
+        var username = 'Todd_Howard'
+
+        var token = localStorage.getItem('jwtToken');
+
+        var form = followUserJson(username, token);
+
+        // Send POST request with user name to follow
+        axios({
+            method: 'post',
+            url: '/block_user',
+            data: form,
+        }).then(response => {
+
+            alert('User successfully blocked');
+
+
+        }).catch(error => {
+
+            alert('User failed to block');
 
         });
     }
@@ -89,37 +112,7 @@ class Profile extends Component {
         }
     }
 
-/* needs to be followUser
-	followKennel() {
 
-        // Get kennel name somehow
-        var kennelName = 'GaryGang';
-
-        // Get token
-        var token = localStorage.getItem('jwtToken');
-
-        // Create JSON form to send to backend
-        var form = followKennelJson(kennelName, token);
-
-        // Send POST request to follow kennel
-        axios({
-            method: 'post',
-            url: '/follow_kennel',
-            data: form
-        }).then(response => {
-
-            // Successful follow
-            alert('Kennel has been followed successfully');
-
-
-        }).catch(error => {
-
-            // Error for failed follow
-            alert('Failed to follow kennel');
-
-        });
-    }
-*/
 // update this for profile
     componentDidMount() {
         // Load user profile (get from URL)
