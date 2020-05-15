@@ -9,14 +9,14 @@ extern crate bcrypt;
 use rocket::response::status;
 
 /**
- * Helper method that returns the row corresponding to follow/followee uuid if exists
+ * Method that returns the row corresponding to follow/followee uuid if exists
  * @param blocker: the blockee uuid
  * @param blockee: the blockee uuid
  * @param connection: database connection
  *
  * @return returns a result containing vector of DbBlockUser if found, otherwise error
  */
-fn get_follow_relationship(follower: Uuid, followee: Uuid, connection: &PgConnection) -> QueryResult<DbFollowUser>{
+pub fn get_follow_relationship(follower: Uuid, followee: Uuid, connection: &PgConnection) -> QueryResult<DbFollowUser>{
     
     // Filters block relationship table
     reviewer_follow_relationships::table
@@ -26,14 +26,14 @@ fn get_follow_relationship(follower: Uuid, followee: Uuid, connection: &PgConnec
 }
 
 /**
- * Helper method that returns the row corresponding to blocker/blockee uuid if exists
+ * Method that returns the row corresponding to blocker/blockee uuid if exists
  * @param blocker: the blockee uuid
  * @param blockee: the blockee uuid
  * @param connection: database connection
  *
  * @return returns a result containing vector of DbBlockUser if found, otherwise error
  */
-fn get_block_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<DbBlockUser>{
+pub fn get_block_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<DbBlockUser>{
     
     // Filters block relationship table
     block_relationships::table

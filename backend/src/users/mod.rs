@@ -24,6 +24,48 @@ struct TokenUser {
     username: String,
 }
 
+// Struct represneting the fields of a user that are needed for frontend display
+#[derive(Queryable, Serialize, Deserialize)]
+pub struct DisplayUser {
+    pub username: String,
+    pub profilepicture: Option<String>,
+    pub sitewideban: bool,
+    pub is_owner: bool,
+    pub is_blocked: bool,
+    pub is_followed: bool,
+}
+
+/**
+ * Helper method that converts DbUser to DisplayUser
+ * @param user: the DbUser
+ * @param token: user token
+ * @param connection: database connection
+ *
+ * @return returns a DisplayUser
+ */
+fn to_display_user(user: DbUser, token: String, connection: &DbConn) -> DisplayUser {
+
+	// Converts token into uuid
+	let profile_uuid = auth::get_uuid_from_token(&token);
+
+	// Return display kennel created
+	DisplayUser {
+		username: user.username,
+	    profilepicture: user.profilepicture,
+	    sitewideban: user.sitewideban,
+	    is_owner: user.profile_uuid.eq(&profile_uuid),
+	    is_blocked: match handlers::get_block_relationship(profile_uuid, user.profile_uuid, connection) {
+				        Ok(_u) => true,
+				        Err(e) => false,
+				    },
+	    is_followed: match handlers::get_follow_relationship(profile_uuid, user.profile_uuid, connection) {
+				        Ok(_u) => true,
+				        Err(e) => false,
+				    },
+	}
+
+}
+
 struct Username {
 	name: String
 }
@@ -141,11 +183,13 @@ fn block_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Acce
 /** 
  * Method that returns a user from database given the username
  * @param username: username of user whos data is retrieved
+ * @param token: the user token on frontend
+ * @param connection: database connection
  *
  * @return returns JSON of the user or error status
  */
-#[get("/get_user/<username>")]
-fn get_user(username: String, connection: DbConn) -> Result<Json<DbUser>, status::NotFound<String>> {
+#[get("/get_user/<username>/<token>")]
+fn get_user(username: String, token: String, connection: DbConn) -> Result<Json<DisplayUser>, status::NotFound<String>> {
 
 	// Gets uuid from username
 	let uuid = handlers::get_uuid_from_username(&username, &connection);
@@ -155,7 +199,7 @@ fn get_user(username: String, connection: DbConn) -> Result<Json<DbUser>, status
 
 	// Pattern match to see if user found successfully
 	match user {
-		Ok(r) => Ok(Json(r)),
+		Ok(r) => Ok(Json(to_display_user(r, token, &connection))),
 		Err(e) => Err(status::NotFound(e.to_string())),
 	}
 	

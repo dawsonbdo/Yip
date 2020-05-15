@@ -45,8 +45,6 @@ fn to_display_kennel(kennel: DbKennel, token: String, connection: &DbConn) -> Di
 	// Converts token into uuid
 	let profile_uuid = auth::get_uuid_from_token(&token);
 
-	println!("TOKEN FOLLOWED KENNEL: {}", token);
-
 	// Return display kennel created
 	DisplayKennel {
 		kennel_uuid: kennel.kennel_uuid,

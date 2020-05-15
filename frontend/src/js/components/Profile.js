@@ -118,10 +118,13 @@ class Profile extends Component {
         // Load user profile (get from URL)
         var username = 'Todd_Howard'
 
+        // Get token
+        var token = localStorage.getItem('jwtToken');
+
         // Send GET request with user name to get user information
         axios({
             method: 'get',
-            url: '/get_user/' + username,
+            url: '/get_user/' + username + '/' + token,
         }).then(response => {
 
             alert('User info successfully grabbed from database!');
