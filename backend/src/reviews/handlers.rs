@@ -334,6 +334,8 @@ pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> bool {
  * @return returns a result 
  */
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
+    // TODO: Delete all the comments, and relationships ie likes/dislikes
+
     diesel::delete(reviews::table.find(id))
         .execute(connection)
 }
@@ -438,7 +440,7 @@ impl DbReview{
     }
 
     // Converts DbReview to DisplayReview
-    fn to_review(review: &DbReview, connection: &PgConnection) -> DisplayReview {
+    pub fn to_review(review: &DbReview, connection: &PgConnection) -> DisplayReview {
         let vec : Vec<String> = vec![];
         let vec2 : Vec<String> = vec![];
         

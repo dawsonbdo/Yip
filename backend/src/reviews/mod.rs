@@ -1,5 +1,6 @@
 pub mod handlers;
 pub mod reviewmultipart;
+pub mod search;
 
 extern crate chrono;
 extern crate json;
@@ -7,7 +8,7 @@ extern crate json;
 use crate::auth;
 use crate::db;
 
-use handlers::{Review, DisplayReview};
+use handlers::{Review, DisplayReview, DbReview};
 use rocket_contrib::json::Json;
 
 use db::DbConn;
@@ -163,6 +164,21 @@ struct ReviewToken {
     token: String,
 }
 
+/** 
+ * Handler method that searches all reviews in db given a query
+ * @param query: query string that is searched for
+ * @param connection: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+#[get("/search_reviews/<query>", rank=1)]
+fn search_reviews(query: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
+
+    match search::search_reviews(query, &connection){
+    	Ok(r) => Ok(Json(r)),
+    	Err(e) => Err(status::NotFound(e.to_string())),
+    }
+}
 
 /** 
  * Handler method that likes a review
@@ -461,5 +477,5 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
  * Mount the review routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews, like_review, dislike_review, get_user_reviews])  
+    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews, like_review, dislike_review, get_user_reviews, search_reviews])  
 }

@@ -29,15 +29,21 @@ class SearchResults extends Component {
 
     // Displays if logged in on home page
     componentDidMount() {
+        // Search kennels
+        var search = "test"
 
 
-        // Load reviews
+        // Search reviews
+        search = "test"
+
         axios({
-            method: 'post',
-            url: '/load_reviews',
-            data: localStorage.getItem('jwtToken')
+            method: 'get',
+            url: '/search_reviews/' + search,
         }).then(response => {
 
+            alert('Successfully searched reviews');
+
+            console.log("REVIEW SEARCH QUERY: " + search);
 
             // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
             //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
@@ -55,9 +61,10 @@ class SearchResults extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('Failed to list reviews');
+            alert('Failed to search reviews');
 
         });
+
 
     }
 
