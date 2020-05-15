@@ -21,7 +21,7 @@ import trashIcon from '../../assets/trash.png';
 
 import axios from 'axios'
 
-import { createCommentJson } from './BackendHelpers.js';
+import { createCommentJson, likeDislikeReviewJson } from './BackendHelpers.js';
 
 class Review extends Component {
 
@@ -132,7 +132,8 @@ class Review extends Component {
 		// Get token
 		var token = localStorage.getItem('jwtToken');
 
-		var form = {review_uuid: reviewId, token:token };
+		// Create form for request
+		var form = likeDislikeReviewJson(reviewId, token);
 
 		// Send POST request
 		axios({
@@ -159,7 +160,8 @@ class Review extends Component {
 		// Get token
 		var token = localStorage.getItem('jwtToken');
 
-		var form = {review_uuid: reviewId, token:token };
+		// Create form for request
+		var form = likeDislikeReviewJson(reviewId, token);
 
 		// Send POST request
 		axios({
