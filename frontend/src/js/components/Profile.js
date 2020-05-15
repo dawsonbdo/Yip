@@ -29,7 +29,7 @@ class Profile extends Component {
         super(props)
        
         this.state = {
-            kennel_name: "",
+            username: "",
             showReviews: true,
             showRules: false,
             reviewArray: [],
@@ -130,7 +130,7 @@ class Profile extends Component {
             console.log("USER");
             console.log(response.data);
 
-            this.setState({ kennel_name: response.data.username });
+            this.setState({ username: response.data.username });
 
             this.setState({profileKennelsListed: true});
 
@@ -181,7 +181,7 @@ class Profile extends Component {
 
             // Updates kennel name
             // this.setState({ kennel_name: response.data.kennel_name });
-            
+
             // Iterate through reviews
             for (var i = response.data.length - 1; i >= 0; i--) {
 
@@ -306,7 +306,7 @@ class Profile extends Component {
                 <Row className="align-items-center">
                     <Col xs={8} className="text-center">
                         <Jumbotron id="jumbotron" className="text-left">
-                            <h1>Todd Howard the Almighty</h1>
+                            <h1>{this.state.username}</h1>
                             <Image id="img" className="profilePic" src={corgiImage} />
                             <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
                                 <Nav.Item as="li">
