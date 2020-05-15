@@ -127,7 +127,7 @@ class Review extends Component {
 
 	dislikeReview() {
 		// TODO: Get uuid of review from url probably
-		var reviewId = "b35994c2-3265-4bed-a597-177e170447a8";
+		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -155,7 +155,7 @@ class Review extends Component {
 
 	likeReview() {
 		// TODO: Get uuid of review from url probably
-		var reviewId = "b35994c2-3265-4bed-a597-177e170447a8";
+		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
