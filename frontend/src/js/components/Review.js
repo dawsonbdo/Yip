@@ -36,13 +36,16 @@ class Review extends Component {
 
 		// Binds button handler
 		this.postComment = this.postComment.bind(this);
+		this.likeReview = this.likeReview.bind(this);
+		this.dislikeReview = this.dislikeReview.bind(this);
 	}
 
 	componentDidMount() {
 		// TODO: Display stuff based on if logged in or not (ie form to post comment)
 
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
-		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		var reviewId = "b35994c2-3265-4bed-a597-177e170447a8";
+
 		var token = localStorage.getItem('jwtToken');
 
 		// Format URL to send in GET request
@@ -109,6 +112,60 @@ class Review extends Component {
 		});
 	}
 
+	dislikeReview() {
+		// TODO: Get uuid of review from url probably
+		var reviewId = "b35994c2-3265-4bed-a597-177e170447a8";
+
+		// Get token
+		var token = localStorage.getItem('jwtToken');
+
+		var form = {review_uuid: reviewId, token:token };
+
+		// Send POST request
+		axios({
+			method: 'post',
+			url: '/dislike_review',
+			data: form
+		}).then(response => {
+
+			alert('Review successfully disliked!');
+
+
+		}).catch(error => {
+
+			// Failed to dislike review
+			alert('Review dislike failed');
+
+		});
+	}
+
+	likeReview() {
+		// TODO: Get uuid of review from url probably
+		var reviewId = "b35994c2-3265-4bed-a597-177e170447a8";
+
+		// Get token
+		var token = localStorage.getItem('jwtToken');
+
+		var form = {review_uuid: reviewId, token:token };
+
+		// Send POST request
+		axios({
+			method: 'post',
+			url: '/like_review',
+			data: form
+		}).then(response => {
+
+			alert('Review successfully liked!');
+
+
+		}).catch(error => {
+
+			// Failed to like review
+			alert('Review like failed');
+
+		});
+	}
+
 	postComment() {
 		// TODO: Get uuid of review from url probably
 		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
@@ -151,6 +208,7 @@ class Review extends Component {
 		return (
 			<div>
 				<YipNavBar />
+
 				<Jumbotron id="jumbotron">
 					<Row>
 						<Col className="text-left">
@@ -159,13 +217,14 @@ class Review extends Component {
 
 						</Col>
 						<Col className="text-right reviewIcon">
-							<Link to="/"><Image className="likePadding" src={likeIcon} /></Link>
-							<Link to="/"><Image className="likePadding" src={dislikeIcon} /></Link>
+							<Image onClick={this.likeReview} className="likePadding" src={likeIcon} />
+						<Image onClick={this.dislikeReview} className="likePadding" src={dislikeIcon} />
 							<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
 							<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
 							<Link to="/"><Image className="likePadding" src={trashIcon} /></Link>
 						</Col>
 					</Row>
+
 				</Jumbotron>
 
 				<Row className="reviewContent">

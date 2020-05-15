@@ -98,17 +98,17 @@ pub fn calculate_rating(review_uuid: Uuid, connection: &PgConnection) -> i32 {
              .filter(review_dislike_relationships::review.eq(review_uuid))
              .load::<DbDislikeReview>(&*connection);
 
-    let mut rating = 0;
+    let mut rating : i32 = 0;
 
     // Get number of likes
     match likes {
-        Ok(r) => rating += r.iter().len(),
+        Ok(r) => rating += (r.iter().len() as i32),
         Err(_e) => rating += 0,
     }
 
     // Get number of dislikes
     match dislikes {
-        Ok(r) => rating -= r.iter().len(),
+        Ok(r) => rating -= (r.iter().len() as i32),
         Err(_e) => rating -= 0,
     }
 
