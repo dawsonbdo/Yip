@@ -141,5 +141,5 @@ fn create_comment(comment: Json<Comment>, connection: DbConn) -> Result<status::
  * Mount the comment routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_comment, get_comments])  
+    rocket.mount("/", routes![create_comment, get_comments, like_comment, dislike_comment])  
 }
