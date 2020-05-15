@@ -10,6 +10,8 @@ use db::DbConn;
 
 use rocket::response::status;
 
+super::super::{users};
+
 // Struct with kennel id and user jwt for following/unfollowing kennels
 #[derive(Queryable, Serialize, Deserialize)]
 struct KennelUser {
@@ -67,6 +69,31 @@ fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbC
 
 	// Return result
 	result
+}
+
+/** 
+ * Method that returns a kennel from database given the name
+ * @param name: name of kennel
+ * @param connection: database connection
+ *
+ * @return returns JSON of the review or error status
+ */
+#[get("/get_followed_kennels/<username>")]
+fn get_followed_kennels_username(username: String, connection: DbConn) -> Result<Json<Vec<DbKennel>>, status::NotFound<String>> {
+
+	// Get uuid from user
+	let uuid = users::handlers::get_uuid_from_username(username, &connection);
+
+	// If not nil, return all of the followed kennels
+	if !uuid.is_nil(){
+		match handlers::all_user_kennels(uuid, &connection) {
+			Ok(k) => Ok(Json(k)),
+			Err(_e) => Err(status::NotFound("No kennels".to_string()))
+		}
+	} else {
+		Err(status::NotFound("User not found".to_string()))
+	}
+	
 }
 
 /** 
