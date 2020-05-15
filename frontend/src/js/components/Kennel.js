@@ -11,7 +11,7 @@ import Row from 'react-bootstrap/Row';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Jumbotron from "react-bootstrap/Jumbotron";
-import LoadingIcon from '../../assets/LoadingIcon.gif';
+import LoadingIcon from '../../assets/loadingIcon.gif';
 import { Redirect } from 'react-router-dom';
 import Nav from 'react-bootstrap/Nav';
 

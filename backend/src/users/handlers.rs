@@ -2,10 +2,28 @@ use diesel;
 use diesel::prelude::*;
 use crate::schema::users;
 use crate::schema::block_relationships;
+use crate::schema::reviewer_follow_relationships;
 use uuid::Uuid;
 extern crate bcrypt;
 
 use rocket::response::status;
+
+/**
+ * Helper method that returns the row corresponding to follow/followee uuid if exists
+ * @param blocker: the blockee uuid
+ * @param blockee: the blockee uuid
+ * @param connection: database connection
+ *
+ * @return returns a result containing vector of DbBlockUser if found, otherwise error
+ */
+fn get_follow_relationship(follower: Uuid, followee: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbFollowUser>>{
+    
+    // Filters block relationship table
+    reviewer_follow_relationships::table
+             .filter(reviewer_follow_relationships::follower.eq(follower))
+             .filter(reviewer_follow_relationships::followee.eq(followee))
+             .load::<DbFollowUser>(&*connection)
+}
 
 /**
  * Helper method that returns the row corresponding to blocker/blockee uuid if exists
@@ -15,7 +33,7 @@ use rocket::response::status;
  *
  * @return returns a result containing vector of DbBlockUser if found, otherwise error
  */
-fn get_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbBlockUser>>{
+fn get_block_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbBlockUser>>{
     
     // Filters block relationship table
     block_relationships::table
@@ -124,6 +142,77 @@ pub fn get_user_from_uuid(id: Uuid, connection: &PgConnection) -> Result<DbUser,
 }
 
 /**
+ * Method for unfollowing another user
+ * @param follower: the object that is being created potentially
+ * @param followee: the user that is being followed
+ * @param connection: database connection
+ *
+ * @return returns Uuid of User if created, otherwise String indicating
+ * which unique fields are taken (email/username)
+ */
+pub fn unfollow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::Conflict<String>> {
+    // Prints the information that was received
+    println!("Follower: {}", follower);
+    println!("Followee: {}", followee);
+
+    // Creates object to be inserted to the follow kennel table
+    let follow_user = FollowUser {
+        follower: follower,
+        followee: followee,
+    };
+
+    // Deletes kennel from database, returns uuid generated
+    
+
+    match diesel::delete(reviewer_follow_relationships::table
+             .filter(reviewer_follow_relationships::follower.eq(follower))
+             .filter(reviewer_follow_relationships::followee.eq(followee)))
+             .execute(connection) {
+            Ok(_u) => Ok(status::Accepted(None)),
+            Err(e) => Err(status::Conflict(Some(e.to_string()))),
+        }
+    
+}
+
+/**
+ * Method for following another user
+ * @param follower: the object that is being created potentially
+ * @param followee: the user that is being followed
+ * @param connection: database connection
+ *
+ * @return returns Uuid of User if created, otherwise String indicating
+ * which unique fields are taken (email/username)
+ */
+pub fn follow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::Conflict<String>> {
+    // Prints the information that was received
+    println!("Follower: {}", follower);
+    println!("Followee: {}", followee);
+
+    // Check if blocker already blocking blockee
+    match get_follow_relationship(follower, followee, connection) {
+        Ok(r) => if r.iter().len() > 0 {
+                    return Err(status::Conflict(Some("Already following".to_string())));
+                 },
+        Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+    }
+
+    // Creates object to be inserted to the follow kennel table
+    let follow_user = FollowUser {
+        follower: follower,
+        followee: followee,
+    };
+
+    // Inserts kennel into database, returns uuid generated
+    match diesel::insert_into(reviewer_follow_relationships::table)
+        .values(follow_user)
+        .get_result::<DbFollowUser>(connection) {
+            Ok(_u) => Ok(status::Accepted(None)),
+            Err(e) => Err(status::Conflict(Some(e.to_string()))),
+        }
+    
+}
+
+/**
  * Method for blocking another user
  * @param blocker: the User object that is being created potentially
  *
@@ -136,7 +225,7 @@ pub fn insert_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> 
     println!("Blockee: {}", blockee);
 
     // Check if blocker already blocking blockee
-    match get_relationship(blocker, blockee, connection) {
+    match get_block_relationship(blocker, blockee, connection) {
         Ok(r) => if r.iter().len() > 0 {
                     return Err(status::Conflict(Some("Already blocking".to_string())));
                  },
@@ -230,6 +319,23 @@ pub fn update(id: Uuid, new_password: &str, connection: &PgConnection) -> bool {
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(users::table.find(id))
         .execute(connection)
+}
+
+// Struct representing the fields of block relationship row that is inserted
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "reviewer_follow_relationships"]
+pub struct FollowUser {
+    pub follower: Uuid,
+    pub followee: Uuid,
+}
+
+// Struct representing the fields of block relationship row that is returned by DB
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "reviewer_follow_relationships"]
+pub struct DbFollowUser {
+    pub pkey: i64,
+    pub follower: Uuid,
+    pub followee: Uuid,
 }
 
 // Struct representing the fields of block relationship row that is inserted

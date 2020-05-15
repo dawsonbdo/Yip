@@ -46,6 +46,68 @@ impl FromDataSimple for Username {
 }
 
 /** 
+ * Method that unfollows a user
+ * @param kennel: JSON of the report
+ *
+ * @return returns TBD
+ */
+#[post("/unfollow_user", data="<follow>", rank=1)]
+fn unfollow_user(follow: Json<TokenUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+	
+	// Get token uuid (follower)
+	let follower = auth::get_uuid_from_token(&follow.token);
+
+	// Get followee uuid
+	let followee = handlers::get_uuid_from_username(&follow.username, &connection);
+
+	// Check if either are nil (not found)
+	if follower.is_nil() || followee.is_nil() {
+		return Err(status::Conflict(Some("Follower or followee not found".to_string())));
+	}
+
+	// Attempt to delete follow relation from database 
+	let unfollow = handlers::unfollow(follower, followee, &connection);
+	
+	// Check if successful insertion into database
+	match unfollow {
+		Ok(_id) => Ok(status::Accepted(None)),
+		Err(e) => Err(e),
+	}
+	
+}
+
+/** 
+ * Method that follows a user
+ * @param kennel: JSON of the report
+ *
+ * @return returns TBD
+ */
+#[post("/follow_user", data="<follow>", rank=1)]
+fn follow_user(follow: Json<TokenUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+	
+	// Get token uuid (follower)
+	let follower = auth::get_uuid_from_token(&follow.token);
+
+	// Get followee uuid
+	let followee = handlers::get_uuid_from_username(&follow.username, &connection);
+
+	// Check if either are nil (not found)
+	if follower.is_nil() || followee.is_nil() {
+		return Err(status::Conflict(Some("Follower or followee not found".to_string())));
+	}
+
+	// Attempt to insert follow relation into database 
+	let follow = handlers::follow(follower, followee, &connection);
+	
+	// Check if successful insertion into database
+	match follow {
+		Ok(_id) => Ok(status::Accepted(None)),
+		Err(e) => Err(e),
+	}
+	
+}
+
+/** 
  * Method that blocks a user
  * @param kennel: JSON of the report
  *
@@ -241,5 +303,5 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
  * Mount the user routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![login, register, recover_password, list_users, auth, get_user, block_user])  
+    rocket.mount("/", routes![login, register, recover_password, list_users, auth, get_user, block_user, follow_user, unfollow_user])  
 }
