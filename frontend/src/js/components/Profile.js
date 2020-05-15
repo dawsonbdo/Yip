@@ -7,7 +7,7 @@ import Container from 'react-bootstrap/Container';
 import Jumbotron from "react-bootstrap/Jumbotron";
 import Image from 'react-bootstrap/Image';
 import YipNavBar from "./YipNavBar";
-import LoadingIcon from '../../assets/LoadingIcon.gif';
+import LoadingIcon from '../../assets/loadingIcon.gif';
 import CommentCard from './CommentCard';
 import commentIcon from '../../assets/comment.png';
 import Form from 'react-bootstrap/Form';

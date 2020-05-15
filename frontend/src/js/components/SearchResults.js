@@ -6,7 +6,7 @@ import ReviewCard from './ReviewCard';
 import YipNavBar from "./YipNavBar";
 import CommentCard from './CommentCard';
 import Container from 'react-bootstrap/Container';
-import LoadingIcon from '../../assets/LoadingIcon.gif';
+import LoadingIcon from '../../assets/loadingIcon.gif';
 import Image from 'react-bootstrap/Image';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
