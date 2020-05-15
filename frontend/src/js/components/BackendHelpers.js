@@ -48,6 +48,12 @@ export function followKennelJson(kennel_name = "", token = "") {
     return form
 };
 
+// Creates a JSON object for liking/dislking reviews
+export function likeDislikeReviewJson(review_uuid = "", token = "") {
+    var form = {review_uuid: reviewId, token: token};
+    return form
+};
+
 function getDateTime(){
   var today = new Date();
   var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();

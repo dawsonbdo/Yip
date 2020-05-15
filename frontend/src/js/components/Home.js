@@ -4,7 +4,9 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 import Button from 'react-bootstrap/Button';
 import ReviewCard from './ReviewCard';
 import YipNavBar from "./YipNavBar";
-import CommentCard from './CommentCard';
+import Image from 'react-bootstrap/Image';
+import LoadingIcon from '../../assets/corgi_shadow.png';
+import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
@@ -81,9 +83,16 @@ class Home extends Component {
 
 
   render() {
-    const reviews = this.state.reviewArray.map(function (review) {
-      return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text}} />
-    });
+    let reviews;
+    if (this.state.reviewsListed) {
+      reviews = this.state.reviewArray.map(function (review) {
+        return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} />
+      });
+    } else {
+      reviews = <Row>
+                  <Image className="mx-auto" src={LoadingIcon}></Image>
+                </Row>;
+    }
 
     return (
       <div>
