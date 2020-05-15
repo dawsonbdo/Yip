@@ -130,6 +130,10 @@ class Profile extends Component {
             console.log("USER");
             console.log(response.data);
 
+            this.setState({ kennel_name: response.data.username });
+
+            this.setState({profileKennelsListed: true});
+
             // Updates kennel name
             // this.setState({ kennel_name: response.data.kennel_name });
 
@@ -177,6 +181,23 @@ class Profile extends Component {
 
             // Updates kennel name
             // this.setState({ kennel_name: response.data.kennel_name });
+            
+            // Iterate through reviews
+            for (var i = response.data.length - 1; i >= 0; i--) {
+
+                // Print reviews to console for now
+                console.log(response.data[i]);
+
+                // Add review name, reviewer's username, review text to reviewArray
+                this.state.reviewArray.push({
+                    title: response.data[i].title,
+                    author: response.data[i].author,
+                    text: response.data[i].text
+                });
+
+            }
+
+            this.setState({profileReviewsListed: true});
 
         }).catch(error => {
 
@@ -195,7 +216,7 @@ class Profile extends Component {
 
 
 
-
+        /*
 
 
         // Get kennel name from URL?
@@ -267,6 +288,8 @@ class Profile extends Component {
 
         });
 
+
+        */
     }
 
 

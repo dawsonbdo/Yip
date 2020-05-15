@@ -7,6 +7,7 @@ use handlers::{DbKennel, Kennel};
 use rocket_contrib::json::Json;
 
 use db::DbConn;
+use uuid::Uuid;
 
 use rocket::response::status;
 
@@ -17,6 +18,49 @@ use super::{users};
 struct KennelUser {
     kennel_name: String,
     token: String,
+}
+
+// Struct represneting the fields of a kennel that is returned to frontend
+#[derive(Queryable, Serialize, Deserialize)]
+pub struct DisplayKennel {
+    pub kennel_uuid: Uuid,
+    pub tags: Option<Vec<String>>,
+    pub kennel_name: String,
+    pub follower_count: i32,
+    pub is_following: bool,
+    pub is_moderator: bool,
+    pub is_banned: bool,
+}
+
+/**
+ * Helper method that converts DbKennel to DisplayKennel
+ * @param kennel: the DbKennel
+ * @param token: user token
+ * @param connection: database connection
+ *
+ * @return returns a DisplayKennel
+ */
+fn to_display_kennel(kennel: DbKennel, token: String, connection: &DbConn) -> DisplayKennel {
+
+	// Converts token into uuid
+	let profile_uuid = auth::get_uuid_from_token(&token);
+
+	println!("TOKEN FOLLOWED KENNEL: {}", token);
+
+	// Return display kennel created
+	DisplayKennel {
+		kennel_uuid: kennel.kennel_uuid,
+	    tags: kennel.tags,
+	    kennel_name: kennel.kennel_name,
+	    follower_count: kennel.follower_count,
+	    is_following: match handlers::get_relationship(kennel.kennel_uuid, profile_uuid, connection){
+				    	Ok(_u) => true,
+				    	Err(_e) => false,
+	    			  },
+	    is_moderator: false, //TODO
+	    is_banned: false, //TODO
+	}
+
 }
 
 /** 
@@ -122,14 +166,15 @@ fn get_followed_kennels(token: String, connection: DbConn) -> Result<Json<Vec<Db
 }
 
 /** 
- * Method that returns a kennel from database given the name
+ * Method that returns a kennel from database given the name and token
  * @param name: name of kennel
+ * @param token: user token
  * @param connection: database connection
  *
- * @return returns JSON of the review or error status
+ * @return returns JSON of the kennel or error status
  */
-#[get("/get_kennel/<name>")]
-fn get_kennel(name: String, connection: DbConn) -> Result<Json<DbKennel>, status::NotFound<String>> {
+#[get("/get_kennel/<name>/<token>")]
+fn get_kennel(name: String, token: String, connection: DbConn) -> Result<Json<DisplayKennel>, status::NotFound<String>> {
 
 	// Converts kennel name to uuid
 	let kennel_uuid = handlers::get_kennel_uuid_from_name(name, &connection);
@@ -142,7 +187,7 @@ fn get_kennel(name: String, connection: DbConn) -> Result<Json<DbKennel>, status
 
 		// Pattern match the attempt to get kennel from uuid
 		match handlers::get(kennel_uuid, &connection){
-			Ok(k) => Ok(Json(k)),
+			Ok(k) => Ok(Json(to_display_kennel(k, token, &connection))),
 			Err(e) => Err(status::NotFound(e.to_string())),
 		}
 	}

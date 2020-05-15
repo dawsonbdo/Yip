@@ -7,20 +7,20 @@ use crate::schema::kennel_follow_relationships;
 use rocket::response::status;
 
 /**
- * Helper method that returns the row corresponding to profile/kennel uuid if exists
+ * Method that returns the row corresponding to profile/kennel uuid if exists
  * @param kennel_uuid: the kennel uuid
  * @param profile_uuid: the profile uuid
  * @param connection: database connection
  *
  * @return returns a result containing DbFollowKennel if found, otherwise error
  */
-fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbFollowKennel>>{
+pub fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<DbFollowKennel>{
     
     // Filters kennel follow relationship table
     kennel_follow_relationships::table
              .filter(kennel_follow_relationships::kennel.eq(kennel_uuid))
              .filter(kennel_follow_relationships::follower.eq(profile_uuid))
-             .load::<DbFollowKennel>(&*connection)
+             .get_result::<DbFollowKennel>(&*connection)
 }
 
 /**
@@ -141,7 +141,12 @@ pub fn get_follower_count(kennel_uuid: Uuid, connection: &PgConnection) -> i32 {
 }
 
 /**
- * Unfollow Kennel: Method that attempts to unfollow a kennel
+ * Method that attempts to unfollow a kennel
+ * @param kennel_uuid: uuid of kennel
+ * @param profile_uuid: uuid of user
+ * @param connection: database connection
+ *
+ * @retun returns result of either Accepted or BadRequest status
  */
 pub fn unfollow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
     
@@ -149,13 +154,13 @@ pub fn unfollow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection
     println!("Kennel uuid: {}", kennel_uuid);
     println!("Profile uuid: {}", profile_uuid);
     
-    // Gets DbKennelFollow of row to be deleted
+    // Gets DbKennelFollow of row to be deleted if found or error
     let row = get_relationship(kennel_uuid, profile_uuid, connection);
 
     // Check if row was foudn, and delete if so
     match row {
         Ok(r) => // Deletes kennel follow relationship from table
-                match diesel::delete(kennel_follow_relationships::table.find(r[0].pkey))
+                match diesel::delete(kennel_follow_relationships::table.find(r.pkey))
                         .execute(connection){
                             Ok(_u) => Ok(status::Accepted(None)),
                             Err(e) => Err(status::BadRequest(Some(e.to_string()))),
@@ -181,11 +186,9 @@ pub fn follow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) 
     
     // Check if user already following kennel
     match get_relationship(kennel_uuid, profile_uuid, connection) {
-        Ok(r) => if r.iter().len() > 0 {
-                    return Err(status::BadRequest(Some("Already following".to_string())));
-                 },
-        Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
-    }
+        Ok(r) => return Err(status::BadRequest(Some("Already following".to_string()))),
+        Err(e) => e, // relationship not found
+    };
 
     // Creates object to be inserted to the follow kennel table
     let follow_kennel = FollowKennel {

@@ -16,13 +16,13 @@ use rocket::response::status;
  *
  * @return returns a result containing vector of DbBlockUser if found, otherwise error
  */
-fn get_follow_relationship(follower: Uuid, followee: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbFollowUser>>{
+fn get_follow_relationship(follower: Uuid, followee: Uuid, connection: &PgConnection) -> QueryResult<DbFollowUser>{
     
     // Filters block relationship table
     reviewer_follow_relationships::table
              .filter(reviewer_follow_relationships::follower.eq(follower))
              .filter(reviewer_follow_relationships::followee.eq(followee))
-             .load::<DbFollowUser>(&*connection)
+             .get_result::<DbFollowUser>(&*connection)
 }
 
 /**
@@ -33,13 +33,13 @@ fn get_follow_relationship(follower: Uuid, followee: Uuid, connection: &PgConnec
  *
  * @return returns a result containing vector of DbBlockUser if found, otherwise error
  */
-fn get_block_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbBlockUser>>{
+fn get_block_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<DbBlockUser>{
     
     // Filters block relationship table
     block_relationships::table
              .filter(block_relationships::blocker.eq(blocker))
              .filter(block_relationships::blockee.eq(blockee))
-             .load::<DbBlockUser>(&*connection)
+             .get_result::<DbBlockUser>(&*connection)
 }
 
 /**
@@ -161,9 +161,7 @@ pub fn unfollow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Re
         followee: followee,
     };
 
-    // Deletes kennel from database, returns uuid generated
-    
-
+    // Deletes follow relationship from database, returns uuid generated
     match diesel::delete(reviewer_follow_relationships::table
              .filter(reviewer_follow_relationships::follower.eq(follower))
              .filter(reviewer_follow_relationships::followee.eq(followee)))
@@ -188,13 +186,11 @@ pub fn follow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Resu
     println!("Follower: {}", follower);
     println!("Followee: {}", followee);
 
-    // Check if blocker already blocking blockee
+    // Check if follower already following followee
     match get_follow_relationship(follower, followee, connection) {
-        Ok(r) => if r.iter().len() > 0 {
-                    return Err(status::Conflict(Some("Already following".to_string())));
-                 },
-        Err(e) => return Err(status::Conflict(Some(e.to_string()))),
-    }
+        Ok(r) => return Err(status::Conflict(Some("Already following".to_string()))),
+        Err(e) => e, // not already following
+    };
 
     // Creates object to be inserted to the follow kennel table
     let follow_user = FollowUser {
@@ -226,11 +222,9 @@ pub fn insert_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> 
 
     // Check if blocker already blocking blockee
     match get_block_relationship(blocker, blockee, connection) {
-        Ok(r) => if r.iter().len() > 0 {
-                    return Err(status::Conflict(Some("Already blocking".to_string())));
-                 },
-        Err(e) => return Err(status::Conflict(Some(e.to_string()))),
-    }
+        Ok(r) => return Err(status::Conflict(Some("Already blocking".to_string()))),
+        Err(e) => e, // not already blocking
+    };
 
     // Creates object to be inserted to the follow kennel table
     let block_user = BlockUser {

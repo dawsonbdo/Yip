@@ -125,8 +125,11 @@ class Kennel extends Component {
 
         });
 
+        // Get token 
+        var token = localStorage.getItem('jwtToken');
+
         // Format URL to send in GET request
-        reqUrl = "/get_kennel/" + kennelName;
+        reqUrl = "/get_kennel/" + kennelName + "/" + token;
 
         // Send GET request with kennel name to get kennel information
         axios({
