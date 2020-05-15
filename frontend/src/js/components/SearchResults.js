@@ -63,6 +63,8 @@ class SearchResults extends Component {
 
     render() {
 
+        // DYNAMICALLY GET REVIEWS HERE AND PUT IT IN THE IF STATEMENT BELOW
+
         let search;
         if (this.state.searchDisplay) {
             search = 
