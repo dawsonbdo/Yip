@@ -49,7 +49,7 @@ export function followKennelJson(kennel_name = "", token = "") {
 };
 
 // Creates a JSON object for liking/dislking reviews
-export function followKennelJson(review_uuid = "", token = "") {
+export function likeDislikeReviewJson(review_uuid = "", token = "") {
     var form = {review_uuid: reviewId, token: token};
     return form
 };
