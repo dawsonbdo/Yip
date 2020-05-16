@@ -243,7 +243,7 @@ class Profile extends Component {
             return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} />
         });
         const kennels = this.state.kennelArray.map(function (kennel) {
-            return <li>{kennel}</li>
+            return <a href={`/kennel-${kennel}`}><li>{kennel}</li></a>
         });
 
         let profile;

@@ -30,10 +30,11 @@ class Kennel extends Component {
             showRules: false,
             showTags: false,
             isFollowing: false,
+            followBtnText: "Follow",
             reviewArray: [],
             tagsArray: [],
             kennelReviewsListed: false,
-            kennelInfoListed: false
+            kennelInfoListed: false,
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -56,7 +57,7 @@ class Kennel extends Component {
     followKennel() {
 
         // Get kennel name somehow
-        var kennelName = 'GaryGang';
+        var kennelName = this.props.match.params.kennelName;
 
         // Get token
         var token = localStorage.getItem('jwtToken');
@@ -65,22 +66,45 @@ class Kennel extends Component {
         var form = followKennelJson(kennelName, token);
 
         // Send POST request to follow kennel
-        axios({
-            method: 'post',
-            url: '/follow_kennel',
-            data: form
-        }).then(response => {
+        if (!this.state.isFollowing) {
+            axios({
+                method: 'post',
+                url: '/follow_kennel',
+                data: form
+            }).then(response => {
 
-            // Successful follow
-            alert('Kennel has been followed successfully');
+                // Successful follow
+                alert('Kennel has been followed successfully');
+                this.setState({ isFollowing: true, followBtnText: "Unfollow" });
 
 
-        }).catch(error => {
+            }).catch(error => {
 
-            // Error for failed follow
-            alert('Failed to follow kennel');
+                // Error for failed follow
+                alert('Failed to follow kennel');
 
-        });
+            });
+        }
+        else {
+            axios({
+                method: 'post',
+                url: '/unfollow_kennel',
+                data: form
+            }).then(response => {
+
+                // Successful follow
+                alert('Kennel has been unfollowed successfully');
+                this.setState({ isFollowing: false, followBtnText: "Follow" });
+
+
+            }).catch(error => {
+
+                // Error for failed follow
+                alert('Failed to unfollow kennel');
+
+            });
+
+        }
     }
 
     componentDidMount() {
@@ -113,7 +137,7 @@ class Kennel extends Component {
                     });
 
                 }
-                this.setState({kennelReviewsListed: true});
+                this.setState({ kennelReviewsListed: true });
             }
 
             // Renders reviews
@@ -144,8 +168,14 @@ class Kennel extends Component {
             console.log(response.data);
 
             // Updates kennel name
-            this.setState({ kennel_name: response.data.kennel_name, 
-                follower_count: response.data.follower_count });
+            this.setState({
+                kennel_name: response.data.kennel_name,
+                follower_count: response.data.follower_count
+            });
+
+            if(response.data.is_following) {
+                this.setState({ isFollowing: true, followBtnText: "Unfollow" });
+            }
 
             // Iterate through tags
             for (var i = 0; i < response.data.tags.length; i++) {
@@ -153,7 +183,7 @@ class Kennel extends Component {
                 // Add tags to tagsArray
                 this.state.tagsArray.push(response.data.tags[i]);
             }
-            this.setState({kennelInfoListed: true});
+            this.setState({ kennelInfoListed: true });
 
         }).catch(error => {
 
@@ -195,7 +225,7 @@ class Kennel extends Component {
                     </Col>
                     <Col>
                         <Link to="/editkennel"><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
-                        <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">Follow</Button>
+                        <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
                     </Col>
                 </Row>
                 {this.state.showReviews && (
