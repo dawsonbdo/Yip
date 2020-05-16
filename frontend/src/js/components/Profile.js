@@ -33,6 +33,7 @@ class Profile extends Component {
             showReviews: true,
             showRules: false,
             reviewArray: [],
+            kennelArray: [],
             profileReviewsListed: false,
             profileKennelsListed: false
         }
@@ -156,11 +157,14 @@ class Profile extends Component {
             url: '/get_followed_kennels_username/' + username,
         }).then(response => {
 
-            alert('Users followed kennels info successfully grabbed from database!');
+            //alert('Users followed kennels info successfully grabbed from database!');
 
             // TODO: Render user information
             console.log("FOLLOWED KENNELS");
             console.log(response.data);
+            for( var i = 0; i < response.data.length; i++ ) {
+                this.state.kennelArray.push(response.data[i].kennel_name);
+            }
 
             // Updates kennel name
             // this.setState({ kennel_name: response.data.kennel_name });
@@ -305,6 +309,9 @@ class Profile extends Component {
         const reviews = this.state.reviewArray.map(function (review) {
             return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} />
         });
+        const kennels = this.state.kennelArray.map(function (kennel) {
+            return <li>{kennel}</li>
+        });
 
         let profile;
         if (this.state.profileKennelsListed && this.state.profileReviewsListed) {
@@ -338,9 +345,7 @@ class Profile extends Component {
                     <div>
                         <h1>Kennels</h1>
                         <ul>
-                            <li>kennel1</li>
-                            <li>kennel2</li>
-                            <li>kennel3</li>
+                            {kennels}
                         </ul>
                     </div>
                 )}
