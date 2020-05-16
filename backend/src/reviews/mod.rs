@@ -282,13 +282,25 @@ fn get_user_reviews(username: String, connection: DbConn) -> Result<Json<Vec<Dis
 fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<DisplayReview>, status::NotFound<String>> {
 
 	// Get username from token passed in
-	let profile_username = token_to_username(token, &connection);
+	let profile_username = token_to_username(token.clone(), &connection);
+
+	// Get uuid from token passed in
+	let profile_uuid = auth::get_uuid_from_token(&token);
+	let review_uuid = Uuid::parse_str(&id).unwrap();
 
 	// Pattern match to see if review found successfully
 	match get_review_helper(id, &connection) {
 		Ok(mut r) => {
 			println!("AUTHOR: {} PROFILE: {}", &r.author, &profile_username);
 			r.is_author = profile_username.eq(&r.author); // set field of DisplayReview
+			r.is_liked = match handlers::get_relationship_like(review_uuid, profile_uuid, &connection){
+				Ok(_u) => true,
+				Err(_e) => false,
+			};
+			r.is_disliked = match handlers::get_relationship_dislike(review_uuid, profile_uuid, &connection){
+				Ok(_u) => true,
+				Err(_e) => false,
+			};
 			Ok(Json(r))
 		},
 		Err(e) => Err(e),

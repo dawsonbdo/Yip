@@ -23,13 +23,13 @@ use super::super::{kennels, users};
  *
  * @return returns a result containing DbDislikeReview if found, otherwise error
  */
-fn get_relationship_dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbDislikeReview>>{
+pub fn get_relationship_dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<DbDislikeReview>{
     
     // Filters review like relationship table
     review_dislike_relationships::table
              .filter(review_dislike_relationships::review.eq(review_uuid))
              .filter(review_dislike_relationships::disliker.eq(profile_uuid))
-             .load::<DbDislikeReview>(&*connection)
+             .get_result::<DbDislikeReview>(&*connection)
 }
 
 /**
@@ -40,13 +40,13 @@ fn get_relationship_dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &
  *
  * @return returns a result containing DbDislikeReview if found, otherwise error
  */
-fn get_relationship_like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbLikeReview>>{
+pub fn get_relationship_like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<DbLikeReview>{
     
     // Filters review like relationship table
     review_like_relationships::table
              .filter(review_like_relationships::review.eq(review_uuid))
              .filter(review_like_relationships::liker.eq(profile_uuid))
-             .load::<DbLikeReview>(&*connection)
+             .get_result::<DbLikeReview>(&*connection)
 }
 
 /**
@@ -157,11 +157,9 @@ pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection)
     
     // Check if user already disliked kennel 
     match get_relationship_dislike(review_uuid, profile_uuid, connection) {
-        Ok(r) => if r.iter().len() > 0 {
-                    return Err(status::BadRequest(Some("Already disliking".to_string())));
-                 },
-        Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
-    }
+        Ok(r) => return Err(status::BadRequest(Some("Already disliking".to_string()))),
+        Err(e) => e,
+    };
 
     // Attempt to delete from like table
     delete_like_dislike(review_uuid, profile_uuid, true, connection);
@@ -197,11 +195,9 @@ pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) ->
     
     // Check if user already liked kennel 
     match get_relationship_like(review_uuid, profile_uuid, connection) {
-        Ok(r) => if r.iter().len() > 0 {
-                    return Err(status::BadRequest(Some("Already liking".to_string())));
-                 },
-        Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
-    }
+        Ok(r) => return Err(status::BadRequest(Some("Already liking".to_string()))),
+        Err(e) => e,
+    };
 
     // Attempt to delete from dislike table
     delete_like_dislike(review_uuid, profile_uuid, false, connection);
@@ -386,6 +382,8 @@ pub struct DisplayReview {
     pub rating: i32,
     pub tags: Vec<String>,
     pub is_author: bool,
+    pub is_liked: bool,
+    pub is_disliked: bool,
 }
 
 // Struct representing the fields of a review passed in from frontend contains
@@ -460,6 +458,8 @@ impl DbReview{
                 None => vec2, // empty vector if no tags
             },
             is_author: false,
+            is_liked: false,
+            is_disliked: false,
         }
     }
 

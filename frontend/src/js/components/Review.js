@@ -82,6 +82,10 @@ class Review extends Component {
 				// TODO: Render edit/delete buttons depending on if author of review
 				console.log("Is Author: " + response.data.is_author);
 
+				// TODO: Render like/dislike buttons depending on if liked
+				console.log("Is Liked: " + response.data.is_liked);
+				console.log("Is Disliked: " + response.data.is_disliked);
+
 				this.setState({ reviewListed: true });
 				this.forceUpdate();
 			}
