@@ -45,7 +45,8 @@ class Profile extends Component {
 
     followProfile(){
         // Load user profile (get from URL)
-        var username = 'Todd_Howard'
+        //var username = 'Todd_Howard'
+        var username = this.props.match.params.username;
 
         var token = localStorage.getItem('jwtToken');
 
@@ -73,7 +74,8 @@ class Profile extends Component {
 
     blockProfile(){
         // Load user profile (get from URL)
-        var username = 'Todd_Howard'
+        //var username = 'Todd_Howard'
+        var username = this.props.match.params.username;
 
         var token = localStorage.getItem('jwtToken');
 
@@ -116,7 +118,8 @@ class Profile extends Component {
 // update this for profile
     componentDidMount() {
         // Load user profile (get from URL)
-        var username = 'Todd_Howard'
+        //var username = 'Todd_Howard'
+        var username = this.props.match.params.username;
 
         // Get token
         var token = localStorage.getItem('jwtToken');

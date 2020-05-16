@@ -74,7 +74,7 @@ class YipNavBar extends Component {
         <Link to="/register"><Button type="submit" variant="warning" className="mr-5">Register</Button></Link></div>;
     }
     const followedKennels = this.state.followedKennelsArray.map(function (kennel) {
-      return <Dropdown.Item href="/kennel">{kennel}</Dropdown.Item>
+      return <Dropdown.Item href={`/kennel-${kennel}`}>{kennel}</Dropdown.Item>
     });
 
 

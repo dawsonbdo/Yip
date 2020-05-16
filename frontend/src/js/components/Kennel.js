@@ -87,7 +87,8 @@ class Kennel extends Component {
         // Load kennel page with data from database
 
         // Get kennel name from URL?
-        var kennelName = 'GaryGang'
+        //var kennelName = 'GaryGang'
+        var kennelName = this.props.match.params.kennelName;
 
         // Format URL to send in GET request
         var reqUrl = "/get_reviews/" + kennelName;
