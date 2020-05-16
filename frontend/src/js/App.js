@@ -62,7 +62,7 @@ function App() {
           <Route path="/register" exact component={Register} />
           <Route path="/createreview" exact component={CreateReview} />
           <Route path="/recoverpassword" exact component={RecoverPassword} />
-          <Route path="/review" render={(props) => <Review reviewName={"Buy Skyrim"} reviewerName={"Todd Howard"} reviewText={temp[0]} reviewImg={temp[1]} {...props} />} />
+          <Route path="/review-:id" exact component={Review} />
 		  <Route path="/editkennel" exact component={EditKennel} />
 		  <Route path="/createkennel" exact component={CreateKennel} />
 		  <Route path="/searchresults" exact component={SearchResults} />

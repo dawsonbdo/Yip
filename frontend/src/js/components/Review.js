@@ -52,7 +52,8 @@ class Review extends Component {
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
 
 		// SKYRIM REVIEW
-		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		var reviewId = this.props.match.params.id;
 
 		var token = localStorage.getItem('jwtToken');
 
@@ -132,7 +133,8 @@ class Review extends Component {
 
 	dislikeReview() {
 		// TODO: Get uuid of review from url probably
-		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		var reviewId = this.props.match.params.id;
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -160,7 +162,8 @@ class Review extends Component {
 
 	likeReview() {
 		// TODO: Get uuid of review from url probably
-		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		var reviewId = this.props.match.params.id;
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -188,7 +191,8 @@ class Review extends Component {
 
 	postComment() {
 		// TODO: Get uuid of review from url probably
-		var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		var reviewId = this.props.match.params.id;
+		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -299,9 +303,9 @@ class Review extends Component {
 
 export default Review;
 
-Review.propTypes = {
+/*Review.propTypes = {
 	reviewName: PropTypes.string.isRequired,
 	reviewerName: PropTypes.string.isRequired,
 	reviewText: PropTypes.string.isRequired,
 	reviewImg: PropTypes.string.isRequired
-};
+};*/
