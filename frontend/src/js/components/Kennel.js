@@ -115,7 +115,7 @@ class Kennel extends Component {
         var kennelName = this.props.match.params.kennelName;
 
         // Format URL to send in GET request
-        var reqUrl = "/get_reviews/" + kennelName;
+        var reqUrl = "/get_kennel_reviews/" + kennelName;
 
         // Send GET request with kennel name to get reviews in kennel
         axios({

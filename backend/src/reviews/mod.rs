@@ -215,7 +215,7 @@ fn like_review(input: Json<ReviewToken>, connection: DbConn) -> Result<status::A
  *
  * @return returns JSON of the review or error status
  */
-#[get("/get_reviews/<kennel_name>")]
+#[get("/get_kennel_reviews/<kennel_name>")]
 fn get_kennel_reviews(kennel_name: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
 
 	// Converts kennel name to kennel id
@@ -229,12 +229,14 @@ fn get_kennel_reviews(kennel_name: String, connection: DbConn) -> Result<Json<Ve
 	// Makes database call to get all reviews with kennel uuid
 	let all_reviews = handlers::all_kennel_reviews(kennel_uuid, &connection);
 
+	/*
 	// Prints out title/text/rating of each review in database
 	for v in &all_reviews {
 		for r in v.iter() {
 			println!("Author Name: {} Title: {} Time: {}", r.author, r.title, r.timestamp.to_string());
 		} 
 	}
+	*/
 
 	Ok(Json(all_reviews.unwrap()))
 }
@@ -260,12 +262,14 @@ fn get_user_reviews(username: String, connection: DbConn) -> Result<Json<Vec<Dis
 	// Makes database call to get all reviews with kennel uuid
 	let all_reviews = handlers::all_user_reviews(uuid, &connection);
 
+	/*
 	// Prints out title/text/rating of each review in database
 	for v in &all_reviews {
 		for r in v.iter() {
 			println!("Author Name: {} Title: {} Time: {}", r.author, r.title, r.timestamp.to_string());
 		} 
 	}
+	*/
 
 	Ok(Json(all_reviews.unwrap()))
 }
@@ -288,7 +292,7 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 	let profile_uuid = auth::get_uuid_from_token(&token);
 	let review_uuid = Uuid::parse_str(&id).unwrap();
 
-	// Pattern match to see if review found successfully
+	// Pattern match to see if review found successfully, update fields and return
 	match get_review_helper(id, &connection) {
 		Ok(mut r) => {
 			println!("AUTHOR: {} PROFILE: {}", &r.author, &profile_username);

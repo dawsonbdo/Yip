@@ -33,14 +33,6 @@ class Home extends Component {
     // Updates logged in state of the component
     updateLoggedInState(this);
 
-  }
-
-  // Displays if logged in on home page
-  componentDidUpdate() {
-
-    // Sets HTML on page to display logged in status
-    //document.getElementById('authstatus').innerHTML = "Logged In: " + isLoggedIn(this);
-
     // Load reviews
     axios({
       method: 'post',
@@ -48,13 +40,7 @@ class Home extends Component {
       data: localStorage.getItem('jwtToken')
     }).then(response => {
 
-      //alert('Listed reviews');
-
-      // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
-      //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
-
       // Iterate through reviews
-
       if (!this.state.reviewsListed) {
         for (var i = response.data.length - 1; i >= 0; i--) {
 
@@ -77,9 +63,7 @@ class Home extends Component {
       alert('Failed to list reviews');
 
     });
-
   }
-
 
 
   render() {

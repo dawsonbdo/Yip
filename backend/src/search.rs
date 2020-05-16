@@ -6,11 +6,7 @@ use crate::reviews;
 use reviews::handlers::{Review, DisplayReview, DbReview};
 
 use crate::kennels;
-use kennels::handlers::{Kennel, DbKennel};
-use kennels::DisplayKennel;
-
-//use crate::schema::reviews;
-//use crate::schema::kennels;
+use kennels::handlers::{Kennel, DbKennel, DisplayKennel};
 
 use radix_heap;
 
@@ -124,7 +120,7 @@ fn tf_idf(reviews: Vec<DbReview>, query_words: Vec<&str>, connection: &PgConnect
 
     		// Push review to vector
     		let (val, idx) = a;
-    		searched_reviews.push(DbReview::to_review(&reviews[idx], connection));
+    		searched_reviews.push(reviews::handlers::to_review(&reviews[idx], connection));
 
     		println!("Review {}: {}", idx, val);
     	} else {
@@ -276,7 +272,7 @@ fn kennel_similarity(kennels: Vec<DbKennel>, query_words: Vec<&str>, connection:
 
             // Push kennel to vector
             let (val, idx) = a;
-            searched_kennels.push(to_display_kennel(&kennels[idx], connection));
+            searched_kennels.push(kennels::handlers::to_display_kennel(&kennels[idx], "".to_string(), connection));
 
             println!("Kennel {}: {}", idx, val);
         } else {
@@ -338,7 +334,7 @@ fn calc_tf_kennel(term: &str, kennel: &DbKennel) -> f32{
     (term_count as f32) / (total_words as f32)
 }
 
-
+/*
 /**
  * Helper method that converts DbKennel to DisplayKennel
  * @param kennel: the DbKennel
@@ -364,3 +360,4 @@ fn to_display_kennel(kennel: &DbKennel, connection: &PgConnection) -> DisplayKen
     }
 
 }
+*/

@@ -1,12 +1,66 @@
+// Stuff for querying database
 use diesel;
 use diesel::prelude::*;
+
+// Database tables
 use crate::schema::users;
 use crate::schema::block_relationships;
 use crate::schema::reviewer_follow_relationships;
+
+// Misc
 use uuid::Uuid;
 extern crate bcrypt;
-
+use crate::auth;
 use rocket::response::status;
+
+/**
+ * Method that converts a User to a DbUser
+ * @param user: the User obj
+ * 
+ * @return returns a DbUser
+ */
+fn from_user(user: User) -> DbUser {
+
+    DbUser{
+        profile_uuid: Uuid::new_v4(), // generate random uuid
+        username: user.username,
+        email: user.email,
+        password: bcrypt::hash(user.password, 12).expect("Error"),
+        profilepicture: Some("".to_string()),
+        sitewideban: false,
+    }
+}
+
+/**
+ * Helper method that converts DbUser to DisplayUser
+ * @param user: the DbUser
+ * @param token: user token
+ * @param connection: database connection
+ *
+ * @return returns a DisplayUser
+ */
+pub fn to_display_user(user: DbUser, token: String, connection: &PgConnection) -> DisplayUser {
+
+    // Converts token into uuid
+    let profile_uuid = auth::get_uuid_from_token(&token);
+
+    // Return display kennel created
+    DisplayUser {
+        username: user.username,
+        profilepicture: user.profilepicture,
+        sitewideban: user.sitewideban,
+        is_owner: user.profile_uuid.eq(&profile_uuid),
+        is_blocked: match get_block_relationship(profile_uuid, user.profile_uuid, connection) {
+                        Ok(_u) => true,
+                        Err(e) => false,
+                    },
+        is_followed: match get_follow_relationship(profile_uuid, user.profile_uuid, connection) {
+                        Ok(_u) => true,
+                        Err(e) => false,
+                    },
+    }
+
+}
 
 /**
  * Method that returns the row corresponding to follow/followee uuid if exists
@@ -14,7 +68,7 @@ use rocket::response::status;
  * @param blockee: the blockee uuid
  * @param connection: database connection
  *
- * @return returns a result containing vector of DbBlockUser if found, otherwise error
+ * @return returns a result containing DbBlockUser if found, otherwise error
  */
 pub fn get_follow_relationship(follower: Uuid, followee: Uuid, connection: &PgConnection) -> QueryResult<DbFollowUser>{
     
@@ -31,7 +85,7 @@ pub fn get_follow_relationship(follower: Uuid, followee: Uuid, connection: &PgCo
  * @param blockee: the blockee uuid
  * @param connection: database connection
  *
- * @return returns a result containing vector of DbBlockUser if found, otherwise error
+ * @return returns a result containing DbBlockUser if found, otherwise error
  */
 pub fn get_block_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<DbBlockUser>{
     
@@ -155,12 +209,6 @@ pub fn unfollow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Re
     println!("Follower: {}", follower);
     println!("Followee: {}", followee);
 
-    // Creates object to be inserted to the follow kennel table
-    let follow_user = FollowUser {
-        follower: follower,
-        followee: followee,
-    };
-
     // Deletes follow relationship from database, returns uuid generated
     match diesel::delete(reviewer_follow_relationships::table
              .filter(reviewer_follow_relationships::follower.eq(follower))
@@ -186,24 +234,18 @@ pub fn follow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Resu
     println!("Follower: {}", follower);
     println!("Followee: {}", followee);
 
-    // Check if follower already following followee
-    match get_follow_relationship(follower, followee, connection) {
-        Ok(r) => return Err(status::Conflict(Some("Already following".to_string()))),
-        Err(e) => e, // not already following
-    };
-
     // Creates object to be inserted to the follow kennel table
     let follow_user = FollowUser {
         follower: follower,
         followee: followee,
     };
 
-    // Inserts kennel into database, returns uuid generated
+    // Attempts to inserts follow relationship into database
     match diesel::insert_into(reviewer_follow_relationships::table)
         .values(follow_user)
         .get_result::<DbFollowUser>(connection) {
             Ok(_u) => Ok(status::Accepted(None)),
-            Err(e) => Err(status::Conflict(Some(e.to_string()))),
+            Err(e) => Err(status::Conflict(Some("Already following".to_string()))),
         }
     
 }
@@ -220,19 +262,13 @@ pub fn insert_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> 
     println!("Blocker: {}", blocker);
     println!("Blockee: {}", blockee);
 
-    // Check if blocker already blocking blockee
-    match get_block_relationship(blocker, blockee, connection) {
-        Ok(r) => return Err(status::Conflict(Some("Already blocking".to_string()))),
-        Err(e) => e, // not already blocking
-    };
-
     // Creates object to be inserted to the follow kennel table
     let block_user = BlockUser {
         blocker: blocker,
         blockee: blockee,
     };
 
-    // Inserts kennel into database, returns uuid generated
+    // Inserts block relationship into database
     match diesel::insert_into(block_relationships::table)
         .values(block_user)
         .get_result::<DbBlockUser>(connection) {
@@ -276,7 +312,7 @@ pub fn insert(user: User, connection: &PgConnection) -> Result<Uuid, String> {
     // Inserts user into database, returns uuid generated    
     if err_msg.eq("") {
         match diesel::insert_into(users::table)
-        .values(&DbUser::from_user(user))
+        .values(&from_user(user))
         .get_result::<DbUser>(connection) {
             Ok(u) => return Ok(u.profile_uuid),
             Err(e) => return Err(e.to_string()),
@@ -370,18 +406,13 @@ pub struct DbUser {
     pub sitewideban: bool,
 }
 
-// Converts a User to an DbUser by calling functions on passed in values
-impl DbUser{
-
-    fn from_user(user: User) -> DbUser {
-        DbUser{
-            profile_uuid: Uuid::new_v4(), // generate random uuid
-            username: user.username,
-            email: user.email,
-            password: bcrypt::hash(user.password, 12).expect("Error"),
-            profilepicture: Some("".to_string()),
-            sitewideban: false,
-        }
-    }
-
+// Struct represneting the fields of a user that are needed for frontend display
+#[derive(Queryable, Serialize, Deserialize)]
+pub struct DisplayUser {
+    pub username: String,
+    pub profilepicture: Option<String>,
+    pub sitewideban: bool,
+    pub is_owner: bool,
+    pub is_blocked: bool,
+    pub is_followed: bool,
 }

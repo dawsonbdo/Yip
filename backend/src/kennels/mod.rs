@@ -4,7 +4,7 @@ use crate::auth;
 use crate::db;
 use crate::search;
 
-use handlers::{DbKennel, Kennel};
+use handlers::{DbKennel, Kennel, DisplayKennel};
 use rocket_contrib::json::Json;
 
 use db::DbConn;
@@ -19,47 +19,6 @@ use super::{users};
 struct KennelUser {
     kennel_name: String,
     token: String,
-}
-
-// Struct represneting the fields of a kennel that is returned to frontend
-#[derive(Queryable, Serialize, Deserialize)]
-pub struct DisplayKennel {
-    pub kennel_uuid: Uuid,
-    pub tags: Option<Vec<String>>,
-    pub kennel_name: String,
-    pub follower_count: i32,
-    pub is_following: bool,
-    pub is_moderator: bool,
-    pub is_banned: bool,
-}
-
-/**
- * Helper method that converts DbKennel to DisplayKennel
- * @param kennel: the DbKennel
- * @param token: user token
- * @param connection: database connection
- *
- * @return returns a DisplayKennel
- */
-fn to_display_kennel(kennel: DbKennel, token: String, connection: &DbConn) -> DisplayKennel {
-
-	// Converts token into uuid
-	let profile_uuid = auth::get_uuid_from_token(&token);
-
-	// Return display kennel created
-	DisplayKennel {
-		kennel_uuid: kennel.kennel_uuid,
-	    tags: kennel.tags,
-	    kennel_name: kennel.kennel_name,
-	    follower_count: kennel.follower_count,
-	    is_following: match handlers::get_relationship(kennel.kennel_uuid, profile_uuid, connection){
-				    	Ok(_u) => true,
-				    	Err(_e) => false,
-	    			  },
-	    is_moderator: false, //TODO
-	    is_banned: false, //TODO
-	}
-
 }
 
 /** 
@@ -205,7 +164,7 @@ fn get_kennel(name: String, token: String, connection: DbConn) -> Result<Json<Di
 
 		// Pattern match the attempt to get kennel from uuid
 		match handlers::get(kennel_uuid, &connection){
-			Ok(k) => Ok(Json(to_display_kennel(k, token, &connection))),
+			Ok(k) => Ok(Json(handlers::to_display_kennel(&k, token, &connection))),
 			Err(e) => Err(status::NotFound(e.to_string())),
 		}
 	}

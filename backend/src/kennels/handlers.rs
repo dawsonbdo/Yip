@@ -3,8 +3,41 @@ use diesel::prelude::*;
 use uuid::Uuid;
 use crate::schema::kennels;
 use crate::schema::kennel_follow_relationships;
-
+use crate::auth;
 use rocket::response::status;
+
+
+/**
+ * Helper method that converts DbKennel to DisplayKennel
+ * @param kennel: the DbKennel
+ * @param token: user token
+ * @param connection: database connection
+ *
+ * @return returns a DisplayKennel
+ */
+pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnection) -> DisplayKennel {
+
+    // Converts token into uuid
+    let profile_uuid = auth::get_uuid_from_token(&token);
+
+    // Return display kennel created
+    DisplayKennel {
+        kennel_uuid: kennel.kennel_uuid,
+        tags: match &kennel.tags{
+            Some(t) => Some(t.to_vec()),
+            None => None,
+        },
+        kennel_name: kennel.kennel_name.clone(),
+        follower_count: kennel.follower_count,
+        is_following: match get_relationship(kennel.kennel_uuid, profile_uuid, connection){
+                        Ok(_u) => true,
+                        Err(_e) => false,
+                      },
+        is_moderator: false, //TODO
+        is_banned: false, //TODO
+    }
+
+}
 
 /**
  * Method that returns the row corresponding to profile/kennel uuid if exists
@@ -131,11 +164,11 @@ pub fn get_follower_count(kennel_uuid: Uuid, connection: &PgConnection) -> i32 {
     // Gets rows that match the kennel uuid
     let row = kennel_follow_relationships::table
              .filter(kennel_follow_relationships::kennel.eq(kennel_uuid))
-             .load::<DbFollowKennel>(&*connection);
+             .execute(connection);
 
     // Return the number of rows found with the kennel uuid
     match row {
-        Ok(r) => r.iter().len() as i32,
+        Ok(r) => r as i32,
         Err(_e) => 0,
     }
 }
@@ -291,6 +324,18 @@ pub struct DbKennel {
     pub tags: Option<Vec<String>>,
     pub kennel_name: String,
     pub follower_count: i32,
+}
+
+// Struct represneting the fields of a kennel that is returned to frontend
+#[derive(Queryable, Serialize, Deserialize)]
+pub struct DisplayKennel {
+    pub kennel_uuid: Uuid,
+    pub tags: Option<Vec<String>>,
+    pub kennel_name: String,
+    pub follower_count: i32,
+    pub is_following: bool,
+    pub is_moderator: bool,
+    pub is_banned: bool,
 }
 
 // Converts a Kennel to an DbKennel by calling functions on passed in values

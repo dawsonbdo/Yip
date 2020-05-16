@@ -16,6 +16,61 @@ use rocket::response::status;
 use super::super::{kennels, users};
 
 /**
+ * Method that converts a Review to DbReview
+ * @param review: the Review object
+ *
+ * @return returns a DbReview
+ */
+fn from_review(review: Review) -> DbReview {
+    DbReview{
+        review_uuid: Uuid::new_v4(), // generate random uuid for review
+        kennel_uuid: Uuid::parse_str(&review.kennel_uuid[1..37]).unwrap(),
+        title: (&review.title[1..(review.title.len()-1)]).to_string(),
+        author: auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]),
+        timestamp: match NaiveDateTime::parse_from_str(&review.timestamp, "\"%Y-%m-%d %H:%M:%S\"") {
+            Ok(t) => Some(t),
+            Err(_e) => None,
+        },
+        text: (&review.text[1..(review.text.len()-1)]).to_string(),
+        images: review.images,
+        rating: review.rating,
+        tags: review.tags,
+        hotness: Some(0),
+    }
+}
+
+/**
+ * Method that converts a DbReview to DisplayReview
+ * @param review: the DbReview object
+ *
+ * @return returns a DisplayReview
+ */
+pub fn to_review(review: &DbReview, connection: &PgConnection) -> DisplayReview {
+    let vec : Vec<String> = vec![];
+    let vec2 : Vec<String> = vec![];
+        
+    DisplayReview{
+        kennel_name: kennels::handlers::get(review.kennel_uuid, connection).unwrap().kennel_name,
+        title: review.title.clone(),
+        author: users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
+        timestamp: review.timestamp.unwrap(),
+        text: review.text.clone(),
+        images: match &review.images {
+            Some(t) => t.to_vec(),
+            None => vec, // empty vector if no images
+        },
+        rating: review.rating,
+        tags: match &review.tags {
+            Some(t) => t.to_vec(),
+            None => vec2, // empty vector if no tags
+        },
+        is_author: false,
+        is_liked: false,
+        is_disliked: false,
+    }
+}
+
+/**
  * Helper method that returns row in review dislike table based on params
  * @param review_uuid: the review uuid
  * @param profile_uuid: the profile uuid
@@ -80,7 +135,7 @@ fn delete_like_dislike(review_uuid: Uuid, profile_uuid: Uuid, like: bool, connec
 }
 
 /**
- * Method that returns rating of a kennel
+ * Method that returns rating of a review
  * @param review_uuid: uuid of review
  * @param connection: database connection
  *
@@ -91,24 +146,24 @@ pub fn calculate_rating(review_uuid: Uuid, connection: &PgConnection) -> i32 {
     // Gets rows that match the review uuid in like table
     let likes = review_like_relationships::table
              .filter(review_like_relationships::review.eq(review_uuid))
-             .load::<DbLikeReview>(&*connection);
+             .execute(connection);
 
     // Gets rows that match the review uuid in dislike table
     let dislikes = review_dislike_relationships::table
              .filter(review_dislike_relationships::review.eq(review_uuid))
-             .load::<DbDislikeReview>(&*connection);
+             .execute(connection);
 
     let mut rating : i32 = 0;
 
     // Get number of likes
     match likes {
-        Ok(r) => rating += (r.iter().len() as i32),
+        Ok(r) => rating += (r as i32),
         Err(_e) => rating += 0,
     }
 
     // Get number of dislikes
     match dislikes {
-        Ok(r) => rating -= (r.iter().len() as i32),
+        Ok(r) => rating -= (r as i32),
         Err(_e) => rating -= 0,
     }
 
@@ -121,23 +176,19 @@ pub fn calculate_rating(review_uuid: Uuid, connection: &PgConnection) -> i32 {
  * @param review_uuid: uuid of review
  * @param connection: database connection
  *
- * @return N/A
+ * @return result indicating if successfully updated
  */
 pub fn update_review_rating(review_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
-
-    // Get review from uuid
-    let _kennel = get(review_uuid, connection)?;
 
     // Get new rating
     let new_count = calculate_rating(review_uuid, connection);
 
     println!("Review Id: {} New Count: {}", review_uuid, new_count);
 
-    // Make sure it was found
+    // Update review rating
     diesel::update(reviews::table.find(review_uuid))
                         .set(reviews::columns::rating.eq(new_count))
                         .execute(connection)
-
 }
 
 
@@ -173,7 +224,7 @@ pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection)
     // Inserts dislike review into database, returns result indicating success/error
     match diesel::insert_into(review_dislike_relationships::table)
         .values(dislike_review)
-        .get_result::<DbDislikeReview>(connection) {
+        .execute(connection) {
             Ok(_u) => Ok(status::Accepted(None)),
             Err(e) => Err(status::BadRequest(Some(e.to_string()))),
         }
@@ -211,7 +262,7 @@ pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) ->
     // Inserts like review into database, returns result indicating success/error
     match diesel::insert_into(review_like_relationships::table)
         .values(like_review)
-        .get_result::<DbLikeReview>(connection) {
+        .execute(connection) {
             Ok(_u) => Ok(status::Accepted(None)),
             Err(e) => Err(status::BadRequest(Some(e.to_string()))),
         }
@@ -222,7 +273,7 @@ pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) ->
  * @param kennel_uuid: uuid of the kennel
  * @param connection: database connection
  *
- * @return returns vector of reviews in kennel
+ * @return returns vector of DisplayReviews in kennel
  */
 pub fn all_kennel_reviews(kennel_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayReview>> {
     
@@ -232,11 +283,10 @@ pub fn all_kennel_reviews(kennel_uuid: Uuid, connection: &PgConnection) -> Query
     // Pattern match to make sure successful, convert to DisplayReviews if so
     match reviews {
         Ok(r) => Ok(r.iter()
-                     .map(|review| DbReview::to_review(review, connection))
+                     .map(|review| to_review(review, connection))
                      .collect()),
         Err(e) => Err(e),
     }
-    
 }
 
 /**
@@ -244,7 +294,7 @@ pub fn all_kennel_reviews(kennel_uuid: Uuid, connection: &PgConnection) -> Query
  * @param user_uuid: uuid of the user
  * @param connection: database connection
  *
- * @return returns vector of reviews by user
+ * @return returns vector of DisplayReviews by user
  */
 pub fn all_user_reviews(user_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayReview>> {
     
@@ -254,7 +304,7 @@ pub fn all_user_reviews(user_uuid: Uuid, connection: &PgConnection) -> QueryResu
     // Pattern match to make sure successful, convert to DisplayReviews if so
     match reviews {
         Ok(r) => Ok(r.iter()
-                     .map(|review| DbReview::to_review(review, connection))
+                     .map(|review| to_review(review, connection))
                      .collect()),
         Err(e) => Err(e),
     }
@@ -285,7 +335,7 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DisplayReview> {
 
     // Pattern matches the review and converts to DisplayReview if no error
     match review {
-        Ok(r) => Ok(DbReview::to_review(&r, connection)),
+        Ok(r) => Ok(to_review(&r, connection)),
         Err(e) => Err(e),
     }
 }
@@ -301,7 +351,7 @@ pub fn insert(review: Review, connection: &PgConnection) -> QueryResult<DbReview
 
     // Inserts review into database, returns review created
     diesel::insert_into(reviews::table)
-        .values(&DbReview::from_review(review))
+        .values(&from_review(review))
         .get_result::<DbReview>(connection)
 }
 
@@ -315,7 +365,7 @@ pub fn insert(review: Review, connection: &PgConnection) -> QueryResult<DbReview
  */
 pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> bool {
     match diesel::update(reviews::table.find(id))
-        .set(&DbReview::from_review(review))
+        .set(&from_review(review))
         .get_result::<DbReview>(connection) {
             Ok(_u) => return true,
             Err(_e) => return false,
@@ -413,54 +463,4 @@ pub struct DbReview {
     pub tags: Option<Vec<String>>,
     pub hotness: Option<i32>,
     pub images: Option<Vec<String>>,
-}
-
-// Converts a Review to an DbReview by calling functions on passed in values
-impl DbReview{
-
-    // Converts Review to DbReview
-    fn from_review(review: Review) -> DbReview {
-        DbReview{
-            review_uuid: Uuid::new_v4(), // generate random uuid for review
-            kennel_uuid: Uuid::parse_str(&review.kennel_uuid[1..37]).unwrap(),
-            title: (&review.title[1..(review.title.len()-1)]).to_string(),
-            author: auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]),
-            timestamp: match NaiveDateTime::parse_from_str(&review.timestamp, "\"%Y-%m-%d %H:%M:%S\"") {
-                Ok(t) => Some(t),
-                Err(_e) => None,
-            },
-            text: (&review.text[1..(review.text.len()-1)]).to_string(),
-            images: review.images,
-            rating: review.rating,
-            tags: review.tags,
-            hotness: Some(0),
-        }
-    }
-
-    // Converts DbReview to DisplayReview
-    pub fn to_review(review: &DbReview, connection: &PgConnection) -> DisplayReview {
-        let vec : Vec<String> = vec![];
-        let vec2 : Vec<String> = vec![];
-        
-        DisplayReview{
-            kennel_name: kennels::handlers::get(review.kennel_uuid, connection).unwrap().kennel_name,
-            title: review.title.clone(),
-            author: users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
-            timestamp: review.timestamp.unwrap(),
-            text: review.text.clone(),
-            images: match &review.images {
-                Some(t) => t.to_vec(),
-                None => vec, // empty vector if no images
-            },
-            rating: review.rating,
-            tags: match &review.tags {
-                Some(t) => t.to_vec(),
-                None => vec2, // empty vector if no tags
-            },
-            is_author: false,
-            is_liked: false,
-            is_disliked: false,
-        }
-    }
-
 }

@@ -3,7 +3,7 @@ pub mod handlers;
 use crate::auth;
 use crate::db;
 
-use handlers::{User, DbUser};
+use handlers::{User, DbUser, DisplayUser};
 use rocket_contrib::json::Json;
 
 use std::io::Read;
@@ -16,55 +16,6 @@ use db::DbConn;
 
 // Limit to prevent DoS attacks.
 const LIMIT: u64 = 256;
-
-// Struct with user name and token for blocking users
-#[derive(Queryable, Serialize, Deserialize)]
-struct TokenUser {
-    token: String,
-    username: String,
-}
-
-// Struct represneting the fields of a user that are needed for frontend display
-#[derive(Queryable, Serialize, Deserialize)]
-pub struct DisplayUser {
-    pub username: String,
-    pub profilepicture: Option<String>,
-    pub sitewideban: bool,
-    pub is_owner: bool,
-    pub is_blocked: bool,
-    pub is_followed: bool,
-}
-
-/**
- * Helper method that converts DbUser to DisplayUser
- * @param user: the DbUser
- * @param token: user token
- * @param connection: database connection
- *
- * @return returns a DisplayUser
- */
-fn to_display_user(user: DbUser, token: String, connection: &DbConn) -> DisplayUser {
-
-	// Converts token into uuid
-	let profile_uuid = auth::get_uuid_from_token(&token);
-
-	// Return display kennel created
-	DisplayUser {
-		username: user.username,
-	    profilepicture: user.profilepicture,
-	    sitewideban: user.sitewideban,
-	    is_owner: user.profile_uuid.eq(&profile_uuid),
-	    is_blocked: match handlers::get_block_relationship(profile_uuid, user.profile_uuid, connection) {
-				        Ok(_u) => true,
-				        Err(e) => false,
-				    },
-	    is_followed: match handlers::get_follow_relationship(profile_uuid, user.profile_uuid, connection) {
-				        Ok(_u) => true,
-				        Err(e) => false,
-				    },
-	}
-
-}
 
 struct Username {
 	name: String
@@ -87,73 +38,87 @@ impl FromDataSimple for Username {
     }
 }
 
+
+// Struct with user name and token for blocking users
+#[derive(Queryable, Serialize, Deserialize)]
+struct TokenUser {
+    token: String,
+    username: String,
+}
+
 /** 
- * Method that unfollows a user
- * @param kennel: JSON of the report
+ * Helper method that follows or unfollows a user given parameter
+ * @param input: JSON of a TokenUser (name + token)
+ * @param follow: bool indicating follow or unfollow
+ * @param connection: database connection
  *
- * @return returns TBD
+ * @return returns a result with status Accepted or BadRequest
  */
-#[post("/unfollow_user", data="<follow>", rank=1)]
-fn unfollow_user(follow: Json<TokenUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
-	
+fn follow_unfollow_helper(input: Json<TokenUser>, follow: bool, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+
 	// Get token uuid (follower)
-	let follower = auth::get_uuid_from_token(&follow.token);
+	let follower = auth::get_uuid_from_token(&input.token);
 
 	// Get followee uuid
-	let followee = handlers::get_uuid_from_username(&follow.username, &connection);
+	let followee = handlers::get_uuid_from_username(&input.username, &connection);
 
 	// Check if either are nil (not found)
 	if follower.is_nil() || followee.is_nil() {
 		return Err(status::Conflict(Some("Follower or followee not found".to_string())));
 	}
 
-	// Attempt to delete follow relation from database 
-	let unfollow = handlers::unfollow(follower, followee, &connection);
+	let result;
+
+	// Follow or unfollow depending on param
+	if follow {
+
+		// Attempt to insert follow relation into database 
+		result = handlers::follow(follower, followee, &connection);
+	} else {
+
+		// Attempt to delete follow relation from database 
+		result = handlers::unfollow(follower, followee, &connection);
+	}
+
 	
 	// Check if successful insertion into database
-	match unfollow {
+	match result {
 		Ok(_id) => Ok(status::Accepted(None)),
 		Err(e) => Err(e),
 	}
+}
+
+/** 
+ * Method that unfollows a user
+ * @param kennel: JSON of the report
+ *
+ * @return returns returns status indicating if unfollowed
+ */
+#[post("/unfollow_user", data="<follow>", rank=1)]
+fn unfollow_user(follow: Json<TokenUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
 	
+	// Call helper with false param indicating unfollow
+	follow_unfollow_helper(follow, false, connection)
 }
 
 /** 
  * Method that follows a user
  * @param kennel: JSON of the report
  *
- * @return returns TBD
+ * @return returns status indicating if followed
  */
 #[post("/follow_user", data="<follow>", rank=1)]
 fn follow_user(follow: Json<TokenUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
 	
-	// Get token uuid (follower)
-	let follower = auth::get_uuid_from_token(&follow.token);
-
-	// Get followee uuid
-	let followee = handlers::get_uuid_from_username(&follow.username, &connection);
-
-	// Check if either are nil (not found)
-	if follower.is_nil() || followee.is_nil() {
-		return Err(status::Conflict(Some("Follower or followee not found".to_string())));
-	}
-
-	// Attempt to insert follow relation into database 
-	let follow = handlers::follow(follower, followee, &connection);
-	
-	// Check if successful insertion into database
-	match follow {
-		Ok(_id) => Ok(status::Accepted(None)),
-		Err(e) => Err(e),
-	}
-	
+	// Call helper with true param indicating follow
+	follow_unfollow_helper(follow, true, connection)
 }
 
 /** 
  * Method that blocks a user
  * @param kennel: JSON of the report
  *
- * @return returns TBD
+ * @return returns returns status indicating if blocked
  */
 #[post("/block_user", data="<block>", rank=1)]
 fn block_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
@@ -199,7 +164,7 @@ fn get_user(username: String, token: String, connection: DbConn) -> Result<Json<
 
 	// Pattern match to see if user found successfully
 	match user {
-		Ok(r) => Ok(Json(to_display_user(r, token, &connection))),
+		Ok(r) => Ok(Json(handlers::to_display_user(r, token, &connection))),
 		Err(e) => Err(status::NotFound(e.to_string())),
 	}
 	
