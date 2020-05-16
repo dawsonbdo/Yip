@@ -241,7 +241,7 @@ class Review extends Component {
 						<Row>
 							<Col className="text-left">
 								<h1 id="title">{this.state.reviewTitle}</h1>
-								<h4 id="author">{this.state.reviewAuthor}</h4>
+								<h4 id="author"><a class="profileLink" href={`/user-${this.state.reviewAuthor}`}>{this.state.reviewAuthor}</a></h4>
 							</Col>
 							<Col className="text-right reviewIcon">
 								<Image onClick={this.likeReview} className="likePadding" src={likeIcon} />
