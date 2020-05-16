@@ -46,7 +46,6 @@ class Profile extends Component {
 
     followProfile(){
         // Load user profile (get from URL)
-        //var username = 'Todd_Howard'
         var username = this.props.match.params.username;
 
         var token = localStorage.getItem('jwtToken');
@@ -62,9 +61,6 @@ class Profile extends Component {
 
             alert('User successfully followed');
 
-            // Updates kennel name
-            // this.setState({ kennel_name: response.data.kennel_name });
-
         }).catch(error => {
 
             // Review not found in database
@@ -75,7 +71,6 @@ class Profile extends Component {
 
     blockProfile(){
         // Load user profile (get from URL)
-        //var username = 'Todd_Howard'
         var username = this.props.match.params.username;
 
         var token = localStorage.getItem('jwtToken');
@@ -119,7 +114,6 @@ class Profile extends Component {
 // update this for profile
     componentDidMount() {
         // Load user profile (get from URL)
-        //var username = 'Todd_Howard'
         var username = this.props.match.params.username;
 
         // Get token
@@ -141,9 +135,6 @@ class Profile extends Component {
 
             this.setState({profileKennelsListed: true});
 
-            // Updates kennel name
-            // this.setState({ kennel_name: response.data.kennel_name });
-
         }).catch(error => {
 
             // Review not found in database
@@ -157,17 +148,16 @@ class Profile extends Component {
             url: '/get_followed_kennels_username/' + username,
         }).then(response => {
 
-            //alert('Users followed kennels info successfully grabbed from database!');
+            alert('Users followed kennels info successfully grabbed from database!');
 
-            // TODO: Render user information
             console.log("FOLLOWED KENNELS");
             console.log(response.data);
+
+            // Store names of followed kennels in kennelArray
             for( var i = 0; i < response.data.length; i++ ) {
                 this.state.kennelArray.push(response.data[i].kennel_name);
             }
 
-            // Updates kennel name
-            // this.setState({ kennel_name: response.data.kennel_name });
 
         }).catch(error => {
 
@@ -185,12 +175,8 @@ class Profile extends Component {
 
             alert('Users posted reviews info successfully grabbed from database!');
 
-            // TODO: Render user information
             console.log("POSTED REVIEWS");
             console.log(response.data);
-
-            // Updates kennel name
-            // this.setState({ kennel_name: response.data.kennel_name });
 
             // Iterate through reviews
             for (var i = response.data.length - 1; i >= 0; i--) {
@@ -216,96 +202,10 @@ class Profile extends Component {
 
         });
 
-
-
-
-        // TODO: Remove the stuff below this, all the database calls needed
-        // are above this
-
-
-
-
-
-        /*
-
-
-        // Get kennel name from URL?
-        var kennelName = 'GaryGang';
-
-        // Format URL to send in GET request
-        var reqUrl = "/get_reviews/" + kennelName;
-
-        // Send GET request with kennel name to get reviews in kennel
-        axios({
-            method: 'get',
-            url: reqUrl
-        }).then(response => {
-
-            //alert('Kennel reviews successfully grabbed from database!');
-
-            // Iterate through reviews
-            for (var i = response.data.length - 1; i >= 0; i--) {
-
-                // Print reviews to console for now
-                console.log(response.data[i]);
-
-                // Add review name, reviewer's username, review text to reviewArray
-                this.state.reviewArray.push({
-                    title: response.data[i].title,
-                    author: response.data[i].author,
-                    text: response.data[i].text
-                });
-
-            }
-
-            this.setState({profileReviewsListed: true});
-
-
-
-            // Renders reviews
-            this.forceUpdate();
-
-        }).catch(error => {
-
-            // Review not found in database
-            // alert('Kennel does not exist/No reviews in kennel');
-
-        });
-
-        // Format URL to send in GET request
-        reqUrl = "/get_kennel/" + kennelName;
-
-        // Send GET request with kennel name to get kennel information
-        axios({
-            method: 'get',
-            url: reqUrl
-        }).then(response => {
-
-            // alert('Kennel info successfully grabbed from database!');
-
-            // TODO: Render kennel information
-            console.log(response.data);
-
-            // Updates kennel name
-            this.setState({ kennel_name: response.data.kennel_name });
-
-            this.setState({profileKennelsListed: true});
-
-        }).catch(error => {
-
-            // Review not found in database
-            alert('Kennel does not exist in database');
-
-        });
-
-
-        */
     }
 
 
     render() {
-        // TODO: get this persons reviews from the database
-        // possibly same thing for this persons kennels
         const reviews = this.state.reviewArray.map(function (review) {
             return <ReviewCard reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} />
         });
