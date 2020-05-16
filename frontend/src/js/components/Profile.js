@@ -35,7 +35,8 @@ class Profile extends Component {
             reviewArray: [],
             kennelArray: [],
             profileReviewsListed: false,
-            profileKennelsListed: false
+            profileKennelsListed: false,
+            isOwner: false
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -131,7 +132,8 @@ class Profile extends Component {
             console.log("USER");
             console.log(response.data);
 
-            this.setState({ username: response.data.username });
+            this.setState({ username: response.data.username, 
+                isOwner: response.data.is_owner });
 
             this.setState({profileKennelsListed: true});
 
@@ -231,12 +233,14 @@ class Profile extends Component {
                             </Nav>
                         </Jumbotron>
                     </Col>
+                    {!this.state.isOwner && (
                     <Col>
                         <Button className="logInEntry" type="submit" variant="primary">Message</Button>
                         <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">Follow</Button>
                         <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
-                        <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button>
+                        <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button> 
                     </Col>
+                    )}
                 </Row>
                 {this.state.showReviews && (
                     <div>{reviews}</div>
