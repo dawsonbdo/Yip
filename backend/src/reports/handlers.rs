@@ -2,9 +2,72 @@ use diesel;
 use diesel::prelude::*;
 use uuid::Uuid;
 use crate::schema::reports;
+use super::super::{kennels};
 
 /**
- * Method that returns a vector with all of the reports
+ * Method that converts a Report to DbReport
+ * @param report: the Report
+ *
+ * @return returns a DbReport
+ */
+fn from_report(report: Report) -> DbReport {
+    DbReport{
+        report_uuid: Uuid::new_v4(),
+        kennel: Uuid::parse_str(&report.kennel).unwrap(),
+        is_comment: report.is_comment,
+        comment_id: {
+            let uuid = Uuid::parse_str(&report.comment_id).unwrap();
+            if uuid.is_nil() {None} else {Some(uuid)}
+        },
+        review_id: {
+            let uuid = Uuid::parse_str(&report.review_id).unwrap();
+            if uuid.is_nil() {None} else {Some(uuid)}
+        },
+        reason: report.reason,
+        escalated: report.escalated,
+    }
+}
+
+/**
+ * Method that converts a DbReport to DisplayReport
+ * @param report: the DbReport
+ *
+ * @return returns a DisplayReport
+ */
+fn to_report(report: &DbReport, connection: &PgConnection) -> DisplayReport {
+    DisplayReport{
+        report_uuid: report.report_uuid,
+        kennel_name: kennels::handlers::get(report.kennel, connection).unwrap().kennel_name,
+        is_comment: report.is_comment,
+        comment_id: report.comment_id,
+        review_id: report.review_id,
+        reason: report.reason.clone(),
+        escalated: report.escalated,
+    }
+}
+
+/**
+ * Method that gets returns all reports in a kennel
+ * @param kennel_uuid: uuid of kennel
+ * @param connection: database connection
+ *
+ * @return returns vector of all DbKennels
+ */
+pub fn all_kennel_reports(kennel_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayReport>> {
+
+    // Load all reports with the given kennel id and convert to DisplayReports
+    Ok(reports::table.filter(reports::kennel.eq(kennel_uuid)).load::<DbReport>(connection)
+    .unwrap()
+    .iter()
+    .map(|report| to_report(report, connection))
+    .collect())
+}
+
+/**
+ * Method that gets returns all reports in database
+ * @param connection: database connection
+ *
+ * @return returns vector of all DbReports
  */
 pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbReport>> {
     reports::table.load::<DbReport>(&*connection)
@@ -30,7 +93,7 @@ pub fn insert(report: Report, connection: &PgConnection) -> Result<Uuid, String>
 
     // Inserts report into database, returns uuid generated
     match diesel::insert_into(reports::table)
-        .values(&DbReport::from_report(report))
+        .values(from_report(report))
         .get_result::<DbReport>(connection) {
             Ok(r) => Ok(r.report_uuid),
             Err(e) => Err(e.to_string()),
@@ -42,7 +105,7 @@ pub fn insert(report: Report, connection: &PgConnection) -> Result<Uuid, String>
  */
 pub fn update(id: Uuid, report: Report, connection: &PgConnection) -> bool {
     match diesel::update(reports::table.find(id))
-        .set(&DbReport::from_report(report))
+        .set(from_report(report))
         .get_result::<DbReport>(connection) {
             Ok(_u) => return true,
             Err(_e) => return false,
@@ -82,25 +145,14 @@ pub struct DbReport {
     pub escalated: bool,
 }
 
-// Converts a Report to an DbReport by calling functions on passed in values
-impl DbReport{
-
-    fn from_report(report: Report) -> DbReport {
-        DbReport{
-            report_uuid: Uuid::new_v4(),
-            kennel: Uuid::parse_str(&report.kennel).unwrap(),
-            is_comment: report.is_comment,
-            comment_id: {
-                let uuid = Uuid::parse_str(&report.comment_id).unwrap();
-                if uuid.is_nil() {None} else {Some(uuid)}
-            },
-            review_id: {
-                let uuid = Uuid::parse_str(&report.review_id).unwrap();
-                if uuid.is_nil() {None} else {Some(uuid)}
-            },
-            reason: report.reason,
-            escalated: report.escalated,
-        }
-    }
-
+// Struct represneting the fields of a report that are needed on frontend
+#[derive(Queryable, Serialize, Deserialize)]
+pub struct DisplayReport {
+    pub report_uuid: Uuid,
+    pub kennel_name: String,
+    pub is_comment: bool,
+    pub comment_id: Option<Uuid>,
+    pub review_id: Option<Uuid>,
+    pub reason: String,
+    pub escalated: bool,
 }
