@@ -26,19 +26,16 @@ class SearchResults extends Component {
         };
     }
 
-
-    searchKennels(){
-        // Search query used
-        var search = "professionalism"
-
+    // Searches all kennels using query passed in
+    searchKennels(query){
         axios({
             method: 'get',
-            url: '/search_kennels/' + search,
+            url: '/search_kennels/' + query,
         }).then(response => {
 
             alert('Successfully searched kennels');
 
-            console.log("KENNEL SEARCH QUERY: " + search);
+            console.log("KENNEL SEARCH QUERY: " + query);
 
             // TODO: Display the kennels found
 
@@ -59,18 +56,16 @@ class SearchResults extends Component {
         });
     }
 
-    searchReviews(){
-        // Search query used
-        var search = "review"
-
+    // Searches all reviews using query passed in
+    searchReviews(query){
         axios({
             method: 'get',
-            url: '/search_reviews/' + search,
+            url: '/search_reviews/' + query,
         }).then(response => {
 
             alert('Successfully searched reviews');
 
-            console.log("REVIEW SEARCH QUERY: " + search);
+            console.log("REVIEW SEARCH QUERY: " + query);
 
             // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
             //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
@@ -96,10 +91,10 @@ class SearchResults extends Component {
     // Displays if logged in on home page
     componentDidMount() {
         // SEARCH KENNELS
-        this.searchKennels();
+        this.searchKennels("professionalism");
 
         // SEARCH REVIEWS
-        this.searchReviews();       
+        this.searchReviews("test");       
 
     }
 
