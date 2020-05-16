@@ -13,21 +13,55 @@ use crate::auth;
 
 use rocket::response::status;
 
+
+/**
+ * Helper method that converts a Comment to DbComment
+ * @param comment: the Comment
+ *
+ * @return returns a DbComment
+ */
+fn from_comment(comment: Comment) -> DbComment {
+    DbComment{
+        comment_uuid: Uuid::new_v4(),
+        review_uuid: comment.review_uuid,
+        author_uuid: auth::get_uuid_from_token(&comment.author_token),
+        timestamp: NaiveDateTime::parse_from_str(&comment.timestamp, "%Y-%m-%d %H:%M:%S").unwrap(),
+        text: comment.text.clone(),
+    }
+}
+
+/**
+ * Helper method that converts a DbComment to Display
+ * @param comment: the DbComment
+ * @param connection: database connection
+ *
+ * @return returns a Display
+ */
+fn to_comment(comment: &DbComment, connection: &PgConnection) -> DisplayComment {
+    DisplayComment{
+        comment_uuid: comment.comment_uuid,
+        author_name: super::super::users::handlers::get_user_from_uuid(comment.author_uuid, connection).unwrap().username,
+        timestamp: comment.timestamp.to_string(),
+        text: comment.text.clone(),
+        is_author: false, // mod.rs handles this
+    }
+}
+
 /**
  * Helper method that returns row in comment dislike table based on params
  * @param comment_uuid: the comment uuid
  * @param profile_uuid: the profile uuid
  * @param connection: database connection
  *
- * @return returns a result containing DbFollowKennel if found, otherwise error
+ * @return returns a result containing usize (1 if found)
  */
-fn get_relationship_dislike(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbDislikeComment>>{
+fn get_relationship_dislike(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
     
     // Filters comment like relationship table
     comment_dislike_relationships::table
              .filter(comment_dislike_relationships::comment.eq(comment_uuid))
              .filter(comment_dislike_relationships::disliker.eq(profile_uuid))
-             .load::<DbDislikeComment>(&*connection)
+             .execute(connection)
 }
 
 /**
@@ -36,15 +70,15 @@ fn get_relationship_dislike(comment_uuid: Uuid, profile_uuid: Uuid, connection: 
  * @param profile_uuid: the profile uuid
  * @param connection: database connection
  *
- * @return returns a result containing DbFollowKennel if found, otherwise error
+ * @return returns a result containing usize (1 if found)
  */
-fn get_relationship_like(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbLikeComment>>{
+fn get_relationship_like(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
     
     // Filters comment like relationship table
     comment_like_relationships::table
              .filter(comment_like_relationships::comment.eq(comment_uuid))
              .filter(comment_like_relationships::liker.eq(profile_uuid))
-             .load::<DbLikeComment>(&*connection)
+             .execute(connection)
 }
 
 /**
@@ -90,19 +124,11 @@ pub fn dislike(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection
     // Prints the uuids received
     println!("Comment uuid: {}", comment_uuid);
     println!("Profile uuid: {}", profile_uuid);
-    
-    // Check if user already disliked kennel 
-    match get_relationship_dislike(comment_uuid, profile_uuid, connection) {
-        Ok(r) => if r.iter().len() > 0 {
-                    return Err(status::BadRequest(Some("Already disliking".to_string())));
-                 },
-        Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
-    }
 
     // Attempt to delete from like table
     delete_like_dislike(comment_uuid, profile_uuid, true, connection);
 
-    // Creates object to be inserted to the like comment table
+    // Creates object to be inserted to the dislike comment table
     let dislike_comment = DislikeComment {
         disliker: profile_uuid,
         comment: comment_uuid,
@@ -111,10 +137,10 @@ pub fn dislike(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection
     // Inserts like comment into database, returns result indicating success/error
     match diesel::insert_into(comment_dislike_relationships::table)
         .values(dislike_comment)
-        .get_result::<DbDislikeComment>(connection) {
-            Ok(_u) => Ok(status::Accepted(None)),
+        .execute(connection) {
+            Ok(u) => if u == 0 {Err(status::BadRequest(Some("Already disliking comment".to_string())))} else {Ok(status::Accepted(None))},
             Err(e) => Err(status::BadRequest(Some(e.to_string()))),
-        }
+    }
 }
 
 /**
@@ -131,14 +157,6 @@ pub fn like(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -
     println!("Comment uuid: {}", comment_uuid);
     println!("Profile uuid: {}", profile_uuid);
     
-    // Check if user already liked kennel 
-    match get_relationship_like(comment_uuid, profile_uuid, connection) {
-        Ok(r) => if r.iter().len() > 0 {
-                    return Err(status::BadRequest(Some("Already liking".to_string())));
-                 },
-        Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
-    }
-
     // Attempt to delete from dislike table
     delete_like_dislike(comment_uuid, profile_uuid, false, connection);
 
@@ -151,32 +169,43 @@ pub fn like(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -
     // Inserts like comment into database, returns result indicating success/error
     match diesel::insert_into(comment_like_relationships::table)
         .values(like_comment)
-        .get_result::<DbLikeComment>(connection) {
-            Ok(_u) => Ok(status::Accepted(None)),
+        .execute(connection) {
+            Ok(u) => if u == 0 {Err(status::BadRequest(Some("Already liking comment".to_string())))} else {Ok(status::Accepted(None))},
             Err(e) => Err(status::BadRequest(Some(e.to_string()))),
         }
 }
 
 /**
  * Method that returns a vector with all of the comments for a particular review
+ * @param review_uuid: the uuid of review
+ * @param connection: database connection
+ *
+ * @return returns a vector of DisplayComments
  */
 pub fn all_review_comments(review_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayComment>> {
     Ok(comments::table.filter(comments::review_uuid.eq(review_uuid)).load::<DbComment>(&*connection)
     .unwrap()
     .iter()
-    .map(|comment| DbComment::to_comment(comment, connection))
+    .map(|comment| to_comment(comment, connection))
     .collect())
 }
 
 /**
  * Method that returns a vector with all of the comments
+ * @param connection: database connection
+ *
+ * @return returns a vector of DbComments
  */
 pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbComment>> {
     comments::table.load::<DbComment>(&*connection)
 }
 
 /**
- * LOAD Comment: Method that returns a DbComment given the uuid
+ * Method that returns a DbComment given the uuid
+ * @param id: uuid of comment
+ * @param connection: database connection
+ *
+ * @return returns a vector of DbComments
  */
 pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbComment> {
 
@@ -185,28 +214,33 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbComment> {
 }
 
 /**
- * CREATE Comment: Method that attempts to create a new comment in database, returns URL? 
+ * Method that attempts to create a new comment in database
+ * @param comment: the Comment object
+ * @param connection: database connection
+ *
+ * @return returns the DisplayComment of comment created
  */
-pub fn insert(comment: Comment, connection: &PgConnection) -> Result<Uuid, String> {
+pub fn insert(comment: Comment, connection: &PgConnection) -> Result<DisplayComment, String> {
     // Prints the Comment information that was received (register)
     println!("Comment Text: {}", comment.text);
     println!("Review ID: {}", comment.review_uuid);
 
     // Inserts comment into database, returns uuid generated
     match diesel::insert_into(comments::table)
-        .values(&DbComment::from_comment(comment, connection))
+        .values(from_comment(comment))
         .get_result::<DbComment>(connection) {
-            Ok(c) => Ok(c.comment_uuid),
+            Ok(c) => Ok(to_comment(&c, connection)),
             Err(e) => Err(e.to_string()),
         }
 }
 
 /**
+ * TODO: Untested/maybe dont even need this feature
  * EDIT Comment: Method that updates a comment in database
  */
 pub fn update(id: Uuid, comment: Comment, connection: &PgConnection) -> bool {
     match diesel::update(comments::table.find(id))
-        .set(&DbComment::from_comment(comment, connection))
+        .set(from_comment(comment))
         .get_result::<DbComment>(connection) {
             Ok(_c) => return true,
             Err(_e) => return false,
@@ -214,7 +248,11 @@ pub fn update(id: Uuid, comment: Comment, connection: &PgConnection) -> bool {
 }
 
 /**
- * DELETE Comment: Method that removes a comment in database
+ * Method that removes a comment in database
+ * @param id: uuid of comment
+ * @param connection: database connection
+ *
+ * @return returns usize (1 if deleted successfully)
  */
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(comments::table.find(id))
@@ -262,6 +300,7 @@ pub struct DisplayComment {
     pub author_name: String,
     pub timestamp: String,
     pub text: String,
+    pub is_author: bool,
 }
 
 // Struct representing the fields of a comment passed in from frontend contains
@@ -282,28 +321,4 @@ pub struct DbComment {
     pub author_uuid: Uuid,
     pub timestamp: NaiveDateTime,
     pub text: String,
-}
-
-// Converts a Comment to an DbComment by calling functions on passed in values
-impl DbComment{
-
-    fn from_comment(comment: Comment, _connection: &PgConnection) -> DbComment {
-        DbComment{
-        	comment_uuid: Uuid::new_v4(),
-            review_uuid: comment.review_uuid,
-		    author_uuid: auth::get_uuid_from_token(&comment.author_token),
-		    timestamp: NaiveDateTime::parse_from_str(&comment.timestamp, "%Y-%m-%d %H:%M:%S").unwrap(),
-		    text: comment.text.clone(),
-        }
-    }
-
-    fn to_comment(comment: &DbComment, connection: &PgConnection) -> DisplayComment {
-        DisplayComment{
-            comment_uuid: comment.comment_uuid,
-        	author_name: super::super::users::handlers::get_user_from_uuid(comment.author_uuid, connection).unwrap().username,
-    		timestamp: comment.timestamp.to_string(),
-    		text: comment.text.clone(),
-        }
-    }
-
 }

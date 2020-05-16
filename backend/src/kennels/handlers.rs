@@ -8,6 +8,24 @@ use rocket::response::status;
 
 
 /**
+ * Converts a Kennel to an DbKennel by calling functions on passed in values
+ * @param kennel: the Kennel object
+ * @param connection: the database connection
+ *
+ * @return returns DbKennel object
+ */
+fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
+    let uuid = get_kennel_uuid_from_name(kennel.kennel_name.clone(), connection);
+
+    DbKennel{
+        kennel_uuid: if uuid.is_nil() {Uuid::new_v4()} else {uuid}, // generate random uuid for kennel
+        kennel_name: kennel.kennel_name,
+        tags: Some(kennel.tags),
+        follower_count: get_follower_count(uuid, connection),
+    }
+}
+
+/**
  * Helper method that converts DbKennel to DisplayKennel
  * @param kennel: the DbKennel
  * @param token: user token
@@ -30,7 +48,7 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
         kennel_name: kennel.kennel_name.clone(),
         follower_count: kennel.follower_count,
         is_following: match get_relationship(kennel.kennel_uuid, profile_uuid, connection){
-                        Ok(_u) => true,
+                        Ok(u) => u != 0,
                         Err(_e) => false,
                       },
         is_moderator: false, //TODO
@@ -45,15 +63,15 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
  * @param profile_uuid: the profile uuid
  * @param connection: database connection
  *
- * @return returns a result containing DbFollowKennel if found, otherwise error
+ * @return returns a result containing number of rows affected (1 if relationship exists)
  */
-pub fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<DbFollowKennel>{
+pub fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
     
     // Filters kennel follow relationship table
     kennel_follow_relationships::table
              .filter(kennel_follow_relationships::kennel.eq(kennel_uuid))
              .filter(kennel_follow_relationships::follower.eq(profile_uuid))
-             .get_result::<DbFollowKennel>(&*connection)
+             .execute(connection)
 }
 
 /**
@@ -149,7 +167,6 @@ pub fn update_kennel_followers(kennel_uuid: Uuid, connection: &PgConnection) -> 
     diesel::update(kennels::table.find(kennel_uuid))
                         .set(kennels::columns::follower_count.eq(new_count))
                         .execute(connection)
-
 }
 
 /**
@@ -187,17 +204,12 @@ pub fn unfollow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection
     println!("Kennel uuid: {}", kennel_uuid);
     println!("Profile uuid: {}", profile_uuid);
     
-    // Gets DbKennelFollow of row to be deleted if found or error
-    let row = get_relationship(kennel_uuid, profile_uuid, connection);
-
-    // Check if row was foudn, and delete if so
-    match row {
-        Ok(r) => // Deletes kennel follow relationship from table
-                match diesel::delete(kennel_follow_relationships::table.find(r.pkey))
-                        .execute(connection){
-                            Ok(_u) => Ok(status::Accepted(None)),
-                            Err(e) => Err(status::BadRequest(Some(e.to_string()))),
-                },
+    // Deletes kennel follow relationship from table
+    match diesel::delete(kennel_follow_relationships::table
+                  .filter(kennel_follow_relationships::kennel.eq(kennel_uuid))
+                  .filter(kennel_follow_relationships::follower.eq(profile_uuid)))
+                  .execute(connection){
+        Ok(u) => if u == 0 {Err(status::BadRequest(Some("Not following already".to_string())))} else {Ok(status::Accepted(None))},
         Err(e) => Err(status::BadRequest(Some(e.to_string()))),
     }
 
@@ -217,12 +229,6 @@ pub fn follow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) 
     println!("Kennel uuid: {}", kennel_uuid);
     println!("Profile uuid: {}", profile_uuid);
     
-    // Check if user already following kennel
-    match get_relationship(kennel_uuid, profile_uuid, connection) {
-        Ok(r) => return Err(status::BadRequest(Some("Already following".to_string()))),
-        Err(e) => e, // relationship not found
-    };
-
     // Creates object to be inserted to the follow kennel table
     let follow_kennel = FollowKennel {
         follower: profile_uuid,
@@ -232,10 +238,10 @@ pub fn follow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) 
     // Inserts kennel into database, returns uuid generated
     match diesel::insert_into(kennel_follow_relationships::table)
         .values(follow_kennel)
-        .get_result::<DbFollowKennel>(connection) {
-            Ok(_u) => Ok(status::Accepted(None)),
+        .execute(connection) {
+            Ok(u) => if u == 0 {Err(status::BadRequest(Some("Following already".to_string())))} else {Ok(status::Accepted(None))},
             Err(e) => Err(status::BadRequest(Some(e.to_string()))),
-        }
+    }
 }
 
 /**
@@ -254,7 +260,7 @@ pub fn insert(kennel: Kennel, connection: &PgConnection) -> Result<Uuid, String>
 
     // Inserts kennel into database, returns uuid generated
     match diesel::insert_into(kennels::table)
-        .values(&DbKennel::from_kennel(kennel, connection))
+        .values(from_kennel(kennel, connection))
         .get_result::<DbKennel>(connection) {
             Ok(u) => Ok(u.kennel_uuid),
             Err(e) => Err(e.to_string()),
@@ -271,7 +277,7 @@ pub fn insert(kennel: Kennel, connection: &PgConnection) -> Result<Uuid, String>
  */
 pub fn update(id: Uuid, kennel: Kennel, connection: &PgConnection) -> bool {
     match diesel::update(kennels::table.find(id))
-        .set(&DbKennel::from_kennel(kennel, connection))
+        .set(from_kennel(kennel, connection))
         .get_result::<DbKennel>(connection) {
             Ok(_u) => return true,
             Err(_e) => return false,
@@ -336,20 +342,4 @@ pub struct DisplayKennel {
     pub is_following: bool,
     pub is_moderator: bool,
     pub is_banned: bool,
-}
-
-// Converts a Kennel to an DbKennel by calling functions on passed in values
-impl DbKennel{
-
-    fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
-        let uuid = get_kennel_uuid_from_name(kennel.kennel_name.clone(), connection);
-
-        DbKennel{
-            kennel_uuid: if uuid.is_nil() {Uuid::new_v4()} else {uuid}, // generate random uuid for kennel
-            kennel_name: kennel.kennel_name,
-            tags: Some(kennel.tags),
-            follower_count: get_follower_count(uuid, connection),
-        }
-    }
-
 }

@@ -25,6 +25,13 @@ use serde_json::{Value, Map};
 
 use super::users;
 
+// Struct with review ID and user token for editing/deleting reviews
+#[derive(Queryable, Serialize, Deserialize)]
+struct ReviewToken {
+    review_uuid: String,
+    token: String,
+}
+
 /** 
  * Method that returns a Review from database given the ID
  * @param id: Uuid of review as a string
@@ -147,21 +154,15 @@ fn like_dislike_helper(input: Json<ReviewToken>, like: bool, connection: DbConn)
     	Err(e) => return Err(status::BadRequest(Some("Review not foudn".to_string()))),
     }
     
-
+    /*
     // Update review net rating
     if let Err(e) = handlers::update_review_rating(review_uuid.unwrap(), &connection) {
         dbg!(e);
     }
+    */
 
     // Return result
     result
-}
-
-// Struct with review ID and user token for editing/deleting reviews
-#[derive(Queryable, Serialize, Deserialize)]
-struct ReviewToken {
-    review_uuid: String,
-    token: String,
 }
 
 /** 
@@ -169,7 +170,7 @@ struct ReviewToken {
  * @param query: query string that is searched for
  * @param connection: database connection
  *
- * @return returns a result with status list of reviews found
+ * @return returns a result with list of reviews found
  */
 #[get("/search_reviews/<query>", rank=1)]
 fn search_reviews(query: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
@@ -181,7 +182,7 @@ fn search_reviews(query: String, connection: DbConn) -> Result<Json<Vec<DisplayR
 }
 
 /** 
- * Handler method that likes a review
+ * Handler method that dislikes a review
  * @param kennel: JSON of a ReviewToken (review + token)
  * @param connection: database connection
  *
@@ -298,11 +299,11 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 			println!("AUTHOR: {} PROFILE: {}", &r.author, &profile_username);
 			r.is_author = profile_username.eq(&r.author); // set field of DisplayReview
 			r.is_liked = match handlers::get_relationship_like(review_uuid, profile_uuid, &connection){
-				Ok(_u) => true,
+				Ok(u) => u != 0,
 				Err(_e) => false,
 			};
 			r.is_disliked = match handlers::get_relationship_dislike(review_uuid, profile_uuid, &connection){
-				Ok(_u) => true,
+				Ok(u) => u != 0,
 				Err(_e) => false,
 			};
 			Ok(Json(r))

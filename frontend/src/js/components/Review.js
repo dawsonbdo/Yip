@@ -96,7 +96,7 @@ class Review extends Component {
 
 		});
 
-		reqUrl = "/get_comments/" + reviewId;
+		reqUrl = "/get_comments/" + reviewId + "/" + token;
 
 		// Send GET request with review id to get comments
 		axios({

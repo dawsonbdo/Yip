@@ -18,6 +18,25 @@ struct CommentUser {
     token: String,
 }
 
+/**
+ * Helper method that returns the username corresponding to a token, "" if none
+ * @param token: the token
+ * @param connection: database connection
+ *
+ * @return returns a String corresponding to username of token, "" if none
+ */
+fn token_to_username(token: String, connection: &DbConn) -> String {
+
+	// Get uuid from token passed in
+	let profile_uuid = auth::get_uuid_from_token(&token);
+
+	// Look for the username of the uuid in database
+	match super::users::handlers::get_user_from_uuid(profile_uuid, connection){
+		Ok(u) => u.username,
+		Err(_e) => "".to_string(),
+	}
+}
+
 /** 
  * Helper method that follows or unfollows a kennel given parameter
  * @param kennel: JSON of a CommentUser (comment + token)
@@ -92,23 +111,34 @@ fn like_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status::
 /**
  * Print out all comments of a review
  */
-#[get("/get_comments/<review_uuid>", rank=1)]
-fn get_comments(review_uuid: String, connection: DbConn) -> Result<Json<Vec<DisplayComment>>, status::NotFound<String>> {
+#[get("/get_comments/<review_uuid>/<token>", rank=1)]
+fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Result<Json<Vec<DisplayComment>>, status::NotFound<String>> {
 
 	// Converts string to a uuid
 	let uuid = Uuid::parse_str(&review_uuid).unwrap();
 
+	// Get username from token passed in
+	let profile_username = token_to_username(token.clone(), &connection);
+
 	// Makes database call to get all comments with review uuid
 	let all_comments = handlers::all_review_comments(uuid, &connection);
 
+	let mut disp_comments : Vec<DisplayComment> = vec![];
+
 	// Prints out title/text/rating of each review in database
-	for v in &all_comments {
-		for c in v.iter() {
+	if let Ok(comments) = all_comments {
+
+		for mut c in comments {
+
+			c.is_author = c.author_name.eq(&profile_username);
 			println!("Author Name: {} Time: {} Text: {}", c.author_name, c.timestamp, c.text);
-		} 
+			disp_comments.push(c);
+			
+		}
+
 	}
 
-	Ok(Json(all_comments.unwrap()))
+	Ok(Json(disp_comments))
 }
 
 /** 

@@ -67,6 +67,7 @@ pub fn to_review(review: &DbReview, connection: &PgConnection) -> DisplayReview 
         is_author: false,
         is_liked: false,
         is_disliked: false,
+        review_uuid: review.review_uuid,
     }
 }
 
@@ -78,13 +79,13 @@ pub fn to_review(review: &DbReview, connection: &PgConnection) -> DisplayReview 
  *
  * @return returns a result containing DbDislikeReview if found, otherwise error
  */
-pub fn get_relationship_dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<DbDislikeReview>{
+pub fn get_relationship_dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
     
     // Filters review like relationship table
     review_dislike_relationships::table
              .filter(review_dislike_relationships::review.eq(review_uuid))
              .filter(review_dislike_relationships::disliker.eq(profile_uuid))
-             .get_result::<DbDislikeReview>(&*connection)
+             .execute(connection)
 }
 
 /**
@@ -93,15 +94,15 @@ pub fn get_relationship_dislike(review_uuid: Uuid, profile_uuid: Uuid, connectio
  * @param profile_uuid: the profile uuid
  * @param connection: database connection
  *
- * @return returns a result containing DbDislikeReview if found, otherwise error
+ * @return returns a result containing size if found, otherwise error
  */
-pub fn get_relationship_like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<DbLikeReview>{
+pub fn get_relationship_like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
     
     // Filters review like relationship table
     review_like_relationships::table
              .filter(review_like_relationships::review.eq(review_uuid))
              .filter(review_like_relationships::liker.eq(profile_uuid))
-             .get_result::<DbLikeReview>(&*connection)
+             .execute(connection)
 }
 
 /**
@@ -208,8 +209,8 @@ pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection)
     
     // Check if user already disliked kennel 
     match get_relationship_dislike(review_uuid, profile_uuid, connection) {
-        Ok(r) => return Err(status::BadRequest(Some("Already disliking".to_string()))),
-        Err(e) => e,
+        Ok(r) => if r != 0 {return Err(status::BadRequest(Some("Already disliking".to_string())))},
+        Err(_e) => (),
     };
 
     // Attempt to delete from like table
@@ -246,8 +247,8 @@ pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) ->
     
     // Check if user already liked kennel 
     match get_relationship_like(review_uuid, profile_uuid, connection) {
-        Ok(r) => return Err(status::BadRequest(Some("Already liking".to_string()))),
-        Err(e) => e,
+        Ok(r) => if r != 0 {return Err(status::BadRequest(Some("Already liking".to_string())))},
+        Err(_e) => (),
     };
 
     // Attempt to delete from dislike table
@@ -434,6 +435,7 @@ pub struct DisplayReview {
     pub is_author: bool,
     pub is_liked: bool,
     pub is_disliked: bool,
+    pub review_uuid: Uuid,
 }
 
 // Struct representing the fields of a review passed in from frontend contains
