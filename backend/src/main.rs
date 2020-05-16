@@ -27,6 +27,7 @@ mod messages;
 mod auth;
 mod schema;
 mod db;
+mod search;
 
 // Load home page for empty file path
 #[get("/")]

@@ -27,14 +27,41 @@ class SearchResults extends Component {
     }
 
 
-    // Displays if logged in on home page
-    componentDidMount() {
-        // Search kennels
-        var search = "test"
+    searchKennels(){
+        // Search query used
+        var search = "professionalism"
+
+        axios({
+            method: 'get',
+            url: '/search_kennels/' + search,
+        }).then(response => {
+
+            alert('Successfully searched kennels');
+
+            console.log("KENNEL SEARCH QUERY: " + search);
+
+            // TODO: Display the kennels found
+
+            // Iterate through kennels
+            for (var i = 0; i < response.data.length; i++) {
+
+                // Print kennels to console for now
+                console.log(response.data[i]);
+
+            }
 
 
-        // Search reviews
-        search = "test"
+        }).catch(error => {
+
+            // Review not found in database
+            alert('Failed to search kennels');
+
+        });
+    }
+
+    searchReviews(){
+        // Search query used
+        var search = "review"
 
         axios({
             method: 'get',
@@ -64,7 +91,15 @@ class SearchResults extends Component {
             alert('Failed to search reviews');
 
         });
+    }
 
+    // Displays if logged in on home page
+    componentDidMount() {
+        // SEARCH KENNELS
+        this.searchKennels();
+
+        // SEARCH REVIEWS
+        this.searchReviews();       
 
     }
 

@@ -1,12 +1,12 @@
 pub mod handlers;
 pub mod reviewmultipart;
-pub mod search;
 
 extern crate chrono;
 extern crate json;
 
 use crate::auth;
 use crate::db;
+use crate::search;
 
 use handlers::{Review, DisplayReview, DbReview};
 use rocket_contrib::json::Json;
@@ -169,13 +169,13 @@ struct ReviewToken {
  * @param query: query string that is searched for
  * @param connection: database connection
  *
- * @return returns a result with status Accepted or BadRequest
+ * @return returns a result with status list of reviews found
  */
 #[get("/search_reviews/<query>", rank=1)]
 fn search_reviews(query: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
 
     match search::search_reviews(query, &connection){
-    	Ok(r) => Ok(Json(r)),
+    	Ok(r) => if r.iter().len() == 0 {Err(status::NotFound("No reviews found".to_string()))} else {Ok(Json(r))},
     	Err(e) => Err(status::NotFound(e.to_string())),
     }
 }

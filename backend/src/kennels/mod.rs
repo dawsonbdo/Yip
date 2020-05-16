@@ -2,6 +2,7 @@ pub mod handlers;
 
 use crate::auth;
 use crate::db;
+use crate::search;
 
 use handlers::{DbKennel, Kennel};
 use rocket_contrib::json::Json;
@@ -112,6 +113,25 @@ fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbC
 	// Return result
 	result
 }
+
+
+/** 
+ * Handler method that searches all kennels in db given a query
+ * @param query: query string that is searched for
+ * @param connection: database connection
+ *
+ * @return returns a result with vector of kennels or BadRequest
+ */
+#[get("/search_kennels/<query>", rank=1)]
+fn search_kennels(query: String, connection: DbConn) -> Result<Json<Vec<DisplayKennel>>, status::NotFound<String>> {
+
+    match search::search_kennels(query, &connection){
+    	Ok(k) => if k.iter().len() == 0 {Err(status::NotFound("No reviews found".to_string()))} else {Ok(Json(k))},
+    	Err(e) => Err(status::NotFound(e.to_string())),
+    }
+}
+
+
 
 /** 
  * Method that returns a kennel from database given the name
@@ -268,5 +288,5 @@ fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Acc
  * Mount the kennel routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_kennel, list_kennels, follow_kennel, unfollow_kennel, get_kennel, get_followed_kennels, get_followed_kennels_username])  
+    rocket.mount("/", routes![create_kennel, list_kennels, follow_kennel, unfollow_kennel, get_kennel, get_followed_kennels, get_followed_kennels_username, search_kennels])  
 }
