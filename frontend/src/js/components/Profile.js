@@ -25,9 +25,9 @@ import { createCommentJson, followUserJson } from './BackendHelpers.js';
 
 class Profile extends Component {
 
-	constructor(props) {
+    constructor(props) {
         super(props)
-       
+
         this.state = {
             username: "",
             showReviews: true,
@@ -36,7 +36,9 @@ class Profile extends Component {
             kennelArray: [],
             profileReviewsListed: false,
             profileKennelsListed: false,
-            isOwner: false
+            isOwner: false,
+            followBtnText: "Follow",
+            isFollowing: false
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -45,7 +47,7 @@ class Profile extends Component {
         this.blockProfile = this.blockProfile.bind(this);
     }
 
-    followProfile(){
+    followProfile() {
         // Load user profile (get from URL)
         var username = this.props.match.params.username;
 
@@ -54,23 +56,45 @@ class Profile extends Component {
         var form = followUserJson(username, token);
 
         // Send POST request with user name to follow
-        axios({
-            method: 'post',
-            url: '/follow_user',
-            data: form,
-        }).then(response => {
+        if (!this.state.isFollowing) {
+            axios({
+                method: 'post',
+                url: '/follow_user',
+                data: form,
+            }).then(response => {
 
-            alert('User successfully followed');
+                alert('User successfully followed');
+                this.setState({ followBtnText: "Unfollow",
+                    isFollowing: true });
 
-        }).catch(error => {
+            }).catch(error => {
 
-            // Review not found in database
-            alert('User failed to follow');
+                // Review not found in database
+                alert('User failed to follow');
 
-        });
+            });
+        }
+        else {
+            axios({
+                method: 'post',
+                url: '/unfollow_user',
+                data: form,
+            }).then(response => {
+    
+                alert('User successfully unfollowed');
+                this.setState({ followBtnText: "Follow",
+                    isFollowing: false });
+    
+            }).catch(error => {
+    
+                // Review not found in database
+                alert('User failed to unfollow');
+    
+            });
+        }
     }
 
-    blockProfile(){
+    blockProfile() {
         // Load user profile (get from URL)
         var username = this.props.match.params.username;
 
@@ -97,14 +121,14 @@ class Profile extends Component {
 
     onDrop(picture) {
         this.setState({
-          pictures: this.state.pictures.concat(picture)
+            pictures: this.state.pictures.concat(picture)
         });
     }
-    
+
     handleSelect(eventKey) {
 
         if (eventKey == "reviews") {
-            this.setState({ showReviews: true, showKennels: false});
+            this.setState({ showReviews: true, showKennels: false });
         }
         if (eventKey == "kennels") {
             this.setState({ showReviews: false, showKennels: true });
@@ -112,7 +136,7 @@ class Profile extends Component {
     }
 
 
-// update this for profile
+    // update this for profile
     componentDidMount() {
         // Load user profile (get from URL)
         var username = this.props.match.params.username;
@@ -132,10 +156,17 @@ class Profile extends Component {
             console.log("USER");
             console.log(response.data);
 
-            this.setState({ username: response.data.username, 
-                isOwner: response.data.is_owner });
+            this.setState({
+                username: response.data.username,
+                isOwner: response.data.is_owner,
+            });
 
-            this.setState({profileKennelsListed: true});
+            if (response.data.is_followed) {
+                this.setState({ followBtnText: "Unfollow",
+                    isFollowing: true });
+            }
+
+            this.setState({ profileKennelsListed: true });
 
         }).catch(error => {
 
@@ -156,7 +187,7 @@ class Profile extends Component {
             console.log(response.data);
 
             // Store names of followed kennels in kennelArray
-            for( var i = 0; i < response.data.length; i++ ) {
+            for (var i = 0; i < response.data.length; i++) {
                 this.state.kennelArray.push(response.data[i].kennel_name);
             }
 
@@ -195,7 +226,7 @@ class Profile extends Component {
 
             }
 
-            this.setState({profileReviewsListed: true});
+            this.setState({ profileReviewsListed: true });
 
         }).catch(error => {
 
@@ -234,12 +265,12 @@ class Profile extends Component {
                         </Jumbotron>
                     </Col>
                     {!this.state.isOwner && (
-                    <Col>
-                        <Button className="logInEntry" type="submit" variant="primary">Message</Button>
-                        <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">Follow</Button>
-                        <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
-                        <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button> 
-                    </Col>
+                        <Col>
+                            <Button className="logInEntry" type="submit" variant="primary">Message</Button>
+                            <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
+                            <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
+                            <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button>
+                        </Col>
                     )}
                 </Row>
                 {this.state.showReviews && (
@@ -262,7 +293,7 @@ class Profile extends Component {
 
         return (
             <div>
-                <YipNavBar/>
+                <YipNavBar />
                 {profile}
             </div>
         )
