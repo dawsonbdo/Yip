@@ -240,8 +240,8 @@ class Review extends Component {
 								<h4 id="author">{this.state.reviewAuthor}</h4>
 							</Col>
 							<Col className="text-right reviewIcon">
-								<Image onClick={this.state.likeReview} className="likePadding" src={likeIcon} />
-								<Image onClick={this.state.dislikeReview} className="likePadding" src={dislikeIcon} />
+								<Image onClick={this.likeReview} className="likePadding" src={likeIcon} />
+								<Image onClick={this.dislikeReview} className="likePadding" src={dislikeIcon} />
 								<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
 								<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
 								<Link to="/"><Image className="likePadding" src={trashIcon} /></Link>

@@ -27,10 +27,10 @@ class ReviewCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <h4 className="text-left pt-2 pl-2">{this.props.reviewName}</h4>
+                                                <h4 className="text-left pt-2 pl-2"><a class="profileLink" href="/review">{this.props.reviewName}</a></h4>
                                             </Col>
                                             <Col>
-                                                <h4 className="text-right pt-2 pl-2">{this.props.reviewerName}</h4>
+                                                <h4 className="text-right pt-2 pl-2"><a class="profileLink" href={`/user-${this.props.reviewerName}`}>{this.props.reviewerName}</a></h4>
                                             </Col>
                                         </Row>
                                     </Container>

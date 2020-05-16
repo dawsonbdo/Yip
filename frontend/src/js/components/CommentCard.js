@@ -94,7 +94,7 @@ class CommentCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <h4 className="text-left pt-2 pl-2">{this.props.commenterName}</h4>
+                                                <h4 className="text-left pt-2 pl-2"><a class="profileLink" href={`/user-${this.props.commenterName}`}>{this.props.commenterName}</a></h4>
                                             </Col>
                                         </Row>
                                     </Container>

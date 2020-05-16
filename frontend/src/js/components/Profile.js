@@ -150,7 +150,7 @@ class Profile extends Component {
             url: '/get_user/' + username + '/' + token,
         }).then(response => {
 
-            alert('User info successfully grabbed from database!');
+            //alert('User info successfully grabbed from database!');
 
             // TODO: Render user information
             console.log("USER");
@@ -181,7 +181,7 @@ class Profile extends Component {
             url: '/get_followed_kennels_username/' + username,
         }).then(response => {
 
-            alert('Users followed kennels info successfully grabbed from database!');
+            //alert('Users followed kennels info successfully grabbed from database!');
 
             console.log("FOLLOWED KENNELS");
             console.log(response.data);
@@ -206,7 +206,7 @@ class Profile extends Component {
             url: '/get_user_reviews/' + username,
         }).then(response => {
 
-            alert('Users posted reviews info successfully grabbed from database!');
+            //alert('Users posted reviews info successfully grabbed from database!');
 
             console.log("POSTED REVIEWS");
             console.log(response.data);
