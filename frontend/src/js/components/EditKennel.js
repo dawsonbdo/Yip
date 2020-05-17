@@ -53,7 +53,7 @@ class EditKennel extends Component {
     var token = localStorage.getItem('jwtToken');
 
     // TODO: parse this from url or something
-    var title = 'PCMasterRace';
+    var title = this.props.location.state.kennel_name;
 
     // Parses form 
     var rules = document.getElementById('rules').value; 

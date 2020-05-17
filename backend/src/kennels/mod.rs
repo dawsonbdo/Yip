@@ -232,6 +232,9 @@ fn follow_kennel(input: Json<KennelUser>, connection: DbConn) -> Result<status::
 #[post("/edit_kennel", data="<kennel>", rank=1)]
 fn edit_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
 	
+	// Print kenne lstuf
+	println!("Kennel Name: {}", kennel.kennel_name);
+
 	// Make sure valid user id 
 	let moderator = auth::get_uuid_from_token(&kennel.token);
 
@@ -244,7 +247,7 @@ fn edit_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Accep
 	
 	// Check if successful insertion into database
 	match successful_edit {
-		Ok(_id) => Ok(status::Accepted(None)),
+		Ok(u) => if u == 0 {Err(status::Conflict(Some("Not moderator".to_string())))} else {Ok(status::Accepted(None))},
 		Err(e) => Err(status::Conflict(Some(e.to_string()))),
 	}
 	
