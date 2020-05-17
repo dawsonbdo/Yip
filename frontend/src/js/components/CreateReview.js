@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import ImageUploader from 'react-images-upload';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
@@ -21,9 +22,10 @@ class CreateReview extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { 
+    this.state = {
       pictures: [],
-      kennelId: null
+      kennelId: null,
+      redirect: null
     };
     this.onDrop = this.onDrop.bind(this);
     this.postReview = this.postReview.bind(this);
@@ -66,9 +68,7 @@ class CreateReview extends Component {
     // Read information in forms
     var title = document.getElementById('title').value;
     var text = document.getElementById('text').value;
-    alert(text);
     text = text.replace(/(?:\r\n|\r|\n)/g, '<br \/>');    // Replaces newlines with html new line
-    alert(text);
     var user = localStorage.getItem('jwtToken');
 
     var form = createReviewJson(this.state.kennelId, title, text, user, dateTime);
@@ -93,7 +93,8 @@ class CreateReview extends Component {
     }).then(response => {
 
       // Successfuly created review
-      alert('Review creation success');
+      //alert('Review creation success');
+      this.setState({ redirect: `/kennel-${this.props.match.params.kennelName}` });
 
       // Redirect to review after posting
       //this.setState({ redirect: "/" });
@@ -109,37 +110,42 @@ class CreateReview extends Component {
   }
 
   render() {
-    return (
-      <Container fluid>
-        <Row className="align-items-center">
-          <Col></Col>
-          <Col className="text-center">
-            <Link to="/"><img src={corgiImage} /></Link>
-            <div className="logInForm">
-              <h1 className="logInLabel">Create Review</h1>
-              <Form className="logInEntryContainer">
-                <div className="logInEntryContainer">
-                  <Form.Control id="title" className="logInEntry" size="lg" type="text" placeholder="Title" />
-                </div>
-                <div className="logInEntryContainer">
-                  <Form.Control id="text" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" />
-                </div>
-                <div className="logInEntryContainer">
-                  <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
-                </div>
-                <div>
-                  <Link><Button variant="link">Forgot Password?</Button></Link>
-                </div>
-                <div className="logInEntryContainer">
-                  <Button onClick={this.postReview} className="logInEntry" variant="primary">Submit</Button>
-                </div>
-              </Form>
-            </div>
-          </Col>
-          <Col></Col>
-        </Row>
-      </Container>
-    )
+    if (this.state.redirect) {
+      return <Redirect to={this.state.redirect} />
+    }
+    else {
+      return (
+        <Container fluid>
+          <Row className="align-items-center">
+            <Col></Col>
+            <Col className="text-center">
+              <Link to="/"><img src={corgiImage} /></Link>
+              <div className="logInForm">
+                <h1 className="logInLabel">Create Review</h1>
+                <Form className="logInEntryContainer">
+                  <div className="logInEntryContainer">
+                    <Form.Control id="title" className="logInEntry" size="lg" type="text" placeholder="Title" />
+                  </div>
+                  <div className="logInEntryContainer">
+                    <Form.Control id="text" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" />
+                  </div>
+                  <div className="logInEntryContainer">
+                    <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
+                  </div>
+                  <div>
+                    <Link><Button variant="link">Forgot Password?</Button></Link>
+                  </div>
+                  <div className="logInEntryContainer">
+                    <Button onClick={this.postReview} className="logInEntry" variant="primary">Submit</Button>
+                  </div>
+                </Form>
+              </div>
+            </Col>
+            <Col></Col>
+          </Row>
+        </Container>
+      )
+    }
   }
 }
 
