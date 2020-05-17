@@ -58,6 +58,7 @@ table! {
         follower_count -> Int4,
         muted_words -> Nullable<Array<Text>>,
         rules -> Nullable<Varchar>,
+        mod_uuid -> Uuid,
     }
 }
 
