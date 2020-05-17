@@ -120,7 +120,7 @@ fn tf_idf(reviews: Vec<DbReview>, query_words: Vec<&str>, connection: &PgConnect
 
     		// Push review to vector
     		let (val, idx) = a;
-    		searched_reviews.push(reviews::handlers::to_review(&reviews[idx], connection));
+    		searched_reviews.push(reviews::handlers::to_review(&reviews[idx]));
 
     		println!("Review {}: {}", idx, val);
     	} else {
@@ -333,31 +333,3 @@ fn calc_tf_kennel(term: &str, kennel: &DbKennel) -> f32{
     // Return tf value
     (term_count as f32) / (total_words as f32)
 }
-
-/*
-/**
- * Helper method that converts DbKennel to DisplayKennel
- * @param kennel: the DbKennel
- * @param token: user token
- * @param connection: database connection
- *
- * @return returns a DisplayKennel
- */
-fn to_display_kennel(kennel: &DbKennel, connection: &PgConnection) -> DisplayKennel {
-
-    // Return display kennel created
-    DisplayKennel {
-        kennel_uuid: kennel.kennel_uuid,
-        tags: match &kennel.tags{
-            Some(t) => Some(t.to_vec()),
-            None => None,
-        },
-        kennel_name: kennel.kennel_name.clone(),
-        follower_count: kennel.follower_count,
-        is_following: false,
-        is_moderator: false, 
-        is_banned: false, 
-    }
-
-}
-*/

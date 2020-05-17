@@ -22,6 +22,8 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
         kennel_name: kennel.kennel_name,
         tags: Some(kennel.tags),
         follower_count: get_follower_count(uuid, connection),
+        muted_words: if kennel.muted_words.iter().len() == 0 {None} else {Some(kennel.muted_words)},
+        rules: if kennel.rules.eq("") {None} else {Some(kennel.rules.clone())},
     }
 }
 
@@ -38,6 +40,9 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
     // Converts token into uuid
     let profile_uuid = auth::get_uuid_from_token(&token);
 
+    // Temp
+    let empty_vec : Vec<String> = vec![];
+
     // Return display kennel created
     DisplayKennel {
         kennel_uuid: kennel.kennel_uuid,
@@ -53,6 +58,14 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
                       },
         is_moderator: false, //TODO
         is_banned: false, //TODO
+        muted_words: match &kennel.muted_words{
+            Some(w) => Some(w.to_vec()),
+            None => None,
+        },
+        rules: match &kennel.rules{
+            Some(r) => r.to_string(),
+            None => "".to_string(),
+        },
     }
 
 }
@@ -139,8 +152,8 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbKennel> {
 pub fn get_kennel_uuid_from_name(kennel_name: String, connection: &PgConnection) -> Uuid {
 
     // Searches kennel table for the uuid and gets the kennel
-    match kennels::table.filter(kennels::kennel_name.eq(kennel_name)).load::<DbKennel>(&*connection) {
-        Ok(k) => k[0].kennel_uuid,
+    match kennels::table.filter(kennels::kennel_name.eq(kennel_name)).get_result::<DbKennel>(&*connection) {
+        Ok(k) => k.kennel_uuid,
         Err(_e) => Uuid::nil()
     }
 
@@ -320,6 +333,8 @@ pub struct Kennel {
     pub kennel_uuid: String,
     pub tags: Vec<String>,
     pub kennel_name: String,
+    pub muted_words: Vec<String>,
+    pub rules: String,
 }
 
 // Struct represneting the fields of a kennel that is inserted into database
@@ -330,6 +345,8 @@ pub struct DbKennel {
     pub tags: Option<Vec<String>>,
     pub kennel_name: String,
     pub follower_count: i32,
+    pub muted_words: Option<Vec<String>>,
+    pub rules: Option<String>,
 }
 
 // Struct represneting the fields of a kennel that is returned to frontend
@@ -342,4 +359,6 @@ pub struct DisplayKennel {
     pub is_following: bool,
     pub is_moderator: bool,
     pub is_banned: bool,
+    pub muted_words: Option<Vec<String>>,
+    pub rules: String,
 }

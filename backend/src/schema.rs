@@ -29,6 +29,8 @@ table! {
         author_uuid -> Uuid,
         timestamp -> Timestamp,
         text -> Varchar,
+        author_name -> Varchar,
+        rating -> Int4,
     }
 }
 
@@ -54,6 +56,8 @@ table! {
         tags -> Nullable<Array<Text>>,
         kennel_name -> Varchar,
         follower_count -> Int4,
+        muted_words -> Nullable<Array<Text>>,
+        rules -> Nullable<Varchar>,
     }
 }
 
@@ -116,6 +120,23 @@ table! {
         kennel_uuid -> Uuid,
         title -> Varchar,
         author -> Uuid,
+        timestamp -> Timestamp,
+        text -> Varchar,
+        tags -> Nullable<Array<Text>>,
+        hotness -> Nullable<Int4>,
+        images -> Nullable<Array<Text>>,
+        kennel_name -> Varchar,
+        author_name -> Varchar,
+        rating -> Int4,
+    }
+}
+
+table! {
+    reviewsnew (review_uuid) {
+        review_uuid -> Uuid,
+        kennel -> Varchar,
+        title -> Varchar,
+        author -> Varchar,
         timestamp -> Nullable<Timestamp>,
         text -> Varchar,
         rating -> Int4,
@@ -140,8 +161,6 @@ joinable!(comment_dislike_relationships -> comments (comment));
 joinable!(comment_dislike_relationships -> users (disliker));
 joinable!(comment_like_relationships -> comments (comment));
 joinable!(comment_like_relationships -> users (liker));
-joinable!(comments -> reviews (review_uuid));
-joinable!(comments -> users (author_uuid));
 joinable!(kennel_bans -> kennels (kennel));
 joinable!(kennel_bans -> users (banned_reviewer));
 joinable!(kennel_follow_relationships -> kennels (kennel));
@@ -155,7 +174,6 @@ joinable!(review_dislike_relationships -> reviews (review));
 joinable!(review_dislike_relationships -> users (disliker));
 joinable!(review_like_relationships -> reviews (review));
 joinable!(review_like_relationships -> users (liker));
-joinable!(reviews -> kennels (kennel_uuid));
 joinable!(reviews -> users (author));
 
 allow_tables_to_appear_in_same_query!(
@@ -173,5 +191,6 @@ allow_tables_to_appear_in_same_query!(
     review_like_relationships,
     reviewer_follow_relationships,
     reviews,
+    reviewsnew,
     users,
 );

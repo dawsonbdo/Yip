@@ -17,33 +17,38 @@ use rocket::response::status;
 /**
  * Helper method that converts a Comment to DbComment
  * @param comment: the Comment
+ * @param connection: database connection
  *
  * @return returns a DbComment
  */
-fn from_comment(comment: Comment) -> DbComment {
+fn from_comment(comment: Comment, connection: &PgConnection) -> DbComment {
+    let author_uuid = auth::get_uuid_from_token(&comment.author_token);
+
     DbComment{
         comment_uuid: Uuid::new_v4(),
         review_uuid: comment.review_uuid,
-        author_uuid: auth::get_uuid_from_token(&comment.author_token),
+        author_uuid: author_uuid,
         timestamp: NaiveDateTime::parse_from_str(&comment.timestamp, "%Y-%m-%d %H:%M:%S").unwrap(),
         text: comment.text.clone(),
+        rating: 0, //TODO
+        author_name: super::super::users::handlers::get_user_from_uuid(author_uuid, connection).unwrap().username,
     }
 }
 
 /**
  * Helper method that converts a DbComment to Display
  * @param comment: the DbComment
- * @param connection: database connection
  *
  * @return returns a Display
  */
-fn to_comment(comment: &DbComment, connection: &PgConnection) -> DisplayComment {
+fn to_comment(comment: &DbComment) -> DisplayComment {
     DisplayComment{
         comment_uuid: comment.comment_uuid,
-        author_name: super::super::users::handlers::get_user_from_uuid(comment.author_uuid, connection).unwrap().username,
+        author_name: comment.author_name.clone(),
         timestamp: comment.timestamp.to_string(),
         text: comment.text.clone(),
         is_author: false, // mod.rs handles this
+        rating: comment.rating, // TODO: Have this be up to date in db
     }
 }
 
@@ -186,7 +191,7 @@ pub fn all_review_comments(review_uuid: Uuid, connection: &PgConnection) -> Quer
     Ok(comments::table.filter(comments::review_uuid.eq(review_uuid)).load::<DbComment>(&*connection)
     .unwrap()
     .iter()
-    .map(|comment| to_comment(comment, connection))
+    .map(|comment| to_comment(comment))
     .collect())
 }
 
@@ -227,9 +232,9 @@ pub fn insert(comment: Comment, connection: &PgConnection) -> Result<DisplayComm
 
     // Inserts comment into database, returns uuid generated
     match diesel::insert_into(comments::table)
-        .values(from_comment(comment))
+        .values(from_comment(comment, connection))
         .get_result::<DbComment>(connection) {
-            Ok(c) => Ok(to_comment(&c, connection)),
+            Ok(c) => Ok(to_comment(&c)),
             Err(e) => Err(e.to_string()),
         }
 }
@@ -240,7 +245,7 @@ pub fn insert(comment: Comment, connection: &PgConnection) -> Result<DisplayComm
  */
 pub fn update(id: Uuid, comment: Comment, connection: &PgConnection) -> bool {
     match diesel::update(comments::table.find(id))
-        .set(from_comment(comment))
+        .set(from_comment(comment, connection))
         .get_result::<DbComment>(connection) {
             Ok(_c) => return true,
             Err(_e) => return false,
@@ -301,6 +306,7 @@ pub struct DisplayComment {
     pub timestamp: String,
     pub text: String,
     pub is_author: bool,
+    pub rating: i32,
 }
 
 // Struct representing the fields of a comment passed in from frontend contains
@@ -321,4 +327,6 @@ pub struct DbComment {
     pub author_uuid: Uuid,
     pub timestamp: NaiveDateTime,
     pub text: String,
+    pub author_name: String,
+    pub rating: i32,
 }

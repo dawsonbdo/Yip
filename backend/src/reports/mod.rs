@@ -89,5 +89,5 @@ fn create_report(report: Json<Report>, connection: DbConn) -> Result<status::Acc
  * Mount the report routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_report])  
+    rocket.mount("/", routes![create_report, get_kennel_reports, list_reports])  
 }

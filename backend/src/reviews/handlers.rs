@@ -21,21 +21,26 @@ use super::super::{kennels, users};
  *
  * @return returns a DbReview
  */
-fn from_review(review: Review) -> DbReview {
+fn from_review(review: Review, connection: &PgConnection) -> DbReview {
+    let kennel_id = Uuid::parse_str(&review.kennel_uuid[1..37]).unwrap();
+    let author_id = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);
+
     DbReview{
         review_uuid: Uuid::new_v4(), // generate random uuid for review
-        kennel_uuid: Uuid::parse_str(&review.kennel_uuid[1..37]).unwrap(),
+        kennel_uuid: kennel_id,
         title: (&review.title[1..(review.title.len()-1)]).to_string(),
-        author: auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]),
+        author: author_id,
         timestamp: match NaiveDateTime::parse_from_str(&review.timestamp, "\"%Y-%m-%d %H:%M:%S\"") {
-            Ok(t) => Some(t),
-            Err(_e) => None,
+            Ok(t) => t,
+            Err(_e) => NaiveDateTime::from_timestamp(0, 42_000_000),
         },
         text: (&review.text[1..(review.text.len()-1)]).to_string(),
         images: review.images,
-        rating: review.rating,
         tags: review.tags,
         hotness: Some(0),
+        kennel_name: kennels::handlers::get(kennel_id, connection).unwrap().kennel_name,
+        author_name: users::handlers::get_user_from_uuid(author_id, connection).unwrap().username,
+        rating: review.rating,
     }
 }
 
@@ -45,15 +50,15 @@ fn from_review(review: Review) -> DbReview {
  *
  * @return returns a DisplayReview
  */
-pub fn to_review(review: &DbReview, connection: &PgConnection) -> DisplayReview {
+pub fn to_review(review: &DbReview) -> DisplayReview {
     let vec : Vec<String> = vec![];
     let vec2 : Vec<String> = vec![];
         
     DisplayReview{
-        kennel_name: kennels::handlers::get(review.kennel_uuid, connection).unwrap().kennel_name,
+        kennel_name: review.kennel_name.clone(),
         title: review.title.clone(),
-        author: users::handlers::get_user_from_uuid(review.author, connection).unwrap().username,
-        timestamp: review.timestamp.unwrap(),
+        author: review.author_name.clone(),
+        timestamp: review.timestamp,
         text: review.text.clone(),
         images: match &review.images {
             Some(t) => t.to_vec(),
@@ -284,7 +289,7 @@ pub fn all_kennel_reviews(kennel_uuid: Uuid, connection: &PgConnection) -> Query
     // Pattern match to make sure successful, convert to DisplayReviews if so
     match reviews {
         Ok(r) => Ok(r.iter()
-                     .map(|review| to_review(review, connection))
+                     .map(|review| to_review(review))
                      .collect()),
         Err(e) => Err(e),
     }
@@ -305,7 +310,7 @@ pub fn all_user_reviews(user_uuid: Uuid, connection: &PgConnection) -> QueryResu
     // Pattern match to make sure successful, convert to DisplayReviews if so
     match reviews {
         Ok(r) => Ok(r.iter()
-                     .map(|review| to_review(review, connection))
+                     .map(|review| to_review(review))
                      .collect()),
         Err(e) => Err(e),
     }
@@ -336,7 +341,7 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DisplayReview> {
 
     // Pattern matches the review and converts to DisplayReview if no error
     match review {
-        Ok(r) => Ok(to_review(&r, connection)),
+        Ok(r) => Ok(to_review(&r)),
         Err(e) => Err(e),
     }
 }
@@ -352,7 +357,7 @@ pub fn insert(review: Review, connection: &PgConnection) -> QueryResult<DbReview
 
     // Inserts review into database, returns review created
     diesel::insert_into(reviews::table)
-        .values(&from_review(review))
+        .values(&from_review(review, connection))
         .get_result::<DbReview>(connection)
 }
 
@@ -366,7 +371,7 @@ pub fn insert(review: Review, connection: &PgConnection) -> QueryResult<DbReview
  */
 pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> bool {
     match diesel::update(reviews::table.find(id))
-        .set(&from_review(review))
+        .set(&from_review(review, connection))
         .get_result::<DbReview>(connection) {
             Ok(_u) => return true,
             Err(_e) => return false,
@@ -459,10 +464,12 @@ pub struct DbReview {
     pub kennel_uuid: Uuid,
     pub title: String,
     pub author: Uuid, 
-    pub timestamp: Option<NaiveDateTime>,
+    pub timestamp: NaiveDateTime,
     pub text: String,
-    pub rating: i32,
     pub tags: Option<Vec<String>>,
     pub hotness: Option<i32>,
     pub images: Option<Vec<String>>,
+    pub kennel_name: String,
+    pub author_name: String,
+    pub rating: i32,
 }
