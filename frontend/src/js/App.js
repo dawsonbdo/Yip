@@ -60,7 +60,7 @@ function App() {
           <Route path="/" exact component={Home} />
           <Route path="/login" exact component={Login} />
           <Route path="/register" exact component={Register} />
-          <Route path="/createreview-:kennelName" exact component={CreateReview} />
+          <Route path="/createreview" exact component={CreateReview} />
           <Route path="/recoverpassword" exact component={RecoverPassword} />
           <Route path="/review-:id" exact component={Review} />
 		  <Route path="/editkennel" exact component={EditKennel} />

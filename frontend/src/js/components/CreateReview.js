@@ -32,7 +32,7 @@ class CreateReview extends Component {
   }
 
   componentDidMount() {
-    var kennelName = this.props.match.params.kennelName;
+    var kennelName = this.props.location.state.kennel_name;
     var token = localStorage.getItem('jwtToken');
     // Format URL to send in GET request
     var reqUrl = "/get_kennel/" + kennelName + "/" + token;
@@ -94,7 +94,7 @@ class CreateReview extends Component {
 
       // Successfuly created review
       //alert('Review creation success');
-      this.setState({ redirect: `/kennel-${this.props.match.params.kennelName}` });
+      this.setState({ redirect: `/kennel-${this.props.location.state.kennel_name}` });
 
       // Redirect to review after posting
       //this.setState({ redirect: "/" });
