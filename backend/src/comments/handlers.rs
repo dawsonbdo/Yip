@@ -387,7 +387,7 @@ pub struct DbDislikeComment {
 }
 
 // Struct representing the fields of a comment passed in from frontend contains
-#[derive(Queryable, Serialize, Deserialize)]
+#[derive(Queryable, Serialize, Deserialize, std::hash::Hash, std::cmp::Eq, std::cmp::PartialEq)]
 pub struct DisplayComment {
     pub comment_uuid: Uuid,
     pub author_name: String,

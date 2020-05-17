@@ -1,5 +1,7 @@
 pub mod handlers;
 
+extern crate priority_queue;
+
 use crate::db;
 use crate::auth;
 
@@ -177,9 +179,27 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
 	// Makes database call to get all comments with review uuid
 	let all_comments = handlers::all_review_comments(uuid, &connection);
 
-	// Prints out title/text/rating of each review in database
+	let mut pq = priority_queue::PriorityQueue::new();
+			
+	// Sort reviews by newness using pq (greatest NaiveDateTime value)
 	match all_comments {
-		Ok(comments) => Ok(Json(updateDisplayCommentFields(&profile_username, uuid, comments, &connection))),
+		Ok(comments) =>{
+			for c in comments {
+				let timestamp = c.timestamp.clone();
+				pq.push(c, timestamp);
+			}  
+
+			// Create a vector with all of the reviews to as ordered
+			let mut commentsOrdered : Vec<DisplayComment> = vec![];
+
+			// Order by newness for now 
+			for (comment, _) in pq.into_sorted_iter() {
+
+				commentsOrdered.push(comment);
+			}
+
+			Ok(Json(updateDisplayCommentFields(&profile_username, uuid, commentsOrdered, &connection)))
+		},
 		Err(e) => Err(status::NotFound(e.to_string())),
 	}
 

@@ -44,13 +44,14 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
 
     // Temp
     let empty_vec : Vec<String> = vec![];
+    let empty_vec2 : Vec<String> = vec![];
 
     // Return display kennel created
     DisplayKennel {
         kennel_uuid: kennel.kennel_uuid,
         tags: match &kennel.tags{
             Some(t) => Some(t.to_vec()),
-            None => None,
+            None => Some(empty_vec),
         },
         kennel_name: kennel.kennel_name.clone(),
         follower_count: kennel.follower_count,
@@ -62,7 +63,7 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
         is_banned: false, //TODO
         muted_words: match &kennel.muted_words{
             Some(w) => Some(w.to_vec()),
-            None => None,
+            None => Some(empty_vec2),
         },
         rules: match &kennel.rules{
             Some(r) => r.to_string(),
