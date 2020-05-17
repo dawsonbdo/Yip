@@ -33,6 +33,7 @@ class Kennel extends Component {
             followBtnText: "Follow",
             reviewArray: [],
             tagsArray: [],
+            rules: "",
             kennelReviewsListed: false,
             kennelInfoListed: false,
         }
@@ -169,7 +170,8 @@ class Kennel extends Component {
             // Updates kennel name
             this.setState({
                 kennel_name: response.data.kennel_name,
-                follower_count: response.data.follower_count
+                follower_count: response.data.follower_count,
+                rules: response.data.rules
             });
 
             if(response.data.is_following) {
@@ -233,14 +235,7 @@ class Kennel extends Component {
                 {this.state.showRules && (
                     <div>
                         <h1>Rules</h1>
-                        <p>Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                        Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary Gary
-                    </p>
+                        <p>{this.state.rules}</p>
                     </div>
                 )}
                 {this.state.showTags && (
