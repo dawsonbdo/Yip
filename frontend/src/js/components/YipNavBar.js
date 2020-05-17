@@ -53,7 +53,7 @@ class YipNavBar extends Component {
     //alert(event.currentTarget.value)
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
     var token = localStorage.getItem('jwtToken');
     var url = '/get_followed_kennels/' + token;
     axios({
@@ -63,6 +63,7 @@ class YipNavBar extends Component {
       for (var i = 0; i < response.data.length; i++) {
         this.state.followedKennelsArray.push(response.data[i].kennel_name);
       }
+      this.forceUpdate();
     }).catch(error => {
       //alert('Failed to get kennels');
     });
