@@ -14,7 +14,78 @@ import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png';
 import commentIcon from '../../assets/comment.png';
 
+import axios from 'axios'
+
+import { likeDislikeReviewJson } from './BackendHelpers.js';
+
 class ReviewCard extends Component {
+
+    constructor(props) {
+        super(props)
+
+        // Binds button handler
+        this.likeReview = this.likeReview.bind(this);
+        this.dislikeReview = this.dislikeReview.bind(this);
+    }
+
+    dislikeReview() {
+        // TODO: Get uuid of review from url probably
+        //var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+        var reviewId = this.props.reviewId;
+
+        // Get token
+        var token = localStorage.getItem('jwtToken');
+
+        // Create form for request
+        var form = likeDislikeReviewJson(reviewId, token);
+
+        // Send POST request
+        axios({
+            method: 'post',
+            url: '/dislike_review',
+            data: form
+        }).then(response => {
+
+            alert('Review successfully disliked!');
+
+
+        }).catch(error => {
+
+            // Failed to dislike review
+            alert('Review dislike failed');
+
+        });
+    }
+
+    likeReview() {
+        // TODO: Get uuid of review from url probably
+        //var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+        var reviewId = this.props.reviewId;
+
+        // Get token
+        var token = localStorage.getItem('jwtToken');
+
+        // Create form for request
+        var form = likeDislikeReviewJson(reviewId, token);
+
+        // Send POST request
+        axios({
+            method: 'post',
+            url: '/like_review',
+            data: form
+        }).then(response => {
+
+            alert('Review successfully liked!');
+
+
+        }).catch(error => {
+
+            // Failed to like review
+            alert('Review like failed');
+
+        });
+    }
+
     render() {
         return (
             <Container className="pb-5">
@@ -44,8 +115,8 @@ class ReviewCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <Link to="/"><Image className="float-left likePadding" src={likeIcon} /></Link>
-                                                <Link to="/"><Image className="float-left likePadding" src={dislikeIcon} /></Link>
+                                                <Image onClick={this.likeReview} className="float-left likePadding" src={likeIcon} />
+                                                <Image onClick={this.dislikeReview} className="float-left likePadding" src={dislikeIcon} />
                                                 <Link to="/"><Image className="float-right" src={commentIcon} /></Link>
                                                 <Link to="/"><Image className="float-right" src={homeIcon} /></Link>
                                             </Col>
