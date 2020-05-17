@@ -44,6 +44,7 @@ class Review extends Component {
 		this.postComment = this.postComment.bind(this);
 		this.likeReview = this.likeReview.bind(this);
 		this.dislikeReview = this.dislikeReview.bind(this);
+		this.deleteReview = this.deleteReview.bind(this);
 	}
 
 	componentDidMount() {
@@ -189,6 +190,35 @@ class Review extends Component {
 		});
 	}
 
+	deleteReview() {
+		/*
+		// Get review's id
+		var reviewId = this.props.match.params.id;
+
+		// Get token
+		var token = localStorage.getItem('jwtToken');
+
+		// Create form for request
+		var form = likeDislikeReviewJson(reviewId, token);
+
+		// Send POST request
+		axios({
+			method: 'post',
+			url: '/remove_review',
+			data: form
+		}).then(response => {
+
+			alert('Review successfully removed!');
+
+
+		}).catch(error => {
+
+			alert('Review removal failed');
+
+		});
+		*/
+	}
+
 	postComment() {
 		// TODO: Get uuid of review from url probably
 		var reviewId = this.props.match.params.id;
@@ -248,7 +278,7 @@ class Review extends Component {
 								<Image onClick={this.dislikeReview} className="likePadding" src={dislikeIcon} />
 								<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
 								<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
-								<Link to="/"><Image className="likePadding" src={trashIcon} /></Link>
+								<Image onClick={this.deleteReview} className="likePadding" src={trashIcon} />
 							</Col>
 						</Row>
 
