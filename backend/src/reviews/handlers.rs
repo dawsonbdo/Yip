@@ -6,6 +6,11 @@ use crate::schema::reviews;
 use crate::schema::review_like_relationships;
 use crate::schema::review_dislike_relationships;
 
+// Used for deleting reviews
+use crate::schema::comments;
+use crate::schema::comment_like_relationships;
+use crate::schema::comment_dislike_relationships;
+
 extern crate bcrypt;
 use crate::auth;
 
@@ -14,6 +19,7 @@ use chrono::NaiveDateTime;
 use rocket::response::status;
 
 use super::super::{kennels, users};
+use super::super::comments::handlers::DbComment;
 
 /**
  * Method that converts a Review to DbReview
@@ -419,6 +425,36 @@ pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> bool {
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // TODO: Delete all the comments, and relationships ie likes/dislikes
 
+    // Get all comments
+    let comments = comments::table.filter(comments::review_uuid.eq(id)).load::<DbComment>(&*connection)?;
+
+    // Delete all comments like dislikes
+    for c in comments.iter(){
+        // Delete likes
+        diesel::delete(comment_like_relationships::table
+                  .filter(comment_like_relationships::comment.eq(c.comment_uuid)))
+        .execute(connection);
+
+        // Delete dislikes
+        diesel::delete(comment_dislike_relationships::table
+                  .filter(comment_dislike_relationships::comment.eq(c.comment_uuid)))
+        .execute(connection);
+    }
+    
+    // Delete all comments
+    diesel::delete(comments::table.filter(comments::review_uuid.eq(id)))
+        .execute(connection);
+
+    // Delete all review likes dislikes
+    diesel::delete(review_like_relationships::table
+                  .filter(review_like_relationships::review.eq(id)))
+        .execute(connection);
+
+    diesel::delete(review_dislike_relationships::table
+                  .filter(review_dislike_relationships::review.eq(id)))
+        .execute(connection);
+
+    // Delete review
     diesel::delete(reviews::table.find(id))
         .execute(connection)
 }

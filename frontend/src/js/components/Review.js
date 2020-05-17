@@ -21,7 +21,7 @@ import trashIcon from '../../assets/trash.png';
 
 import axios from 'axios'
 
-import { createCommentJson, likeDislikeReviewJson } from './BackendHelpers.js';
+import { createCommentJson, likeDislikeReviewJson, deleteReviewJson } from './BackendHelpers.js';
 
 class Review extends Component {
 
@@ -191,7 +191,7 @@ class Review extends Component {
 	}
 
 	deleteReview() {
-		/*
+		
 		// Get review's id
 		var reviewId = this.props.match.params.id;
 
@@ -199,7 +199,7 @@ class Review extends Component {
 		var token = localStorage.getItem('jwtToken');
 
 		// Create form for request
-		var form = likeDislikeReviewJson(reviewId, token);
+		var form = deleteReviewJson(reviewId, token);
 
 		// Send POST request
 		axios({
@@ -216,7 +216,7 @@ class Review extends Component {
 			alert('Review removal failed');
 
 		});
-		*/
+		
 	}
 
 	postComment() {

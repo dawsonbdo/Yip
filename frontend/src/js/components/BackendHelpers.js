@@ -71,6 +71,12 @@ export function likeDislikeCommentJson(comment_uuid = "", token = "") {
     return form
 };
 
+// Creates a JSON object for deleting reviews
+export function deleteReviewJson(review_uuid = "", token = "") {
+    var form = {review_uuid: review_uuid, token: token};
+    return form
+};
+
 function getDateTime(){
   var today = new Date();
   var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
