@@ -123,8 +123,6 @@ class Kennel extends Component {
             url: reqUrl
         }).then(response => {
 
-            //alert('Kennel reviews successfully grabbed from database!');
-
             // Iterate through reviews
             if (!this.kennelReviewsListed) {
                 for (var i = response.data.length - 1; i >= 0; i--) {
@@ -256,7 +254,6 @@ class Kennel extends Component {
             kennel = <Row>
                 <Image className="mx-auto loadingIcon loading" src={LoadingIcon}></Image>
             </Row>;
-
         }
 
         return (
@@ -266,7 +263,6 @@ class Kennel extends Component {
             </div>
         )
     }
-
 }
 
 export default Kennel;
