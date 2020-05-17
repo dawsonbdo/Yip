@@ -12,6 +12,7 @@ import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import corgiImage from '../../assets/corgi_shadow.png';
 import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png'
+import YipNavBar from "./YipNavBar";
 
 import axios from 'axios'
 
@@ -94,7 +95,7 @@ class CreateReview extends Component {
 
       // Successfuly created review
       //alert('Review creation success');
-      this.setState({ redirect: `/kennel-${this.props.location.state.kennel_name}` });
+      this.setState({ redirect: `/review-${response.data}` });
 
       // Redirect to review after posting
       //this.setState({ redirect: "/" });
@@ -115,14 +116,16 @@ class CreateReview extends Component {
     }
     else {
       return (
-        <Container fluid>
+        <Container>
           <Row className="align-items-center">
-            <Col></Col>
             <Col className="text-center">
               <Link to="/"><img src={corgiImage} /></Link>
               <div className="logInForm">
                 <h1 className="logInLabel">Create Review</h1>
                 <Form className="logInEntryContainer">
+                <div className="logInEntryContainer">
+                    <Form.Control id="kennel" className="logInEntry" size="lg" type="text" readOnly defaultValue={this.props.location.state.kennel_name} />
+                  </div>
                   <div className="logInEntryContainer">
                     <Form.Control id="title" className="logInEntry" size="lg" type="text" placeholder="Title" />
                   </div>
@@ -132,16 +135,12 @@ class CreateReview extends Component {
                   <div className="logInEntryContainer">
                     <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                   </div>
-                  <div>
-                    <Link><Button variant="link">Forgot Password?</Button></Link>
-                  </div>
                   <div className="logInEntryContainer">
-                    <Button onClick={this.postReview} className="logInEntry" variant="primary">Submit</Button>
+                    <Button onClick={this.postReview} className="logInEntry" variant="primary">Post</Button>
                   </div>
                 </Form>
               </div>
             </Col>
-            <Col></Col>
           </Row>
         </Container>
       )
