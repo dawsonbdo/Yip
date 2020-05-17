@@ -494,7 +494,7 @@ pub struct DbDislikeReview {
 }
 
 // Fields that represent what the review needs to display on front end
-#[derive(Queryable, Serialize, Deserialize, Debug)]
+#[derive(Queryable, Serialize, Deserialize, Debug, std::hash::Hash, std::cmp::PartialEq, std::cmp::Eq)]
 pub struct DisplayReview {
     pub kennel_name: String, //kennel name
     pub title: String,
@@ -540,3 +540,4 @@ pub struct DbReview {
     pub author_name: String,
     pub rating: i32,
 }
+

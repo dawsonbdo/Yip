@@ -11,6 +11,7 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate radix_heap;
 extern crate ordered_float;
+extern crate priority_queue;
 
 use std::path::{Path, PathBuf};
 use rocket::response::NamedFile;

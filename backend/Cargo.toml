@@ -25,6 +25,7 @@ json = "0.12.4"
 rustc-serialize = "0.3.24"
 radix-heap = "0.3.8"
 ordered-float = "1.0.2"
+priority-queue = "0.7.0"
 
 [dependencies.rocket_contrib]
 version = "0.4.4"

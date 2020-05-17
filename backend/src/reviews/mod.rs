@@ -3,6 +3,8 @@ pub mod reviewmultipart;
 
 extern crate chrono;
 extern crate json;
+extern crate priority_queue;
+
 
 use crate::auth;
 use crate::db;
@@ -553,6 +555,8 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	// Create a vector with all of the reviews to display
 	let mut reviews : Vec<DisplayReview> = vec![];
 
+	let mut pq = priority_queue::PriorityQueue::new();
+
 	// Check if user is logged in by checking token passed in
 	if auth::validate_token(token.clone()) {
 
@@ -578,12 +582,25 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	        Err(e) => (),
 	    };
 
+	    // Sort reviews by newness using pq (greatest NaiveDateTime value)
+	    for r in reviews {
+	    	let timestamp = r.timestamp;
+	    	pq.push(r, timestamp);
+	    }  
 
 	}
 
+	// Create a vector with all of the reviews to as ordered
+	let mut reviewsOrdered : Vec<DisplayReview> = vec![];
+
+	// Order by newness for now 
+	for (review, _) in pq.into_sorted_iter() {
+
+		reviewsOrdered.push(review);
+	}
 
 	// Return a Result depending on if reviews were found
-	if reviews.iter().len() == 0 {
+	if reviewsOrdered.iter().len() == 0 {
 		Err(status::NotFound("No Reviews".to_string()))
 	} else {
 
@@ -597,7 +614,7 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 		};
 		
 		// Set is_author, is_liked, is_disliked fields
-		Ok(Json(updateDisplayReviewFields(&profile_username, uuid, reviews, &connection)))
+		Ok(Json(updateDisplayReviewFields(&profile_username, uuid, reviewsOrdered, &connection)))
 	}
 }
 
