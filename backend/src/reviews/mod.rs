@@ -461,6 +461,16 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 
 		// TODO: Generate user specific reviews based on followed kennels
 
+		// Pattern match to make sure successful, convert to DisplayReviews if so
+	    match handlers::all(&connection) {
+	        Ok(r) => reviews = (r.iter()
+	                     .map(|review| handlers::to_review(review))
+	                     .collect()),
+	        Err(e) => (),
+	    };
+
+		/*
+
 		// Get all of the IDs
 		let review_ids = list_reviews_helper(&connection);
 
@@ -468,11 +478,22 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 		for id in review_ids.iter() {
 			reviews.push(get_review_helper(id.to_string(), &connection).unwrap());
 		}
+
+		*/
 
 	} else {
 
 		// TODO: Generate generic most recent popular reviews 
 
+		match handlers::all(&connection) {
+	        Ok(r) => reviews = (r.iter()
+	                     .map(|review| handlers::to_review(review))
+	                     .collect()),
+	        Err(e) => (),
+	    };
+
+		/*
+
 		// Get all of the IDs
 		let review_ids = list_reviews_helper(&connection);
 
@@ -480,6 +501,8 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 		for id in review_ids.iter() {
 			reviews.push(get_review_helper(id.to_string(), &connection).unwrap());
 		}
+
+		*/
 
 	}
 
