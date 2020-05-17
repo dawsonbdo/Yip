@@ -75,14 +75,14 @@ class Kennel extends Component {
             }).then(response => {
 
                 // Successful follow
-                alert('Kennel has been followed successfully');
+                //alert('Kennel has been followed successfully');
                 this.setState({ isFollowing: true, followBtnText: "Unfollow" });
 
 
             }).catch(error => {
 
                 // Error for failed follow
-                alert('Failed to follow kennel');
+                //alert('Failed to follow kennel');
 
             });
         }
@@ -94,14 +94,14 @@ class Kennel extends Component {
             }).then(response => {
 
                 // Successful follow
-                alert('Kennel has been unfollowed successfully');
+                //alert('Kennel has been unfollowed successfully');
                 this.setState({ isFollowing: false, followBtnText: "Follow" });
 
 
             }).catch(error => {
 
                 // Error for failed follow
-                alert('Failed to unfollow kennel');
+                //alert('Failed to unfollow kennel');
 
             });
 
@@ -227,6 +227,7 @@ class Kennel extends Component {
                     <Col>
                         <Link to="/editkennel"><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
                         <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
+                        <Link to={`/createreview-${this.state.kennel_name}`}><Button className="logInEntry" type="submit" variant="link">Post Review</Button></Link>
                     </Col>
                 </Row>
                 {this.state.showReviews && (

@@ -12,8 +12,8 @@ export function createUserJson(username = "", email = "", password = "") {
 };
 
 // Creates a JSON Review object
-export function createReviewJson(title = "", text = "", author = "", dateTime = "") {
-    var form = {kennel_uuid: "f37c4d54-ab18-4e33-bd89-b4209ecd0f13",
+export function createReviewJson(id = "", title = "", text = "", author = "", dateTime = "") {
+    var form = {kennel_uuid: id,
                 title: title,
                 author: author,
                 timestamp: dateTime,
@@ -24,16 +24,11 @@ export function createReviewJson(title = "", text = "", author = "", dateTime = 
     return form
 };
 
-
 // Creates a JSON Kennel object
-export function createKennelJson(name = "", tags = "", muted_words = "", rules = "") {
+export function createKennelJson(name = "", tags = "") {
     var form = {kennel_uuid: "00000000-0000-0000-0000-000000000000",
                 tags: tags,
-                kennel_name: name,
-                muted_words: muted_words,
-                rules: rules
-                };
-
+                kennel_name: name};
     return form
 };
 

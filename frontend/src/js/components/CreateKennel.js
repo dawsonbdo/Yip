@@ -20,7 +20,7 @@ class CreateKennel extends Component {
 
     this.state = {
       redirect: null,
-      validated: false
+      validated: false,
     };
 
     // Binds button handler
@@ -31,7 +31,7 @@ class CreateKennel extends Component {
    * Function handler for edit kennel submit button
    */
   createKennel(event) {
-    
+
     // Prevents page from refreshing on submit
     event.preventDefault();
     event.stopPropagation();
@@ -42,9 +42,9 @@ class CreateKennel extends Component {
     // TODO: Parsing on the tags and muted words (comma separated)
     var tagsStr = document.getElementById('tags').value;
     var tags = tagsStr.split(", ");
-    var mutedStr = document.getElementById('mute').value; 
+    var mutedStr = document.getElementById('mute').value;
     var mutedWords = mutedStr.split(", ");
-    var rules = document.getElementById('rules').value; 
+    var rules = document.getElementById('rules').value;
 
     // Create form to send
     var form = createKennelJson(title, tags, mutedWords, rules);
@@ -55,52 +55,58 @@ class CreateKennel extends Component {
       url: '/create_kennel',
       data: form
     }).then(response => {
-      alert("kennel created");
+      //alert("kennel created");
+      this.setState({ redirect: `/kennel-${title}` });
 
     }).catch(error => {
 
       alert('failed kennel creation');
 
     });
-    
+
   }
 
   render() {
-    return (
-      <Container>
-        <Row className="align-items-center">
+    if (this.state.redirect) {
+      return <Redirect to={this.state.redirect} />
+    }
+    else {
+      return (
+        <Container>
+          <Row className="align-items-center">
 
-          <Col className="text-center">
-            <Link to="/"><img src={corgiImage} /></Link>
-            <div className="logInForm">
-              <h1 className="logInLabel">Create Kennel</h1>
-              <Form noValidate validated={this.state.validated} onSubmit={this.createKennel} className="logInEntryContainer">
-                <div className="logInEntryContainer">
-                  <Form.Label>Title</Form.Label>
-                  <Form.Control id="title" className="logInEntry" type="text" />
-                </div>
-                <div className="logInEntryContainer">
-                  <Form.Label>Rules</Form.Label>
-                  <Form.Control id="rules" className="logInEntry" type="text" as="textarea" />
-                </div>
-                <div className="logInEntryContainer">
-                  <Form.Label>Tags</Form.Label>
-                  <Form.Control id="tags" className="logInEntry" type="text" />
-                </div>
-                <div className="logInEntryContainer">
-                  <Form.Label>Muted Words</Form.Label>
-                  <Form.Control id="mute" className="logInEntry" type="text" />
-                </div>
-                <div className="logInEntryContainer">
-                  <Button className="logInEntry" type="submit" variant="primary">Save</Button>
-                </div>
-              </Form>
-            </div>
-          </Col>
+            <Col className="text-center">
+              <Link to="/"><img src={corgiImage} /></Link>
+              <div className="logInForm">
+                <h1 className="logInLabel">Create Kennel</h1>
+                <Form noValidate validated={this.state.validated} onSubmit={this.createKennel} className="logInEntryContainer">
+                  <div className="logInEntryContainer">
+                    <Form.Label>Title</Form.Label>
+                    <Form.Control id="title" className="logInEntry" type="text" />
+                  </div>
+                  <div className="logInEntryContainer">
+                    <Form.Label>Rules</Form.Label>
+                    <Form.Control id="rules" className="logInEntry" type="text" as="textarea" />
+                  </div>
+                  <div className="logInEntryContainer">
+                    <Form.Label>Tags</Form.Label>
+                    <Form.Control id="tags" className="logInEntry" type="text" />
+                  </div>
+                  <div className="logInEntryContainer">
+                    <Form.Label>Muted Words</Form.Label>
+                    <Form.Control id="mute" className="logInEntry" type="text" />
+                  </div>
+                  <div className="logInEntryContainer">
+                    <Button className="logInEntry" type="submit" variant="primary">Submit</Button>
+                  </div>
+                </Form>
+              </div>
+            </Col>
 
-        </Row>
-      </Container>
-    )
+          </Row>
+        </Container>
+      )
+    }
   }
 
 }
