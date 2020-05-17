@@ -114,9 +114,10 @@ class Kennel extends Component {
         // Get kennel name from URL?
         //var kennelName = 'GaryGang'
         var kennelName = this.props.match.params.kennelName;
+        var token = localStorage.getItem('jwtToken')
 
         // Format URL to send in GET request
-        var reqUrl = "/get_kennel_reviews/" + kennelName;
+        var reqUrl = "/get_kennel_reviews/" + kennelName + "/" + token;
 
         // Send GET request with kennel name to get reviews in kennel
         axios({

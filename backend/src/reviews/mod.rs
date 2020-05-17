@@ -25,11 +25,65 @@ use serde_json::{Value, Map};
 
 use super::users;
 
+use std::collections::HashMap;
+
 // Struct with review ID and user token for editing/deleting reviews
 #[derive(Queryable, Serialize, Deserialize)]
 struct ReviewToken {
     review_uuid: String,
     token: String,
+}
+
+/**
+ * Helper method that updates is_author, is_liked, is_disliked given username, uuid, and reviews vector
+ * @param profile_username: the username
+ * @param uuid: the profiles uuid
+ * @param reviews: the reviews that are being updated
+ * @param connection: database connection
+ *
+ * @return returns vector of DisplayReviews with updated fields
+ */
+fn updateDisplayReviewFields(profile_username: &str, uuid: Uuid, reviews: Vec<DisplayReview>, connection: &DbConn) -> Vec<DisplayReview> {
+
+	// Gets all user's like relationships
+	let likes = handlers::get_user_likes(uuid, connection).unwrap();
+
+	// Gets all user's dislike relationships
+	let dislikes = handlers::get_user_dislikes(uuid, connection).unwrap();
+
+	// Create hash map for the review likes and dislikes by user
+	let mut review_likes_dislikes = HashMap::new();
+
+	// Iterate through likes and dislikes
+	for l in likes.iter() {
+		review_likes_dislikes.insert(l.liker, -1);
+	}
+
+	for d in dislikes.iter() {
+		review_likes_dislikes.insert(d.disliker, -1);
+	}
+
+
+	let mut reviews_updated : Vec<DisplayReview> = vec![];
+
+	// Set isAuthor, isLiked, isDisliked fields
+	for mut r in reviews {
+		let val = review_likes_dislikes.get(&r.review_uuid);
+
+		r.is_author = profile_username.eq(&r.author); // set field of DisplayReview
+		r.is_liked = match val{
+			Some(v) => *v == 1,
+			None => false,
+		};
+		r.is_disliked = match val{
+			Some(v) => *v == -1,
+			None => false,
+		};
+
+		reviews_updated.push(r);
+	}
+
+	reviews_updated
 }
 
 /** 
@@ -213,12 +267,13 @@ fn like_review(input: Json<ReviewToken>, connection: DbConn) -> Result<status::A
 /** 
  * Method that returns vector of kennel reviews
  * @param kennel_name: the name of the kennel that is queried
+ * @param token: the token of user logged in
  * @param connection: database connection
  *
  * @return returns JSON of the review or error status
  */
-#[get("/get_kennel_reviews/<kennel_name>")]
-fn get_kennel_reviews(kennel_name: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
+#[get("/get_kennel_reviews/<kennel_name>/<token>")]
+fn get_kennel_reviews(kennel_name: String, token: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
 
 	// Converts kennel name to kennel id
 	let kennel_uuid = super::kennels::handlers::get_kennel_uuid_from_name(kennel_name, &connection);
@@ -231,6 +286,20 @@ fn get_kennel_reviews(kennel_name: String, connection: DbConn) -> Result<Json<Ve
 	// Makes database call to get all reviews with kennel uuid
 	let all_reviews = handlers::all_kennel_reviews(kennel_uuid, &connection);
 
+	// Get tokens username
+	let profile_username = token_to_username(token.clone(), &connection);
+
+	// Get tokens uuid
+	let uuid = auth::get_uuid_from_token(&token);
+
+	// Return reviews after setting is_author, is_liked, is_disliked
+	match all_reviews{
+		Ok(r) => Ok(Json(updateDisplayReviewFields(&profile_username, uuid, r, &connection))),
+		Err(e) => Err(status::NotFound(e.to_string())),
+	}
+
+
+
 	/*
 	// Prints out title/text/rating of each review in database
 	for v in &all_reviews {
@@ -240,7 +309,7 @@ fn get_kennel_reviews(kennel_name: String, connection: DbConn) -> Result<Json<Ve
 	}
 	*/
 
-	Ok(Json(all_reviews.unwrap()))
+	
 }
 
 /** 
@@ -287,17 +356,23 @@ fn get_user_reviews(username: String, connection: DbConn) -> Result<Json<Vec<Dis
 #[get("/get_review/<id>/<token>")]
 fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<DisplayReview>, status::NotFound<String>> {
 
-	// Get username from token passed in
-	let profile_username = token_to_username(token.clone(), &connection);
-
 	// Get uuid from token passed in
 	let profile_uuid = auth::get_uuid_from_token(&token);
+
+	// Parse review uuid
 	let review_uuid = Uuid::parse_str(&id).unwrap();
+
+	// Look for the username of the uuid in database
+	let profile_username = match super::users::handlers::get_user_from_uuid(profile_uuid, &connection){
+		Ok(u) => u.username,
+		Err(_e) => "".to_string(),
+	};
 
 	// Pattern match to see if review found successfully, update fields and return
 	match get_review_helper(id, &connection) {
 		Ok(mut r) => {
-			println!("AUTHOR: {} PROFILE: {}", &r.author, &profile_username);
+			//println!("AUTHOR: {} PROFILE: {}", &r.author, &profile_username);
+			
 			r.is_author = profile_username.eq(&r.author); // set field of DisplayReview
 			r.is_liked = match handlers::get_relationship_like(review_uuid, profile_uuid, &connection){
 				Ok(u) => u != 0,
@@ -307,6 +382,7 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 				Ok(u) => u != 0,
 				Err(_e) => false,
 			};
+			
 			Ok(Json(r))
 		},
 		Err(e) => Err(e),
@@ -457,7 +533,7 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	let mut reviews : Vec<DisplayReview> = vec![];
 
 	// Check if user is logged in by checking token passed in
-	if auth::validate_token(token) {
+	if auth::validate_token(token.clone()) {
 
 		// TODO: Generate user specific reviews based on followed kennels
 
@@ -469,17 +545,6 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	        Err(e) => (),
 	    };
 
-		/*
-
-		// Get all of the IDs
-		let review_ids = list_reviews_helper(&connection);
-
-		// Iterate through review IDs and add all reviews to vector
-		for id in review_ids.iter() {
-			reviews.push(get_review_helper(id.to_string(), &connection).unwrap());
-		}
-
-		*/
 
 	} else {
 
@@ -492,25 +557,23 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	        Err(e) => (),
 	    };
 
-		/*
-
-		// Get all of the IDs
-		let review_ids = list_reviews_helper(&connection);
-
-		// Iterate through review IDs and add all reviews to vector
-		for id in review_ids.iter() {
-			reviews.push(get_review_helper(id.to_string(), &connection).unwrap());
-		}
-
-		*/
 
 	}
+
 
 	// Return a Result depending on if reviews were found
 	if reviews.iter().len() == 0 {
 		Err(status::NotFound("No Reviews".to_string()))
 	} else {
-		Ok(Json(reviews))
+
+		// Get tokens username
+		let profile_username = token_to_username(token.clone(), &connection);
+
+		// Get tokens uuid
+		let uuid = auth::get_uuid_from_token(&token);
+	
+		// Set is_author, is_liked, is_disliked fields
+		Ok(Json(updateDisplayReviewFields(&profile_username, uuid, reviews, &connection)))
 	}
 }
 

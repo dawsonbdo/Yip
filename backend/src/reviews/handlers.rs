@@ -76,6 +76,37 @@ pub fn to_review(review: &DbReview) -> DisplayReview {
     }
 }
 
+
+/**
+ * Helper method that returns rows in review dislike table that correspond to profile uuid
+ * @param profile_uuid: the profile uuid
+ * @param connection: database connection
+ *
+ * @return returns a result containing vector of rows
+ */
+pub fn get_user_dislikes(profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbDislikeReview>>{
+    
+    // Filters review dislike relationship table
+    review_dislike_relationships::table
+             .filter(review_dislike_relationships::disliker.eq(profile_uuid))
+             .load::<DbDislikeReview>(connection)
+}
+
+/**
+ * Helper method that returns rows in review like table that correspond to profile uuid
+ * @param profile_uuid: the profile uuid
+ * @param connection: database connection
+ *
+ * @return returns a result containing vector of rows
+ */
+pub fn get_user_likes(profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbLikeReview>>{
+    
+    // Filters review like relationship table
+    review_like_relationships::table
+             .filter(review_like_relationships::liker.eq(profile_uuid))
+             .load::<DbLikeReview>(connection)
+}
+
 /**
  * Helper method that returns row in review dislike table based on params
  * @param review_uuid: the review uuid
