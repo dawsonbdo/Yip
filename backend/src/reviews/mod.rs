@@ -570,6 +570,12 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	        Err(e) => (),
 	    };
 
+	    // Sort reviews by newness using pq (greatest NaiveDateTime value)
+	    for r in reviews {
+	    	let timestamp = r.timestamp;
+	    	pq.push(r, timestamp);
+	    }  
+
 
 	} else {
 
