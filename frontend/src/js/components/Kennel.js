@@ -235,7 +235,12 @@ class Kennel extends Component {
                         }}
                         ><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
                         <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
-                        <Link to={`/createreview-${this.state.kennel_name}`}><Button className="logInEntry" type="submit" variant="link">Post Review</Button></Link>
+                        <Link to={{
+                            pathname: "/createreview",
+                            state: {
+                                kennel_name: this.state.kennel_name
+                            }
+                        }}><Button className="logInEntry" type="submit" variant="link">Post Review</Button></Link>
                     </Col>
                 </Row>
                 {this.state.showReviews && (
