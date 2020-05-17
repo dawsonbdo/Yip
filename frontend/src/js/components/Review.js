@@ -114,7 +114,7 @@ class Review extends Component {
 			// Will populate comment cards
 			if(!this.state.commentsListed) {
 
-				for(var i = 1; i < response.data.length; i++) {
+				for(var i = 0; i < response.data.length; i++) {
 					this.state.commentArray.push({
 						author: response.data[i].author_name,
 						text: response.data[i].text,
