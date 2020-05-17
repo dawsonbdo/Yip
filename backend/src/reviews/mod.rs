@@ -413,6 +413,9 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
 	// Get tokens username
 	let profile_username = token_to_username(review.token.clone(), &connection);
 
+	// Get tokens uuid
+	let profile_uuid = auth::get_uuid_from_token(&review.token);
+
 	// Converts string to a uuid
 	let uuid = Uuid::parse_str(&review.review_uuid).unwrap();
 
@@ -422,14 +425,21 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
 	// Pattern match to see if review found successfully
 	match review {
 		Ok(r) => {
-			// If token matches author of review, attempt to delete
-			if profile_username.eq(&r.author) { 
+			// Get mod id of kennel of review
+			let mod_uuid = super::kennels::handlers::
+						   get_kennel_mod_uuid_from_name(r.kennel_name, &connection);
+
+			//println!("Mod Uuid: {}", mod_uuid);
+			//println!("Token Uuid: {}", uuid);
+
+			// If token matches author of review, or moderator of kennel, attempt to delete
+			if profile_username.eq(&r.author) || profile_uuid.eq(&mod_uuid) { 
 				match handlers::delete(uuid, &connection){
 					Ok(_u) => Ok(status::Accepted(None)),
 					Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
 				}
 			} else {
-				Err(status::Unauthorized(Some("User is not the author".to_string())))
+				Err(status::Unauthorized(Some("User is not the author or mod".to_string())))
 			}
 		},
 		// Review not found in database
