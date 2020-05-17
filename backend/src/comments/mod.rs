@@ -11,6 +11,8 @@ use rocket_contrib::json::Json;
 
 use rocket::response::status;
 
+use std::collections::HashMap;
+
 // Struct with comment id and user jwt for liking/dislking comments
 #[derive(Queryable, Serialize, Deserialize)]
 struct CommentUser {
@@ -109,6 +111,58 @@ fn like_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status::
 }
 
 /**
+ * Helper method that updates is_author, is_liked, is_disliked given username, uuid, and comments vector
+ * @param profile_username: the username
+ * @param uuid: the profiles uuid
+ * @param comments: the comments that are being updated
+ * @param connection: database connection
+ *
+ * @return returns vector of DisplayComments with updated fields
+ */
+fn updateDisplayCommentFields(profile_username: &str, uuid: Uuid, comments: Vec<DisplayComment>, connection: &DbConn) -> Vec<DisplayComment> {
+
+	// Gets all user's like relationships
+	let likes = handlers::get_user_likes(uuid, connection).unwrap();
+
+	// Gets all user's dislike relationships
+	let dislikes = handlers::get_user_dislikes(uuid, connection).unwrap();
+
+	// Create hash map for the review likes and dislikes by user
+	let mut comment_likes_dislikes = HashMap::new();
+
+	// Iterate through likes and dislikes
+	for l in likes.iter() {
+		comment_likes_dislikes.insert(l.liker, -1);
+	}
+
+	for d in dislikes.iter() {
+		comment_likes_dislikes.insert(d.disliker, -1);
+	}
+
+
+	let mut comments_updated : Vec<DisplayComment> = vec![];
+
+	// Set isAuthor, isLiked, isDisliked fields
+	for mut c in comments {
+		let val = comment_likes_dislikes.get(&c.comment_uuid);
+
+		c.is_author = profile_username.eq(&c.author_name); // set field of DisplayComment
+		c.is_liked = match val{
+			Some(v) => *v == 1,
+			None => false,
+		};
+		c.is_disliked = match val{
+			Some(v) => *v == -1,
+			None => false,
+		};
+
+		comments_updated.push(c);
+	}
+
+	comments_updated
+}
+
+/**
  * Print out all comments of a review
  */
 #[get("/get_comments/<review_uuid>/<token>", rank=1)]
@@ -123,24 +177,12 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
 	// Makes database call to get all comments with review uuid
 	let all_comments = handlers::all_review_comments(uuid, &connection);
 
-	let mut disp_comments : Vec<DisplayComment> = vec![];
-
 	// Prints out title/text/rating of each review in database
-	if let Ok(comments) = all_comments {
-
-		for mut c in comments {
-
-			c.is_author = c.author_name.eq(&profile_username);
-			c.is_liked = false; //TODO
-			c.is_disliked = false; //TODO
-			println!("Author Name: {} Time: {} Text: {}", c.author_name, c.timestamp, c.text);
-			disp_comments.push(c);
-			
-		}
-
+	match all_comments {
+		Ok(comments) => Ok(Json(updateDisplayCommentFields(&profile_username, uuid, comments, &connection))),
+		Err(e) => Err(status::NotFound(e.to_string())),
 	}
 
-	Ok(Json(disp_comments))
 }
 
 /** 

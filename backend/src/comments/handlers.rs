@@ -13,6 +13,35 @@ use crate::auth;
 
 use rocket::response::status;
 
+/**
+ * Helper method that returns rows in comment dislike table that correspond to profile uuid
+ * @param profile_uuid: the profile uuid
+ * @param connection: database connection
+ *
+ * @return returns a result containing vector of rows
+ */
+pub fn get_user_dislikes(profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbDislikeComment>>{
+    
+    // Filters comment like relationship table
+    comment_dislike_relationships::table
+             .filter(comment_dislike_relationships::disliker.eq(profile_uuid))
+             .load::<DbDislikeComment>(connection)
+}
+
+/**
+ * Helper method that returns rows in comment like table that correspond to profile uuid
+ * @param profile_uuid: the profile uuid
+ * @param connection: database connection
+ *
+ * @return returns a result containing vector of rows
+ */
+pub fn get_user_likes(profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbLikeComment>>{
+    
+    // Filters comment like relationship table
+    comment_like_relationships::table
+             .filter(comment_like_relationships::liker.eq(profile_uuid))
+             .load::<DbLikeComment>(connection)
+}
 
 /**
  * Helper method that converts a Comment to DbComment
