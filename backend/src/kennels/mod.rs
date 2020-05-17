@@ -223,6 +223,34 @@ fn follow_kennel(input: Json<KennelUser>, connection: DbConn) -> Result<status::
 
 
 /** 
+ * Method that updates a kennel
+ * @param kennel: JSON of the kennel
+ * @param connection: database connection
+ *
+ * @return returns a result with status Accepted or Unauthorized
+ */
+#[post("/edit_kennel", data="<kennel>", rank=1)]
+fn edit_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+	
+	// Make sure valid user id 
+	let moderator = auth::get_uuid_from_token(&kennel.token);
+
+	if moderator.is_nil(){
+		return Err(status::Conflict(Some("Invalid user".to_string())))
+	}
+
+	// Attempt to update kennel in database
+	let successful_edit = handlers::update(moderator, kennel.into_inner(), &connection);
+	
+	// Check if successful insertion into database
+	match successful_edit {
+		Ok(_id) => Ok(status::Accepted(None)),
+		Err(e) => Err(status::Conflict(Some(e.to_string()))),
+	}
+	
+}
+
+/** 
  * Method that creates a kennel
  * @param kennel: JSON of the kennel
  * @param connection: database connection
@@ -232,6 +260,13 @@ fn follow_kennel(input: Json<KennelUser>, connection: DbConn) -> Result<status::
 #[post("/create_kennel", data="<kennel>", rank=1)]
 fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
 	
+	// Make sure valid user id 
+	let moderator = auth::get_uuid_from_token(&kennel.token);
+
+	if moderator.is_nil(){
+		return Err(status::Conflict(Some("Invalid user".to_string())))
+	}
+
 	// Attempt to insert kennel into database 
 	let successful_creation = handlers::insert(kennel.into_inner(), &connection);
 	
@@ -247,5 +282,5 @@ fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Acc
  * Mount the kennel routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_kennel, list_kennels, follow_kennel, unfollow_kennel, get_kennel, get_followed_kennels, get_followed_kennels_username, search_kennels])  
+    rocket.mount("/", routes![create_kennel, edit_kennel, list_kennels, follow_kennel, unfollow_kennel, get_kennel, get_followed_kennels, get_followed_kennels_username, search_kennels])  
 }

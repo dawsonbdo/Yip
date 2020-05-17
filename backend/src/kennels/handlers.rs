@@ -16,6 +16,7 @@ use rocket::response::status;
  */
 fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
     let uuid = get_kennel_uuid_from_name(kennel.kennel_name.clone(), connection);
+    let mod_id = get_kennel_mod_uuid_from_name(kennel.kennel_name.clone(), connection);
 
     DbKennel{
         kennel_uuid: if uuid.is_nil() {Uuid::new_v4()} else {uuid}, // generate random uuid for kennel
@@ -24,6 +25,7 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
         follower_count: get_follower_count(uuid, connection),
         muted_words: if kennel.muted_words.iter().len() == 0 {None} else {Some(kennel.muted_words)},
         rules: if kennel.rules.eq("") {None} else {Some(kennel.rules.clone())},
+        mod_uuid: if mod_id.is_nil() {auth::get_uuid_from_token(&kennel.token)} else {mod_id},
     }
 }
 
@@ -160,6 +162,23 @@ pub fn get_kennel_uuid_from_name(kennel_name: String, connection: &PgConnection)
 }
 
 /**
+ * Method that returns uuid of a mod of a kennel given the name
+ * @param kennel_name: name of kennel
+ * @param connection: database connection
+ *
+ * @return returns uuid of kennel if found, otherwise nil uuid
+ */
+pub fn get_kennel_mod_uuid_from_name(kennel_name: String, connection: &PgConnection) -> Uuid {
+
+    // Searches kennel table for the uuid and gets the kennel
+    match kennels::table.filter(kennels::kennel_name.eq(kennel_name)).get_result::<DbKennel>(&*connection) {
+        Ok(k) => k.mod_uuid,
+        Err(_e) => Uuid::nil()
+    }
+
+}
+
+/**
  * Method that updates the number of followers of a kennel in DB
  * @param kennel_uuid: uuid of kennel
  * @param connection: database connection
@@ -285,19 +304,18 @@ pub fn insert(kennel: Kennel, connection: &PgConnection) -> Result<Uuid, String>
 
 /**
  * Method that attempts to edit a  kennel in database
- * @param id: the uuid of kennel
  * @param kennel: the updated Kennel object
  * @param connection: database connection
  *
- * @retun returns bool indicating if successfuly edited by updating database
+ * @retun returns query result with size
  */
-pub fn update(id: Uuid, kennel: Kennel, connection: &PgConnection) -> bool {
-    match diesel::update(kennels::table.find(id))
+pub fn update(mod_id: Uuid, kennel: Kennel, connection: &PgConnection) -> QueryResult<usize> {
+    // Check that token is moderator of kennel and update
+    diesel::update(kennels::table
+                  .filter(kennels::kennel_name.eq(kennel.kennel_name.clone()))
+                  .filter(kennels::mod_uuid.eq(mod_id)))
         .set(from_kennel(kennel, connection))
-        .get_result::<DbKennel>(connection) {
-            Ok(_u) => return true,
-            Err(_e) => return false,
-        }
+        .execute(connection)
 }
 
 /**
@@ -338,6 +356,7 @@ pub struct Kennel {
     pub kennel_name: String,
     pub muted_words: Vec<String>,
     pub rules: String,
+    pub token: String,
 }
 
 // Struct represneting the fields of a kennel that is inserted into database
@@ -350,6 +369,7 @@ pub struct DbKennel {
     pub follower_count: i32,
     pub muted_words: Option<Vec<String>>,
     pub rules: Option<String>,
+    pub mod_uuid: Uuid,
 }
 
 // Struct represneting the fields of a kennel that is returned to frontend

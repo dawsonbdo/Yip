@@ -36,6 +36,8 @@ class EditKennel extends Component {
     event.preventDefault();
     event.stopPropagation();
 
+    /*
+
     this.setState({ failedLogin: false });
 
     var registerForm = event.currentTarget;
@@ -46,31 +48,36 @@ class EditKennel extends Component {
       return;
     }
 
-    // Parses login form with username/email and password
-    var email = document.getElementById('login').value;
-    var username = document.getElementById('login').value;
-    var password = document.getElementById('password').value
-    var form = createUserJson(username, email, password);
+    */
 
-    // Send POST request with username, email, and password
+    var token = localStorage.getItem('jwtToken');
+
+    // TODO: parse this from url or something
+    var title = 'PCMasterRace' 
+
+    // Parses form 
+    var rules = document.getElementById('rules').value; 
+
+    // TODO: Parsing on the tags and muted words (comma separated)
+    var tagsStr = document.getElementById('tags').value;
+    var tags = tagsStr.split(", ");
+    var mutedStr = document.getElementById('mute').value; 
+    var mutedWords = mutedStr.split(", ");
+
+    // Create form to send
+    var form = createKennelJson(title, tags, mutedWords, rules, token);
+
+    // Send POST request with kennel name and tags
     axios({
       method: 'post',
-      url: '/login',
+      url: '/edit_kennel',
       data: form
     }).then(response => {
-
-      // Store token in local storage
-      localStorage.setItem('jwtToken', response.data);
-
-      // Redirect to home after successful login
-      this.setState({ redirect: "/" });
-
+      alert("kennel created");
 
     }).catch(error => {
 
-      // Error for failed login
-      this.setState({ failedLogin: true });
-      alert('Username or Password incorrect!');
+      alert('failed kennel creation');
 
     });
   }
@@ -91,19 +98,19 @@ class EditKennel extends Component {
                 <Form noValidate validated={this.state.validated} onSubmit={this.updateKennel} className="logInEntryContainer">
                   <div className="logInEntryContainer">
                     <Form.Label>Rules</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text" as="textarea"/>
+                    <Form.Control id="rules" className="logInEntry" type="text" as="textarea"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Tags</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text"/>
+                    <Form.Control id="tags" className="logInEntry" type="text"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Muted Words</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text"/>
+                    <Form.Control id="mute" className="logInEntry" type="text"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Banned Reviewers</Form.Label>
-                    <Form.Control id="login" className="logInEntry" type="text"/>
+                    <Form.Control id="bans" className="logInEntry" type="text"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" variant="primary">Save</Button>

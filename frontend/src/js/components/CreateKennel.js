@@ -36,18 +36,20 @@ class CreateKennel extends Component {
     event.preventDefault();
     event.stopPropagation();
 
-    // Parses form for kennel title and tags
+    var token = localStorage.getItem('jwtToken');
+
+    // Parses form 
     var title = document.getElementById('title').value;
+    var rules = document.getElementById('rules').value; 
 
     // TODO: Parsing on the tags and muted words (comma separated)
     var tagsStr = document.getElementById('tags').value;
     var tags = tagsStr.split(", ");
     var mutedStr = document.getElementById('mute').value; 
     var mutedWords = mutedStr.split(", ");
-    var rules = document.getElementById('rules').value; 
 
     // Create form to send
-    var form = createKennelJson(title, tags, mutedWords, rules);
+    var form = createKennelJson(title, tags, mutedWords, rules, token);
 
     // Send POST request with kennel name and tags
     axios({

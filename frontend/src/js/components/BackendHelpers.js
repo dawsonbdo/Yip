@@ -26,12 +26,13 @@ export function createReviewJson(title = "", text = "", author = "", dateTime = 
 
 
 // Creates a JSON Kennel object
-export function createKennelJson(name = "", tags = "", muted_words = "", rules = "") {
+export function createKennelJson(name = "", tags = "", muted_words = "", rules = "", token ="") {
     var form = {kennel_uuid: "00000000-0000-0000-0000-000000000000",
                 tags: tags,
                 kennel_name: name,
                 muted_words: muted_words,
-                rules: rules
+                rules: rules,
+                token: token
                 };
 
     return form
