@@ -130,7 +130,7 @@ class Kennel extends Component {
             // Iterate through reviews
             if (!this.kennelReviewsListed) {
                 
-                for (var i = response.data.length - 1; i >= 0; i--) {
+                for (var i = 0; i < response.data.length; i++) {
 
                     // Add review name, reviewer's username, review text to reviewArray
                     this.state.reviewArray.push({

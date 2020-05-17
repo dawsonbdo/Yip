@@ -212,7 +212,7 @@ class Profile extends Component {
             console.log(response.data);
 
             // Iterate through reviews
-            for (var i = response.data.length - 1; i >= 0; i--) {
+            for (var i = 0; i < response.data.length; i++) {
 
                 // Print reviews to console for now
                 console.log(response.data[i]);

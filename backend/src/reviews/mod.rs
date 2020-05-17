@@ -297,7 +297,26 @@ fn get_kennel_reviews(kennel_name: String, token: String, connection: DbConn) ->
 
 	// Return reviews after setting is_author, is_liked, is_disliked
 	match all_reviews{
-		Ok(r) => Ok(Json(updateDisplayReviewFields(&profile_username, uuid, r, &connection))),
+		Ok(revs) => {
+			let mut pq = priority_queue::PriorityQueue::new();
+			
+			// Sort reviews by newness using pq (greatest NaiveDateTime value)
+			for r in revs {
+			    let timestamp = r.timestamp;
+			    pq.push(r, timestamp);
+			}  
+
+			// Create a vector with all of the reviews to as ordered
+			let mut reviewsOrdered : Vec<DisplayReview> = vec![];
+
+			// Order by newness for now 
+			for (review, _) in pq.into_sorted_iter() {
+
+				reviewsOrdered.push(review);
+			}
+
+			Ok(Json(updateDisplayReviewFields(&profile_username, uuid, reviewsOrdered, &connection)))
+		},
 		Err(e) => Err(status::NotFound(e.to_string())),
 	}
 
@@ -354,8 +373,25 @@ fn get_user_reviews(username: String, token: String, connection: DbConn) -> Resu
 		Err(_e) => "".to_string(),
 	};
 
+	let mut pq = priority_queue::PriorityQueue::new();
+
+	// Sort reviews by newness using pq (greatest NaiveDateTime value)
+	for r in all_reviews.unwrap() {
+	    let timestamp = r.timestamp;
+	    pq.push(r, timestamp);
+	}  
+
+	// Create a vector with all of the reviews to as ordered
+	let mut reviewsOrdered : Vec<DisplayReview> = vec![];
+
+	// Order by newness for now 
+	for (review, _) in pq.into_sorted_iter() {
+
+		reviewsOrdered.push(review);
+	}
+
 	// Updates display review fields using token passed in
-	Ok(Json(updateDisplayReviewFields(&profile_username, token_uuid, all_reviews.unwrap(), &connection)))
+	Ok(Json(updateDisplayReviewFields(&profile_username, token_uuid, reviewsOrdered, &connection)))
 }
 
 /** 
