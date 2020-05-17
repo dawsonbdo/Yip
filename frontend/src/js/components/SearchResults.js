@@ -4,7 +4,7 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 import Button from 'react-bootstrap/Button';
 import ReviewCard from './ReviewCard';
 import YipNavBar from "./YipNavBar";
-import CommentCard from './CommentCard';
+import KennelCard from './KennelCard';
 import Container from 'react-bootstrap/Container';
 import LoadingIcon from '../../assets/loadingIcon.gif';
 import Image from 'react-bootstrap/Image';
@@ -20,14 +20,31 @@ class SearchResults extends Component {
         super(props);
 
         // Creates state to keep track of if logged in
-        this.state = { 
+        this.state = {
             loggedIn: false,
-            searchDisplay: false
+            searchDisplay: false,
+            resultArray: []
         };
     }
 
+    componentDidMount() {
+        // SEARCH KENNELS
+        //this.searchKennels("ucsd");
+
+        // SEARCH REVIEWS
+        //this.searchReviews("test");       
+
+        if (this.props.location.state.searchType == "kennel") {
+            this.searchKennels(this.props.location.state.query);
+        }
+        else {
+            this.searchReviews(this.props.location.state.query);
+        }
+        alert("RESULTS")
+    }
+    
     // Searches all kennels using query passed in
-    searchKennels(query){
+    searchKennels(query) {
         axios({
             method: 'get',
             url: '/search_kennels/' + query,
@@ -44,8 +61,13 @@ class SearchResults extends Component {
 
                 // Print kennels to console for now
                 console.log(response.data[i]);
+                this.state.resultArray.push({
+                    kennelName: response.data[i].kennel_name,
+                    kennelRules: response.data[i].rules,
+                });
 
             }
+            this.setState({ searchDisplay: true });
 
 
         }).catch(error => {
@@ -57,7 +79,8 @@ class SearchResults extends Component {
     }
 
     // Searches all reviews using query passed in
-    searchReviews(query){
+    searchReviews(query) {
+        alert(query)
         axios({
             method: 'get',
             url: '/search_reviews/' + query,
@@ -75,10 +98,16 @@ class SearchResults extends Component {
 
                 // Print reviews to console for now
                 console.log(response.data[i]);
+                this.state.resultArray.push({
+                    title: response.data[i].title,
+                    author: response.data[i].author,
+                    text: response.data[i].text,
+                    id: response.data[i].review_uuid
+                });
 
             }
 
-            this.setState({searchDisplay: true});
+            this.setState({ searchDisplay: true });
 
         }).catch(error => {
 
@@ -88,23 +117,24 @@ class SearchResults extends Component {
         });
     }
 
-    // Displays if logged in on home page
-    componentDidMount() {
-        // SEARCH KENNELS
-        this.searchKennels("ucsd");
-
-        // SEARCH REVIEWS
-        this.searchReviews("test");       
-
-    }
-
     render() {
 
         // DYNAMICALLY GET REVIEWS HERE AND PUT IT IN THE IF STATEMENT BELOW
+        let results;
+        if (this.props.location.state.searchType == "review") {
+            results = this.state.resultArray.map(function (result) {
+                return <ReviewCard reviewId={result.id} reviewName={result.title} reviewerName={result.author} reviewPreview={{ __html: result.text }} />
+            });
+        }
+        else {
+            results = this.state.resultArray.map(function (result) {
+                return <KennelCard kennelName={result.kennelName} kennelRules={result.kennelRules} />
+            });
+        }
 
         let search;
         if (this.state.searchDisplay) {
-            search = 
+            search =
                 <div>
                     <Jumbotron id="jumbotron" className="text-center">
                         <h1>Results: </h1>
@@ -112,18 +142,7 @@ class SearchResults extends Component {
                     <Container>
                         <Row>
                             <Col>
-                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
-                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
-                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
-                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
-                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
-                            </Col>
-                            <Col>
-                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
-                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
-                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
-                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
-                                <ReviewCard reviewName={"Review Name"} reviewerName={"Name"} reviewPreview={{ __html: "dasfasdfasdf" }} />
+                                {results}
                             </Col>
                         </Row>
                     </Container>
