@@ -53,6 +53,63 @@ fn to_comment(comment: &DbComment) -> DisplayComment {
 }
 
 /**
+ * Method that returns rating of a comment
+ * @param comment_uuid: uuid of comment
+ * @param connection: database connection
+ *
+ * @return returns rating of comment, 0 if does not exist
+ */
+pub fn calculate_rating(comment_uuid: Uuid, connection: &PgConnection) -> i32 {
+
+    // Gets rows that match the comment uuid in like table
+    let likes = comment_like_relationships::table
+             .filter(comment_like_relationships::comment.eq(comment_uuid))
+             .execute(connection);
+
+    // Gets rows that match the comment uuid in dislike table
+    let dislikes = comment_dislike_relationships::table
+             .filter(comment_dislike_relationships::comment.eq(comment_uuid))
+             .execute(connection);
+
+    let mut rating : i32 = 0;
+
+    // Get number of likes
+    match likes {
+        Ok(r) => rating += (r as i32),
+        Err(_e) => rating += 0,
+    }
+
+    // Get number of dislikes
+    match dislikes {
+        Ok(r) => rating -= (r as i32),
+        Err(_e) => rating -= 0,
+    }
+
+    // Return rating
+    rating as i32
+}
+
+/**
+ * Method that updates the rating of a comment in DB
+ * @param comment_uuid: uuid of comment
+ * @param connection: database connection
+ *
+ * @return result indicating if successfully updated
+ */
+pub fn update_comment_rating(comment_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
+
+    // Get new rating
+    let new_count = calculate_rating(comment_uuid, connection);
+
+    println!("Comment Id: {} New Count: {}", comment_uuid, new_count);
+
+    // Update comment rating
+    diesel::update(comments::table.find(comment_uuid))
+                        .set(comments::columns::rating.eq(new_count))
+                        .execute(connection)
+}
+
+/**
  * Helper method that returns row in comment dislike table based on params
  * @param comment_uuid: the comment uuid
  * @param profile_uuid: the profile uuid

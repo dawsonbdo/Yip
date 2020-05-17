@@ -68,13 +68,13 @@ fn like_dislike_helper(input: Json<CommentUser>, like: bool, connection: DbConn)
     	Err(e) => return Err(status::BadRequest(Some("Comment not foudn".to_string()))),
     }
     
+    
+    // TODO: Update net rating differently so liking/disliking is faster
 
-    // TODO: Update comment net likes
-    /*
-    if let Err(e) = handlers::update_kennel_followers(kennel_uuid, &connection) {
+    // Update comment net rating
+    if let Err(e) = handlers::update_comment_rating(comment_uuid.unwrap(), &connection) {
         dbg!(e);
     }
-    */
 
     // Return result
     result

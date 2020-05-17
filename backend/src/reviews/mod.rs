@@ -154,13 +154,14 @@ fn like_dislike_helper(input: Json<ReviewToken>, like: bool, connection: DbConn)
     	Err(e) => return Err(status::BadRequest(Some("Review not foudn".to_string()))),
     }
     
-    /*
+    
+    // TODO: Update net rating differently so liking/disliking is faster
+
     // Update review net rating
     if let Err(e) = handlers::update_review_rating(review_uuid.unwrap(), &connection) {
         dbg!(e);
     }
-    */
-
+    
     // Return result
     result
 }
