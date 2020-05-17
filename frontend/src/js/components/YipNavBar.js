@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -28,11 +29,12 @@ class YipNavBar extends Component {
     // Creates state to keep track of if logged in
     this.state = {
       loggedIn: false,
-      followedKennelsArray: []
+      followedKennelsArray: [],
+      redirect: null
     };
 
     this.logout = this.logout.bind(this);
-    this.handleDropdownClick = this.handleDropdownClick.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
   }
 
   logout(event) {
@@ -48,9 +50,17 @@ class YipNavBar extends Component {
 
   }
 
-  handleDropdownClick(event) {
-    alert("TEST")
-    //alert(event.currentTarget.value)
+  handleSearch(event) {
+    var query = document.getElementById('searchBar').value;
+    alert("HANDLING SEARCH" + query)
+    this.setState({ redirect: {
+      pathname: "/searchresults",
+      state: {
+        query: query,
+        searchType: event
+      }
+    }});
+
   }
 
   componentDidMount() {
@@ -82,42 +92,47 @@ class YipNavBar extends Component {
       return <Dropdown.Item href={`/kennel-${kennel}`}>{kennel}</Dropdown.Item>
     });
 
-
-    return (
-      <div id="spaceNav">
-        <Navbar className="color-nav" expand="false" fixed="top">
-          <Link to="/"><img className="yipIcon" src={corgiImage} /></Link>
-          {isLoggedIn(this) && <DropdownButton id="dropdown-item-button" title="Followed Kennels" className="pr-5" variant="warning">
-            {followedKennels}
-          </DropdownButton>}
-          {logBtn}
-          {/* <Navbar.Toggle aria-controls="basic-navbar-nav" />
+    if (!this.state.redirect) {
+      return (
+        <div id="spaceNav">
+          <Navbar className="color-nav" expand="false" fixed="top">
+            <Link to="/"><img className="yipIcon" src={corgiImage} /></Link>
+            {isLoggedIn(this) && <DropdownButton id="dropdown-item-button" title="Followed Kennels" className="pr-5" variant="warning">
+              {followedKennels}
+            </DropdownButton>}
+            {logBtn}
+            {/* <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
               <Nav.Link href="#home">Home</Nav.Link>
               <Nav.Link href="#link">Link</Nav.Link>
             </Nav>
           </Navbar.Collapse> */}
-          {/* <Button className="" variant="warning">Inbox</Button> */}
-          <Form inline className="ml-auto float-right pt-3">
-            <FormGroup>
-              <FormControl id="searchBar" type="text" placeholder="Search for Reviews and Kennels" />
-              {/* <Button type="submit" variant="warning">Search</Button> */}
-            </FormGroup>
-          </Form>
-          <DropdownButton
-            alignRight
-            title="Search"
-            id="dropdown-menu-align-right"
-            variant="warning"
-            type="submit"
-          >
-            <Dropdown.Item eventKey="1">Review</Dropdown.Item>
-            <Dropdown.Item eventKey="2">Kennel</Dropdown.Item>
-          </DropdownButton>
-        </Navbar>
-      </div>
-    )
+            {/* <Button className="" variant="warning">Inbox</Button> */}
+            <Form inline className="ml-auto float-right pt-3">
+              <FormGroup>
+                <FormControl id="searchBar" type="text" placeholder="Search for Reviews and Kennels" />
+                {/* <Button type="submit" variant="warning">Search</Button> */}
+              </FormGroup>
+            </Form>
+            <DropdownButton
+              alignRight
+              onSelect={this.handleSearch}
+              title="Search"
+              id="dropdown-menu-align-right"
+              variant="warning"
+              type="submit"
+            >
+              <Dropdown.Item eventKey="review">Review</Dropdown.Item>
+              <Dropdown.Item eventKey="kennel">Kennel</Dropdown.Item>
+            </DropdownButton>
+          </Navbar>
+        </div>
+      )
+    }
+    else {
+      return <Redirect to={this.state.redirect} />
+    }
   }
 }
 
