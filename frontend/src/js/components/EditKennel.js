@@ -54,7 +54,6 @@ class EditKennel extends Component {
 
     // TODO: parse this from url or something
     var title = 'PCMasterRace';
-    var id = "dd044077-ef9f-4c4c-a714-13c788b971be";
 
     // Parses form 
     var rules = document.getElementById('rules').value; 
@@ -66,7 +65,7 @@ class EditKennel extends Component {
     var mutedWords = mutedStr.split(", ");
 
     // Create form to send
-    var form = createKennelJson(id, title, tags, mutedWords, rules, token);
+    var form = createKennelJson(title, tags, mutedWords, rules, token);
 
     // Send POST request with kennel name and tags
     axios({
