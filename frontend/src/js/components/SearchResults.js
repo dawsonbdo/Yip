@@ -91,7 +91,7 @@ class SearchResults extends Component {
     // Displays if logged in on home page
     componentDidMount() {
         // SEARCH KENNELS
-        this.searchKennels("professionalism");
+        this.searchKennels("ucsd");
 
         // SEARCH REVIEWS
         this.searchReviews("test");       

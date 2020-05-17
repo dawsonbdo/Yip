@@ -32,15 +32,22 @@ class CreateKennel extends Component {
    */
   createKennel(event) {
     
-    /*// Prevents page from refreshing on submit
+    // Prevents page from refreshing on submit
     event.preventDefault();
     event.stopPropagation();
 
     // Parses form for kennel title and tags
     var title = document.getElementById('title').value;
+
+    // TODO: Parsing on the tags and muted words (comma separated)
     var tagsStr = document.getElementById('tags').value;
-    var tags = tagsStr.split(" ");
-    var form = createKennelJson(title, tags);
+    var tags = tagsStr.split(", ");
+    var mutedStr = document.getElementById('mute').value; 
+    var mutedWords = mutedStr.split(", ");
+    var rules = document.getElementById('rules').value; 
+
+    // Create form to send
+    var form = createKennelJson(title, tags, mutedWords, rules);
 
     // Send POST request with kennel name and tags
     axios({
@@ -54,7 +61,7 @@ class CreateKennel extends Component {
 
       alert('failed kennel creation');
 
-    });*/
+    });
     
   }
 

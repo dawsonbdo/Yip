@@ -20,7 +20,7 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
     DbKennel{
         kennel_uuid: if uuid.is_nil() {Uuid::new_v4()} else {uuid}, // generate random uuid for kennel
         kennel_name: kennel.kennel_name,
-        tags: Some(kennel.tags),
+        tags: if kennel.muted_words.iter().len() == 0 {None} else {Some(kennel.tags)},
         follower_count: get_follower_count(uuid, connection),
         muted_words: if kennel.muted_words.iter().len() == 0 {None} else {Some(kennel.muted_words)},
         rules: if kennel.rules.eq("") {None} else {Some(kennel.rules.clone())},
@@ -268,7 +268,10 @@ pub fn insert(kennel: Kennel, connection: &PgConnection) -> Result<Uuid, String>
     
     // Prints the Kennel information that was received 
     println!("Name: {}", kennel.kennel_name);
-    println!("Tags: {}", kennel.tags[0]);
+
+    for i in 0..kennel.tags.iter().len(){
+        println!("Tag ({}): {}", i, kennel.tags[i]);
+    }
     //println!("Mods: {}", kennel.mods[0]);
 
     // Inserts kennel into database, returns uuid generated
