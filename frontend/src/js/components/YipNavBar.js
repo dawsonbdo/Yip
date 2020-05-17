@@ -46,6 +46,14 @@ class YipNavBar extends Component {
     // Sets logged in state of the component after loading page
     updateLoggedInState(this);
 
+  }
+
+  handleDropdownClick(event) {
+    alert("TEST")
+    //alert(event.currentTarget.value)
+  }
+
+  componentDidUpdate() {
     var token = localStorage.getItem('jwtToken');
     var url = '/get_followed_kennels/' + token;
     axios({
@@ -58,11 +66,7 @@ class YipNavBar extends Component {
     }).catch(error => {
       //alert('Failed to get kennels');
     });
-  }
 
-  handleDropdownClick(event) {
-    alert("TEST")
-    //alert(event.currentTarget.value)
   }
 
   render() {
