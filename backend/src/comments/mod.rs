@@ -131,6 +131,8 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
 		for mut c in comments {
 
 			c.is_author = c.author_name.eq(&profile_username);
+			c.is_liked = false; //TODO
+			c.is_disliked = false; //TODO
 			println!("Author Name: {} Time: {} Text: {}", c.author_name, c.timestamp, c.text);
 			disp_comments.push(c);
 			

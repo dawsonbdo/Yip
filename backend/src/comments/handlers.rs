@@ -49,6 +49,8 @@ fn to_comment(comment: &DbComment) -> DisplayComment {
         text: comment.text.clone(),
         is_author: false, // mod.rs handles this
         rating: comment.rating, // TODO: Have this be up to date in db
+        is_liked: false, // handled in mod.rs
+        is_disliked: false, // handled in mod.rs
     }
 }
 
@@ -364,6 +366,8 @@ pub struct DisplayComment {
     pub text: String,
     pub is_author: bool,
     pub rating: i32,
+    pub is_liked: bool,
+    pub is_disliked: bool,
 }
 
 // Struct representing the fields of a comment passed in from frontend contains

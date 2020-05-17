@@ -286,11 +286,12 @@ fn get_kennel_reviews(kennel_name: String, token: String, connection: DbConn) ->
 	// Makes database call to get all reviews with kennel uuid
 	let all_reviews = handlers::all_kennel_reviews(kennel_uuid, &connection);
 
+	// Get tokens uuid
+	let uuid = auth::get_uuid_from_token(&token);
+
 	// Get tokens username
 	let profile_username = token_to_username(token.clone(), &connection);
 
-	// Get tokens uuid
-	let uuid = auth::get_uuid_from_token(&token);
 
 	// Return reviews after setting is_author, is_liked, is_disliked
 	match all_reviews{
@@ -319,8 +320,8 @@ fn get_kennel_reviews(kennel_name: String, token: String, connection: DbConn) ->
  *
  * @return returns JSON of the review or error status
  */
-#[get("/get_user_reviews/<username>")]
-fn get_user_reviews(username: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
+#[get("/get_user_reviews/<username>/<token>")]
+fn get_user_reviews(username: String, token: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
 
 	// Get uuid from username passed in
 	let uuid = users::handlers::get_uuid_from_username(&username, &connection);
@@ -342,7 +343,17 @@ fn get_user_reviews(username: String, connection: DbConn) -> Result<Json<Vec<Dis
 	}
 	*/
 
-	Ok(Json(all_reviews.unwrap()))
+	// Get tokens uuid
+	let token_uuid = auth::get_uuid_from_token(&token);
+
+	// Look for the username of the uuid in database
+	let profile_username = match super::users::handlers::get_user_from_uuid(token_uuid, &connection){
+		Ok(u) => u.username,
+		Err(_e) => "".to_string(),
+	};
+
+	// Updates display review fields using token passed in
+	Ok(Json(updateDisplayReviewFields(&profile_username, token_uuid, all_reviews.unwrap(), &connection)))
 }
 
 /** 
@@ -566,12 +577,15 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 		Err(status::NotFound("No Reviews".to_string()))
 	} else {
 
-		// Get tokens username
-		let profile_username = token_to_username(token.clone(), &connection);
-
 		// Get tokens uuid
 		let uuid = auth::get_uuid_from_token(&token);
-	
+
+		// Look for the username of the uuid in database
+		let profile_username = match super::users::handlers::get_user_from_uuid(uuid, &connection){
+			Ok(u) => u.username,
+			Err(_e) => "".to_string(),
+		};
+		
 		// Set is_author, is_liked, is_disliked fields
 		Ok(Json(updateDisplayReviewFields(&profile_username, uuid, reviews, &connection)))
 	}

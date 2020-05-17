@@ -203,7 +203,7 @@ class Profile extends Component {
         // Send GET request with user name to get reviews posted
         axios({
             method: 'get',
-            url: '/get_user_reviews/' + username,
+            url: '/get_user_reviews/' + username + '/' + token,
         }).then(response => {
 
             //alert('Users posted reviews info successfully grabbed from database!');
