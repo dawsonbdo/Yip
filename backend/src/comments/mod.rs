@@ -22,6 +22,59 @@ struct CommentUser {
     token: String,
 }
 
+
+/**
+ * Helper method that updates is_author, is_liked, is_disliked given username, uuid, and comments vector
+ * @param profile_username: the username
+ * @param uuid: the profiles uuid
+ * @param comments: the comments that are being updated
+ * @param connection: database connection
+ *
+ * @return returns vector of DisplayComments with updated fields
+ */
+fn updateDisplayCommentFields(profile_username: &str, uuid: Uuid, comments: Vec<DisplayComment>, connection: &DbConn) -> Vec<DisplayComment> {
+
+	// Gets all user's like relationships
+	let likes = handlers::get_user_likes(uuid, connection).unwrap();
+
+	// Gets all user's dislike relationships
+	let dislikes = handlers::get_user_dislikes(uuid, connection).unwrap();
+
+	// Create hash map for the review likes and dislikes by user
+	let mut comment_likes_dislikes = HashMap::new();
+
+	// Iterate through likes and dislikes
+	for l in likes.iter() {
+		comment_likes_dislikes.insert(l.liker, -1);
+	}
+
+	for d in dislikes.iter() {
+		comment_likes_dislikes.insert(d.disliker, -1);
+	}
+
+
+	let mut comments_updated : Vec<DisplayComment> = vec![];
+
+	// Set isAuthor, isLiked, isDisliked fields
+	for mut c in comments {
+		let val = comment_likes_dislikes.get(&c.comment_uuid);
+
+		c.is_author = profile_username.eq(&c.author_name); // set field of DisplayComment
+		c.is_liked = match val{
+			Some(v) => *v == 1,
+			None => false,
+		};
+		c.is_disliked = match val{
+			Some(v) => *v == -1,
+			None => false,
+		};
+
+		comments_updated.push(c);
+	}
+
+	comments_updated
+}
+
 /**
  * Helper method that returns the username corresponding to a token, "" if none
  * @param token: the token
@@ -112,57 +165,56 @@ fn like_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status::
     like_dislike_helper(input, true, connection)
 }
 
-/**
- * Helper method that updates is_author, is_liked, is_disliked given username, uuid, and comments vector
- * @param profile_username: the username
- * @param uuid: the profiles uuid
- * @param comments: the comments that are being updated
+/** 
+ * Method that removes a comment from database if token matches author of comment
+ * @param review: Json with uuid and token
  * @param connection: database connection
- *
- * @return returns vector of DisplayComments with updated fields
+ * 
+ * @return returns accepted status if removed, other unauthorized
  */
-fn updateDisplayCommentFields(profile_username: &str, uuid: Uuid, comments: Vec<DisplayComment>, connection: &DbConn) -> Vec<DisplayComment> {
+#[post("/remove_comment", data="<input>")]
+fn remove_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
 
-	// Gets all user's like relationships
-	let likes = handlers::get_user_likes(uuid, connection).unwrap();
+	// Get tokens username
+	let profile_username = token_to_username(input.token.clone(), &connection);
 
-	// Gets all user's dislike relationships
-	let dislikes = handlers::get_user_dislikes(uuid, connection).unwrap();
+	// Get tokens uuid
+	let profile_uuid = auth::get_uuid_from_token(&input.token);
 
-	// Create hash map for the review likes and dislikes by user
-	let mut comment_likes_dislikes = HashMap::new();
+	// Converts string to a uuid
+	let uuid = Uuid::parse_str(&input.comment_uuid).unwrap();
 
-	// Iterate through likes and dislikes
-	for l in likes.iter() {
-		comment_likes_dislikes.insert(l.liker, -1);
+	// Get comment from database
+	let comment = handlers::get(uuid, &connection);
+
+	// Pattern match to see if comment found successfully
+	match comment {
+		Ok(c) => {
+			// Get kennel name
+			let rev = super::reviews::handlers::get(c.review_uuid, &connection).unwrap();
+
+			// Get mod id of kennel of comment
+			let mod_uuid = super::kennels::handlers::
+						   get_kennel_mod_uuid_from_name(rev.kennel_name, &connection);
+
+			//println!("Mod Uuid: {}", mod_uuid);
+			//println!("Token Uuid: {}", uuid);
+
+			// If token matches author of review, or moderator of kennel, attempt to delete
+			if profile_username.eq(&c.author_name) || profile_uuid.eq(&mod_uuid) { 
+				match handlers::delete(uuid, &connection){
+					Ok(_u) => Ok(status::Accepted(None)),
+					Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
+				}
+			} else {
+				Err(status::Unauthorized(Some("User is not the author of comment or mod".to_string())))
+			}
+		},
+		// Review not found in database
+		Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
 	}
-
-	for d in dislikes.iter() {
-		comment_likes_dislikes.insert(d.disliker, -1);
-	}
-
-
-	let mut comments_updated : Vec<DisplayComment> = vec![];
-
-	// Set isAuthor, isLiked, isDisliked fields
-	for mut c in comments {
-		let val = comment_likes_dislikes.get(&c.comment_uuid);
-
-		c.is_author = profile_username.eq(&c.author_name); // set field of DisplayComment
-		c.is_liked = match val{
-			Some(v) => *v == 1,
-			None => false,
-		};
-		c.is_disliked = match val{
-			Some(v) => *v == -1,
-			None => false,
-		};
-
-		comments_updated.push(c);
-	}
-
-	comments_updated
 }
+
 
 /**
  * Print out all comments of a review
@@ -235,5 +287,5 @@ fn create_comment(comment: Json<Comment>, connection: DbConn) -> Result<status::
  * Mount the comment routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_comment, get_comments, like_comment, dislike_comment])  
+    rocket.mount("/", routes![create_comment, remove_comment, get_comments, like_comment, dislike_comment])  
 }

@@ -348,6 +348,17 @@ pub fn update(id: Uuid, comment: Comment, connection: &PgConnection) -> bool {
  * @return returns usize (1 if deleted successfully)
  */
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
+    // Delete likes of comment
+    diesel::delete(comment_like_relationships::table
+            .filter(comment_like_relationships::comment.eq(id)))
+            .execute(connection);
+
+    // Delete dislikes of comment
+    diesel::delete(comment_dislike_relationships::table
+            .filter(comment_dislike_relationships::comment.eq(id)))
+            .execute(connection);
+
+    // Delete comment
     diesel::delete(comments::table.find(id))
         .execute(connection)
 }
