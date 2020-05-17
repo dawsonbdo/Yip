@@ -34,6 +34,8 @@ class Kennel extends Component {
             reviewArray: [],
             tagsArray: [],
             rules: "",
+            tagsString: "",
+            mutedString: "",
             kennelReviewsListed: false,
             kennelInfoListed: false,
         }
@@ -127,6 +129,7 @@ class Kennel extends Component {
 
             // Iterate through reviews
             if (!this.kennelReviewsListed) {
+                
                 for (var i = response.data.length - 1; i >= 0; i--) {
 
                     // Add review name, reviewer's username, review text to reviewArray
@@ -172,7 +175,9 @@ class Kennel extends Component {
             this.setState({
                 kennel_name: response.data.kennel_name,
                 follower_count: response.data.follower_count,
-                rules: response.data.rules
+                rules: response.data.rules,
+                tagsString: "",
+                mutedString: ""
             });
 
             if(response.data.is_following) {
@@ -182,8 +187,14 @@ class Kennel extends Component {
             // Iterate through tags
             for (var i = 0; i < response.data.tags.length; i++) {
 
-                // Add tags to tagsArray
+                // Add tags to tagsArray and recreate tag string as prop for editkennel
                 this.state.tagsArray.push(response.data.tags[i]);
+                this.setState({tagsString: this.state.tagsString + response.data.tags[i] + ", " });
+            }
+            for (var i = 0; i < response.data.muted_words.length; i++) {
+
+                // Build muted words string from array as prop for editkennel
+                this.setState({mutedString: this.state.mutedString + response.data.muted_words[i] + ", " });
             }
             this.setState({ kennelInfoListed: true });
 
@@ -230,6 +241,8 @@ class Kennel extends Component {
                             pathname: "/editkennel",
                             state: {
                                 rules: this.state.rules,
+                                tags: this.state.tagsString,
+                                mutedWords: this.state.mutedString,
                                 kennel_name: this.state.kennel_name
                             }
                         }}

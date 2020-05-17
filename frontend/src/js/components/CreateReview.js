@@ -93,12 +93,8 @@ class CreateReview extends Component {
       data: fd
     }).then(response => {
 
-      // Successfuly created review
-      //alert('Review creation success');
+      // Redirect to review after successfully posting
       this.setState({ redirect: `/review-${response.data}` });
-
-      // Redirect to review after posting
-      //this.setState({ redirect: "/" });
 
     }).catch(error => {
 

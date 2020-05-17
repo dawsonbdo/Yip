@@ -102,11 +102,11 @@ class EditKennel extends Component {
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Tags</Form.Label>
-                    <Form.Control id="tags" className="logInEntry" type="text"/>
+                    <Form.Control id="tags" className="logInEntry" defaultValue={this.props.location.state.tags} type="text"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Muted Words</Form.Label>
-                    <Form.Control id="mute" className="logInEntry" type="text"/>
+                    <Form.Control id="mute" className="logInEntry" defaultValue={this.props.location.state.mutedWords} type="text"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Banned Reviewers</Form.Label>
