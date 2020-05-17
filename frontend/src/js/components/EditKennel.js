@@ -11,7 +11,7 @@ import { Redirect } from 'react-router-dom';
 
 import axios from 'axios'
 
-import { createUserJson } from './BackendHelpers.js';
+import { createKennelJson } from './BackendHelpers.js';
 
 class EditKennel extends Component {
 
@@ -53,7 +53,8 @@ class EditKennel extends Component {
     var token = localStorage.getItem('jwtToken');
 
     // TODO: parse this from url or something
-    var title = 'PCMasterRace' 
+    var title = 'PCMasterRace';
+    var id = "dd044077-ef9f-4c4c-a714-13c788b971be";
 
     // Parses form 
     var rules = document.getElementById('rules').value; 
@@ -65,7 +66,7 @@ class EditKennel extends Component {
     var mutedWords = mutedStr.split(", ");
 
     // Create form to send
-    var form = createKennelJson(title, tags, mutedWords, rules, token);
+    var form = createKennelJson(id, title, tags, mutedWords, rules, token);
 
     // Send POST request with kennel name and tags
     axios({
@@ -73,11 +74,11 @@ class EditKennel extends Component {
       url: '/edit_kennel',
       data: form
     }).then(response => {
-      alert("kennel created");
+      alert("kennel updated");
 
     }).catch(error => {
 
-      alert('failed kennel creation');
+      alert('failed kennel update');
 
     });
   }
@@ -98,7 +99,7 @@ class EditKennel extends Component {
                 <Form noValidate validated={this.state.validated} onSubmit={this.updateKennel} className="logInEntryContainer">
                   <div className="logInEntryContainer">
                     <Form.Label>Rules</Form.Label>
-                    <Form.Control id="rules" className="logInEntry" type="text" as="textarea"/>
+                    <Form.Control id="rules" className="logInEntry" defaultValue={this.props.location.state.rules} type="text" as="textarea"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Tags</Form.Label>
@@ -113,7 +114,7 @@ class EditKennel extends Component {
                     <Form.Control id="bans" className="logInEntry" type="text"/>
                   </div>
                   <div className="logInEntryContainer">
-                    <Button className="logInEntry" variant="primary">Save</Button>
+                    <Button className="logInEntry" type="submit" variant="primary">Save</Button>
                   </div>
                 </Form>
               </div>
