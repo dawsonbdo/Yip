@@ -209,6 +209,7 @@ class Review extends Component {
 		}).then(response => {
 
 			alert('Review successfully removed!');
+			this.props.history.goBack();
 
 
 		}).catch(error => {
