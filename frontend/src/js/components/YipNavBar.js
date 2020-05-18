@@ -20,7 +20,7 @@ import axios from 'axios'
 // import Col from 'react-bootstrap/Col';
 // import Row from 'react-bootstrap/Row';
 
-import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
+import { isLoggedIn, updateLoggedInState, updateLoggedInUser } from './BackendHelpers.js';
 
 class YipNavBar extends Component {
   constructor(props) {
@@ -29,6 +29,7 @@ class YipNavBar extends Component {
     // Creates state to keep track of if logged in
     this.state = {
       loggedIn: false,
+      user: "",
       followedKennelsArray: [],
       redirect: null
     };
@@ -48,6 +49,8 @@ class YipNavBar extends Component {
     // Sets logged in state of the component after loading page
     updateLoggedInState(this);
 
+    // Sets user that is logged in
+    updateLoggedInUser(this);
   }
 
   /**
@@ -106,7 +109,7 @@ class YipNavBar extends Component {
             </DropdownButton>}
             {logBtn}
             <DropdownButton id="dropdown-item-button" title="More" className="pr-5" variant="warning">
-              <Dropdown.Item>Profile</Dropdown.Item>
+              <Dropdown.Item href={`/user-${this.state.user}`}>Profile</Dropdown.Item>
               <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
             </DropdownButton>
             {/* <Navbar.Toggle aria-controls="basic-navbar-nav" />

@@ -100,6 +100,25 @@ function getDateTime(){
   return dateTime;
 }
 
+// Updates the user state of the page
+export async function updateLoggedInUser(page){
+      // Send POST request with token for authenticatio
+      const localUser = await axios({
+        method: 'get',
+        url: '/get_username/' + localStorage.getItem('jwtToken'),
+      }).then((response) => {
+
+        // Return username ("" if none)
+        return response.data;
+
+      });
+
+      // Update logged in state
+      page.setState({
+        user: localUser
+      });
+}
+
 // Updates the logged in state of a component that is passed in by checking database
 export async function updateLoggedInState(page){
       // Send POST request with token for authenticatio
