@@ -81,6 +81,10 @@ fn updateDisplayReviewFields(profile_username: &str, uuid: Uuid, reviews: Vec<Di
 			Some(v) => *v == -1,
 			None => false,
 		};
+		r.is_bookmarked = match handlers::get_relationship_bookmark(r.review_uuid, uuid, connection){
+				Ok(u) => u != 0,
+				Err(_e) => false,
+			};
 
 		reviews_updated.push(r);
 	}
@@ -330,7 +334,6 @@ fn dislike_review(input: Json<ReviewToken>, connection: DbConn) -> Result<status
     
     // Call helper with false for dislike
     like_dislike_helper(input, false, connection)
-		
 }
 
 /** 
@@ -509,6 +512,10 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 				Err(_e) => false,
 			};
 			r.is_disliked = match handlers::get_relationship_dislike(review_uuid, profile_uuid, &connection){
+				Ok(u) => u != 0,
+				Err(_e) => false,
+			};
+			r.is_bookmarked = match handlers::get_relationship_bookmark(review_uuid, profile_uuid, &connection){
 				Ok(u) => u != 0,
 				Err(_e) => false,
 			};
