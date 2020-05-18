@@ -133,21 +133,6 @@ table! {
 }
 
 table! {
-    reviewsnew (review_uuid) {
-        review_uuid -> Uuid,
-        kennel -> Varchar,
-        title -> Varchar,
-        author -> Varchar,
-        timestamp -> Nullable<Timestamp>,
-        text -> Varchar,
-        rating -> Int4,
-        tags -> Nullable<Array<Text>>,
-        hotness -> Nullable<Int4>,
-        images -> Nullable<Array<Text>>,
-    }
-}
-
-table! {
     users (profile_uuid) {
         profile_uuid -> Uuid,
         username -> Varchar,
@@ -192,6 +177,5 @@ allow_tables_to_appear_in_same_query!(
     review_like_relationships,
     reviewer_follow_relationships,
     reviews,
-    reviewsnew,
     users,
 );

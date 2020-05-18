@@ -11,7 +11,7 @@ import { Redirect } from 'react-router-dom';
 
 import axios from 'axios'
 
-import { createKennelJson } from './BackendHelpers.js';
+import { createKennelJson, editKennelJson } from './BackendHelpers.js';
 
 class EditKennel extends Component {
 
@@ -63,9 +63,14 @@ class EditKennel extends Component {
     var tags = tagsStr.split(", ");
     var mutedStr = document.getElementById('mute').value; 
     var mutedWords = mutedStr.split(", ");
+    var banStr = document.getElementById('bans').value; 
+    var bans = banStr.split(", ");
+
 
     // Create form to send
-    var form = createKennelJson(title, tags, mutedWords, rules, token);
+    var form = editKennelJson(title, tags, mutedWords, rules, bans, token);
+
+    console.log(form);
 
     // Send POST request with kennel name and tags
     axios({
@@ -81,6 +86,7 @@ class EditKennel extends Component {
       alert('failed kennel update');
 
     });
+
   }
 
   render() {

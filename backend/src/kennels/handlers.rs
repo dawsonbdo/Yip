@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 use crate::schema::kennels;
 use crate::schema::kennel_follow_relationships;
+use crate::schema::kennel_bans;
 use crate::auth;
 use rocket::response::status;
 
@@ -26,6 +27,41 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
         muted_words: if kennel.muted_words.iter().len() == 0 {None} else {Some(kennel.muted_words)},
         rules: if kennel.rules.eq("") {None} else {Some(kennel.rules.clone())},
         mod_uuid: if mod_id.is_nil() {auth::get_uuid_from_token(&kennel.token)} else {mod_id},
+    }
+}
+
+
+
+/**
+ * Method that attempts to ban users from a kennel
+ * @param kennel_uuid: uuid of kennel
+ * @param users: vector of uuids of users
+ * @param connection: database connection
+ *
+ * @retun returns result of either Accepted or BadRequest status
+ */
+pub fn ban_users(kennel_uuid: Uuid, users: Vec<Uuid>, connection: &PgConnection) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
+
+    let mut bans : Vec<KennelBan> = vec![];
+
+    // Create vector of KennelBans to insert
+    for user_uuid in users{
+        bans.push(
+            KennelBan{
+                banned_reviewer: user_uuid,
+                kennel: kennel_uuid,
+            }
+        );
+    }
+
+
+
+    // Inserts bans into database, returns uuid generated
+    match diesel::insert_into(kennel_bans::table)
+        .values(&bans)
+        .execute(connection) {
+            Ok(u) => if u == 0 {Err(status::Unauthorized(Some("All users already banned".to_string())))} else {Ok(status::Accepted(None))},
+            Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
     }
 }
 
@@ -143,6 +179,19 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbKennel> {
 
     // Searches kennel table for the uuid and gets the kennel
     kennels::table.find(id).get_result::<DbKennel>(connection)
+}
+
+/**
+ * Method that returns DbKennel given the name
+ * @param kennel_name: name of kennel
+ * @param connection: database connection
+ *
+ * @return returns Kennel of kennel name if found, otherwise err
+ */
+pub fn get_kennel_from_name(kennel_name: String, connection: &PgConnection) -> QueryResult<DbKennel>  {
+
+    // Searches kennel table for the name and gets the kennel
+    kennels::table.filter(kennels::kennel_name.eq(kennel_name)).get_result::<DbKennel>(&*connection)
 }
 
 /**
@@ -329,6 +378,23 @@ pub fn update(mod_id: Uuid, kennel: Kennel, connection: &PgConnection) -> QueryR
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(kennels::table.find(id))
         .execute(connection)
+}
+
+// Struct representing the fields of kennel ban table
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "kennel_bans"]
+pub struct KennelBan {
+    pub banned_reviewer: Uuid,
+    pub kennel: Uuid,
+}
+
+// Struct representing the fields of kennel ban returned by DB
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "kennel_bans"]
+pub struct DbKennelBan {
+    pub pkey: i64,
+    pub banned_reviewer: Uuid,
+    pub kennel: Uuid,
 }
 
 // Struct representing the fields of kennel follow table

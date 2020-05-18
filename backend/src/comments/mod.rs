@@ -231,6 +231,8 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
 	// Makes database call to get all comments with review uuid
 	let all_comments = handlers::all_review_comments(uuid, &connection);
 
+	//return Ok(Json(all_comments.unwrap()));
+
 	let mut pq = priority_queue::PriorityQueue::new();
 			
 	// Sort reviews by newness using pq (greatest NaiveDateTime value)

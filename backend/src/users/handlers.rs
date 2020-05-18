@@ -175,8 +175,8 @@ pub fn username_email_linked(username: &str, email: &str, connection: &PgConnect
  * @return returns Uuid of User, nil if username does not exist in database
  */
 pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> Uuid {
-    match users::table.filter(users::username.eq(username)).load::<DbUser>(&*connection){
-        Ok(u) => u[0].profile_uuid,
+    match users::table.filter(users::username.eq(username)).get_result::<DbUser>(&*connection){
+        Ok(u) => u.profile_uuid,
         Err(_e) => Uuid::nil(),
     }
 }

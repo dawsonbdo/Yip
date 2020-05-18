@@ -37,6 +37,21 @@ export function createKennelJson(name = "", tags = "", muted_words = "", rules =
     return form
 };
 
+// Creates a JSON Kennel object for editing
+export function editKennelJson(name = "", tags = "", muted_words = "", rules = "", bans ="", token ="") {
+    var form = {kennel_uuid: "00000000-0000-0000-0000-000000000000",
+                tags: tags,
+                kennel_name: name,
+                muted_words: muted_words,
+                rules: rules,
+                bans: bans,
+                token: token
+                };
+
+    return form
+};
+
+
 // Creates a JSON Comment object
 export function createCommentJson(review_uuid = "", token = "", text = "") {
     var form = {review_uuid: review_uuid,

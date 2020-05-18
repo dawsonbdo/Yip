@@ -14,6 +14,26 @@ use rocket::response::status;
 
 use super::{users};
 
+// Struct with kennel id and user jwt for editing a kennel
+#[derive(Queryable, Serialize, Deserialize)]
+struct KennelUpdate {
+    kennel_uuid: String,
+    tags: Vec<String>,
+    kennel_name: String,
+    muted_words: Vec<String>,
+    rules: String,
+    bans: Vec<String>,
+    token: String,
+}
+
+// Struct with kennel id and user jwt for banning users
+#[derive(Queryable, Serialize, Deserialize)]
+struct KennelBan {
+    kennel_name: String,
+    bans: Vec<String>,
+    token: String,
+}
+
 // Struct with kennel id and user jwt for following/unfollowing kennels
 #[derive(Queryable, Serialize, Deserialize)]
 struct KennelUser {
@@ -73,6 +93,57 @@ fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbC
 	result
 }
 
+
+/** 
+ * Handler method that bans users from a kennel
+ * @param kennel: JSON of a KennelBanUser (kennel name, users, token)
+ * @param connection: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+fn kennel_ban_users(input: Json<KennelBan>, connection: &DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
+	
+	// Verify token is moderator of kennel
+
+	// Get token uuid
+	let uuid = auth::get_uuid_from_token(&input.token);
+
+	// Get kennel from name
+	let kennel = match handlers::get_kennel_from_name(input.kennel_name.clone(), connection) {
+		Ok(k) => (k),
+		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
+	};
+
+	// Get mod uuid and uuid of kennel
+	let mod_uuid = kennel.mod_uuid;
+	let kennel_uuid = kennel.kennel_uuid;
+
+	// If not mod, return error
+	if !uuid.eq(&mod_uuid){
+		Err(status::Unauthorized(Some("Only moderator can ban from kennel".to_string())))
+	} else {
+
+		// Create vector of uuids
+		let mut user_vector : Vec<Uuid> = vec![];
+
+		// Fill vector of user uuids using usernames
+		for user in &input.bans {
+
+			// Get username uuid
+			let u = super::users::handlers::get_uuid_from_username(user, connection);
+			
+			// If found, push to list
+			if !u.is_nil(){
+				user_vector.push(u);
+			}
+
+		}
+
+		// Ban all users from kennel
+		handlers::ban_users(kennel_uuid, user_vector, connection)
+	}
+
+}
 
 /** 
  * Handler method that searches all kennels in db given a query
@@ -230,7 +301,7 @@ fn follow_kennel(input: Json<KennelUser>, connection: DbConn) -> Result<status::
  * @return returns a result with status Accepted or Unauthorized
  */
 #[post("/edit_kennel", data="<kennel>", rank=1)]
-fn edit_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+fn edit_kennel(kennel: Json<KennelUpdate>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
 	
 	// Print kenne lstuf
 	println!("Kennel Name: {}", kennel.kennel_name);
@@ -242,9 +313,31 @@ fn edit_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Accep
 		return Err(status::Conflict(Some("Invalid user".to_string())))
 	}
 
+	// Create Kennel object to insert
+	let k = Kennel{
+		kennel_uuid: kennel.kennel_uuid.clone(),
+    	tags: kennel.tags.clone(),
+    	kennel_name: kennel.kennel_name.clone(),
+    	muted_words: kennel.muted_words.clone(),
+    	rules: kennel.rules.clone(),
+    	token: kennel.token.clone(),
+	};
+
 	// Attempt to update kennel in database
-	let successful_edit = handlers::update(moderator, kennel.into_inner(), &connection);
+	let successful_edit = handlers::update(moderator, k, &connection);
 	
+	// Attempt to ban users
+	let ban = KennelBan{
+		kennel_name: kennel.kennel_name.clone(),
+    	bans: kennel.bans.clone(),
+    	token: kennel.token.clone(),
+	};
+
+	match kennel_ban_users(Json(ban), &connection){
+		Ok(_u) => println!("SUCCESSFUL BAN"),
+		Err(_e) => println!("FAILED BAN"),
+	};
+
 	// Check if successful insertion into database
 	match successful_edit {
 		Ok(u) => if u == 0 {Err(status::Conflict(Some("Not moderator".to_string())))} else {Ok(status::Accepted(None))},
