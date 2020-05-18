@@ -65,7 +65,7 @@ function App() {
           <Route path="/review-:id" exact component={Review} />
 		  <Route path="/editkennel" exact component={EditKennel} />
 		  <Route path="/createkennel" exact component={CreateKennel} />
-		  <Route path="/searchresults" exact component={SearchResults} />
+		  <Route path="/searchresults-:searchType-:query" exact component={SearchResults} />
 		  <Route path="/user-:username" exact component={Profile} />
 		  <Route path="/inbox" exact component={Inbox} />
 		  <Route path="/kennel-:kennelName" component={Kennel} />

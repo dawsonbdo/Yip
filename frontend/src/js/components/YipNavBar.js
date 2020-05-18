@@ -50,16 +50,20 @@ class YipNavBar extends Component {
 
   }
 
+  /**
+   * Handler function for search bar
+   */
   handleSearch(event) {
+    // Get user input from search bar
     var query = document.getElementById('searchBar').value;
-    alert("HANDLING SEARCH" + query)
-    this.setState({ redirect: {
-      pathname: "/searchresults",
-      state: {
-        query: query,
-        searchType: event
-      }
-    }});
+
+    // Ignore input that only contains whitespace
+    if(query.replace(/ /g, '') === "") {
+      return;
+    }
+
+    // Redirect to search results page with search type and query in url
+    this.setState({redirect: `/searchresults-${event}-${query}`});
 
   }
 
@@ -111,7 +115,7 @@ class YipNavBar extends Component {
             {/* <Button className="" variant="warning">Inbox</Button> */}
             <Form inline className="ml-auto float-right pt-3">
               <FormGroup>
-                <FormControl id="searchBar" type="text" placeholder="Search for Reviews and Kennels" />
+                <FormControl id="searchBar" type="text" placeholder="Search for Reviews or Kennels" />
                 {/* <Button type="submit" variant="warning">Search</Button> */}
               </FormGroup>
             </Form>
@@ -123,15 +127,15 @@ class YipNavBar extends Component {
               variant="warning"
               type="submit"
             >
-              <Dropdown.Item eventKey="review">Review</Dropdown.Item>
-              <Dropdown.Item eventKey="kennel">Kennel</Dropdown.Item>
+              <Dropdown.Item eventKey="Reviews">Reviews</Dropdown.Item>
+              <Dropdown.Item eventKey="Kennels">Kennels</Dropdown.Item>
             </DropdownButton>
           </Navbar>
         </div>
       )
     }
     else {
-      return <Redirect to={this.state.redirect} />
+      return <Redirect to={this.state.redirect} push/>
     }
   }
 }

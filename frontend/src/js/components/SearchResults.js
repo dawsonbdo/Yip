@@ -11,38 +11,40 @@ import Image from 'react-bootstrap/Image';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
-import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
-
 import axios from 'axios'
 
 class SearchResults extends Component {
     constructor(props) {
         super(props);
 
-        // Creates state to keep track of if logged in
+        // States track when to display results, if there are results, and results
         this.state = {
-            loggedIn: false,
             searchDisplay: false,
-            resultArray: []
+            results: false,
+            resultArray: [],
         };
     }
 
+    componentDidUpdate(prevProps) {
+        // Checks if user was redirected to this page from another search results page
+        if (prevProps.location.key != this.props.location.key) {
+            // Resets component
+            window.location.reload();
+        }
+    }
+
     componentDidMount() {
-        // SEARCH KENNELS
-        //this.searchKennels("ucsd");
 
-        // SEARCH REVIEWS
-        //this.searchReviews("test");       
-
-        if (this.props.location.state.searchType == "kennel") {
-            this.searchKennels(this.props.location.state.query);
+        // Search kennels or reviews depending on what user selected
+        if (this.props.match.params.searchType == "Kennels") {
+            this.searchKennels(this.props.match.params.query);
         }
         else {
-            this.searchReviews(this.props.location.state.query);
+            this.searchReviews(this.props.match.params.query);
         }
-        alert("RESULTS")
+
     }
-    
+
     // Searches all kennels using query passed in
     searchKennels(query) {
         axios({
@@ -50,54 +52,49 @@ class SearchResults extends Component {
             url: '/search_kennels/' + query,
         }).then(response => {
 
-            alert('Successfully searched kennels');
-
             console.log("KENNEL SEARCH QUERY: " + query);
-
-            // TODO: Display the kennels found
 
             // Iterate through kennels
             for (var i = 0; i < response.data.length; i++) {
 
                 // Print kennels to console for now
                 console.log(response.data[i]);
+
+                // Add kennel info to array for rendering kennel cards
                 this.state.resultArray.push({
                     kennelName: response.data[i].kennel_name,
                     kennelRules: response.data[i].rules,
                 });
 
             }
-            this.setState({ searchDisplay: true });
+            this.setState({ searchDisplay: true, results: true });
 
 
         }).catch(error => {
 
             // Review not found in database
-            alert('Failed to search kennels');
+            //alert('Failed to search kennels');
+            this.setState({ searchDisplay: true, results: false });
 
         });
     }
 
     // Searches all reviews using query passed in
     searchReviews(query) {
-        alert(query)
         axios({
             method: 'get',
             url: '/search_reviews/' + query,
         }).then(response => {
 
-            alert('Successfully searched reviews');
-
             console.log("REVIEW SEARCH QUERY: " + query);
-
-            // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
-            //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
 
             // Iterate through reviews
             for (var i = 0; i < response.data.length; i++) {
 
                 // Print reviews to console for now
                 console.log(response.data[i]);
+
+                // Adds review info to array for rendering review cards
                 this.state.resultArray.push({
                     title: response.data[i].title,
                     author: response.data[i].author,
@@ -107,12 +104,13 @@ class SearchResults extends Component {
 
             }
 
-            this.setState({ searchDisplay: true });
+            this.setState({ searchDisplay: true, results: true });
 
         }).catch(error => {
 
             // Review not found in database
-            alert('Failed to search reviews');
+            //alert('Failed to search reviews');
+            this.setState({ searchDisplay: true, results: false });
 
         });
     }
@@ -121,7 +119,7 @@ class SearchResults extends Component {
 
         // DYNAMICALLY GET REVIEWS HERE AND PUT IT IN THE IF STATEMENT BELOW
         let results;
-        if (this.props.location.state.searchType == "review") {
+        if (this.props.match.params.searchType == "Reviews") {
             results = this.state.resultArray.map(function (result) {
                 return <ReviewCard reviewId={result.id} reviewName={result.title} reviewerName={result.author} reviewPreview={{ __html: result.text }} />
             });
@@ -133,11 +131,25 @@ class SearchResults extends Component {
         }
 
         let search;
-        if (this.state.searchDisplay) {
+        if (this.state.searchDisplay && this.state.results) {
             search =
                 <div>
                     <Jumbotron id="jumbotron" className="text-center">
-                        <h1>Results: </h1>
+                        <h1>Results for '{this.props.match.params.query}' in {this.props.match.params.searchType}: </h1>
+                    </Jumbotron>
+                    <Container>
+                        <Row>
+                            <Col>
+                                {results}
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+        } else if (this.state.searchDisplay && !this.state.results) {
+            search =
+                <div>
+                    <Jumbotron id="jumbotron" className="text-center">
+                        <h1>No results for '{this.props.match.params.query}' in {this.props.match.params.searchType}. </h1>
                     </Jumbotron>
                     <Container>
                         <Row>
