@@ -90,10 +90,10 @@ class YipNavBar extends Component {
   render() {
     let logBtn;
     if (isLoggedIn(this)) {
-      logBtn = <Button onClick={this.logout} type="submit" variant="warning" className="mr-5">Logout</Button>;
+      logBtn = <Button onClick={this.logout} type="submit" variant="light" className="mr-5">Logout</Button>;
     } else {
-      logBtn = <div><Link to="/login"><Button id="login" type="submit" variant="warning" className="mr-5">Login</Button></Link>
-        <Link to="/register"><Button type="submit" variant="warning" className="mr-5">Register</Button></Link></div>;
+      logBtn = <div><Link to="/login"><Button id="login" type="submit" variant="light" className="mr-5">Login</Button></Link>
+        <Link to="/register"><Button type="submit" variant="light" className="mr-5">Register</Button></Link></div>;
     }
     const followedKennels = this.state.followedKennelsArray.map(function (kennel) {
       return <Dropdown.Item href={`/kennel-${kennel}`}>{kennel}</Dropdown.Item>
@@ -104,11 +104,11 @@ class YipNavBar extends Component {
         <div id="spaceNav">
           <Navbar className="color-nav" expand="false" fixed="top">
             <Link to="/"><img className="yipIcon" src={corgiImage} /></Link>
-            {isLoggedIn(this) && <DropdownButton id="dropdown-item-button" title="Followed Kennels" className="pr-5" variant="warning">
+            {isLoggedIn(this) && <DropdownButton id="dropdown-item-button" title="Followed Kennels" className="pr-5" variant="light">
               {followedKennels}
             </DropdownButton>}
             {logBtn}
-            <DropdownButton id="dropdown-item-button" title="More" className="pr-5" variant="warning">
+            <DropdownButton id="dropdown-item-button" title="More" className="pr-5" variant="light">
               <Dropdown.Item href={`/user-${this.state.user}`}>Profile</Dropdown.Item>
               <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
             </DropdownButton>
@@ -131,7 +131,7 @@ class YipNavBar extends Component {
               onSelect={this.handleSearch}
               title="Search"
               id="dropdown-menu-align-right"
-              variant="warning"
+              variant="light"
               type="submit"
             >
               <Dropdown.Item eventKey="Reviews">Reviews</Dropdown.Item>

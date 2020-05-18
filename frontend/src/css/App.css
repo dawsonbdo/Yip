@@ -146,3 +146,11 @@ body {
   color: rgb(44, 44, 44);
   text-decoration: none;
 }
+
+.button-color {
+  background-color: #E9E9E9;
+}
+
+.button-color:hover {
+  background-color: #C4C4C4;
+}

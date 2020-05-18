@@ -90,9 +90,6 @@ class Home extends Component {
                 </p>
           <p id="authstatus">
           </p>
-          <p>
-            <Button variant="warning">Learn more</Button>
-          </p>
         </Jumbotron>
         {reviews}
       </div>
