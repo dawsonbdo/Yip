@@ -53,38 +53,55 @@ fn updateDisplayReviewFields(profile_username: &str, uuid: Uuid, reviews: Vec<Di
 	// Gets all user's dislike relationships
 	let dislikes = handlers::get_user_dislikes(uuid, connection).unwrap();
 
+	// Get all user's bookmark relationships
+	let bookmarks = handlers::get_user_bookmarks(uuid, connection).unwrap();
+
 	// Create hash map for the review likes and dislikes by user
 	let mut review_likes_dislikes = HashMap::new();
 
 	// Iterate through likes and dislikes
 	for l in likes.iter() {
-		review_likes_dislikes.insert(l.liker, -1);
+		review_likes_dislikes.insert(l.review, 1);
 	}
 
 	for d in dislikes.iter() {
-		review_likes_dislikes.insert(d.disliker, -1);
+		review_likes_dislikes.insert(d.review, -1);
 	}
 
+	// Create hash map for the bookmarked reviews
+	let mut review_bookmarks = HashMap::new();
+
+	// Iterate through bookmarks
+	for b in bookmarks.iter() {
+		review_bookmarks.insert(b.review, 1);
+	}
 
 	let mut reviews_updated : Vec<DisplayReview> = vec![];
 
 	// Set isAuthor, isLiked, isDisliked fields
 	for mut r in reviews {
-		let val = review_likes_dislikes.get(&r.review_uuid);
+		let ld_val = review_likes_dislikes.get(&r.review_uuid);
+		let b_val = review_bookmarks.get(&r.review_uuid);
 
 		r.is_author = profile_username.eq(&r.author); // set field of DisplayReview
-		r.is_liked = match val{
+		r.is_liked = match ld_val{
 			Some(v) => *v == 1,
 			None => false,
 		};
-		r.is_disliked = match val{
+		r.is_disliked = match ld_val{
 			Some(v) => *v == -1,
 			None => false,
 		};
-		r.is_bookmarked = match handlers::get_relationship_bookmark(r.review_uuid, uuid, connection){
+		r.is_bookmarked = match b_val{
+			Some(v) => *v == 1,
+			None => false,
+		};
+
+		/*match handlers::get_relationship_bookmark(r.review_uuid, uuid, connection){
 				Ok(u) => u != 0,
 				Err(_e) => false,
 			};
+		*/
 
 		reviews_updated.push(r);
 	}

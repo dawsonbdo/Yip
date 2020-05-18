@@ -137,6 +137,20 @@ pub fn bookmark(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection
         .execute(connection) 
 }
 
+/**
+ * Helper method that returns rows in bookmark table that correspond to profile uuid
+ * @param profile_uuid: the profile uuid
+ * @param connection: database connection
+ *
+ * @return returns a result containing vector of rows
+ */
+pub fn get_user_bookmarks(profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbBookmarkReview>>{
+    
+    // Filters review dislike relationship table
+    bookmarks::table
+             .filter(bookmarks::user.eq(profile_uuid))
+             .load::<DbBookmarkReview>(connection)
+}
 
 /**
  * Helper method that returns rows in review dislike table that correspond to profile uuid
