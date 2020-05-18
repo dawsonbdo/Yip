@@ -185,17 +185,29 @@ class Kennel extends Component {
             }
 
             // Iterate through tags
-            for (var i = 0; i < response.data.tags.length; i++) {
+            var tagsStr = "";
+            if(response.data.tags.length > 0) {
+                tagsStr = tagsStr + response.data.tags[0];
+            }
+            for (var i = 1; i < response.data.tags.length; i++) {
 
                 // Add tags to tagsArray and recreate tag string as prop for editkennel
-                this.state.tagsArray.push(response.data.tags[i]);
-                this.setState({tagsString: this.state.tagsString + response.data.tags[i] + ", " });
+                tagsStr = tagsStr + ", " + response.data.tags[i];
             }
-            for (var i = 0; i < response.data.muted_words.length; i++) {
 
+            var mutedStr = "";
+            if(response.data.muted_words.length > 0) {
+                mutedStr = mutedStr + response.data.muted_words[0];
+            } 
+            for (var i = 1; i < response.data.muted_words.length; i++) {
+                
                 // Build muted words string from array as prop for editkennel
-                this.setState({mutedString: this.state.mutedString + response.data.muted_words[i] + ", " });
+                mutedStr = mutedStr + ", " + response.data.muted_words[i];
+    
             }
+
+            this.setState({ tagsString: tagsStr });
+            this.setState({ mutedString: mutedStr });
             this.setState({ kennelInfoListed: true });
 
         }).catch(error => {

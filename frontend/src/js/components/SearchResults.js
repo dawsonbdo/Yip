@@ -60,10 +60,20 @@ class SearchResults extends Component {
                 // Print kennels to console for now
                 console.log(response.data[i]);
 
+                var tagsStr = "";
+                if(response.data[i].tags.length > 0) {
+                    tagsStr = tagsStr + response.data[i].tags[0];
+                }
+                for(var j = 1; j < response.data[i].tags.length; j++) {
+                    tagsStr = tagsStr + ", " + response.data[i].tags[j];
+                }
+
                 // Add kennel info to array for rendering kennel cards
                 this.state.resultArray.push({
                     kennelName: response.data[i].kennel_name,
                     kennelRules: response.data[i].rules,
+                    kennelTags: tagsStr,
+                    followerCount: response.data[i].follower_count
                 });
 
             }
@@ -99,7 +109,7 @@ class SearchResults extends Component {
                     title: response.data[i].title,
                     author: response.data[i].author,
                     text: response.data[i].text,
-                    id: response.data[i].review_uuid
+                    id: response.data[i].review_uuid,
                 });
 
             }
@@ -126,7 +136,7 @@ class SearchResults extends Component {
         }
         else {
             results = this.state.resultArray.map(function (result) {
-                return <KennelCard kennelName={result.kennelName} kennelRules={result.kennelRules} />
+                return <KennelCard kennelName={result.kennelName} kennelRules={result.kennelRules} kennelTags={result.kennelTags} followerCount={result.followerCount} />
             });
         }
 
