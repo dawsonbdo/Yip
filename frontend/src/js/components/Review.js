@@ -45,6 +45,7 @@ class Review extends Component {
 		this.likeReview = this.likeReview.bind(this);
 		this.dislikeReview = this.dislikeReview.bind(this);
 		this.deleteReview = this.deleteReview.bind(this);
+		this.bookmarkReview = this.bookmarkReview.bind(this);
 	}
 
 	componentDidMount() {
@@ -128,6 +129,36 @@ class Review extends Component {
 
 			// Review comments not found in database
 			alert('Review comments not found');
+
+		});
+	}
+
+
+	bookmarkReview() {
+		// TODO: Get uuid of review from url probably
+		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		var reviewId = this.props.match.params.id;
+
+		// Get token
+		var token = localStorage.getItem('jwtToken');
+
+		// Create form for request (same for bookmark)
+		var form = likeDislikeReviewJson(reviewId, token);
+
+		// Send POST request
+		axios({
+			method: 'post',
+			url: '/bookmark_review',
+			data: form
+		}).then(response => {
+
+			alert('Review successfully bookmarked!');
+
+
+		}).catch(error => {
+
+			// Failed to dislike review
+			alert('Review bookmark failed');
 
 		});
 	}
@@ -278,7 +309,7 @@ class Review extends Component {
 								<Image onClick={this.likeReview} className="likePadding" src={likeIcon} />
 								<Image onClick={this.dislikeReview} className="likePadding" src={dislikeIcon} />
 								<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
-								<Link to="/"><Image className="likePadding" src={bookmarkIcon} /></Link>
+								<Image onClick={this.bookmarkReview} className="likePadding" src={bookmarkIcon} />
 								<Image onClick={this.deleteReview} className="likePadding" src={trashIcon} />
 							</Col>
 						</Row>

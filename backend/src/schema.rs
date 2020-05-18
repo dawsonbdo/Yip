@@ -7,6 +7,14 @@ table! {
 }
 
 table! {
+    bookmarks (pkey) {
+        pkey -> Int8,
+        user -> Uuid,
+        review -> Uuid,
+    }
+}
+
+table! {
     comment_dislike_relationships (pkey) {
         pkey -> Int8,
         disliker -> Uuid,
@@ -164,6 +172,7 @@ joinable!(reviews -> users (author));
 
 allow_tables_to_appear_in_same_query!(
     block_relationships,
+    bookmarks,
     comment_dislike_relationships,
     comment_like_relationships,
     comments,

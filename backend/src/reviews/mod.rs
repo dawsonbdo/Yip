@@ -223,6 +223,42 @@ fn like_dislike_helper(input: Json<ReviewToken>, like: bool, connection: DbConn)
 }
 
 /** 
+ * Handler method that bookmarks a review
+ * @param kennel: JSON of a ReviewToken (review + token)
+ * @param connection: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+#[post("/bookmark_review", data="<input>", rank=1)]
+fn bookmark_review(input: Json<ReviewToken>, connection: DbConn) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+    
+	// Get profile uuid from token
+	let profile_uuid = auth::get_uuid_from_token(&input.token);
+
+	// Make sure not nil
+	if profile_uuid.is_nil(){
+		return Err(status::BadRequest(Some("profile does not exist".to_string())))
+	}
+
+	// Get review id from json
+	let review_uuid = Uuid::parse_str(&input.review_uuid);
+
+	match review_uuid {
+		Ok(r) => {
+			// Attempt to bookmark the review
+		    match handlers::bookmark(r, profile_uuid, &connection){
+		        Ok(u) => if u == 0 {Err(status::BadRequest(Some("already bookmarked".to_string())))} else {Ok(status::Accepted(None))},
+		        Err(e) => Err(status::BadRequest(Some(e.to_string()))),
+		    }
+		},
+		Err(e) => Err(status::BadRequest(Some(e.to_string()))),
+	}
+
+    
+
+}
+
+/** 
  * Handler method that searches all reviews in db given a query
  * @param query: query string that is searched for
  * @param connection: database connection
@@ -676,5 +712,5 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
  * Mount the review routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews, like_review, dislike_review, get_user_reviews, search_reviews])  
+    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews, like_review, dislike_review, bookmark_review, get_user_reviews, search_reviews])  
 }

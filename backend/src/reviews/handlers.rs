@@ -5,6 +5,7 @@ use uuid::Uuid;
 use crate::schema::reviews;
 use crate::schema::review_like_relationships;
 use crate::schema::review_dislike_relationships;
+use crate::schema::bookmarks;
 
 // Used for deleting reviews
 use crate::schema::comments;
@@ -80,6 +81,38 @@ pub fn to_review(review: &DbReview) -> DisplayReview {
         is_disliked: false,
         review_uuid: review.review_uuid,
     }
+}
+
+/**
+ * Method that attempts to bookmark a review
+ * @param review_uuid: uuid of review
+ * @param profile_uuid: uuid of user
+ * @param connection: database connection
+ *
+ * @retun returns result of either Accepted or BadRequest status
+ */
+pub fn bookmark(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize> {
+    
+    // Prints the uuids received
+    println!("Review uuid: {}", review_uuid);
+    println!("Profile uuid: {}", profile_uuid);
+    
+    // Check that review exists
+    match reviews::table.find(review_uuid).execute(connection){
+        Ok(u) => if u == 0 {return Err(diesel::result::Error::NotFound)} else {()},
+        Err(e) => return Err(e),
+    }
+
+    // Creates BookmarkReview to insert
+    let bookmark = BookmarkReview {
+        user: profile_uuid,
+        review: review_uuid,
+    };
+
+    // Inserts bookmark review into database, returns result indicating success/error
+    diesel::insert_into(bookmarks::table)
+        .values(bookmark)
+        .execute(connection) 
 }
 
 
@@ -457,6 +490,23 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // Delete review
     diesel::delete(reviews::table.find(id))
         .execute(connection)
+}
+
+// Struct representing the fields of boomark table
+#[table_name = "bookmarks"]
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+pub struct BookmarkReview {
+    pub user: Uuid,
+    pub review: Uuid,
+}
+
+// Struct representing the fields of boomark table in DB
+#[table_name = "bookmarks"]
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+pub struct DbBookmarkReview {
+    pub pkey: i64,
+    pub user: Uuid,
+    pub review: Uuid,
 }
 
 // Struct representing the fields of review like table
