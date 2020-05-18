@@ -45,7 +45,7 @@ fn updateDisplayCommentFields(profile_username: &str, uuid: Uuid, comments: Vec<
 
 	// Iterate through likes and dislikes
 	for l in likes.iter() {
-		comment_likes_dislikes.insert(l.liker, -1);
+		comment_likes_dislikes.insert(l.liker, 1);
 	}
 
 	for d in dislikes.iter() {
