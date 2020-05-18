@@ -181,25 +181,6 @@ fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -
 	}
 }
 
-/**
- * Helper method that returns the username corresponding to a token, "" if none
- * @param token: the token
- * @param connection: database connection
- *
- * @return returns a String corresponding to username of token, "" if none
- */
-fn token_to_username(token: String, connection: &DbConn) -> String {
-
-	// Get uuid from token passed in
-	let profile_uuid = auth::get_uuid_from_token(&token);
-
-	// Look for the username of the uuid in database
-	match super::users::handlers::get_user_from_uuid(profile_uuid, connection){
-		Ok(u) => u.username,
-		Err(_e) => "".to_string(),
-	}
-}
-
 /** 
  * Helper method that likes or dislikes a review given parameter
  * @param input: JSON of a ReviewToken (review + token)
@@ -393,8 +374,7 @@ fn get_kennel_reviews(kennel_name: String, token: String, connection: DbConn) ->
 	let uuid = auth::get_uuid_from_token(&token);
 
 	// Get tokens username
-	let profile_username = token_to_username(token.clone(), &connection);
-
+	let profile_username = auth::get_user_from_token(&token);
 
 	// Return reviews after setting is_author, is_liked, is_disliked
 	match all_reviews{
@@ -468,11 +448,8 @@ fn get_user_reviews(username: String, token: String, connection: DbConn) -> Resu
 	// Get tokens uuid
 	let token_uuid = auth::get_uuid_from_token(&token);
 
-	// Look for the username of the uuid in database
-	let profile_username = match super::users::handlers::get_user_from_uuid(token_uuid, &connection){
-		Ok(u) => u.username,
-		Err(_e) => "".to_string(),
-	};
+	// Get tokens username
+	let profile_username = auth::get_user_from_token(&token);
 
 	let mut pq = priority_queue::PriorityQueue::new();
 
@@ -512,11 +489,8 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 	// Parse review uuid
 	let review_uuid = Uuid::parse_str(&id).unwrap();
 
-	// Look for the username of the uuid in database
-	let profile_username = match super::users::handlers::get_user_from_uuid(profile_uuid, &connection){
-		Ok(u) => u.username,
-		Err(_e) => "".to_string(),
-	};
+	// Get username from token
+	let profile_username = auth::get_user_from_token(&token);
 
 	// Pattern match to see if review found successfully, update fields and return
 	match get_review_helper(id, &connection) {
@@ -554,7 +528,7 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
 
 	// Get tokens username
-	let profile_username = token_to_username(review.token.clone(), &connection);
+	let profile_username = auth::get_user_from_token(&review.token);
 
 	// Get tokens uuid
 	let profile_uuid = auth::get_uuid_from_token(&review.token);
@@ -601,7 +575,7 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
 fn edit_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
 	
 	// Get tokens username
-	let profile_username = token_to_username(review.token.clone(), &connection);
+	let profile_username = auth::get_user_from_token(&review.token);
 
 	// Converts string to a uuid
 	let uuid = Uuid::parse_str(&review.review_uuid).unwrap();
