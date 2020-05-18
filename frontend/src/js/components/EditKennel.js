@@ -36,23 +36,9 @@ class EditKennel extends Component {
     event.preventDefault();
     event.stopPropagation();
 
-    /*
-
-    this.setState({ failedLogin: false });
-
-    var registerForm = event.currentTarget;
-
-    // Displays error if fields are empty
-    if (registerForm.checkValidity() === false) {
-      this.setState({ validated: true });
-      return;
-    }
-
-    */
-
     var token = localStorage.getItem('jwtToken');
 
-    // TODO: parse this from url or something
+    // Get kennel name passed in as prop
     var title = this.props.location.state.kennel_name;
 
     // Parses form 
