@@ -20,9 +20,9 @@ class Register extends Component {
     constructor(props) {
         super(props);
 
-        this.state = { 
-            validated: false, 
-            redirect: null 
+        this.state = {
+            validated: false,
+            redirect: null
         };
 
         this.attemptRegistration = this.attemptRegistration.bind(this);
@@ -55,7 +55,7 @@ class Register extends Component {
         // Check that email and username don't contain whitespace or other unaccepted characters
         var regex = /^[A-Za-z0-9_]+$/;
         var isValidUsername = regex.test(username);
-        if(!isValidUsername) {
+        if (!isValidUsername) {
             alert("Username can only contain letters, numbers, and underscores!");
             return;
         }
@@ -80,7 +80,7 @@ class Register extends Component {
             this.setState({ redirect: "/login" });
 
             alert('Account successfully created!');
-        
+
         }).catch(error => {
 
             // Username or email already exist
@@ -122,6 +122,9 @@ class Register extends Component {
                                     <div className="logInEntryContainer">
                                         <Form.Control id="repassword" className="logInEntry" placeholder="Re-Type Password" type="Password" required></Form.Control>
                                         <Form.Control.Feedback type="invalid">Confirm password.</Form.Control.Feedback>
+                                    </div>
+                                    <div className="logInEntryContainer">
+                                        <Link to="/login"><Button variant="link">Already have an account?</Button></Link>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Button className="logInEntry" type="submit">Submit</Button>
