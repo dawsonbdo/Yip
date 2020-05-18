@@ -9,11 +9,11 @@ struct Claims {
     exp: usize,
 }
 
-// Function that creates a token using a UUID as payload and CORGI
-pub fn create_token(id: uuid::Uuid) -> Result<String> {
+// Function that creates a token using a UUID and username as payload
+pub fn create_token(id: uuid::Uuid, username: &str) -> Result<String> {
     let key = b"secret";
     let my_claims =
-        Claims { sub: id, company: "CORGI".to_owned(), exp: 10000000000 };
+        Claims { sub: id, company: username.to_owned(), exp: 10000000000 };
     encode(&Header::default(), &my_claims, &EncodingKey::from_secret(key)) 
 }
 
@@ -34,6 +34,16 @@ pub fn get_uuid_from_token(token: &str) -> uuid::Uuid {
     let _token_data = match decode::<Claims>(token, &DecodingKey::from_secret(key), &validation) {
         Ok(d) => return d.claims.sub,
         Err(_e) => return uuid::Uuid::nil(),
+    };
+}
+
+// Function that returns the username of a user given their token
+pub fn get_user_from_token(token: &str) -> String {
+    let key = b"secret";
+    let validation = Validation { leeway: 60, ..Validation::default() };
+    let _token_data = match decode::<Claims>(token, &DecodingKey::from_secret(key), &validation) {
+        Ok(d) => return d.claims.company,
+        Err(_e) => return "".to_string(),
     };
 }
 

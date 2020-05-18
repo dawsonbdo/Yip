@@ -171,6 +171,20 @@ fn get_user(username: String, token: String, connection: DbConn) -> Result<Json<
 }
 
 /**
+ * Method that returns the username corresponding to token
+ * @param token: the jwt used to verify if logged in
+ *
+ * @return returns a String indicating if logged in or not
+ */
+#[get("/get_username/<token>")]
+fn get_username(token: String) -> String {
+
+	// Gets the username from token, "" if none
+	auth::get_user_from_token(&token)
+
+}
+
+/**
  * Method that returns whether the user is logged in
  * @param token: the jwt used to verify if logged in
  *
@@ -260,6 +274,9 @@ fn recover_password(user: Json<User>, connection: DbConn) -> Result<status::Acce
 #[post("/login", data="<user>", rank=1)]
 fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unauthorized<String>> { 
 
+	// Save username passed in
+	let username = user.username.clone();
+
 	// Attempt to login user by reading database
 	let successful_login = handlers::get(user.into_inner(), &connection);
 
@@ -268,7 +285,7 @@ fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unautho
 	
 	// Return authentication token if successful login
 	if !successful_login.is_nil() {
-		match auth::create_token(successful_login) {
+		match auth::create_token(successful_login, &username) {
 			Ok(t) => Ok(t), 
 			Err(e) => Err(status::Unauthorized(Some(e.to_string()))), 
 		}
@@ -288,6 +305,9 @@ fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unautho
 #[post("/register", data="<user>", rank=1)]
 fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conflict<String>> { 
 
+	// Save username passed in
+	let username = user.username.clone();
+
 	// Attempt to insert user into database 
 	let successful_registration = handlers::insert(user.into_inner(), &connection);
 	
@@ -295,7 +315,7 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
 	match successful_registration {
 
 		// Successfully registered, create token using id and return it
-		Ok(id) => match auth::create_token(id) {
+		Ok(id) => match auth::create_token(id, &username) {
 					Ok(t) => Ok(t), 
 					Err(e) => Err(status::Conflict(Some(e.to_string()))), 
 				 },
@@ -312,5 +332,5 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
  * Mount the user routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![login, register, recover_password, list_users, auth, get_user, block_user, follow_user, unfollow_user])  
+    rocket.mount("/", routes![login, register, recover_password, list_users, auth, get_user, block_user, follow_user, unfollow_user, get_username])  
 }
