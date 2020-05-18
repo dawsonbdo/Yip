@@ -84,6 +84,27 @@ pub fn to_review(review: &DbReview) -> DisplayReview {
 }
 
 /**
+ * Method that attempts to unbookmark a review
+ * @param review_uuid: uuid of review
+ * @param profile_uuid: uuid of user
+ * @param connection: database connection
+ *
+ * @retun returns result of either Accepted or BadRequest status
+ */
+pub fn unbookmark(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize> {
+    
+    // Prints the uuids received
+    println!("Review uuid: {}", review_uuid);
+    println!("Profile uuid: {}", profile_uuid);
+
+    // Attempts to remove bookmark
+    diesel::delete(bookmarks::table
+            .filter(bookmarks::review.eq(review_uuid))
+            .filter(bookmarks::user.eq(profile_uuid)))
+            .execute(connection)
+}
+
+/**
  * Method that attempts to bookmark a review
  * @param review_uuid: uuid of review
  * @param profile_uuid: uuid of user
