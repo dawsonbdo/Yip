@@ -52,7 +52,6 @@ class YipNavBar extends Component {
 
   handleSearch(event) {
     var query = document.getElementById('searchBar').value;
-    alert("HANDLING SEARCH" + query)
     this.setState({ redirect: {
       pathname: "/searchresults",
       state: {
@@ -111,7 +110,7 @@ class YipNavBar extends Component {
             {/* <Button className="" variant="warning">Inbox</Button> */}
             <Form inline className="ml-auto float-right pt-3">
               <FormGroup>
-                <FormControl id="searchBar" type="text" placeholder="Search for Reviews and Kennels" />
+                <FormControl id="searchBar" type="text" placeholder="Search for Reviews or Kennels" />
                 {/* <Button type="submit" variant="warning">Search</Button> */}
               </FormGroup>
             </Form>
@@ -123,8 +122,8 @@ class YipNavBar extends Component {
               variant="warning"
               type="submit"
             >
-              <Dropdown.Item eventKey="review">Review</Dropdown.Item>
-              <Dropdown.Item eventKey="kennel">Kennel</Dropdown.Item>
+              <Dropdown.Item eventKey="Reviews">Reviews</Dropdown.Item>
+              <Dropdown.Item eventKey="Kennels">Kennels</Dropdown.Item>
             </DropdownButton>
           </Navbar>
         </div>

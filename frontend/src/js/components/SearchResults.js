@@ -23,26 +23,29 @@ class SearchResults extends Component {
         this.state = {
             loggedIn: false,
             searchDisplay: false,
-            resultArray: []
+            resultArray: [],
         };
     }
 
+    componentDidUpdate(prevProps) {
+
+        if (prevProps.location.state.query != this.props.location.state.query || 
+            prevProps.location.state.searchType != this.props.location.state.searchType) {
+            window.location.reload();
+        }
+    }
+
     componentDidMount() {
-        // SEARCH KENNELS
-        //this.searchKennels("ucsd");
 
-        // SEARCH REVIEWS
-        //this.searchReviews("test");       
-
-        if (this.props.location.state.searchType == "kennel") {
+        if (this.props.location.state.searchType == "Kennels") {
             this.searchKennels(this.props.location.state.query);
         }
         else {
             this.searchReviews(this.props.location.state.query);
         }
-        alert("RESULTS")
+
     }
-    
+
     // Searches all kennels using query passed in
     searchKennels(query) {
         axios({
@@ -50,11 +53,7 @@ class SearchResults extends Component {
             url: '/search_kennels/' + query,
         }).then(response => {
 
-            alert('Successfully searched kennels');
-
             console.log("KENNEL SEARCH QUERY: " + query);
-
-            // TODO: Display the kennels found
 
             // Iterate through kennels
             for (var i = 0; i < response.data.length; i++) {
@@ -80,13 +79,10 @@ class SearchResults extends Component {
 
     // Searches all reviews using query passed in
     searchReviews(query) {
-        alert(query)
         axios({
             method: 'get',
             url: '/search_reviews/' + query,
         }).then(response => {
-
-            alert('Successfully searched reviews');
 
             console.log("REVIEW SEARCH QUERY: " + query);
 
@@ -121,7 +117,7 @@ class SearchResults extends Component {
 
         // DYNAMICALLY GET REVIEWS HERE AND PUT IT IN THE IF STATEMENT BELOW
         let results;
-        if (this.props.location.state.searchType == "review") {
+        if (this.props.location.state.searchType == "Reviews") {
             results = this.state.resultArray.map(function (result) {
                 return <ReviewCard reviewId={result.id} reviewName={result.title} reviewerName={result.author} reviewPreview={{ __html: result.text }} />
             });
@@ -137,7 +133,7 @@ class SearchResults extends Component {
             search =
                 <div>
                     <Jumbotron id="jumbotron" className="text-center">
-                        <h1>Results: </h1>
+                        <h1>Results for '{this.props.location.state.query}' in {this.props.location.state.searchType}: </h1>
                     </Jumbotron>
                     <Container>
                         <Row>
