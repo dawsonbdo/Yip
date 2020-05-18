@@ -73,7 +73,8 @@ class EditKennel extends Component {
       url: '/edit_kennel',
       data: form
     }).then(response => {
-      alert("kennel updated");
+      // alert("kennel updated");
+      this.setState({ redirect: `/kennel-${this.props.location.state.kennel_name}` });
 
     }).catch(error => {
 
