@@ -557,6 +557,18 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, st
 	// Create review object in correct format
 	let review = review_creation_helper(review_obj, paths);
 	
+	// Check that user is not banned from kennel
+	let user_uuid = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);
+	let kennel_id = match Uuid::parse_str(&review.kennel_uuid[1..37]) {
+		Ok(id) => id,
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+	};
+
+	match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
+		Ok(rel) => if rel == 1 {return Err(status::Conflict(Some("User is banned from kennel".to_string())));} else {()},
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+	}
+
 	// Attempt to insert review into database
 	match handlers::insert(review, &connection){
 		Ok(r) => Ok(r.review_uuid.hyphenated().to_string()),

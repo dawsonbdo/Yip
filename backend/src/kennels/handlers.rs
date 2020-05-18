@@ -30,7 +30,22 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
     }
 }
 
-
+/**
+ * Method that returns the row corresponding to profile/kennel uuid if exists
+ * @param kennel_uuid: the kennel uuid
+ * @param profile_uuid: the profile uuid
+ * @param connection: database connection
+ *
+ * @return returns a result containing number of rows affected (1 if relationship exists)
+ */
+pub fn get_relationship_ban(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
+    
+    // Filters kennel follow relationship table
+    kennel_bans::table
+             .filter(kennel_bans::kennel.eq(kennel_uuid))
+             .filter(kennel_bans::banned_reviewer.eq(profile_uuid))
+             .execute(connection)
+}
 
 /**
  * Method that attempts to ban users from a kennel
