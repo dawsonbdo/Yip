@@ -105,6 +105,10 @@ class YipNavBar extends Component {
               {followedKennels}
             </DropdownButton>}
             {logBtn}
+            <DropdownButton id="dropdown-item-button" title="More" className="pr-5" variant="warning">
+              <Dropdown.Item>Profile</Dropdown.Item>
+              <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
+            </DropdownButton>
             {/* <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">

@@ -26,7 +26,8 @@ class CreateReview extends Component {
     this.state = {
       pictures: [],
       kennelId: null,
-      redirect: null
+      redirect: null,
+      validated: false
     };
     this.onDrop = this.onDrop.bind(this);
     this.postReview = this.postReview.bind(this);
@@ -57,6 +58,17 @@ class CreateReview extends Component {
   }
 
   postReview() {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    var reviewForm = event.currentTarget;
+
+    // Displays error if fields are empty
+    if (reviewForm.checkValidity() === false) {
+      this.setState({ validated: true });
+      return;
+    }
 
     // TODO: Get UTC time or something standard instead of just local time
 
@@ -118,21 +130,24 @@ class CreateReview extends Component {
               <Link to="/"><img src={corgiImage} /></Link>
               <div className="logInForm">
                 <h1 className="logInLabel">Create Review</h1>
-                <Form className="logInEntryContainer">
+                <Form noValidate validated={this.state.validated} className="logInEntryContainer" onSubmit={this.postReview}>
                 <div className="logInEntryContainer">
                     <Form.Control id="kennel" className="logInEntry" size="lg" type="text" readOnly defaultValue={this.props.location.state.kennel_name} />
                   </div>
                   <div className="logInEntryContainer">
-                    <Form.Control id="title" className="logInEntry" size="lg" type="text" placeholder="Title" />
+                    <Form.Control id="title" className="logInEntry" size="lg" type="text" placeholder="Title" required/>
+                    <Form.Control.Feedback type="invalid">Review title required.</Form.Control.Feedback>
                   </div>
                   <div className="logInEntryContainer">
-                    <Form.Control id="text" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" />
+                    <Form.Control id="text" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" required/>
+                    <Form.Control.Feedback type="invalid">Review description required.</Form.Control.Feedback>
                   </div>
                   <div className="logInEntryContainer">
                     <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                   </div>
                   <div className="logInEntryContainer">
-                    <Button onClick={this.postReview} className="logInEntry" variant="primary">Post</Button>
+                    <Button className="logInEntry" variant="primary" type="submit">Post</Button>
+                    <Button className="logInEntry" onClick={this.props.history.goBack} variant="primary">Cancel</Button>
                   </div>
                 </Form>
               </div>

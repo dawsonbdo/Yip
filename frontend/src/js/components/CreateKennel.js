@@ -36,6 +36,14 @@ class CreateKennel extends Component {
     event.preventDefault();
     event.stopPropagation();
 
+    var createKennelForm = event.currentTarget;
+
+    // Displays error if fields are empty
+    if (createKennelForm.checkValidity() === false) {
+      this.setState({ validated: true });
+      return;
+    }
+
     var token = localStorage.getItem('jwtToken');
 
     // Parses form 
@@ -63,7 +71,7 @@ class CreateKennel extends Component {
 
     }).catch(error => {
 
-      alert('failed kennel creation');
+      alert('Kennel with that name already exists.');
 
     });
 
@@ -84,8 +92,9 @@ class CreateKennel extends Component {
                 <h1 className="logInLabel">Create Kennel</h1>
                 <Form noValidate validated={this.state.validated} onSubmit={this.createKennel} className="logInEntryContainer">
                   <div className="logInEntryContainer">
-                    <Form.Label>Title</Form.Label>
-                    <Form.Control id="title" className="logInEntry" type="text" />
+                    <Form.Label>Kennel Name</Form.Label>
+                    <Form.Control id="title" className="logInEntry" type="text" required/>
+                    <Form.Control.Feedback type="invalid">Kennel name required.</Form.Control.Feedback>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Rules</Form.Label>
@@ -93,14 +102,15 @@ class CreateKennel extends Component {
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Tags</Form.Label>
-                    <Form.Control id="tags" className="logInEntry" type="text" />
+                    <Form.Control id="tags" className="logInEntry" placeholder="Enter as comma separated list" type="text" />
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Muted Words</Form.Label>
-                    <Form.Control id="mute" className="logInEntry" type="text" />
+                    <Form.Control id="mute" className="logInEntry" placeholder="Enter as comma separated list" type="text" />
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" type="submit" variant="primary">Submit</Button>
+                    <Button className="logInEntry" onClick={this.props.history.goBack} variant="primary">Cancel</Button>
                   </div>
                 </Form>
               </div>

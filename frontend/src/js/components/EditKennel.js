@@ -115,6 +115,7 @@ class EditKennel extends Component {
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" type="submit" variant="primary">Save</Button>
+                    <Button className="logInEntry" onClick={this.props.history.goBack} variant="primary">Cancel</Button>
                   </div>
                 </Form>
               </div>
