@@ -381,10 +381,11 @@ fn get_kennel_reviews(kennel_name: String, token: String, connection: DbConn) ->
 		Ok(revs) => {
 			let mut pq = priority_queue::PriorityQueue::new();
 			
-			// Sort reviews by newness using pq (greatest NaiveDateTime value)
+			// Sort reviews by hotness using pq (greatest NaiveDateTime value)
 			for r in revs {
-			    let timestamp = r.timestamp;
-			    pq.push(r, timestamp);
+			    //let timestamp = r.timestamp;
+			    let hotness = r.hotness;
+			    pq.push(r, hotness);
 			}  
 
 			// Create a vector with all of the reviews to as ordered
@@ -455,8 +456,9 @@ fn get_user_reviews(username: String, token: String, connection: DbConn) -> Resu
 
 	// Sort reviews by newness using pq (greatest NaiveDateTime value)
 	for r in all_reviews.unwrap() {
-	    let timestamp = r.timestamp;
-	    pq.push(r, timestamp);
+	    //let timestamp = r.timestamp;
+	    let hotness = r.hotness;
+	    pq.push(r, hotness);
 	}  
 
 	// Create a vector with all of the reviews to as ordered
@@ -697,10 +699,11 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	        Err(e) => (),
 	    };
 
-	    // Sort reviews by newness using pq (greatest NaiveDateTime value)
+	    // Sort reviews by hotness using pq 
 	    for r in reviews {
-	    	let timestamp = r.timestamp;
-	    	pq.push(r, timestamp);
+	    	//let timestamp = r.timestamp;
+		    let hotness = r.hotness;
+		    pq.push(r, hotness);
 	    }  
 
 
@@ -715,10 +718,11 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	        Err(e) => (),
 	    };
 
-	    // Sort reviews by newness using pq (greatest NaiveDateTime value)
+	    // Sort reviews by newness using pq 
 	    for r in reviews {
-	    	let timestamp = r.timestamp;
-	    	pq.push(r, timestamp);
+	    	//let timestamp = r.timestamp;
+	    	let hotness = r.hotness;
+	    	pq.push(r, hotness);
 	    }  
 
 	}

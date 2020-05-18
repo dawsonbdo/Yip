@@ -132,7 +132,7 @@ table! {
         timestamp -> Timestamp,
         text -> Varchar,
         tags -> Nullable<Array<Text>>,
-        hotness -> Nullable<Int4>,
+        hotness -> Nullable<Float8>,
         images -> Nullable<Array<Text>>,
         kennel_name -> Varchar,
         author_name -> Varchar,

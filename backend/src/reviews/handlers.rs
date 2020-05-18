@@ -15,7 +15,7 @@ use crate::schema::comment_dislike_relationships;
 extern crate bcrypt;
 use crate::auth;
 
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 
 use rocket::response::status;
 
@@ -44,7 +44,7 @@ fn from_review(review: Review, connection: &PgConnection) -> DbReview {
         text: (&review.text[1..(review.text.len()-1)]).to_string(),
         images: review.images,
         tags: review.tags,
-        hotness: Some(0),
+        hotness: Some(0.0),
         kennel_name: kennels::handlers::get(kennel_id, connection).unwrap().kennel_name,
         author_name: users::handlers::get_user_from_uuid(author_id, connection).unwrap().username,
         rating: review.rating,
@@ -81,6 +81,7 @@ pub fn to_review(review: &DbReview) -> DisplayReview {
         is_disliked: false,
         is_bookmarked: false,
         review_uuid: review.review_uuid,
+        hotness: review.hotness.unwrap() as i64,
     }
 }
 
@@ -300,6 +301,34 @@ pub fn calculate_rating(review_uuid: Uuid, connection: &PgConnection) -> i32 {
     rating as i32
 }
 
+
+/**
+ * Method that returns rating of a review
+ * @param review_uuid: uuid of review
+ * @param rating: rating of review
+ * @param connection: database connection
+ *
+ * @return returns hotness of review, 0 if does not exist
+ */
+pub fn calculate_hotness(review_uuid: Uuid, rating: i32, connection: &PgConnection) -> f64 {
+
+    // Get the review
+    let review = get(review_uuid, connection);
+    
+    // Get the time in seconds from when review was posted to 1/1/20
+    let seconds = review.unwrap().timestamp.signed_duration_since(NaiveDate::from_ymd(2020,1,1).and_hms(1,1,1)).num_seconds();
+
+    // Set y value
+    let y = if rating > 0 {1} else if rating == 0 {0} else {-1};
+
+    // Set z value
+    let z = (if rating.abs() > 1 {rating.abs()} else {1}) as f64;
+
+    let hotness = z.log10() + ( (y * seconds) / 45000 ) as f64;
+
+    hotness
+}
+
 /**
  * Method that updates the rating of a review in DB
  * @param review_uuid: uuid of review
@@ -312,7 +341,15 @@ pub fn update_review_rating(review_uuid: Uuid, connection: &PgConnection) -> Que
     // Get new rating
     let new_count = calculate_rating(review_uuid, connection);
 
-    println!("Review Id: {} New Count: {}", review_uuid, new_count);
+    // Get new hotness
+    let hotness = calculate_hotness(review_uuid, new_count, connection);
+
+    println!("Review Id: {} New Count: {} New Hotness: {}", review_uuid, new_count, hotness);
+
+    // Update hotness
+    diesel::update(reviews::table.find(review_uuid))
+                        .set(reviews::columns::hotness.eq(hotness))
+                        .execute(connection);
 
     // Update review rating
     diesel::update(reviews::table.find(review_uuid))
@@ -335,9 +372,15 @@ pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection)
     println!("Review uuid: {}", review_uuid);
     println!("Profile uuid: {}", profile_uuid);
     
-    // Check if user already disliked kennel 
+    // Check if user already disliked kennel (delete dislike if already disliked)
     match get_relationship_dislike(review_uuid, profile_uuid, connection) {
-        Ok(r) => if r != 0 {return Err(status::BadRequest(Some("Already disliking".to_string())))},
+        Ok(r) => if r != 0 {
+            // Attempt to delete from dislike table
+            match delete_like_dislike(review_uuid, profile_uuid, false, connection){
+                Ok(_u) => return Ok(status::Accepted(None)),
+                Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
+            }
+        },
         Err(_e) => (),
     };
 
@@ -375,7 +418,13 @@ pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) ->
     
     // Check if user already liked kennel 
     match get_relationship_like(review_uuid, profile_uuid, connection) {
-        Ok(r) => if r != 0 {return Err(status::BadRequest(Some("Already liking".to_string())))},
+        Ok(r) => if r != 0 {
+            // Attempt to delete from like table
+            match delete_like_dislike(review_uuid, profile_uuid, true, connection){
+                Ok(_u) => return Ok(status::Accepted(None)),
+                Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
+            }
+        },
         Err(_e) => (),
     };
 
@@ -612,6 +661,7 @@ pub struct DisplayReview {
     pub is_disliked: bool,
     pub is_bookmarked: bool,
     pub review_uuid: Uuid,
+    pub hotness: i64,
 }
 
 // Struct representing the fields of a review passed in from frontend contains
@@ -638,7 +688,7 @@ pub struct DbReview {
     pub timestamp: NaiveDateTime,
     pub text: String,
     pub tags: Option<Vec<String>>,
-    pub hotness: Option<i32>,
+    pub hotness: Option<f64>,
     pub images: Option<Vec<String>>,
     pub kennel_name: String,
     pub author_name: String,
