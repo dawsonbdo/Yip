@@ -52,13 +52,7 @@ class YipNavBar extends Component {
 
   handleSearch(event) {
     var query = document.getElementById('searchBar').value;
-    this.setState({ redirect: {
-      pathname: "/searchresults",
-      state: {
-        query: query,
-        searchType: event
-      }
-    }});
+    this.setState({redirect: `/searchresults-${event}-${query}`});
 
   }
 
@@ -130,7 +124,7 @@ class YipNavBar extends Component {
       )
     }
     else {
-      return <Redirect to={this.state.redirect} />
+      return <Redirect to={this.state.redirect} push/>
     }
   }
 }

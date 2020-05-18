@@ -23,25 +23,25 @@ class SearchResults extends Component {
         this.state = {
             loggedIn: false,
             searchDisplay: false,
+            results: false,
             resultArray: [],
         };
     }
 
     componentDidUpdate(prevProps) {
-
-        if (prevProps.location.state.query != this.props.location.state.query || 
-            prevProps.location.state.searchType != this.props.location.state.searchType) {
+        // Checks if user redirected to this page
+        if (prevProps.location.key != this.props.location.key) {
             window.location.reload();
         }
     }
 
     componentDidMount() {
 
-        if (this.props.location.state.searchType == "Kennels") {
-            this.searchKennels(this.props.location.state.query);
+        if (this.props.match.params.searchType == "Kennels") {
+            this.searchKennels(this.props.match.params.query);
         }
         else {
-            this.searchReviews(this.props.location.state.query);
+            this.searchReviews(this.props.match.params.query);
         }
 
     }
@@ -66,13 +66,14 @@ class SearchResults extends Component {
                 });
 
             }
-            this.setState({ searchDisplay: true });
+            this.setState({ searchDisplay: true, results: true });
 
 
         }).catch(error => {
 
             // Review not found in database
-            alert('Failed to search kennels');
+            //alert('Failed to search kennels');
+            this.setState({ searchDisplay: true, results: false });
 
         });
     }
@@ -103,12 +104,13 @@ class SearchResults extends Component {
 
             }
 
-            this.setState({ searchDisplay: true });
+            this.setState({ searchDisplay: true, results: true });
 
         }).catch(error => {
 
             // Review not found in database
-            alert('Failed to search reviews');
+            //alert('Failed to search reviews');
+            this.setState({ searchDisplay: true, results: false });
 
         });
     }
@@ -117,7 +119,7 @@ class SearchResults extends Component {
 
         // DYNAMICALLY GET REVIEWS HERE AND PUT IT IN THE IF STATEMENT BELOW
         let results;
-        if (this.props.location.state.searchType == "Reviews") {
+        if (this.props.match.params.searchType == "Reviews") {
             results = this.state.resultArray.map(function (result) {
                 return <ReviewCard reviewId={result.id} reviewName={result.title} reviewerName={result.author} reviewPreview={{ __html: result.text }} />
             });
@@ -129,11 +131,25 @@ class SearchResults extends Component {
         }
 
         let search;
-        if (this.state.searchDisplay) {
+        if (this.state.searchDisplay && this.state.results) {
             search =
                 <div>
                     <Jumbotron id="jumbotron" className="text-center">
-                        <h1>Results for '{this.props.location.state.query}' in {this.props.location.state.searchType}: </h1>
+                        <h1>Results for '{this.props.match.params.query}' in {this.props.match.params.searchType}: </h1>
+                    </Jumbotron>
+                    <Container>
+                        <Row>
+                            <Col>
+                                {results}
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+        } else if (this.state.searchDisplay && !this.state.results) {
+            search =
+                <div>
+                    <Jumbotron id="jumbotron" className="text-center">
+                        <h1>No results for '{this.props.match.params.query}' in {this.props.match.params.searchType}. </h1>
                     </Jumbotron>
                     <Container>
                         <Row>
