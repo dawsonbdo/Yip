@@ -50,8 +50,19 @@ class YipNavBar extends Component {
 
   }
 
+  /**
+   * Handler function for search bar
+   */
   handleSearch(event) {
+    // Get user input from search bar
     var query = document.getElementById('searchBar').value;
+
+    // Ignore input that only contains whitespace
+    if(query.replace(/ /g, '') === "") {
+      return;
+    }
+
+    // Redirect to search results page with search type and query in url
     this.setState({redirect: `/searchresults-${event}-${query}`});
 
   }

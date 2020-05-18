@@ -11,17 +11,14 @@ import Image from 'react-bootstrap/Image';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
-import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
-
 import axios from 'axios'
 
 class SearchResults extends Component {
     constructor(props) {
         super(props);
 
-        // Creates state to keep track of if logged in
+        // States track when to display results, if there are results, and results
         this.state = {
-            loggedIn: false,
             searchDisplay: false,
             results: false,
             resultArray: [],
@@ -29,14 +26,16 @@ class SearchResults extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        // Checks if user redirected to this page
+        // Checks if user was redirected to this page from another search results page
         if (prevProps.location.key != this.props.location.key) {
+            // Resets component
             window.location.reload();
         }
     }
 
     componentDidMount() {
 
+        // Search kennels or reviews depending on what user selected
         if (this.props.match.params.searchType == "Kennels") {
             this.searchKennels(this.props.match.params.query);
         }
@@ -60,6 +59,8 @@ class SearchResults extends Component {
 
                 // Print kennels to console for now
                 console.log(response.data[i]);
+
+                // Add kennel info to array for rendering kennel cards
                 this.state.resultArray.push({
                     kennelName: response.data[i].kennel_name,
                     kennelRules: response.data[i].rules,
@@ -87,14 +88,13 @@ class SearchResults extends Component {
 
             console.log("REVIEW SEARCH QUERY: " + query);
 
-            // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
-            //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
-
             // Iterate through reviews
             for (var i = 0; i < response.data.length; i++) {
 
                 // Print reviews to console for now
                 console.log(response.data[i]);
+
+                // Adds review info to array for rendering review cards
                 this.state.resultArray.push({
                     title: response.data[i].title,
                     author: response.data[i].author,
