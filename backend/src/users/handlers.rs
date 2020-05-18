@@ -251,13 +251,35 @@ pub fn follow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Resu
 }
 
 /**
- * Method for blocking another user
- * @param blocker: the User object that is being created potentially
+ * Method for unblocking another user
+ * @param blocker: the blocker
+ * @param blockee: the blockee
  *
  * @return returns Uuid of User if created, otherwise String indicating
  * which unique fields are taken (email/username)
  */
-pub fn insert_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::Conflict<String>> {
+pub fn remove_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<usize> {
+    // Prints the information that was received
+    println!("Blocker: {}", blocker);
+    println!("Blockee: {}", blockee);
+
+    // Attemps to remove from database
+    diesel::delete(block_relationships::table
+             .filter(block_relationships::blocker.eq(blocker))
+             .filter(block_relationships::blockee.eq(blockee)))
+             .execute(connection)
+    
+}
+
+/**
+ * Method for blocking another user
+ * @param blocker: the blocker
+ * @param blockee: the blockee
+ *
+ * @return returns Uuid of User if created, otherwise String indicating
+ * which unique fields are taken (email/username)
+ */
+pub fn insert_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // Prints the information that was received
     println!("Blocker: {}", blocker);
     println!("Blockee: {}", blockee);
@@ -269,13 +291,9 @@ pub fn insert_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> 
     };
 
     // Inserts block relationship into database
-    match diesel::insert_into(block_relationships::table)
-        .values(block_user)
-        .get_result::<DbBlockUser>(connection) {
-            Ok(_u) => Ok(status::Accepted(None)),
-            Err(e) => Err(status::Conflict(Some(e.to_string()))),
-        }
-    
+    diesel::insert_into(block_relationships::table)
+            .values(block_user)
+            .execute(connection)
 }
 
 /**

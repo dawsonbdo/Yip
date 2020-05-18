@@ -47,6 +47,44 @@ struct TokenUser {
 }
 
 /** 
+ * Helper method that blocks or unblocks a user given parameter
+ * @param input: JSON of a TokenUser (name + token)
+ * @param block: bool indicating follow or unfollow
+ * @param connection: database connection
+ *
+ * @return returns a result with status Accepted or BadRequest
+ */
+fn block_unblock_helper(input: Json<TokenUser>, block: bool, connection: DbConn) -> Result<bool, String> {
+
+	// Get token uuid (blocker)
+	let blocker = auth::get_uuid_from_token(&input.token);
+
+	// Get blockee uuid
+	let blockee = handlers::get_uuid_from_username(&input.username, &connection);
+
+	// Check if either are nil (not found)
+	if blocker.is_nil() || blockee.is_nil() {
+		return Err("Blocker or blockee not found".to_string());
+	}
+
+	let result;
+
+	if block {
+		// Attempt to insert block relation into database 
+	 	result = handlers::insert_block(blocker, blockee, &connection);
+	} else {
+		// Attempt to remove block relation from database 
+	 	result = handlers::remove_block(blocker, blockee, &connection);
+	}
+	
+	// Check if successful insertion into database
+	match result {
+		Ok(u) => if u == 0 {Err("already blocked or unblocked".to_string())} else {Ok(true)},
+		Err(e) => Err(e.to_string()),
+	}
+}
+
+/** 
  * Helper method that follows or unfollows a user given parameter
  * @param input: JSON of a TokenUser (name + token)
  * @param follow: bool indicating follow or unfollow
@@ -115,6 +153,23 @@ fn follow_user(follow: Json<TokenUser>, connection: DbConn) -> Result<status::Ac
 }
 
 /** 
+ * Method that unblocks a user
+ * @param kennel: JSON of the report
+ *
+ * @return returns returns status indicating if unblocked
+ */
+#[post("/unblock_user", data="<block>", rank=1)]
+fn unblock_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+	
+	// Call helper with false for unblock 
+	match block_unblock_helper(block, false, connection){
+		Ok(_b) => Ok(status::Accepted(None)),
+		Err(e) => Err(status::Conflict(Some(e.to_string()))),
+	}
+	
+}
+
+/** 
  * Method that blocks a user
  * @param kennel: JSON of the report
  *
@@ -123,26 +178,11 @@ fn follow_user(follow: Json<TokenUser>, connection: DbConn) -> Result<status::Ac
 #[post("/block_user", data="<block>", rank=1)]
 fn block_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
 	
-	// Get token uuid (blocker)
-	let blocker = auth::get_uuid_from_token(&block.token);
-
-	// Get blockee uuid
-	let blockee = handlers::get_uuid_from_username(&block.username, &connection);
-
-	// Check if either are nil (not found)
-	if blocker.is_nil() || blockee.is_nil() {
-		return Err(status::Conflict(Some("Blocker or blockee not found".to_string())));
+	// Call helper with true for block 
+	match block_unblock_helper(block, true, connection) {
+		Ok(_b) => Ok(status::Accepted(None)),
+		Err(e) => Err(status::Conflict(Some(e.to_string()))),
 	}
-
-	// Attempt to insert block relation into database 
-	let block = handlers::insert_block(blocker, blockee, &connection);
-	
-	// Check if successful insertion into database
-	match block {
-		Ok(_id) => Ok(status::Accepted(None)),
-		Err(e) => Err(e),
-	}
-	
 }
 
 /** 
