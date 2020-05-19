@@ -183,7 +183,7 @@ class Review extends Component {
 	}
 
 	dislikeReview() {
-
+		updateLoggedInState(this);
 		if(isLoggedIn(this)) {
 			// If already disliked removes dislike
 			if(this.state.isDisliked) {
@@ -229,7 +229,7 @@ class Review extends Component {
 	}
 
 	likeReview() {
-
+		updateLoggedInState(this);
 		if(isLoggedIn(this)) {
 			// If already liked removes like
 			if(this.state.isLiked) {

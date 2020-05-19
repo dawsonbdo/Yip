@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {Link} from 'react-router-dom';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -9,33 +9,52 @@ import Image from 'react-bootstrap/Image';
 import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png';
 
-import { likeDislikeCommentJson } from './BackendHelpers.js';
+import { likeDislikeCommentJson, updateLoggedInState, isLoggedIn } from './BackendHelpers.js';
 
 import axios from 'axios'
 
 class CommentCard extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
-        
+
         this.state = {
             isLiked: false,
             isDisliked: false,
             rating: 0
         }
-    
+
         this.like = this.like.bind(this);
         this.dislike = this.dislike.bind(this);
     }
 
     componentDidMount() {
-        this.setState({ 
+        this.setState({
             rating: this.props.rating,
             isLiked: this.props.isLiked,
             isDisliked: this.props.isDisliked
         });
+        updateLoggedInState(this);
     }
 
-    like(){
+    like() {
+
+        updateLoggedInState(this);
+        if (isLoggedIn(this)) {
+            // If already liked removes like
+            if (this.state.isLiked) {
+                this.setState({ isLiked: false, rating: this.state.rating - 1 });
+            }
+
+            // If disliked remove dislike and add like
+            else if (this.state.isDisliked) {
+                this.setState({ isDisliked: false, isLiked: true, rating: this.state.rating + 2 });
+            }
+
+            // Otherwise add like
+            else {
+                this.setState({ isLiked: true, rating: this.state.rating + 1 });
+            }
+        }
         // TODO: Get uuid of comment from a prop probably
         var commentId = this.props.commentId;
 
@@ -55,21 +74,6 @@ class CommentCard extends Component {
         }).then(response => {
 
             //alert('Comment successfully liked');
-            // If already liked removes like
-			if(this.state.isLiked) {
-				this.setState({ isLiked: false, rating: this.state.rating - 1 });
-			}
-
-			// If disliked remove dislike and add like
-			else if(this.state.isDisliked) {
-				this.setState({ isDisliked: false, isLiked: true, rating: this.state.rating + 2 });
-			}
-
-			// Otherwise add like
-			else {
-				this.setState({ isLiked: true, rating: this.state.rating + 1 });
-			}
-
 
         }).catch(error => {
 
@@ -79,8 +83,28 @@ class CommentCard extends Component {
         });
     }
 
-    dislike(){
-         // TODO: Get uuid of comment from a prop probably
+    dislike() {
+
+        updateLoggedInState(this);
+        if (isLoggedIn(this)) {
+            // If already disliked removes dislike
+            if (this.state.isDisliked) {
+                this.setState({ isDisliked: false, rating: this.state.rating + 1 });
+            }
+
+            // If liked remove like and add dislike
+            else if (this.state.isLiked) {
+                this.setState({ isLiked: false, isDisliked: true, rating: this.state.rating - 2 });
+            }
+
+            // Otherwise add dislike
+            else {
+                this.setState({ isDisliked: true, rating: this.state.rating - 1 });
+            }
+
+
+        }
+        // TODO: Get uuid of comment from a prop probably
         var commentId = this.props.commentId;
 
         // Get token
@@ -100,21 +124,6 @@ class CommentCard extends Component {
         }).then(response => {
 
             //alert('Comment successfully disliked!');
-            // If already disliked removes dislike
-			if(this.state.isDisliked) {
-				this.setState({ isDisliked: false, rating: this.state.rating + 1 });
-			}
-
-			// If liked remove like and add dislike
-			else if(this.state.isLiked) {
-				this.setState({ isLiked: false, isDisliked: true, rating: this.state.rating - 2 });
-			}
-
-			// Otherwise add dislike
-			else {
-				this.setState({ isDisliked: true, rating: this.state.rating - 1 });
-			}
-
 
         }).catch(error => {
 
@@ -126,19 +135,19 @@ class CommentCard extends Component {
 
     render() {
         let likeIconOpacity;
-		let dislikeIconOpacity;
-		if(this.state.isLiked) {
-			likeIconOpacity = {opacity: 1.0};
-		}
-		else {
-			likeIconOpacity = {opacity: .6};
-		}
-		if(this.state.isDisliked) {
-			dislikeIconOpacity = {opacity: 1.0};
-		}
-		else {
-			dislikeIconOpacity = {opacity: .6};
-		}
+        let dislikeIconOpacity;
+        if (this.state.isLiked) {
+            likeIconOpacity = { opacity: 1.0 };
+        }
+        else {
+            likeIconOpacity = { opacity: .6 };
+        }
+        if (this.state.isDisliked) {
+            dislikeIconOpacity = { opacity: 1.0 };
+        }
+        else {
+            dislikeIconOpacity = { opacity: .6 };
+        }
         return (
             <Container className="pb-5">
                 <Row>
@@ -146,37 +155,37 @@ class CommentCard extends Component {
 
                     <Col xs={10} className="text-center">
                         <div className="logInForm">
-                                <div className="logInLabel">
-                                    <Container>
-                                        <Row>
-                                            <Col>
-                                                <h4 className="text-left pt-2 pl-2"><a class="profileLink" href={`/user-${this.props.commenterName}`}>{this.props.commenterName}</a></h4>
-                                            </Col>
-                                        </Row>
-                                    </Container>
+                            <div className="logInLabel">
+                                <Container>
+                                    <Row>
+                                        <Col>
+                                            <h4 className="text-left pt-2 pl-2"><a class="profileLink" href={`/user-${this.props.commenterName}`}>{this.props.commenterName}</a></h4>
+                                        </Col>
+                                    </Row>
+                                </Container>
+                            </div>
+                            <Form className="logInEntryContainer">
+                                <div className="logInEntryContainer">
+                                    <p>{this.props.commentText}</p>
                                 </div>
-                                <Form className="logInEntryContainer">
-                                    <div className="logInEntryContainer">
-                                        <p>{this.props.commentText}</p>
-                                    </div>
-                                    <Container>
-                                        <Row>
-                                            <Col>
-                                                <Link><Image onClick={this.like} style={likeIconOpacity} className="float-left likePadding" width="45" src={likeIcon} /></Link>
-                                                <h4 className="float-left likePadding">{this.state.rating}</h4>
-                                                <Link><Image onClick={this.dislike} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} /></Link>
-                                            </Col>
-                                            <Col>
-                                                <p className="float-right timestamp">Posted on {this.props.timestamp.substring(5, 16)}</p>
-                                            </Col>
-                                        </Row>
-                                    </Container>
-                                </Form>
-                       </div>
+                                <Container>
+                                    <Row>
+                                        <Col>
+                                            <Link><Image onClick={this.like} style={likeIconOpacity} className="float-left likePadding" width="45" src={likeIcon} /></Link>
+                                            <h4 className="float-left likePadding">{this.state.rating}</h4>
+                                            <Link><Image onClick={this.dislike} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} /></Link>
+                                        </Col>
+                                        <Col>
+                                            <p className="float-right timestamp">Posted on {this.props.timestamp.substring(5, 16)}</p>
+                                        </Col>
+                                    </Row>
+                                </Container>
+                            </Form>
+                        </div>
                     </Col>
 
                     <Col></Col>
-                 </Row>
+                </Row>
             </Container>
         )
     }
