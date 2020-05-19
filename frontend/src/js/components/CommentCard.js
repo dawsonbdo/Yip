@@ -106,8 +106,9 @@ class CommentCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <Image onClick={this.like} className="float-left likePadding" src={likeIcon} />
-                                                <Image onClick={this.dislike} className="float-left likePadding" src={dislikeIcon} />
+                                                <Image onClick={this.like} className="float-left likePadding" width="45" src={likeIcon} />
+                                                <h4 className="float-left likePadding">{this.props.rating}</h4>
+                                                <Image onClick={this.dislike} className="float-left likePadding" width="45" src={dislikeIcon} />
                                             </Col>
                                             <Col>
                                                 <p className="float-right timestamp">Posted on {this.props.timestamp.substring(5, 16)}</p>

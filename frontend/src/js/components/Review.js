@@ -37,7 +37,8 @@ class Review extends Component {
 			reviewTitle: "",
 			reviewAuthor: "",
 			reviewText: "",
-			reviewImgs: []
+			reviewImgs: [],
+			rating: 0
 		};
 
 		// Binds button handler
@@ -74,7 +75,8 @@ class Review extends Component {
 				this.setState({
 					reviewTitle: response.data.title,
 					reviewAuthor: response.data.author,
-					reviewText: response.data.text
+					reviewText: response.data.text,
+					rating: response.data.rating
 				});
 
 				// Check that any images were returned cuz can be undefined
@@ -119,8 +121,10 @@ class Review extends Component {
 					this.state.commentArray.push({
 						author: response.data[i].author_name,
 						text: response.data[i].text,
-						time: response.data[i].timestamp
+						time: response.data[i].timestamp,
+						rating: response.data[i].rating
 					});
+
 				}
 				this.setState({ commentsListed: true });
 			}
@@ -290,7 +294,8 @@ class Review extends Component {
 
 		// Gets the comments in their comment cards
 		const comments = this.state.commentArray.map(function (comment) {
-			return <CommentCard commenterName={comment.author} commentText={comment.text} timestamp={comment.time} />
+			return <CommentCard commenterName={comment.author} commentText={comment.text} 
+			timestamp={comment.time} rating={comment.rating}/>
 		});
 
 
@@ -306,11 +311,12 @@ class Review extends Component {
 								<h4 id="author"><a class="profileLink" href={`/user-${this.state.reviewAuthor}`}>{this.state.reviewAuthor}</a></h4>
 							</Col>
 							<Col className="text-right reviewIcon">
-								<Image onClick={this.likeReview} className="likePadding" src={likeIcon} />
-								<Image onClick={this.dislikeReview} className="likePadding" src={dislikeIcon} />
-								<Link to="/"><Image className="pl-5 likePadding" src={shareIcon} /></Link>
-								<Image onClick={this.bookmarkReview} className="likePadding" src={bookmarkIcon} />
-								<Image onClick={this.deleteReview} className="likePadding" src={trashIcon} />
+								<Image onClick={this.deleteReview} className="likePadding float-right" src={trashIcon} />
+								<Image onClick={this.bookmarkReview} className="likePadding float-right" src={bookmarkIcon} />
+								<Link to="/"><Image className="likePadding float-right pl-5" src={shareIcon} /></Link>
+								<Image onClick={this.dislikeReview} className="likePadding float-right" src={dislikeIcon} />
+								<h4 className="likePadding float-right">{this.state.rating}</h4>
+								<Image onClick={this.likeReview} className="likePadding float-right" src={likeIcon} />
 							</Col>
 						</Row>
 
