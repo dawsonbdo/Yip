@@ -265,13 +265,29 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
  *
  * @return returns TBD
  */
-#[post("/create_comment", data="<comment>", rank=1)]
-fn create_comment(comment: Json<Comment>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
-	println!("Timestamp: {}", &comment.timestamp);
+#[post("/create_comment/<name>", data="<comment>", rank=1)]
+fn create_comment(comment: Json<Comment>, name: String, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+	//println!("Timestamp: {}", &comment.timestamp);
 
 	// Check for valid token
 	if !auth::validate_token(comment.author_token.clone()) {
 		return Err(status::Conflict(Some("Invalid User".to_string())));
+	}
+
+	// Get the muted words
+	let muted_words = match super::kennels::handlers::get_kennel_from_name(name, &connection){
+		Ok(k) => match k.muted_words {
+			Some(words) => words,
+			None => vec![],
+		},
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+	};
+
+	// Check that no muted words in review text
+	for word in muted_words {
+		if comment.text.contains(&word) {
+			return Err(status::Conflict(Some("Review using muted word".to_string())));
+		}
 	}
 
 	// Attempt to insert kennel into database 

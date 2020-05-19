@@ -318,7 +318,7 @@ class Review extends Component {
 		// Send POST request
 		axios({
 			method: 'post',
-			url: '/create_comment',
+			url: '/create_comment/' + this.state.kennel,
 			data: form
 		}).then(response => {
 
