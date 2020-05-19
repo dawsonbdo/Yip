@@ -135,13 +135,13 @@ class ReviewCard extends Component {
 			likeIconOpacity = {opacity: 1.0};
 		}
 		else {
-			likeIconOpacity = {opacity: .7};
+			likeIconOpacity = {opacity: .6};
 		}
 		if(this.state.isDisliked) {
 			dislikeIconOpacity = {opacity: 1.0};
 		}
 		else {
-			dislikeIconOpacity = {opacity: .7};
+			dislikeIconOpacity = {opacity: .6};
 		}
         return (
             <Container className="pb-5">
@@ -171,9 +171,9 @@ class ReviewCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <Image onClick={this.likeReview} style={likeIconOpacity} className="float-left likePadding" width="45" src={likeIcon} />
+                                                <Link><Image onClick={this.likeReview} style={likeIconOpacity} className="float-left likePadding" width="45" src={likeIcon} /></Link>
                                                 <h4 className="float-left likePadding">{this.state.rating}</h4>
-                                                <Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} />
+                                                <Link><Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} /></Link>
                                                 <Link to={`/review-${this.props.reviewId}`}><Image className="float-right" width="40" src={commentIcon} style={{opacity: .7}}/></Link>
                                                 <Link to={`/kennel-${this.props.kennelName}`}><Image className="float-right" width="40" src={homeIcon} style={{opacity: .8}}/></Link>
                                             </Col>

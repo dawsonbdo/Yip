@@ -347,13 +347,13 @@ class Review extends Component {
 			likeIconOpacity = {opacity: 1.0};
 		}
 		else {
-			likeIconOpacity = {opacity: .7};
+			likeIconOpacity = {opacity: .6};
 		}
 		if(this.state.isDisliked) {
 			dislikeIconOpacity = {opacity: 1.0};
 		}
 		else {
-			dislikeIconOpacity = {opacity: .7};
+			dislikeIconOpacity = {opacity: .6};
 		}
 
 
@@ -370,12 +370,12 @@ class Review extends Component {
 								<h5 id="kennel"><a class="profileLink" href={`/kennel-${this.state.kennel}`}>Kennel: {this.state.kennel}</a></h5>
 							</Col>
 							<Col className="text-right reviewIcon">
-								<Image onClick={this.deleteReview} className="likePadding float-right" src={trashIcon} />
-								<Image onClick={this.bookmarkReview} style={{opacity: .7}} className="likePadding float-right" src={bookmarkIcon} />
+								<Link><Image onClick={this.deleteReview} className="likePadding float-right" src={trashIcon} /></Link>
+								<Link><Image onClick={this.bookmarkReview} style={{opacity: .7}} className="likePadding float-right" src={bookmarkIcon} /></Link>
 								<Link to="/"><Image className="likePadding float-right pl-5" style={{opacity: .7}} src={shareIcon} /></Link>
-								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
+								<Link><Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} /></Link>
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
-								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />
+								<Link><Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} /></Link>
 							</Col>
 						</Row>
 

@@ -131,13 +131,13 @@ class CommentCard extends Component {
 			likeIconOpacity = {opacity: 1.0};
 		}
 		else {
-			likeIconOpacity = {opacity: .7};
+			likeIconOpacity = {opacity: .6};
 		}
 		if(this.state.isDisliked) {
 			dislikeIconOpacity = {opacity: 1.0};
 		}
 		else {
-			dislikeIconOpacity = {opacity: .7};
+			dislikeIconOpacity = {opacity: .6};
 		}
         return (
             <Container className="pb-5">
@@ -162,9 +162,9 @@ class CommentCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <Image onClick={this.like} style={likeIconOpacity} className="float-left likePadding" width="45" src={likeIcon} />
+                                                <Link><Image onClick={this.like} style={likeIconOpacity} className="float-left likePadding" width="45" src={likeIcon} /></Link>
                                                 <h4 className="float-left likePadding">{this.state.rating}</h4>
-                                                <Image onClick={this.dislike} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} />
+                                                <Link><Image onClick={this.dislike} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} /></Link>
                                             </Col>
                                             <Col>
                                                 <p className="float-right timestamp">Posted on {this.props.timestamp.substring(5, 16)}</p>
