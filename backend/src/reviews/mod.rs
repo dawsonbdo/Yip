@@ -645,6 +645,22 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, st
 		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
 	};
 
+	// Get the muted words
+	let muted_words = match super::kennels::handlers::get(kennel_id, &connection){
+		Ok(k) => match k.muted_words {
+			Some(words) => words,
+			None => vec![],
+		},
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+	};
+
+	// Check that no muted words in review text
+	for word in muted_words {
+		if review.text.contains(&word) || review.title.contains(&word) {
+			return Err(status::Conflict(Some("Review using muted word".to_string())));
+		}
+	}
+
 	match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
 		Ok(rel) => if rel == 1 {return Err(status::Conflict(Some("User is banned from kennel".to_string())));} else {()},
 		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
