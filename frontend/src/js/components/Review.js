@@ -38,7 +38,9 @@ class Review extends Component {
 			reviewAuthor: "",
 			reviewText: "",
 			reviewImgs: [],
-			rating: 0
+			rating: 0,
+			isLiked: false,
+			isDisliked: false
 		};
 
 		// Binds button handler
@@ -78,6 +80,13 @@ class Review extends Component {
 					reviewText: response.data.text,
 					rating: response.data.rating
 				});
+
+				if(response.data.is_liked) {
+					this.setState({isLiked: true});
+				}
+				if(response.data.is_disliked) {
+					this.setState({isDisliked: true});
+				}
 
 				// Check that any images were returned cuz can be undefined
 				if (response.data.images != undefined) {
@@ -185,7 +194,22 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			alert('Review successfully disliked!');
+			// alert('Review successfully disliked!');
+
+			// If already disliked removes dislike
+			if(this.state.isDisliked) {
+				this.setState({ isDisliked: false, rating: this.state.rating + 1 });
+			}
+
+			// If liked remove like and add dislike
+			else if(this.state.isLiked) {
+				this.setState({ isLiked: false, isDisliked: true, rating: this.state.rating - 2 });
+			}
+
+			// Otherwise add dislike
+			else {
+				this.setState({ isDisliked: true, rating: this.state.rating - 1 });
+			}
 
 
 		}).catch(error => {
@@ -214,7 +238,22 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			alert('Review successfully liked!');
+			//alert('Review successfully liked!');
+
+			// If already liked removes like
+			if(this.state.isLiked) {
+				this.setState({ isLiked: false, rating: this.state.rating - 1 });
+			}
+
+			// If disliked remove dislike and add like
+			else if(this.state.isLiked) {
+				this.setState({ isDisliked: false, isLiked: true, rating: this.state.rating + 2 });
+			}
+
+			// Otherwise add like
+			else {
+				this.setState({ isLiked: true, rating: this.state.rating + 1 });
+			}
 
 
 		}).catch(error => {
@@ -297,6 +336,20 @@ class Review extends Component {
 			return <CommentCard commenterName={comment.author} commentText={comment.text} 
 			timestamp={comment.time} rating={comment.rating}/>
 		});
+		let likeIconOpacity;
+		let dislikeIconOpacity;
+		if(this.state.isLiked) {
+			likeIconOpacity = {opacity: 1.0};
+		}
+		else {
+			likeIconOpacity = {opacity: .6};
+		}
+		if(this.state.isDisliked) {
+			dislikeIconOpacity = {opacity: 1.0};
+		}
+		else {
+			dislikeIconOpacity = {opacity: .6};
+		}
 
 
 		// ONLY DISPLAYS REVIEW CONTENTS WHEN EVERYTHING IS LOADED FROM BACKEND/DATABASE
@@ -312,11 +365,11 @@ class Review extends Component {
 							</Col>
 							<Col className="text-right reviewIcon">
 								<Image onClick={this.deleteReview} className="likePadding float-right" src={trashIcon} />
-								<Image onClick={this.bookmarkReview} className="likePadding float-right" src={bookmarkIcon} />
-								<Link to="/"><Image className="likePadding float-right pl-5" src={shareIcon} /></Link>
-								<Image onClick={this.dislikeReview} className="likePadding float-right" src={dislikeIcon} />
+								<Image onClick={this.bookmarkReview} style={{opacity: .6}} className="likePadding float-right" src={bookmarkIcon} />
+								<Link to="/"><Image className="likePadding float-right pl-5" style={{opacity: .6}} src={shareIcon} /></Link>
+								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
-								<Image onClick={this.likeReview} className="likePadding float-right" src={likeIcon} />
+								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />
 							</Col>
 						</Row>
 
