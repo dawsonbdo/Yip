@@ -218,6 +218,18 @@ pub fn dislike(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection
     println!("Comment uuid: {}", comment_uuid);
     println!("Profile uuid: {}", profile_uuid);
 
+    // Check if user already disliked kennel (delete dislike if already disliked)
+    match get_relationship_dislike(comment_uuid, profile_uuid, connection) {
+        Ok(r) => if r != 0 {
+            // Attempt to delete from dislike table
+            match delete_like_dislike(comment_uuid, profile_uuid, false, connection){
+                Ok(_u) => return Ok(status::Accepted(None)),
+                Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
+            }
+        },
+        Err(_e) => (),
+    };
+
     // Attempt to delete from like table
     delete_like_dislike(comment_uuid, profile_uuid, true, connection);
 
@@ -249,6 +261,18 @@ pub fn like(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -
     // Prints the uuids received
     println!("Comment uuid: {}", comment_uuid);
     println!("Profile uuid: {}", profile_uuid);
+    
+    // Check if user already liked kennel 
+    match get_relationship_like(comment_uuid, profile_uuid, connection) {
+        Ok(r) => if r != 0 {
+            // Attempt to delete from like table
+            match delete_like_dislike(comment_uuid, profile_uuid, true, connection){
+                Ok(_u) => return Ok(status::Accepted(None)),
+                Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
+            }
+        },
+        Err(_e) => (),
+    };
     
     // Attempt to delete from dislike table
     delete_like_dislike(comment_uuid, profile_uuid, false, connection);
