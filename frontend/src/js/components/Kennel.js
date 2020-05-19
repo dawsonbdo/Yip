@@ -140,7 +140,9 @@ class Kennel extends Component {
                         text: response.data[i].text,
                         kennel: response.data[i].kennel_name,
                         rating: response.data[i].rating,
-                        id: response.data[i].review_uuid
+                        id: response.data[i].review_uuid,
+                        isLiked: response.data[i].is_liked,
+                        isDisliked: response.data[i].is_disliked
                     });
 
                 }
@@ -236,7 +238,7 @@ class Kennel extends Component {
     render() {
         const reviews = this.state.reviewArray.map(function (review) {
             return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} 
-            kennelName={review.kennel} rating={review.rating}/>
+            kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked}/>
         });
 
         const tags = this.state.tagsArray.map(function (tag) {

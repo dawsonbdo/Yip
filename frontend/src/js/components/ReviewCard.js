@@ -23,9 +23,23 @@ class ReviewCard extends Component {
     constructor(props) {
         super(props)
 
+        this.state = {
+            rating: 0,
+            isLiked: false,
+            isDisliked: false
+        }
+
         // Binds button handler
         this.likeReview = this.likeReview.bind(this);
         this.dislikeReview = this.dislikeReview.bind(this);
+    }
+
+    componentDidMount() {
+        this.setState({
+            rating: this.props.rating,
+            isLiked: this.props.isLiked,
+            isDisliked: this.props.isDisliked
+        })
     }
 
     dislikeReview() {
@@ -46,7 +60,21 @@ class ReviewCard extends Component {
             data: form
         }).then(response => {
 
-            alert('Review successfully disliked!');
+            //alert('Review successfully disliked!');
+            // If already disliked removes dislike
+			if(this.state.isDisliked) {
+				this.setState({ isDisliked: false, rating: this.state.rating + 1 });
+			}
+
+			// If liked remove like and add dislike
+			else if(this.state.isLiked) {
+				this.setState({ isLiked: false, isDisliked: true, rating: this.state.rating - 2 });
+			}
+
+			// Otherwise add dislike
+			else {
+				this.setState({ isDisliked: true, rating: this.state.rating - 1 });
+			}
 
 
         }).catch(error => {
@@ -75,7 +103,21 @@ class ReviewCard extends Component {
             data: form
         }).then(response => {
 
-            alert('Review successfully liked!');
+            //alert('Review successfully liked!');
+            // If already liked removes like
+			if(this.state.isLiked) {
+				this.setState({ isLiked: false, rating: this.state.rating - 1 });
+			}
+
+			// If disliked remove dislike and add like
+			else if(this.state.isDisliked) {
+				this.setState({ isDisliked: false, isLiked: true, rating: this.state.rating + 2 });
+			}
+
+			// Otherwise add like
+			else {
+				this.setState({ isLiked: true, rating: this.state.rating + 1 });
+			}
 
 
         }).catch(error => {
@@ -87,6 +129,20 @@ class ReviewCard extends Component {
     }
 
     render() {
+        let likeIconOpacity;
+		let dislikeIconOpacity;
+		if(this.state.isLiked) {
+			likeIconOpacity = {opacity: 1.0};
+		}
+		else {
+			likeIconOpacity = {opacity: .7};
+		}
+		if(this.state.isDisliked) {
+			dislikeIconOpacity = {opacity: 1.0};
+		}
+		else {
+			dislikeIconOpacity = {opacity: .7};
+		}
         return (
             <Container className="pb-5">
                 <Row>
@@ -115,11 +171,11 @@ class ReviewCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <Image onClick={this.likeReview} className="float-left likePadding" width="45" src={likeIcon} />
-                                                <h4 className="float-left likePadding">{this.props.rating}</h4>
-                                                <Image onClick={this.dislikeReview} className="float-left likePadding" width="45" src={dislikeIcon} />
-                                                <Link to={`/review-${this.props.reviewId}`}><Image className="float-right" width="40" src={commentIcon} /></Link>
-                                                <Link to={`/kennel-${this.props.kennelName}`}><Image className="float-right" width="40" src={homeIcon} /></Link>
+                                                <Image onClick={this.likeReview} style={likeIconOpacity} className="float-left likePadding" width="45" src={likeIcon} />
+                                                <h4 className="float-left likePadding">{this.state.rating}</h4>
+                                                <Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} />
+                                                <Link to={`/review-${this.props.reviewId}`}><Image className="float-right" width="40" src={commentIcon} style={{opacity: .7}}/></Link>
+                                                <Link to={`/kennel-${this.props.kennelName}`}><Image className="float-right" width="40" src={homeIcon} style={{opacity: .7}}/></Link>
                                             </Col>
                                         </Row>
                                     </Container>

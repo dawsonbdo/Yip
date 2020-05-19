@@ -61,10 +61,10 @@ class SearchResults extends Component {
                 console.log(response.data[i]);
 
                 var tagsStr = "";
-                if(response.data[i].tags.length > 0) {
+                if (response.data[i].tags.length > 0) {
                     tagsStr = tagsStr + response.data[i].tags[0];
                 }
-                for(var j = 1; j < response.data[i].tags.length; j++) {
+                for (var j = 1; j < response.data[i].tags.length; j++) {
                     tagsStr = tagsStr + ", " + response.data[i].tags[j];
                 }
 
@@ -109,7 +109,11 @@ class SearchResults extends Component {
                     title: response.data[i].title,
                     author: response.data[i].author,
                     text: response.data[i].text,
+                    kennel: response.data[i].kennel_name,
+                    rating: response.data[i].rating,
                     id: response.data[i].review_uuid,
+                    isLiked: response.data[i].is_liked,
+                    isDisliked: response.data[i].is_disliked
                 });
 
             }
@@ -131,7 +135,8 @@ class SearchResults extends Component {
         let results;
         if (this.props.match.params.searchType == "Reviews") {
             results = this.state.resultArray.map(function (result) {
-                return <ReviewCard reviewId={result.id} reviewName={result.title} reviewerName={result.author} reviewPreview={{ __html: result.text }} />
+                return <ReviewCard reviewId={result.id} reviewName={result.title} reviewerName={result.author} reviewPreview={{ __html: result.text }}
+                    kennelName={result.kennel} rating={result.rating} isLiked={result.isLiked} isDisliked={result.isDisliked} />
             });
         }
         else {
