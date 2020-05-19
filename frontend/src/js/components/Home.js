@@ -36,8 +36,7 @@ class Home extends Component {
     // Load reviews
     axios({
       method: 'post',
-      url: '/load_reviews',
-      data: localStorage.getItem('jwtToken')
+      url: '/load_reviews/' + localStorage.getItem('jwtToken')
     }).then(response => {
 
       // Iterate through reviews

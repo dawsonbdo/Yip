@@ -124,8 +124,7 @@ export async function updateLoggedInState(page){
       // Send POST request with token for authenticatio
       const loggedIn = await axios({
         method: 'post',
-        url: '/auth',
-        data: localStorage.getItem('jwtToken')
+        url: '/auth/' + localStorage.getItem('jwtToken')
       }).then((response) => {
 
         // Return if logged in (true/false)

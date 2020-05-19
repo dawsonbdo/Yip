@@ -694,7 +694,7 @@ fn list_reviews(connection: DbConn) -> Json<Vec<String>> {
  *
  * @return returns true or false indicating if password changed sucessfuly
  */
-#[post("/load_reviews", data="<token>", rank=1)]
+#[post("/load_reviews/<token>", rank=1)]
 fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
 	
 	// Create a vector with all of the reviews to display

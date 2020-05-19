@@ -230,11 +230,11 @@ fn get_username(token: String) -> String {
  *
  * @return returns a String indicating if logged in or not
  */
-#[post("/auth", data="<token>")]
+#[post("/auth/<token>")]
 fn auth(token: String) -> String {
 
 	// Check if valid token passed in
-	let is_logged_in = auth::validate_token(token);
+	let is_logged_in = auth::validate_token(token.clone());
 
 	// Return whether logged in or not
 	if is_logged_in {
