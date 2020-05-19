@@ -54,7 +54,7 @@ class CommentCard extends Component {
             data: form
         }).then(response => {
 
-            alert('Comment successfully liked');
+            //alert('Comment successfully liked');
             // If already liked removes like
 			if(this.state.isLiked) {
 				this.setState({ isLiked: false, rating: this.state.rating - 1 });
@@ -99,7 +99,7 @@ class CommentCard extends Component {
             data: form
         }).then(response => {
 
-            alert('Comment successfully disliked!');
+            //alert('Comment successfully disliked!');
             // If already disliked removes dislike
 			if(this.state.isDisliked) {
 				this.setState({ isDisliked: false, rating: this.state.rating + 1 });
