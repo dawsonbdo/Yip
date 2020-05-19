@@ -117,8 +117,8 @@ class ReviewCard extends Component {
                                             <Col>
                                                 <Image onClick={this.likeReview} className="float-left likePadding" src={likeIcon} />
                                                 <Image onClick={this.dislikeReview} className="float-left likePadding" src={dislikeIcon} />
-                                                <Link to="/"><Image className="float-right" src={commentIcon} /></Link>
-                                                <Link to="/"><Image className="float-right" src={homeIcon} /></Link>
+                                                <Link to={`/review-${this.props.reviewId}`}><Image className="float-right" src={commentIcon} /></Link>
+                                                <Link to={`/kennel-${this.props.kennelName}`}><Image className="float-right" src={homeIcon} /></Link>
                                             </Col>
                                         </Row>
                                     </Container>
