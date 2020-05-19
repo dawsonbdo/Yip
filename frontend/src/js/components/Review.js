@@ -21,7 +21,7 @@ import trashIcon from '../../assets/trash.png';
 
 import axios from 'axios'
 
-import { createCommentJson, likeDislikeReviewJson, deleteReviewJson } from './BackendHelpers.js';
+import { createCommentJson, likeDislikeReviewJson, deleteReviewJson, isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
 
 class Review extends Component {
 
@@ -54,6 +54,7 @@ class Review extends Component {
 
 	componentDidMount() {
 		// TODO: Display stuff based on if logged in or not (ie form to post comment)
+		updateLoggedInState(this);
 
 		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
 
@@ -182,6 +183,24 @@ class Review extends Component {
 	}
 
 	dislikeReview() {
+
+		if(isLoggedIn(this)) {
+			// If already disliked removes dislike
+			if(this.state.isDisliked) {
+				this.setState({ isDisliked: false, rating: this.state.rating + 1 });
+			}
+
+			// If liked remove like and add dislike
+			else if(this.state.isLiked) {
+				this.setState({ isLiked: false, isDisliked: true, rating: this.state.rating - 2 });
+			}
+
+			// Otherwise add dislike
+			else {
+				this.setState({ isDisliked: true, rating: this.state.rating - 1 });
+			}
+
+		}
 		// TODO: Get uuid of review from url probably
 		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 		var reviewId = this.props.match.params.id;
@@ -201,22 +220,6 @@ class Review extends Component {
 
 			// alert('Review successfully disliked!');
 
-			// If already disliked removes dislike
-			if(this.state.isDisliked) {
-				this.setState({ isDisliked: false, rating: this.state.rating + 1 });
-			}
-
-			// If liked remove like and add dislike
-			else if(this.state.isLiked) {
-				this.setState({ isLiked: false, isDisliked: true, rating: this.state.rating - 2 });
-			}
-
-			// Otherwise add dislike
-			else {
-				this.setState({ isDisliked: true, rating: this.state.rating - 1 });
-			}
-
-
 		}).catch(error => {
 
 			// Failed to dislike review
@@ -226,6 +229,24 @@ class Review extends Component {
 	}
 
 	likeReview() {
+
+		if(isLoggedIn(this)) {
+			// If already liked removes like
+			if(this.state.isLiked) {
+				this.setState({ isLiked: false, rating: this.state.rating - 1 });
+			}
+
+			// If disliked remove dislike and add like
+			else if(this.state.isDisliked) {
+				this.setState({ isDisliked: false, isLiked: true, rating: this.state.rating + 2 });
+			}
+
+			// Otherwise add like
+			else {
+				this.setState({ isLiked: true, rating: this.state.rating + 1 });
+			}
+
+		}
 		// TODO: Get uuid of review from url probably
 		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 		var reviewId = this.props.match.params.id;
@@ -244,21 +265,6 @@ class Review extends Component {
 		}).then(response => {
 
 			//alert('Review successfully liked!');
-
-			// If already liked removes like
-			if(this.state.isLiked) {
-				this.setState({ isLiked: false, rating: this.state.rating - 1 });
-			}
-
-			// If disliked remove dislike and add like
-			else if(this.state.isDisliked) {
-				this.setState({ isDisliked: false, isLiked: true, rating: this.state.rating + 2 });
-			}
-
-			// Otherwise add like
-			else {
-				this.setState({ isLiked: true, rating: this.state.rating + 1 });
-			}
 
 
 		}).catch(error => {
