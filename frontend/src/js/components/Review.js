@@ -132,7 +132,9 @@ class Review extends Component {
 						text: response.data[i].text,
 						time: response.data[i].timestamp,
 						rating: response.data[i].rating,
-						commentId: response.data[i].comment_uuid
+						commentId: response.data[i].comment_uuid,
+						isLiked: response.data[i].is_liked,
+						isDisliked: response.data[i].is_disliked
 					});
 
 				}
@@ -335,7 +337,7 @@ class Review extends Component {
 		// Gets the comments in their comment cards
 		const comments = this.state.commentArray.map(function (comment) {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text} 
-			timestamp={comment.time} rating={comment.rating}/>
+			timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}/>
 		});
 		let likeIconOpacity;
 		let dislikeIconOpacity;
@@ -343,13 +345,13 @@ class Review extends Component {
 			likeIconOpacity = {opacity: 1.0};
 		}
 		else {
-			likeIconOpacity = {opacity: .6};
+			likeIconOpacity = {opacity: .7};
 		}
 		if(this.state.isDisliked) {
 			dislikeIconOpacity = {opacity: 1.0};
 		}
 		else {
-			dislikeIconOpacity = {opacity: .6};
+			dislikeIconOpacity = {opacity: .7};
 		}
 
 
@@ -366,8 +368,8 @@ class Review extends Component {
 							</Col>
 							<Col className="text-right reviewIcon">
 								<Image onClick={this.deleteReview} className="likePadding float-right" src={trashIcon} />
-								<Image onClick={this.bookmarkReview} style={{opacity: .6}} className="likePadding float-right" src={bookmarkIcon} />
-								<Link to="/"><Image className="likePadding float-right pl-5" style={{opacity: .6}} src={shareIcon} /></Link>
+								<Image onClick={this.bookmarkReview} style={{opacity: .7}} className="likePadding float-right" src={bookmarkIcon} />
+								<Link to="/"><Image className="likePadding float-right pl-5" style={{opacity: .7}} src={shareIcon} /></Link>
 								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
 								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />

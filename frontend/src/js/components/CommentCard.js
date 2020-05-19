@@ -16,9 +16,23 @@ import axios from 'axios'
 class CommentCard extends Component {
     constructor(props){
         super(props);
+        
+        this.state = {
+            isLiked: false,
+            isDisliked: false,
+            rating: 0
+        }
     
         this.like = this.like.bind(this);
         this.dislike = this.dislike.bind(this);
+    }
+
+    componentDidMount() {
+        this.setState({ 
+            rating: this.props.rating,
+            isLiked: this.props.isLiked,
+            isDisliked: this.props.isDisliked
+        });
     }
 
     like(){
@@ -41,6 +55,20 @@ class CommentCard extends Component {
         }).then(response => {
 
             alert('Comment successfully liked');
+            // If already liked removes like
+			if(this.state.isLiked) {
+				this.setState({ isLiked: false, rating: this.state.rating - 1 });
+			}
+
+			// If disliked remove dislike and add like
+			else if(this.state.isDisliked) {
+				this.setState({ isDisliked: false, isLiked: true, rating: this.state.rating + 2 });
+			}
+
+			// Otherwise add like
+			else {
+				this.setState({ isLiked: true, rating: this.state.rating + 1 });
+			}
 
 
         }).catch(error => {
@@ -72,6 +100,20 @@ class CommentCard extends Component {
         }).then(response => {
 
             alert('Comment successfully disliked!');
+            // If already disliked removes dislike
+			if(this.state.isDisliked) {
+				this.setState({ isDisliked: false, rating: this.state.rating + 1 });
+			}
+
+			// If liked remove like and add dislike
+			else if(this.state.isLiked) {
+				this.setState({ isLiked: false, isDisliked: true, rating: this.state.rating - 2 });
+			}
+
+			// Otherwise add dislike
+			else {
+				this.setState({ isDisliked: true, rating: this.state.rating - 1 });
+			}
 
 
         }).catch(error => {
@@ -83,6 +125,20 @@ class CommentCard extends Component {
     }
 
     render() {
+        let likeIconOpacity;
+		let dislikeIconOpacity;
+		if(this.state.isLiked) {
+			likeIconOpacity = {opacity: 1.0};
+		}
+		else {
+			likeIconOpacity = {opacity: .7};
+		}
+		if(this.state.isDisliked) {
+			dislikeIconOpacity = {opacity: 1.0};
+		}
+		else {
+			dislikeIconOpacity = {opacity: .7};
+		}
         return (
             <Container className="pb-5">
                 <Row>
@@ -106,9 +162,9 @@ class CommentCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <Image onClick={this.like} className="float-left likePadding" width="45" src={likeIcon} />
-                                                <h4 className="float-left likePadding">{this.props.rating}</h4>
-                                                <Image onClick={this.dislike} className="float-left likePadding" width="45" src={dislikeIcon} />
+                                                <Image onClick={this.like} style={likeIconOpacity} className="float-left likePadding" width="45" src={likeIcon} />
+                                                <h4 className="float-left likePadding">{this.state.rating}</h4>
+                                                <Image onClick={this.dislike} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} />
                                             </Col>
                                             <Col>
                                                 <p className="float-right timestamp">Posted on {this.props.timestamp.substring(5, 16)}</p>
