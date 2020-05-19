@@ -23,7 +23,7 @@ class CommentCard extends Component {
 
     like(){
         // TODO: Get uuid of comment from a prop probably
-        var commentId = "e7c31945-f06f-4f10-ae28-8e9dbe65c5e9";
+        var commentId = this.props.commentId;
 
         // Get token
         var token = localStorage.getItem('jwtToken');
@@ -53,7 +53,7 @@ class CommentCard extends Component {
 
     dislike(){
          // TODO: Get uuid of comment from a prop probably
-        var commentId = "e7c31945-f06f-4f10-ae28-8e9dbe65c5e9";
+        var commentId = this.props.commentId;
 
         // Get token
         var token = localStorage.getItem('jwtToken');
