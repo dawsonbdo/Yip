@@ -115,10 +115,11 @@ class ReviewCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
-                                                <Image onClick={this.likeReview} className="float-left likePadding" src={likeIcon} />
-                                                <Image onClick={this.dislikeReview} className="float-left likePadding" src={dislikeIcon} />
-                                                <Link to={`/review-${this.props.reviewId}`}><Image className="float-right" src={commentIcon} /></Link>
-                                                <Link to={`/kennel-${this.props.kennelName}`}><Image className="float-right" src={homeIcon} /></Link>
+                                                <Image onClick={this.likeReview} className="float-left likePadding" width="45" src={likeIcon} />
+                                                <h4 className="float-left likePadding">{this.props.rating}</h4>
+                                                <Image onClick={this.dislikeReview} className="float-left likePadding" width="45" src={dislikeIcon} />
+                                                <Link to={`/review-${this.props.reviewId}`}><Image className="float-right" width="40" src={commentIcon} /></Link>
+                                                <Link to={`/kennel-${this.props.kennelName}`}><Image className="float-right" width="40" src={homeIcon} /></Link>
                                             </Col>
                                         </Row>
                                     </Container>

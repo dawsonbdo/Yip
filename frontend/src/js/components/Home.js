@@ -51,6 +51,7 @@ class Home extends Component {
             author: response.data[i].author,
             text: response.data[i].text,
             kennel: response.data[i].kennel_name,
+            rating: response.data[i].rating,
             id: response.data[i].review_uuid
           });
 
@@ -72,7 +73,8 @@ class Home extends Component {
     let reviews;
     if (this.state.reviewsListed) {
       reviews = this.state.reviewArray.map(function (review) {
-        return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} kennelName={review.kennel}/>
+        return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} 
+        kennelName={review.kennel} rating={review.rating}/>
       });
     } else {
       // Loading Symbol

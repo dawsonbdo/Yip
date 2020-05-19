@@ -223,6 +223,7 @@ class Profile extends Component {
                     author: response.data[i].author,
                     text: response.data[i].text,
                     kennel: response.data[i].kennel_name,
+                    rating: response.data[i].rating,
                     id: response.data[i].review_uuid
                 });
 
@@ -242,7 +243,8 @@ class Profile extends Component {
 
     render() {
         const reviews = this.state.reviewArray.map(function (review) {
-            return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} kennelName={review.kennel}/>
+            return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} 
+            kennelName={review.kennel} rating={review.rating}/>
         });
         const kennels = this.state.kennelArray.map(function (kennel) {
             return <a href={`/kennel-${kennel}`}><li>{kennel}</li></a>
