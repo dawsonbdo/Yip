@@ -175,7 +175,7 @@ class ReviewCard extends Component {
                                                 <h4 className="float-left likePadding">{this.state.rating}</h4>
                                                 <Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} />
                                                 <Link to={`/review-${this.props.reviewId}`}><Image className="float-right" width="40" src={commentIcon} style={{opacity: .7}}/></Link>
-                                                <Link to={`/kennel-${this.props.kennelName}`}><Image className="float-right" width="40" src={homeIcon} style={{opacity: .7}}/></Link>
+                                                <Link to={`/kennel-${this.props.kennelName}`}><Image className="float-right" width="40" src={homeIcon} style={{opacity: .8}}/></Link>
                                             </Col>
                                         </Row>
                                     </Container>

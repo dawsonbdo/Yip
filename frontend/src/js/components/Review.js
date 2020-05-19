@@ -40,7 +40,8 @@ class Review extends Component {
 			reviewImgs: [],
 			rating: 0,
 			isLiked: false,
-			isDisliked: false
+			isDisliked: false,
+			kennel: ""
 		};
 
 		// Binds button handler
@@ -78,7 +79,8 @@ class Review extends Component {
 					reviewTitle: response.data.title,
 					reviewAuthor: response.data.author,
 					reviewText: response.data.text,
-					rating: response.data.rating
+					rating: response.data.rating,
+					kennel: response.data.kennel_name
 				});
 
 				if(response.data.is_liked) {
@@ -364,7 +366,8 @@ class Review extends Component {
 						<Row>
 							<Col className="text-left">
 								<h1 id="title">{this.state.reviewTitle}</h1>
-								<h4 id="author"><a class="profileLink" href={`/user-${this.state.reviewAuthor}`}>{this.state.reviewAuthor}</a></h4>
+								<h4 id="author"><a class="profileLink" href={`/user-${this.state.reviewAuthor}`}>Reviewer: {this.state.reviewAuthor}</a></h4>
+								<h5 id="kennel"><a class="profileLink" href={`/kennel-${this.state.kennel}`}>Kennel: {this.state.kennel}</a></h5>
 							</Col>
 							<Col className="text-right reviewIcon">
 								<Image onClick={this.deleteReview} className="likePadding float-right" src={trashIcon} />
