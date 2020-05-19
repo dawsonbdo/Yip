@@ -5,39 +5,9 @@ use crate::db;
 
 use handlers::{User, DbUser, DisplayUser};
 use rocket_contrib::json::Json;
-
-use std::io::Read;
-use rocket::{Request, Data, Outcome::*};
-use rocket::data::{self, FromDataSimple};
-use rocket::http::{Status};
 use rocket::response::status;
 
 use db::DbConn;
-
-// Limit to prevent DoS attacks.
-const LIMIT: u64 = 256;
-
-struct Username {
-	name: String
-}
-
-impl FromDataSimple for Username {
-	type Error = String;
-
-    fn from_data(_req: &Request, data: Data) -> data::Outcome<Self, String> {
-		// Possibly need to check the content type is correct first
-
-        // Read the data into a String.
-        let mut name = String::new();
-        if let Err(e) = data.open().take(LIMIT).read_to_string(&mut name) {
-            return Failure((Status::InternalServerError, format!("{}", e)));
-        }
-
-        // Return successfully.
-        Success(Username { name })
-    }
-}
-
 
 // Struct with user name and token for blocking users
 #[derive(Queryable, Serialize, Deserialize)]
