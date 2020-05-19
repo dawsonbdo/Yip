@@ -247,7 +247,7 @@ class Review extends Component {
 			}
 
 			// If disliked remove dislike and add like
-			else if(this.state.isLiked) {
+			else if(this.state.isDisliked) {
 				this.setState({ isDisliked: false, isLiked: true, rating: this.state.rating + 2 });
 			}
 
