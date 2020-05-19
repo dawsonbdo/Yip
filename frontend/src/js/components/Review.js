@@ -131,7 +131,8 @@ class Review extends Component {
 						author: response.data[i].author_name,
 						text: response.data[i].text,
 						time: response.data[i].timestamp,
-						rating: response.data[i].rating
+						rating: response.data[i].rating,
+						commentId: response.data[i].comment_uuid
 					});
 
 				}
@@ -333,7 +334,7 @@ class Review extends Component {
 
 		// Gets the comments in their comment cards
 		const comments = this.state.commentArray.map(function (comment) {
-			return <CommentCard commenterName={comment.author} commentText={comment.text} 
+			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text} 
 			timestamp={comment.time} rating={comment.rating}/>
 		});
 		let likeIconOpacity;
