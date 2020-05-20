@@ -8,7 +8,7 @@ use crate::auth;
 use db::DbConn;
 use uuid::Uuid;
 
-use handlers::{Comment, DisplayComment};
+use handlers::{InputComment, DisplayComment};
 use rocket_contrib::json::Json;
 
 use rocket::response::status;
@@ -266,7 +266,7 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
  * @return returns TBD
  */
 #[post("/create_comment/<name>", data="<comment>", rank=1)]
-fn create_comment(comment: Json<Comment>, name: String, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+fn create_comment(comment: Json<InputComment>, name: String, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
 	//println!("Timestamp: {}", &comment.timestamp);
 
 	// Check for valid token

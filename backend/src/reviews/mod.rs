@@ -173,7 +173,6 @@ fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -
 		kennel_uuid: review_obj.get("kennel_uuid").unwrap().to_string(),
 		title: review_obj.get("title").unwrap().to_string(),
 		author: review_obj.get("author").unwrap().to_string(),
-		timestamp: review_obj.get("timestamp").unwrap().to_string(),
 		text: review_obj.get("text").unwrap().to_string(),
 		images: if paths.iter().len() == 0 {None} else {Some(paths)},
 		rating: review_obj.get("rating").unwrap().as_i64().unwrap() as i32,

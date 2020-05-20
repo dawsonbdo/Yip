@@ -44,22 +44,21 @@ pub fn get_user_likes(profile_uuid: Uuid, connection: &PgConnection) -> QueryRes
 }
 
 /**
- * Helper method that converts a Comment to DbComment
- * @param comment: the Comment
+ * Helper method that converts a InputComment to InsertComment
+ * @param comment: the InputComment
  * @param connection: database connection
  *
  * @return returns a DbComment
  */
-fn from_comment(comment: Comment, connection: &PgConnection) -> DbComment {
+fn from_comment(comment: InputComment, connection: &PgConnection) -> InsertComment {
     let author_uuid = auth::get_uuid_from_token(&comment.author_token);
 
-    DbComment{
+    InsertComment{
         comment_uuid: Uuid::new_v4(),
         review_uuid: comment.review_uuid,
         author_uuid: author_uuid,
-        timestamp: NaiveDateTime::parse_from_str(&comment.timestamp, "%Y-%m-%d %H:%M:%S").unwrap(),
         text: comment.text.clone(),
-        rating: 0, //TODO
+        rating: 0, 
         author_name: super::super::users::handlers::get_user_from_uuid(author_uuid, connection).unwrap().username,
     }
 }
@@ -337,7 +336,7 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbComment> {
  *
  * @return returns the DisplayComment of comment created
  */
-pub fn insert(comment: Comment, connection: &PgConnection) -> Result<DisplayComment, String> {
+pub fn insert(comment: InputComment, connection: &PgConnection) -> Result<DisplayComment, String> {
     // Prints the Comment information that was received (register)
     println!("Comment Text: {}", comment.text);
     println!("Review ID: {}", comment.review_uuid);
@@ -355,7 +354,7 @@ pub fn insert(comment: Comment, connection: &PgConnection) -> Result<DisplayComm
  * TODO: Untested/maybe dont even need this feature
  * EDIT Comment: Method that updates a comment in database
  */
-pub fn update(id: Uuid, comment: Comment, connection: &PgConnection) -> bool {
+pub fn update(id: Uuid, comment: InputComment, connection: &PgConnection) -> bool {
     match diesel::update(comments::table.find(id))
         .set(from_comment(comment, connection))
         .get_result::<DbComment>(connection) {
@@ -436,11 +435,22 @@ pub struct DisplayComment {
 
 // Struct representing the fields of a comment passed in from frontend contains
 #[derive(Queryable, Serialize, Deserialize)]
-pub struct Comment {
+pub struct InputComment {
     pub review_uuid: Uuid,
     pub author_token: String,
-    pub timestamp: String,
     pub text: String,
+}
+
+// Struct representing the fields of a comment passed in from frontend contains
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "comments"]
+pub struct InsertComment {
+    pub comment_uuid: Uuid,
+    pub review_uuid: Uuid,
+    pub author_uuid: Uuid,
+    pub text: String,
+    pub author_name: String,
+    pub rating: i32,
 }
 
 // Struct represneting the fields of a comment that is inserted into database

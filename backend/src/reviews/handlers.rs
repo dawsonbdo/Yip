@@ -23,24 +23,20 @@ use super::super::{kennels, users};
 use super::super::comments::handlers::DbComment;
 
 /**
- * Method that converts a Review to DbReview
+ * Method that converts a Review to InsertReview
  * @param review: the Review object
  *
- * @return returns a DbReview
+ * @return returns a InsertReview
  */
-fn from_review(review: Review, connection: &PgConnection) -> DbReview {
+fn from_review(review: Review, connection: &PgConnection) -> InsertReview {
     let kennel_id = Uuid::parse_str(&review.kennel_uuid[1..37]).unwrap();
     let author_id = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);
 
-    DbReview{
+    InsertReview{
         review_uuid: Uuid::new_v4(), // generate random uuid for review
         kennel_uuid: kennel_id,
         title: (&review.title[1..(review.title.len()-1)]).to_string(),
         author: author_id,
-        timestamp: match NaiveDateTime::parse_from_str(&review.timestamp, "\"%Y-%m-%d %H:%M:%S\"") {
-            Ok(t) => t,
-            Err(_e) => NaiveDateTime::from_timestamp(0, 42_000_000),
-        },
         text: (&review.text[1..(review.text.len()-1)]).to_string(),
         images: review.images,
         tags: review.tags,
@@ -676,11 +672,27 @@ pub struct Review {
     pub kennel_uuid: String,
     pub title: String,
     pub author: String, //jwt
-    pub timestamp: String,
     pub text: String,
     pub images: Option<Vec<String>>,
     pub rating: i32,
     pub tags: Option<Vec<String>>,
+}
+
+// Struct representing the fields of a review that is inserted into database
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "reviews"]
+pub struct InsertReview {
+    pub review_uuid: Uuid,
+    pub kennel_uuid: Uuid,
+    pub title: String,
+    pub author: Uuid, 
+    pub text: String,
+    pub tags: Option<Vec<String>>,
+    pub hotness: Option<f64>,
+    pub images: Option<Vec<String>>,
+    pub kennel_name: String,
+    pub author_name: String,
+    pub rating: i32,
 }
 
 // Struct representing the fields of a review that is inserted into database

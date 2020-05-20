@@ -72,19 +72,13 @@ class CreateReview extends Component {
 
     // TODO: Get UTC time or something standard instead of just local time
 
-    // Get date/time of post 
-    var today = new Date();
-    var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    var dateTime = date + ' ' + time;
-
     // Read information in forms
     var title = document.getElementById('title').value;
     var text = document.getElementById('text').value;
     text = text.replace(/(?:\r\n|\r|\n)/g, '<br \/>');    // Replaces newlines with html new line
     var user = localStorage.getItem('jwtToken');
 
-    var form = createReviewJson(this.state.kennelId, title, text, user, dateTime);
+    var form = createReviewJson(this.state.kennelId, title, text, user);
 
     // Create form data for POST request and stringify json
     const fd = new FormData();
