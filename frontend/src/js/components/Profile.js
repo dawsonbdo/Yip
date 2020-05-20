@@ -31,8 +31,10 @@ class Profile extends Component {
             showBookmarks: false,
             reviewArray: [],
             kennelArray: [],
+            bookmarkArray: [],
             profileReviewsListed: false,
             profileKennelsListed: false,
+            profileBookmarksListed: false,
             isOwner: false,
             followBtnText: "Follow",
             isFollowing: false
@@ -264,6 +266,49 @@ class Profile extends Component {
 
         });
 
+
+        // TODO fill in stuff with this 
+
+        // Send GET request with user name to get bookmarked reviews 
+        axios({
+            method: 'get',
+            url: '/get_user_bookmarked_reviews/' + username + '/' + token,
+        }).then(response => {
+
+            alert('Users bookmarked reviews info successfully grabbed from database!');
+
+            console.log("BOOKMARKED REVIEWS");
+            console.log(response.data);
+
+            // Iterate through reviews
+            for (var i = 0; i < response.data.length; i++) {
+
+                // Print reviews to console for now
+                console.log(response.data[i]);
+
+                // Add review name, reviewer's username, review text to reviewArray
+                this.state.bookmarkArray.push({
+                    title: response.data[i].title,
+                    author: response.data[i].author,
+                    text: response.data[i].text,
+                    kennel: response.data[i].kennel_name,
+                    rating: response.data[i].rating,
+                    id: response.data[i].review_uuid,
+                    isLiked: response.data[i].is_liked,
+                    isDisliked: response.data[i].is_disliked
+                });
+
+            }
+
+            this.setState({ profileBookmarksListed: true });
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('User has no bookmarked reviews');
+
+        });
+
     }
 
 
@@ -274,6 +319,10 @@ class Profile extends Component {
         });
         const kennels = this.state.kennelArray.map(function (kennel) {
             return <KennelCard kennelName={kennel.kennelName} kennelRules={kennel.kennelRules} kennelTags={kennel.kennelTags} followerCount={kennel.followerCount} />
+        });
+        const bookmarks = this.state.bookmarkArray.map(function (review) {
+            return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
+                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
         });
 
         let profile;
@@ -319,6 +368,7 @@ class Profile extends Component {
                 {this.state.showBookmarks && (
                     <div>
                         <h1>Bookmarked Reviews</h1>
+                        {bookmarks}
                     </div>
                 )}
             </Container>

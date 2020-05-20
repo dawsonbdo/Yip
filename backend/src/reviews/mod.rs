@@ -416,6 +416,51 @@ fn get_kennel_reviews(kennel_name: String, token: String, connection: DbConn) ->
 	
 }
 
+
+/** 
+ * Method that returns a list of Reviews that a user bookmarked
+ * @param username: username of user
+ * @param connection: database connection
+ *
+ * @return returns JSON of the review or error status
+ */
+#[get("/get_user_bookmarked_reviews/<username>/<token>")]
+fn get_user_bookmarked_reviews(username: String, token: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
+
+
+	// Get uuid from username passed in
+	let uuid = users::handlers::get_uuid_from_username(&username, &connection);
+
+	// Check for nil id (meaning user name does not exist)
+	if uuid.is_nil() {
+		return Err(status::NotFound("Kennel not found".to_string()));
+	}
+
+	// Get all bookmarks
+	let bookmarks = handlers::get_user_bookmarks(uuid, &connection);
+
+	// Get all reviews that are bookmarked
+	let mut reviews : Vec<DisplayReview> = vec![];
+	
+	match bookmarks {
+		Ok(book) => {
+			for b in book {
+				reviews.push(handlers::get(b.review, &connection).unwrap());
+			}
+		},
+		Err(e) => return Err(status::NotFound(e.to_string())),
+	};
+
+	// Get tokens uuid
+	let token_uuid = auth::get_uuid_from_token(&token);
+
+	// Get tokens username
+	let profile_username = auth::get_user_from_token(&token);
+
+	Ok(Json(updateDisplayReviewFields(&profile_username, token_uuid, reviews, &connection)))
+}
+
+
 /** 
  * Method that returns a list of Reviews that a user posted
  * @param username: username of user
@@ -429,7 +474,7 @@ fn get_user_reviews(username: String, token: String, connection: DbConn) -> Resu
 	// Get uuid from username passed in
 	let uuid = users::handlers::get_uuid_from_username(&username, &connection);
 
-	// Check for nil id (meaning kennel name does not exist)
+	// Check for nil id (meaning user name does not exist)
 	if uuid.is_nil() {
 		return Err(status::NotFound("Kennel not found".to_string()));
 	}
@@ -775,5 +820,5 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
  * Mount the review routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews, like_review, dislike_review, bookmark_review, unbookmark_review, get_user_reviews, search_reviews])  
+    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews, get_user_bookmarked_reviews, like_review, dislike_review, bookmark_review, unbookmark_review, get_user_reviews, search_reviews])  
 }
