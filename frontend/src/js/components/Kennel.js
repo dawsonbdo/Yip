@@ -17,7 +17,7 @@ import Nav from 'react-bootstrap/Nav';
 
 import axios from 'axios'
 
-import { followKennelJson } from './BackendHelpers.js';
+import { followKennelJson, updateLoggedInState, isLoggedIn } from './BackendHelpers.js';
 
 class Kennel extends Component {
     constructor(props) {
@@ -60,6 +60,17 @@ class Kennel extends Component {
 
     followKennel() {
 
+        updateLoggedInState(this);
+        if(isLoggedIn(this)) {
+
+            if (!this.state.isFollowing) {
+                this.setState({ isFollowing: true, followBtnText: "Unfollow" });
+            }
+            else {
+                this.setState({ isFollowing: false, followBtnText: "Follow" });
+            }
+        }
+
         // Get kennel name somehow
         var kennelName = this.props.match.params.kennelName;
 
@@ -79,7 +90,6 @@ class Kennel extends Component {
 
                 // Successful follow
                 //alert('Kennel has been followed successfully');
-                this.setState({ isFollowing: true, followBtnText: "Unfollow" });
 
 
             }).catch(error => {
@@ -98,7 +108,6 @@ class Kennel extends Component {
 
                 // Successful follow
                 //alert('Kennel has been unfollowed successfully');
-                this.setState({ isFollowing: false, followBtnText: "Follow" });
 
 
             }).catch(error => {
@@ -112,10 +121,10 @@ class Kennel extends Component {
     }
 
     componentDidMount() {
-        // Load kennel page with data from database
 
-        // Get kennel name from URL?
-        //var kennelName = 'GaryGang'
+        updateLoggedInState(this);
+
+        // Get kennel name from URL
         var kennelName = this.props.match.params.kennelName;
         var token = localStorage.getItem('jwtToken')
 
@@ -172,8 +181,6 @@ class Kennel extends Component {
         }).then(response => {
 
             // alert('Kennel info successfully grabbed from database!');
-
-            // TODO: Render kennel information
             console.log(response.data);
 
             // Updates kennel name
@@ -236,7 +243,7 @@ class Kennel extends Component {
     }
 
     render() {
-        
+
         // Renders content for Reviews and Tags tabs
         const reviews = this.state.reviewArray.map(function (review) {
             return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}

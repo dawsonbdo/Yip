@@ -47,19 +47,22 @@ class Profile extends Component {
     }
 
     followProfile() {
+        updateLoggedInState(this);
 
         // Update follow button text for follow/unfollow
-        if (!this.state.isFollowing) {
-            this.setState({
-                followBtnText: "Unfollow",
-                isFollowing: true
-            });
-        }
-        else {
-            this.setState({
-                followBtnText: "Follow",
-                isFollowing: false
-            });
+        if(isLoggedIn(this)) {
+            if (!this.state.isFollowing) {
+                this.setState({
+                    followBtnText: "Unfollow",
+                    isFollowing: true
+                });
+            }
+            else {
+                this.setState({
+                    followBtnText: "Follow",
+                    isFollowing: false
+                });
+            }
         }
 
         // Load user profile (get from URL)
@@ -151,6 +154,9 @@ class Profile extends Component {
 
     // update this for profile
     componentDidMount() {
+
+        updateLoggedInState(this);
+        
         // Load user profile (get from URL)
         var username = this.props.match.params.username;
 
@@ -317,7 +323,7 @@ class Profile extends Component {
 
 
     render() {
-        
+
         // Renders content cards for each tab on profile (Reviews, Kennels, Bookmarks)
         const reviews = this.state.reviewArray.map(function (review) {
             return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
