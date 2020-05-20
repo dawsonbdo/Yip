@@ -61,12 +61,12 @@ class YipNavBar extends Component {
     var query = document.getElementById('searchBar').value;
 
     // Ignore input that only contains whitespace
-    if(query.replace(/ /g, '') === "") {
+    if (query.replace(/ /g, '') === "") {
       return;
     }
 
     // Redirect to search results page with search type and query in url
-    this.setState({redirect: `/searchresults-${event}-${query}`});
+    this.setState({ redirect: `/searchresults-${event}-${query}` });
 
   }
 
@@ -88,30 +88,32 @@ class YipNavBar extends Component {
   }
 
   render() {
-    let logBtn;
-    if (isLoggedIn(this)) {
-      logBtn = <Button onClick={this.logout} type="submit" variant="light" className="mr-5">Logout</Button>;
-    } else {
-      logBtn = <div><Link to="/login"><Button id="login" type="submit" variant="light" className="mr-5">Login</Button></Link>
-        <Link to="/register"><Button type="submit" variant="light" className="mr-5">Register</Button></Link></div>;
-    }
     const followedKennels = this.state.followedKennelsArray.map(function (kennel) {
       return <Dropdown.Item href={`/kennel-${kennel}`}>{kennel}</Dropdown.Item>
     });
+    let logBtn;
+    if (isLoggedIn(this)) {
+      logBtn = <div>
+        <DropdownButton id="dropdown-item-button" title="Kennels" className="mr-2 float-left" variant="light">
+          {followedKennels}
+        </DropdownButton>
+        <DropdownButton id="dropdown-item-button" title="More" className="mr-2 float-left" variant="light">
+          <Dropdown.Item href={`/user-${this.state.user}`}>Profile</Dropdown.Item>
+          <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
+        </DropdownButton>
+        <Button onClick={this.logout} type="submit" variant="light" className="mr-2 float-left">Logout</Button></div>;
+    } else {
+      logBtn = <div><Link to="/login"><Button id="login" type="submit" variant="light" className="mr-2">Login</Button></Link>
+        <Link to="/register"><Button type="submit" variant="light" className="mr-2">Register</Button></Link></div>;
+    }
 
     if (!this.state.redirect) {
       return (
         <div id="spaceNav">
           <Navbar className="color-nav" expand="false" fixed="top">
             <Link to="/"><img className="yipIcon" src={corgiImage} /></Link>
-            {isLoggedIn(this) && <DropdownButton id="dropdown-item-button" title="Followed Kennels" className="pr-5" variant="light">
-              {followedKennels}
-            </DropdownButton>}
             {logBtn}
-            <DropdownButton id="dropdown-item-button" title="More" className="pr-5" variant="light">
-              <Dropdown.Item href={`/user-${this.state.user}`}>Profile</Dropdown.Item>
-              <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
-            </DropdownButton>
+
             {/* <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
@@ -128,6 +130,7 @@ class YipNavBar extends Component {
             </Form>
             <DropdownButton
               alignRight
+              className="pr-4"
               onSelect={this.handleSearch}
               title="Search"
               id="dropdown-menu-align-right"
@@ -142,7 +145,7 @@ class YipNavBar extends Component {
       )
     }
     else {
-      return <Redirect to={this.state.redirect} push/>
+      return <Redirect to={this.state.redirect} push />
     }
   }
 }

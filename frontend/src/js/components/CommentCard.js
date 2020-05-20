@@ -55,6 +55,7 @@ class CommentCard extends Component {
                 this.setState({ isLiked: true, rating: this.state.rating + 1 });
             }
         }
+
         // TODO: Get uuid of comment from a prop probably
         var commentId = this.props.commentId;
 

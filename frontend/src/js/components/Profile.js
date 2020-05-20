@@ -8,16 +8,12 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 import Image from 'react-bootstrap/Image';
 import YipNavBar from "./YipNavBar";
 import LoadingIcon from '../../assets/loadingIcon.gif';
-import CommentCard from './CommentCard';
-import commentIcon from '../../assets/comment.png';
-import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import likeIcon from '../../assets/like.png';
-import dislikeIcon from '../../assets/dislike.png';
 import Nav from 'react-bootstrap/Nav';
 import ReviewCard from './ReviewCard';
 import ImageUploader from 'react-images-upload';
 import corgiImage from '../../assets/corgi_shadow.png';
+import KennelCard from './KennelCard';
 
 import axios from 'axios'
 
@@ -32,6 +28,7 @@ class Profile extends Component {
             username: "",
             showReviews: true,
             showRules: false,
+            showBookmarks: false,
             reviewArray: [],
             kennelArray: [],
             profileReviewsListed: false,
@@ -64,8 +61,10 @@ class Profile extends Component {
             }).then(response => {
 
                 alert('User successfully followed');
-                this.setState({ followBtnText: "Unfollow",
-                    isFollowing: true });
+                this.setState({
+                    followBtnText: "Unfollow",
+                    isFollowing: true
+                });
 
             }).catch(error => {
 
@@ -80,16 +79,18 @@ class Profile extends Component {
                 url: '/unfollow_user',
                 data: form,
             }).then(response => {
-    
+
                 alert('User successfully unfollowed');
-                this.setState({ followBtnText: "Follow",
-                    isFollowing: false });
-    
+                this.setState({
+                    followBtnText: "Follow",
+                    isFollowing: false
+                });
+
             }).catch(error => {
-    
+
                 // Review not found in database
                 alert('User failed to unfollow');
-    
+
             });
         }
     }
@@ -128,10 +129,13 @@ class Profile extends Component {
     handleSelect(eventKey) {
 
         if (eventKey == "reviews") {
-            this.setState({ showReviews: true, showKennels: false });
+            this.setState({ showReviews: true, showKennels: false, showBookmarks: false });
         }
         if (eventKey == "kennels") {
-            this.setState({ showReviews: false, showKennels: true });
+            this.setState({ showReviews: false, showKennels: true, showBookmarks: false });
+        }
+        if (eventKey == "bookmarks") {
+            this.setState({ showReviews: false, showKennels: false, showBookmarks: true });
         }
     }
 
@@ -162,8 +166,10 @@ class Profile extends Component {
             });
 
             if (response.data.is_followed) {
-                this.setState({ followBtnText: "Unfollow",
-                    isFollowing: true });
+                this.setState({
+                    followBtnText: "Unfollow",
+                    isFollowing: true
+                });
             }
 
             this.setState({ profileKennelsListed: true });
@@ -186,9 +192,27 @@ class Profile extends Component {
             console.log("FOLLOWED KENNELS");
             console.log(response.data);
 
-            // Store names of followed kennels in kennelArray
+            // Store followed kennels in kennelArray
             for (var i = 0; i < response.data.length; i++) {
-                this.state.kennelArray.push(response.data[i].kennel_name);
+
+                // Print kennels to console for now
+                console.log(response.data[i]);
+
+                var tagsStr = "";
+                if (response.data[i].tags.length > 0) {
+                    tagsStr = tagsStr + response.data[i].tags[0];
+                }
+                for (var j = 1; j < response.data[i].tags.length; j++) {
+                    tagsStr = tagsStr + ", " + response.data[i].tags[j];
+                }
+
+                // Add kennel info to array for rendering kennel cards
+                this.state.kennelArray.push({
+                    kennelName: response.data[i].kennel_name,
+                    kennelRules: response.data[i].rules,
+                    kennelTags: tagsStr,
+                    followerCount: response.data[i].follower_count
+                });
             }
 
 
@@ -245,11 +269,11 @@ class Profile extends Component {
 
     render() {
         const reviews = this.state.reviewArray.map(function (review) {
-            return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} 
-            kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked}/>
+            return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
+                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
         });
         const kennels = this.state.kennelArray.map(function (kennel) {
-            return <a href={`/kennel-${kennel}`}><li>{kennel}</li></a>
+            return <KennelCard kennelName={kennel.kennelName} kennelRules={kennel.kennelRules} kennelTags={kennel.kennelTags} followerCount={kennel.followerCount} />
         });
 
         let profile;
@@ -266,6 +290,9 @@ class Profile extends Component {
                                 </Nav.Item>
                                 <Nav.Item as="li">
                                     <Nav.Link eventKey="kennels">Kennels</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item as="li">
+                                    <Nav.Link eventKey="bookmarks">Bookmarks</Nav.Link>
                                 </Nav.Item>
                             </Nav>
                         </Jumbotron>
@@ -284,10 +311,14 @@ class Profile extends Component {
                 )}
                 {this.state.showKennels && (
                     <div>
-                        <h1>Kennels</h1>
                         <ul>
                             {kennels}
                         </ul>
+                    </div>
+                )}
+                {this.state.showBookmarks && (
+                    <div>
+                        <h1>Bookmarked Reviews</h1>
                     </div>
                 )}
             </Container>

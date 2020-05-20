@@ -8,6 +8,7 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
+import Alert from 'react-bootstrap/Alert';
 
 import axios from 'axios'
 

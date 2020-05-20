@@ -47,6 +47,7 @@ class SearchResults extends Component {
 
     // Searches all kennels using query passed in
     searchKennels(query) {
+        this.setState({ searchDisplay: false });
         axios({
             method: 'get',
             url: '/search_kennels/' + query,
@@ -91,6 +92,7 @@ class SearchResults extends Component {
 
     // Searches all reviews using query passed in
     searchReviews(query) {
+        this.setState({ searchDisplay: false });
         axios({
             method: 'get',
             url: '/search_reviews/' + query,
