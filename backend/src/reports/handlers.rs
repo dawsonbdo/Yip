@@ -198,6 +198,7 @@ pub struct ReviewReport {
     pub review_uuid: Uuid,
     pub hotness: i64,
     pub reason: String,
+    pub report_id: Uuid,
 }
 
 #[derive(Queryable, Serialize, Deserialize, Debug, std::hash::Hash, std::cmp::PartialEq, std::cmp::Eq)]
@@ -211,4 +212,5 @@ pub struct CommentReport {
     pub is_liked: bool,
     pub is_disliked: bool,
     pub reason: String,
+    pub report_id: Uuid,
 }

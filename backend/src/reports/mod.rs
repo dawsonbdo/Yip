@@ -211,6 +211,7 @@ fn get_kennel_reports_comments(kennel_name: String, token: String, connection: D
 			    is_liked: false,
 			    is_disliked: false,
 			    reason: r.reason.clone(),
+			    report_id: r.report_uuid,
 			};
 
 			// Push review to pq by timestamp
@@ -296,6 +297,7 @@ fn get_kennel_reports_reviews(kennel_name: String, token: String, connection: Db
 				review_uuid: review.review_uuid,
 				hotness: review.hotness,
 				reason: r.reason.clone(),
+				report_id: r.report_uuid,
 			};
 
 			// Push review to pq by timestamp
@@ -320,6 +322,45 @@ fn get_kennel_reports_reviews(kennel_name: String, token: String, connection: Db
 	let updatedFieldsReviews = updateDisplayReportFields(&profile_username, uuid, reviewsOrdered, &connection);
 
 	Ok(Json(updatedFieldsReviews))
+}
+
+
+/** 
+ * Method that deletes a report
+ * @param id: the uuid of report
+ * @param kennel: name of kennel
+ * @param token: token of person attempting to delete
+ *
+ * @return returns status indicating success
+ */
+#[post("/delete_report/<id>/<kennel>/<token>", rank=1)]
+fn delete_report(id: String, kennel: String, token: String, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+	
+	// Get uuid of token passed in
+	let uuid = auth::get_uuid_from_token(&token);
+
+	// Get mod of kennel
+	let mod_uuid = super::kennels::handlers::get_kennel_mod_uuid_from_name(kennel, &connection);
+
+	// Make sure neither uuids are nil and are equal
+	if !uuid.is_nil() && uuid.eq(&mod_uuid) {
+
+		// Check that valid report id passed in 
+		match Uuid::parse_str(&id) {
+			Ok(report_uuid) => { 
+				match handlers::delete(report_uuid, &connection){
+					Ok(u) => if u == 0 {return Err(status::Conflict(Some("report does not exist".to_string())))}
+					         else {return Ok(status::Accepted(None))},
+					Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+				};
+			},
+			Err(e) => return Err(status::Conflict(Some(e.to_string())))
+		}
+	}
+
+	// Deletion of report invalid
+	Err(status::Conflict(Some("Invalid uuid or kennel".to_string())))
+	
 }
 
 /** 
@@ -351,5 +392,5 @@ fn create_report(report: Json<InputReport>, connection: DbConn) -> Result<status
  * Mount the report routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_report, get_kennel_reports_reviews, get_kennel_reports_comments, list_reports])  
+    rocket.mount("/", routes![create_report, delete_report, get_kennel_reports_reviews, get_kennel_reports_comments, list_reports])  
 }
