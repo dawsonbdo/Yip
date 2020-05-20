@@ -41,6 +41,7 @@ class Review extends Component {
 			rating: 0,
 			isLiked: false,
 			isDisliked: false,
+			isBookmarked: false,
 			kennel: ""
 		};
 
@@ -90,6 +91,9 @@ class Review extends Component {
 				}
 				if(response.data.is_disliked) {
 					this.setState({isDisliked: true});
+				}
+				if(response.data.is_bookmarked) {
+					this.setState({isBookmarked: true});
 				}
 
 				// Check that any images were returned cuz can be undefined
@@ -380,19 +384,30 @@ class Review extends Component {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text} 
 			timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}/>
 		});
+
 		let likeIconOpacity;
 		let dislikeIconOpacity;
+		let bookmarkOpacity;
+
 		if(this.state.isLiked) {
 			likeIconOpacity = {opacity: 1.0};
 		}
 		else {
 			likeIconOpacity = {opacity: .6};
 		}
+
 		if(this.state.isDisliked) {
 			dislikeIconOpacity = {opacity: 1.0};
 		}
 		else {
 			dislikeIconOpacity = {opacity: .6};
+		}
+
+		if(this.state.isBookmarked) {
+			bookmarkOpacity = {opacity: 1.0};
+		}
+		else {
+			bookmarkOpacity = {opacity: .6};
 		}
 
 
@@ -410,7 +425,7 @@ class Review extends Component {
 							</Col>
 							<Col className="text-right reviewIcon">
 								<Link><Image onClick={this.deleteReview} className="likePadding float-right" src={trashIcon} /></Link>
-								<Link><Image onClick={this.bookmarkReview} style={{opacity: .7}} className="likePadding float-right" src={bookmarkIcon} /></Link>
+								<Link><Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} /></Link>
 								<Link><Image onClick={this.reportReview} className="likePadding float-right pl-5" style={{opacity: .7}} src={shareIcon} /></Link>
 								<Link><Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} /></Link>
 								<h4 className="likePadding float-right">{this.state.rating}</h4>

@@ -98,7 +98,7 @@ class YipNavBar extends Component {
           {followedKennels}
         </DropdownButton>
         <DropdownButton id="dropdown-item-button" title="More" className="mr-2 float-left" variant="light">
-          <Dropdown.Item href={`/user-${this.state.user}`}>Profile</Dropdown.Item>
+          <Dropdown.Item href={`/user-${this.state.user}`}>View Profile</Dropdown.Item>
           <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
         </DropdownButton>
         <Button onClick={this.logout} type="submit" variant="light" className="mr-2 float-left">Logout</Button></div>;
@@ -135,8 +135,7 @@ class YipNavBar extends Component {
               title="Search"
               id="dropdown-menu-align-right"
               variant="light"
-              type="submit"
-            >
+              type="submit">
               <Dropdown.Item eventKey="Reviews">Reviews</Dropdown.Item>
               <Dropdown.Item eventKey="Kennels">Kennels</Dropdown.Item>
             </DropdownButton>

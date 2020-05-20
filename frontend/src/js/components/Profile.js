@@ -360,14 +360,11 @@ class Profile extends Component {
                 )}
                 {this.state.showKennels && (
                     <div>
-                        <ul>
-                            {kennels}
-                        </ul>
+                        {kennels}
                     </div>
                 )}
                 {this.state.showBookmarks && (
                     <div>
-                        <h1>Bookmarked Reviews</h1>
                         {bookmarks}
                     </div>
                 )}
