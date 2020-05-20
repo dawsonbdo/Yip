@@ -17,7 +17,7 @@ import KennelCard from './KennelCard';
 
 import axios from 'axios'
 
-import { createCommentJson, followUserJson } from './BackendHelpers.js';
+import { updateLoggedInState, isLoggedIn, followUserJson } from './BackendHelpers.js';
 
 class Profile extends Component {
 
@@ -47,6 +47,21 @@ class Profile extends Component {
     }
 
     followProfile() {
+
+        // Update follow button text for follow/unfollow
+        if (!this.state.isFollowing) {
+            this.setState({
+                followBtnText: "Unfollow",
+                isFollowing: true
+            });
+        }
+        else {
+            this.setState({
+                followBtnText: "Follow",
+                isFollowing: false
+            });
+        }
+
         // Load user profile (get from URL)
         var username = this.props.match.params.username;
 
@@ -54,7 +69,7 @@ class Profile extends Component {
 
         var form = followUserJson(username, token);
 
-        // Send POST request with user name to follow
+        // Send POST request with user name to follow if not already following
         if (!this.state.isFollowing) {
             axios({
                 method: 'post',
@@ -62,19 +77,16 @@ class Profile extends Component {
                 data: form,
             }).then(response => {
 
-                alert('User successfully followed');
-                this.setState({
-                    followBtnText: "Unfollow",
-                    isFollowing: true
-                });
+                //alert('User successfully followed');
 
             }).catch(error => {
 
-                // Review not found in database
                 alert('User failed to follow');
 
             });
         }
+
+        // Otherwise unfollows
         else {
             axios({
                 method: 'post',
@@ -82,15 +94,10 @@ class Profile extends Component {
                 data: form,
             }).then(response => {
 
-                alert('User successfully unfollowed');
-                this.setState({
-                    followBtnText: "Follow",
-                    isFollowing: false
-                });
+                //alert('User successfully unfollowed');
 
             }).catch(error => {
 
-                // Review not found in database
                 alert('User failed to unfollow');
 
             });
@@ -266,16 +273,13 @@ class Profile extends Component {
 
         });
 
-
-        // TODO fill in stuff with this 
-
         // Send GET request with user name to get bookmarked reviews 
         axios({
             method: 'get',
             url: '/get_user_bookmarked_reviews/' + username + '/' + token,
         }).then(response => {
 
-            alert('Users bookmarked reviews info successfully grabbed from database!');
+            // alert('Users bookmarked reviews info successfully grabbed from database!');
 
             console.log("BOOKMARKED REVIEWS");
             console.log(response.data);
@@ -313,6 +317,8 @@ class Profile extends Component {
 
 
     render() {
+        
+        // Renders content cards for each tab on profile (Reviews, Kennels, Bookmarks)
         const reviews = this.state.reviewArray.map(function (review) {
             return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
                 kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
@@ -325,6 +331,30 @@ class Profile extends Component {
                 kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
         });
 
+        // Determines what to display based on which tab selected
+        let profileContent;
+        if (this.state.showReviews) {
+            profileContent = reviews;
+        }
+        if (this.state.showKennels) {
+            profileContent = kennels;
+        }
+        if (this.state.showBookmarks) {
+            profileContent = bookmarks;
+        }
+
+        // Hides buttons on own profile
+        let actionButtons;
+        if (!this.state.isOwner) {
+            actionButtons = <Col>
+                <Button className="logInEntry" type="submit" variant="primary">Message</Button>
+                <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
+                <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
+                <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button>
+            </Col>;
+        }
+
+        // Renders either profile or loading screen
         let profile;
         if (this.state.profileKennelsListed && this.state.profileReviewsListed) {
             profile = <Container>
@@ -346,28 +376,9 @@ class Profile extends Component {
                             </Nav>
                         </Jumbotron>
                     </Col>
-                    {!this.state.isOwner && (
-                        <Col>
-                            <Button className="logInEntry" type="submit" variant="primary">Message</Button>
-                            <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
-                            <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
-                            <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button>
-                        </Col>
-                    )}
+                    {actionButtons}
                 </Row>
-                {this.state.showReviews && (
-                    <div>{reviews}</div>
-                )}
-                {this.state.showKennels && (
-                    <div>
-                        {kennels}
-                    </div>
-                )}
-                {this.state.showBookmarks && (
-                    <div>
-                        {bookmarks}
-                    </div>
-                )}
+                <div>{profileContent}</div>
             </Container>
         } else {
             profile = <Row>
@@ -375,6 +386,7 @@ class Profile extends Component {
             </Row>;
         }
 
+        // Profile page
         return (
             <div>
                 <YipNavBar />
@@ -385,4 +397,3 @@ class Profile extends Component {
 }
 
 export default Profile;
-// only allow line 57 button is another reviewer, maybe gray it out and have no action

@@ -130,7 +130,7 @@ class Kennel extends Component {
 
             // Iterate through reviews
             if (!this.kennelReviewsListed) {
-                
+
                 for (var i = 0; i < response.data.length; i++) {
 
                     // Add review name, reviewer's username, review text to reviewArray
@@ -183,13 +183,13 @@ class Kennel extends Component {
                 rules: response.data.rules
             });
 
-            if(response.data.is_following) {
+            if (response.data.is_following) {
                 this.setState({ isFollowing: true, followBtnText: "Unfollow" });
             }
 
             // Iterate through tags
             var tagsStr = "";
-            if(response.data.tags.length > 0) {
+            if (response.data.tags.length > 0) {
                 tagsStr = tagsStr + response.data.tags[0];
                 this.state.tagsArray.push(response.data.tags[0]);
             }
@@ -201,14 +201,14 @@ class Kennel extends Component {
             }
 
             var mutedStr = "";
-            if(response.data.muted_words.length > 0) {
+            if (response.data.muted_words.length > 0) {
                 mutedStr = mutedStr + response.data.muted_words[0];
-            } 
+            }
             for (var i = 1; i < response.data.muted_words.length; i++) {
-                
+
                 // Build muted words string from array as prop for editkennel
                 mutedStr = mutedStr + ", " + response.data.muted_words[i];
-    
+
             }
 
             /*var bannedStr = "";
@@ -236,15 +236,29 @@ class Kennel extends Component {
     }
 
     render() {
+        
+        // Renders content for Reviews and Tags tabs
         const reviews = this.state.reviewArray.map(function (review) {
-            return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} 
-            kennelName={review.kennel} rating={review.rating} />
+            return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
+                kennelName={review.kennel} rating={review.rating} />
         });
-
         const tags = this.state.tagsArray.map(function (tag) {
             return <p>{tag}</p>
         });
 
+        // Determines what to display based on which tab selected
+        let kennelContent;
+        if (this.state.showReviews) {
+            kennelContent = reviews;
+        }
+        if (this.state.showRules) {
+            kennelContent = this.state.rules;
+        }
+        if (this.state.showTags) {
+            kennelContent = tags;
+        }
+
+        // Renders either kennel or loading screen
         let kennel;
         if (this.state.kennelInfoListed && this.state.kennelReviewsListed) {
             kennel = <Container>
@@ -275,8 +289,7 @@ class Kennel extends Component {
                                 mutedWords: this.state.mutedString,
                                 kennel_name: this.state.kennel_name
                             }
-                        }}
-                        ><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
+                        }}><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
                         <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
                         <Link to={{
                             pathname: "/createreview",
@@ -286,21 +299,7 @@ class Kennel extends Component {
                         }}><Button className="logInEntry" type="submit" variant="link">Post Review</Button></Link>
                     </Col>
                 </Row>
-                {this.state.showReviews && (
-                    <div>{reviews}</div>
-                )}
-                {this.state.showRules && (
-                    <div>
-                        <h1>Rules</h1>
-                        <p>{this.state.rules}</p>
-                    </div>
-                )}
-                {this.state.showTags && (
-                    <div>
-                        <h1>Tags</h1>
-                        <p>{tags}</p>
-                    </div>
-                )}
+                <div>{kennelContent}</div>
             </Container>
         } else {
             kennel = <Row>
@@ -308,6 +307,7 @@ class Kennel extends Component {
             </Row>;
         }
 
+        // Kennel page
         return (
             <div>
                 <YipNavBar />
