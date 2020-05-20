@@ -3,28 +3,31 @@ use diesel::prelude::*;
 use uuid::Uuid;
 use crate::schema::reports;
 use super::super::{kennels};
+use chrono::{NaiveDate, NaiveDateTime};
+use crate::auth;
 
 /**
- * Method that converts a Report to DbReport
- * @param report: the Report
+ * Method that converts a Report to InsertReport
+ * @param report: the InputReport
  *
- * @return returns a DbReport
+ * @return returns a InsertReport
  */
-fn from_report(report: Report) -> DbReport {
-    DbReport{
+fn from_report(report: InputReport, connection: &PgConnection) -> InsertReport {
+    InsertReport{
         report_uuid: Uuid::new_v4(),
-        kennel: Uuid::parse_str(&report.kennel).unwrap(),
+        kennel: kennels::handlers::get_kennel_uuid_from_name(report.kennel.clone(), connection),
         is_comment: report.is_comment,
-        comment_id: {
-            let uuid = Uuid::parse_str(&report.comment_id).unwrap();
-            if uuid.is_nil() {None} else {Some(uuid)}
+        comment_id: match Uuid::parse_str(&report.comment_id) {
+            Ok(u) => Some(u),
+            Err(e) => None,
         },
-        review_id: {
-            let uuid = Uuid::parse_str(&report.review_id).unwrap();
-            if uuid.is_nil() {None} else {Some(uuid)}
+        review_id: match Uuid::parse_str(&report.review_id) {
+            Ok(u) => Some(u),
+            Err(e) => None,
         },
         reason: report.reason,
         escalated: report.escalated,
+        reporter_name: auth::get_user_from_token(&report.reporter_token),
     }
 }
 
@@ -43,6 +46,8 @@ fn to_report(report: &DbReport, connection: &PgConnection) -> DisplayReport {
         review_id: report.review_id,
         reason: report.reason.clone(),
         escalated: report.escalated,
+        reporter_name: report.reporter_name.clone(),
+        timestamp: report.timestamp,
     }
 }
 
@@ -85,27 +90,27 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbReport> {
 /**
  * CREATE REPORT: Method that attempts to create a new report in database, returns URL? 
  */
-pub fn insert(report: Report, connection: &PgConnection) -> Result<Uuid, String> {
+pub fn insert(report: InputReport, connection: &PgConnection) -> Result<Uuid, String> {
     // Prints the Report information that was received (register)
     println!("Reason: {}", report.reason);
     println!("Is Comment: {}", report.is_comment);
 
-
     // Inserts report into database, returns uuid generated
     match diesel::insert_into(reports::table)
-        .values(from_report(report))
+        .values(from_report(report, connection))
         .get_result::<DbReport>(connection) {
             Ok(r) => Ok(r.report_uuid),
             Err(e) => Err(e.to_string()),
         }
+
 }
 
 /**
  * EDIT Report: Method that updates a report in database
  */
-pub fn update(id: Uuid, report: Report, connection: &PgConnection) -> bool {
+pub fn update(id: Uuid, report: InputReport, connection: &PgConnection) -> bool {
     match diesel::update(reports::table.find(id))
-        .set(from_report(report))
+        .set(from_report(report, connection))
         .get_result::<DbReport>(connection) {
             Ok(_u) => return true,
             Err(_e) => return false,
@@ -123,16 +128,31 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
 
 // Struct representing the fields of a report passed in from frontend contains
 #[derive(Queryable, Serialize, Deserialize)]
-pub struct Report {
+pub struct InputReport {
     pub kennel: String,
     pub is_comment: bool,
     pub comment_id: String,
     pub review_id: String,
     pub reason: String,
     pub escalated: bool,
+    pub reporter_token: String,
 }
 
 // Struct represneting the fields of a report that is inserted into database
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "reports"]
+pub struct InsertReport {
+    pub report_uuid: Uuid,
+    pub kennel: Uuid,
+    pub is_comment: bool,
+    pub comment_id: Option<Uuid>,
+    pub review_id: Option<Uuid>,
+    pub reason: String,
+    pub escalated: bool,
+    pub reporter_name: String,
+}
+
+// Struct represneting the fields of a report that is retrived from database
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
 #[table_name = "reports"]
 pub struct DbReport {
@@ -143,6 +163,8 @@ pub struct DbReport {
     pub review_id: Option<Uuid>,
     pub reason: String,
     pub escalated: bool,
+    pub reporter_name: String,
+    pub timestamp: NaiveDateTime
 }
 
 // Struct represneting the fields of a report that are needed on frontend
@@ -155,4 +177,6 @@ pub struct DisplayReport {
     pub review_id: Option<Uuid>,
     pub reason: String,
     pub escalated: bool,
+    pub reporter_name: String,
+    pub timestamp: NaiveDateTime,
 }

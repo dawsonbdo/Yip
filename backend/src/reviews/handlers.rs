@@ -559,7 +559,7 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // Delete all bookmarks
     let bookmarks = diesel::delete(bookmarks::table
              .filter(bookmarks::review.eq(id)))
-             .execute(connection);
+             .execute(connection)?;
 
     // Get all comments
     let comments = comments::table.filter(comments::review_uuid.eq(id)).load::<DbComment>(&*connection)?;
@@ -569,26 +569,26 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
         // Delete likes
         diesel::delete(comment_like_relationships::table
                   .filter(comment_like_relationships::comment.eq(c.comment_uuid)))
-        .execute(connection);
+        .execute(connection)?;
 
         // Delete dislikes
         diesel::delete(comment_dislike_relationships::table
                   .filter(comment_dislike_relationships::comment.eq(c.comment_uuid)))
-        .execute(connection);
+        .execute(connection)?;
     }
     
     // Delete all comments
     diesel::delete(comments::table.filter(comments::review_uuid.eq(id)))
-        .execute(connection);
+        .execute(connection)?;
 
     // Delete all review likes dislikes
     diesel::delete(review_like_relationships::table
                   .filter(review_like_relationships::review.eq(id)))
-        .execute(connection);
+        .execute(connection)?;
 
     diesel::delete(review_dislike_relationships::table
                   .filter(review_dislike_relationships::review.eq(id)))
-        .execute(connection);
+        .execute(connection)?;
 
     // Delete review
     diesel::delete(reviews::table.find(id))

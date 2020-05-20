@@ -21,7 +21,7 @@ import trashIcon from '../../assets/trash.png';
 
 import axios from 'axios'
 
-import { createCommentJson, likeDislikeReviewJson, deleteReviewJson, isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
+import { reportJson, createCommentJson, likeDislikeReviewJson, deleteReviewJson, isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
 
 class Review extends Component {
 
@@ -50,6 +50,7 @@ class Review extends Component {
 		this.dislikeReview = this.dislikeReview.bind(this);
 		this.deleteReview = this.deleteReview.bind(this);
 		this.bookmarkReview = this.bookmarkReview.bind(this);
+		this.reportReview = this.reportReview.bind(this);
 	}
 
 	componentDidMount() {
@@ -152,6 +153,38 @@ class Review extends Component {
 		});
 	}
 
+
+	reportReview() {
+
+		// Get fields to create Report to pass as data
+        var kennel_name = this.state.kennel
+        var is_comment = false;
+        var comment_id = "";
+        var review_id = this.props.match.params.id;
+        var reason = "test"; //TODO
+        var escalated = false; //TODO
+        var token = localStorage.getItem('jwtToken');
+
+		// Create form for request 
+		var form = reportJson(kennel_name, is_comment, comment_id, review_id, reason, escalated, token);
+
+		// Send POST request
+		axios({
+			method: 'post',
+			url: '/create_report',
+			data: form
+		}).then(response => {
+
+			alert('Review successfully reported!');
+
+
+		}).catch(error => {
+
+			// Failed to dislike review
+			alert('Review report failed');
+
+		});
+	}
 
 	bookmarkReview() {
 		// TODO: Get uuid of review from url probably
@@ -378,7 +411,7 @@ class Review extends Component {
 							<Col className="text-right reviewIcon">
 								<Link><Image onClick={this.deleteReview} className="likePadding float-right" src={trashIcon} /></Link>
 								<Link><Image onClick={this.bookmarkReview} style={{opacity: .7}} className="likePadding float-right" src={bookmarkIcon} /></Link>
-								<Link to="/"><Image className="likePadding float-right pl-5" style={{opacity: .7}} src={shareIcon} /></Link>
+								<Link><Image onClick={this.reportReview} className="likePadding float-right pl-5" style={{opacity: .7}} src={shareIcon} /></Link>
 								<Link><Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} /></Link>
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
 								<Link><Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} /></Link>

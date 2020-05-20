@@ -97,6 +97,8 @@ table! {
         review_id -> Nullable<Uuid>,
         reason -> Varchar,
         escalated -> Bool,
+        reporter_name -> Varchar,
+        timestamp -> Timestamp,
     }
 }
 

@@ -23,6 +23,20 @@ export function createReviewJson(id = "", title = "", text = "", author = "") {
     return form
 };
 
+// Creates a report Json
+export function reportJson(kennel = "", is_comment = "", comment_id = "", review_id = "", reason = "", escalated = false, token = "") {
+    var form = {kennel: kennel,
+                is_comment: is_comment,
+                comment_id: comment_id,
+                review_id: review_id,
+                reason: reason,
+                escalated: escalated,
+                reporter_token: token,
+              };
+    return form
+    
+};
+
 // Creates a JSON Kennel object
 export function createKennelJson(name = "", tags = "", muted_words = "", rules = "", token ="") {
     var form = {kennel_uuid: "00000000-0000-0000-0000-000000000000",

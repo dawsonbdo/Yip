@@ -2,12 +2,13 @@ pub mod handlers;
 
 use crate::db;
 
-use handlers::{Report, DisplayReport};
+use handlers::{InputReport, DisplayReport};
 use rocket_contrib::json::Json;
 
 use db::DbConn;
 
 use rocket::response::status;
+use crate::auth;
 
 
 /**
@@ -72,8 +73,13 @@ fn get_kennel_reports(kennel_name: String, connection: DbConn) -> Result<Json<Ve
  * @return returns TBD
  */
 #[post("/create_report", data="<report>", rank=1)]
-fn create_report(report: Json<Report>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+fn create_report(report: Json<InputReport>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
 	
+	// Check that valid user reporting
+	if auth::get_uuid_from_token(&report.reporter_token).is_nil(){
+		return Err(status::Conflict(Some("Invalid user trying to report".to_string())));
+	}
+
 	// Attempt to insert report into database 
 	let successful_report = handlers::insert(report.into_inner(), &connection);
 	
