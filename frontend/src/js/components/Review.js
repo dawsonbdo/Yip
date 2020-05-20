@@ -201,20 +201,36 @@ class Review extends Component {
 		// Create form for request (same for bookmark)
 		var form = likeDislikeReviewJson(reviewId, token);
 
+		var url;
+		if (this.state.isBookmarked){
+			url = '/unbookmark_review';
+		} else {
+			url = '/bookmark_review';
+		}
+
+		this.setState({ isBookmarked: !this.state.isBookmarked });
+
 		// Send POST request
 		axios({
 			method: 'post',
-			url: '/bookmark_review',
+			url: url,
 			data: form
 		}).then(response => {
 
-			alert('Review successfully bookmarked!');
+			if (this.state.isBookmarked){
+				alert('Review successfully bookmarked!');
+			} else {
+				alert('Review successfully unbookmarked!');
+			}
 
 
 		}).catch(error => {
 
 			// Failed to dislike review
-			alert('Review bookmark failed');
+			alert('Review bookmark/unbookmark failed');
+
+			// Revert preemptive frontend update
+			this.setState({ isBookmarked: !this.state.isBookmarked });
 
 		});
 	}
