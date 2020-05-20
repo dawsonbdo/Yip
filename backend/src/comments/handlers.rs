@@ -323,10 +323,16 @@ pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbComment>> {
  *
  * @return returns a vector of DbComments
  */
-pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbComment> {
+pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DisplayComment> {
 
     // Searches comment table for the uuid and gets the comment
-    comments::table.find(id).get_result::<DbComment>(connection)
+    let comment = comments::table.find(id).get_result::<DbComment>(connection);
+
+    // Pattern matches the comment and converts to DisplayComment if no error
+    match comment {
+        Ok(c) => Ok(to_comment(&c)),
+        Err(e) => Err(e),
+    }
 }
 
 /**

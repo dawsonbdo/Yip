@@ -172,8 +172,8 @@ fn like_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status::
  * 
  * @return returns accepted status if removed, other unauthorized
  */
-#[post("/remove_comment", data="<input>")]
-fn remove_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
+#[post("/remove_comment/<kennel_name>", data="<input>")]
+fn remove_comment(input: Json<CommentUser>, kennel_name: String, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
 
 	// Get tokens username
 	let profile_username = token_to_username(input.token.clone(), &connection);
@@ -191,11 +191,11 @@ fn remove_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status
 	match comment {
 		Ok(c) => {
 			// Get kennel name
-			let rev = super::reviews::handlers::get(c.review_uuid, &connection).unwrap();
+			//let rev = super::reviews::handlers::get(c.review_uuid, &connection).unwrap();
 
 			// Get mod id of kennel of comment
 			let mod_uuid = super::kennels::handlers::
-						   get_kennel_mod_uuid_from_name(rev.kennel_name, &connection);
+						   get_kennel_mod_uuid_from_name(kennel_name, &connection);
 
 			//println!("Mod Uuid: {}", mod_uuid);
 			//println!("Token Uuid: {}", uuid);

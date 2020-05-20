@@ -180,3 +180,35 @@ pub struct DisplayReport {
     pub reporter_name: String,
     pub timestamp: NaiveDateTime,
 }
+
+#[derive(Queryable, Serialize, Deserialize, Debug, std::hash::Hash, std::cmp::PartialEq, std::cmp::Eq)]
+pub struct ReviewReport {
+    pub kennel_name: String, //kennel name
+    pub title: String,
+    pub author: String, //username
+    pub timestamp: NaiveDateTime,
+    pub text: String,
+    pub images: Vec<String>,
+    pub rating: i32,
+    pub tags: Vec<String>,
+    pub is_author: bool,
+    pub is_liked: bool,
+    pub is_disliked: bool,
+    pub is_bookmarked: bool,
+    pub review_uuid: Uuid,
+    pub hotness: i64,
+    pub reason: String,
+}
+
+#[derive(Queryable, Serialize, Deserialize, Debug, std::hash::Hash, std::cmp::PartialEq, std::cmp::Eq)]
+pub struct CommentReport {
+    pub comment_uuid: Uuid,
+    pub author_name: String,
+    pub timestamp: String,
+    pub text: String,
+    pub is_author: bool,
+    pub rating: i32,
+    pub is_liked: bool,
+    pub is_disliked: bool,
+    pub reason: String,
+}
