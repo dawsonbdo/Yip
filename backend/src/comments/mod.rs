@@ -274,11 +274,26 @@ fn create_comment(comment: Json<InputComment>, name: String, connection: DbConn)
 		return Err(status::Conflict(Some("Invalid User".to_string())));
 	}
 
+	
+
 	// Get the muted words
-	let muted_words = match super::kennels::handlers::get_kennel_from_name(name, &connection){
-		Ok(k) => match k.muted_words {
-			Some(words) => words,
-			None => vec![],
+	let muted_words = match super::kennels::handlers::get_kennel_from_name(name.clone(), &connection){
+		Ok(k) => {
+			// Check that user is not banned from kennel
+			let user_uuid = auth::get_uuid_from_token(&comment.author_token);
+			let kennel_id = super::kennels::handlers::get_kennel_uuid_from_name(name, &connection);
+
+			//println!("USER: {} KENNEL: {}", user_uuid, kennel_id);
+
+			match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
+				Ok(rel) => if rel == 1 {return Err(status::Conflict(Some("User is banned from kennel".to_string())));} else {()},
+				Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+			};
+
+			match k.muted_words {
+				Some(words) => words,
+				None => vec![],
+			}
 		},
 		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
 	};
