@@ -11,6 +11,7 @@ table! {
         pkey -> Int8,
         user -> Uuid,
         review -> Uuid,
+        timestamp -> Timestamp,
     }
 }
 

@@ -614,6 +614,7 @@ pub struct DbBookmarkReview {
     pub pkey: i64,
     pub user: Uuid,
     pub review: Uuid,
+    pub timestamp: NaiveDateTime,
 }
 
 // Struct representing the fields of review like table

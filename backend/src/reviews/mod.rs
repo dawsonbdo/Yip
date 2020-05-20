@@ -439,13 +439,14 @@ fn get_user_bookmarked_reviews(username: String, token: String, connection: DbCo
 	// Get all bookmarks
 	let bookmarks = handlers::get_user_bookmarks(uuid, &connection);
 
-	// Get all reviews that are bookmarked
-	let mut reviews : Vec<DisplayReview> = vec![];
-	
+	let mut pq = priority_queue::PriorityQueue::new();
+
 	match bookmarks {
 		Ok(book) => {
 			for b in book {
-				reviews.push(handlers::get(b.review, &connection).unwrap());
+				//reviews.push(handlers::get(b.review, &connection).unwrap());
+				let r = handlers::get(b.review, &connection).unwrap();
+				pq.push(r, b.timestamp);
 			}
 		},
 		Err(e) => return Err(status::NotFound(e.to_string())),
@@ -457,7 +458,16 @@ fn get_user_bookmarked_reviews(username: String, token: String, connection: DbCo
 	// Get tokens username
 	let profile_username = auth::get_user_from_token(&token);
 
-	Ok(Json(updateDisplayReviewFields(&profile_username, token_uuid, reviews, &connection)))
+	// Create a vector with all of the reviews to as ordered
+	let mut reviewsOrdered : Vec<DisplayReview> = vec![];
+
+	// Order by newness for now 
+	for (review, _) in pq.into_sorted_iter() {
+
+		reviewsOrdered.push(review);
+	}
+
+	Ok(Json(updateDisplayReviewFields(&profile_username, token_uuid, reviewsOrdered, &connection)))
 }
 
 
