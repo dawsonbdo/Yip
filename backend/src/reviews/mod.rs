@@ -627,14 +627,14 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
  *
  * @return returns TBD
  */
-#[post("/edit_review", data="<review>")]
-fn edit_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
+#[post("/edit_review/<review_uuid>", data="<review>")]
+fn edit_review(review: ReviewMultipart, review_uuid: String, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
 	
-	// Get tokens username
-	let profile_username = auth::get_user_from_token(&review.token);
+	Ok(status::Accepted(None))
 
+	/*
 	// Converts string to a uuid
-	let uuid = Uuid::parse_str(&review.review_uuid).unwrap();
+	let uuid = Uuid::parse_str(&review_uuid).unwrap();
 
 	// Get Review from database
 	let review = handlers::get(uuid, &connection);
@@ -644,7 +644,8 @@ fn edit_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status::
 		Ok(r) => {
 			// If token matches author of review, TODO: attempt to update
 			if profile_username.eq(&r.author) { 
-				// TODO: Attempt to update
+				// TODO: Attempt to updat
+
 				Ok(status::Accepted(None))
 			} else {
 				Err(status::Unauthorized(Some("User is not the author".to_string())))
@@ -653,6 +654,7 @@ fn edit_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status::
 		// Review not found in database
 		Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
 	}
+	*/
 }
 
 /** 
