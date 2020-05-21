@@ -665,6 +665,8 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 		paths.push(format!("reviewpics/{}{}", user_uuid, name));
 	}
 
+	println!("EDIT 1");
+
 	// Create review object in correct format
 	let review = review_creation_helper(review_obj, paths, data.tags);
 	
@@ -695,6 +697,8 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 		}
 	}
 
+	println!("EDIT 2");
+
 	// Attempt to update review in database
 	match handlers::update(rev_uuid, review, &connection){
 		Ok(r) => { 
@@ -707,23 +711,28 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 				let file_path = format!("static/reviewpics/{}{}", user_uuid, &data.names[i]);
 				let mut buffer = File::create(file_path.clone()).unwrap();
 				
+				println!("EDIT 3");
+
 				// Catch error
 				match buffer.write(&img){
 					Ok(w) => w,
 					Err(e) => {
-						// If error writing image to server, delete the review
+						// TODO: If error writing image to server, delete the review
+						/*
 						let del_review = ReviewToken {
 							review_uuid: r.review_uuid.hyphenated().to_string(),
 							token: token.clone(),
 						};
 
 						remove_review(Json(del_review), connection);
-
+						*/
 						return Err(status::Unauthorized(Some(e.to_string())))
 					},
 				};
 					
 			}
+
+			println!("EDIT 4");
 
 			// TODO: Delete images of files that were removed from orig review
 			let imgs = match r.images {
@@ -736,6 +745,7 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 					continue;
 				}
 				
+				println!("EDIT 5");
 
 				// Attempt to delete old img
 				let p = format!("static/{}", img);
@@ -745,7 +755,9 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 				};
 			}
 
-			Ok(status::Accepted(None))
+			println!("EDIT 6");
+
+			Ok(status::Accepted(Some(rev_uuid.hyphenated().to_string())))
 		},
 		Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
 	}

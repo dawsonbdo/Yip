@@ -34,7 +34,7 @@ fn from_review(review: Review, connection: &PgConnection) -> InsertReview {
     let author_id = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);
 
     InsertReview{
-        review_uuid: Uuid::new_v4(), // generate random uuid for review
+        review_uuid: Uuid::new_v4(), // generate random uuid for review if not already existent
         kennel_uuid: kennel_id,
         title: (&review.title[1..(review.title.len()-1)]).to_string(),
         author: author_id,
@@ -543,8 +543,25 @@ pub fn insert(review: Review, connection: &PgConnection) -> QueryResult<DbReview
  * @return returns a bool if successfuly edited 
  */
 pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> QueryResult<DbReview> {
+    let kennel_id = Uuid::parse_str(&review.kennel_uuid[1..37]).unwrap();
+    let author_id = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);
+
+    let updated_rev = InsertReview{
+        review_uuid: id, // generate random uuid for review if not already existent
+        kennel_uuid: kennel_id,
+        title: (&review.title[1..(review.title.len()-1)]).to_string(),
+        author: author_id,
+        text: (&review.text[1..(review.text.len()-1)]).to_string(),
+        images: review.images,
+        tags: review.tags,
+        hotness: Some(0.0),
+        kennel_name: kennels::handlers::get(kennel_id, connection).unwrap().kennel_name,
+        author_name: users::handlers::get_user_from_uuid(author_id, connection).unwrap().username,
+        rating: review.rating,
+    };
+
      diesel::update(reviews::table.find(id))
-        .set(&from_review(review, connection))
+        .set(&updated_rev)
         .get_result::<DbReview>(connection)
 }
 
