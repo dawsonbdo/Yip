@@ -11,6 +11,7 @@ import RecoverPassword from './components/RecoverPassword';
 import Review from './components/Review';
 import Kennel from './components/Kennel';
 import EditKennel from './components/EditKennel';
+import EditReview from './components/EditReview';
 import CreateKennel from './components/CreateKennel';
 import SearchResults from './components/SearchResults';
 import Profile from './components/Profile';
@@ -65,6 +66,7 @@ function App() {
           <Route path="/recoverpassword" exact component={RecoverPassword} />
           <Route path="/review-:id" exact component={Review} />
 		  <Route path="/editkennel" exact component={EditKennel} />
+		  <Route path="/editreview" exact component={EditReview} />
 		  <Route path="/createkennel" exact component={CreateKennel} />
 		  <Route path="/searchresults-:searchType-:query" exact component={SearchResults} />
 		  <Route path="/user-:username" exact component={Profile} />
