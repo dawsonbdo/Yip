@@ -396,7 +396,7 @@ class Review extends Component {
 	render() {
 
 		// Gets the comments in their comment cards
-		const comments = this.state.commentArray.map(function (comment) {
+		let comments = this.state.commentArray.map(function (comment) {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text} 
 			timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}/>
 		});
