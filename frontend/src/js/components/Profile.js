@@ -30,14 +30,17 @@ class Profile extends Component {
             showKennels: false,
             showBookmarks: false,
             showCreatedKennels: false,
+            showFollowedUsers: false,
             reviewArray: [],
             kennelArray: [],
             createdKennelArray: [],
             bookmarkArray: [],
+            followedUsersArray: [],
             profileReviewsListed: false,
             profileKennelsListed: false,
             profileBookmarksListed: false,
             profileCreatedKennelsListed: false,
+            profileFollowedUsersListed: false,
             isOwner: false,
             followBtnText: "Follow",
             isFollowing: false
@@ -144,20 +147,24 @@ class Profile extends Component {
     handleSelect(eventKey) {
 
         if (eventKey == "reviews") {
-            this.setState({ showReviews: true, showKennels: false, 
+            this.setState({ showReviews: true, showKennels: false, showFollowedUsers: false,
                 showBookmarks: false, showCreatedKennels: false });
         }
         if (eventKey == "kennels") {
-            this.setState({ showReviews: false, showKennels: true, 
+            this.setState({ showReviews: false, showKennels: true, showFollowedUsers: false,
                 showBookmarks: false, showCreatedKennels: false });
         }
         if (eventKey == "bookmarks") {
-            this.setState({ showReviews: false, showKennels: false, 
+            this.setState({ showReviews: false, showKennels: false, showFollowedUsers: false,
                 showBookmarks: true, showCreatedKennels: false });
         }
         if (eventKey == "createdkennels") {
-            this.setState({ showReviews: false, showKennels: false, 
+            this.setState({ showReviews: false, showKennels: false, showFollowedUsers: false,
                 showBookmarks: false, showCreatedKennels: true });
+        }
+        if (eventKey == "followedusers") {
+            this.setState({ showReviews: false, showKennels: false, showFollowedUsers: true,
+                showBookmarks: false, showCreatedKennels: false });
         }
     }
 
@@ -172,6 +179,34 @@ class Profile extends Component {
 
         // Get token
         var token = localStorage.getItem('jwtToken');
+
+        axios({
+            method: 'get',
+            url: '/get_followed_users/' + username,
+        }).then(response => {
+
+            // TODO: Render user information
+            console.log("FOLLOWED USER");
+            console.log(response.data);
+
+            this.setState({
+                username: response.data.username,
+                isOwner: response.data.is_owner,
+            });
+
+            for(var i = 0; i < response.data.length; i++) {
+                this.state.followedUsersArray.push(response.data[i].followee);
+            }
+
+            this.setState({ profileFollowedUsersListed: true });
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('No followed users');
+
+        });
+
 
         // Send GET request with user name to get user information
         axios({
@@ -402,6 +437,9 @@ class Profile extends Component {
             return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
                 kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
         });
+        const users = this.state.followedUsersArray.map(function (user) {
+            return <li>{user}</li>
+        });
 
         // Determines what to display based on which tab selected
         let profileContent;
@@ -416,6 +454,9 @@ class Profile extends Component {
         }
         if (this.state.showCreatedKennels) {
             profileContent = createdKennels;
+        }
+        if(this.state.showFollowedUsers) {
+            profileContent = <ul>{users}</ul>;
         }
 
         // Hides buttons on own profile
@@ -441,6 +482,9 @@ class Profile extends Component {
                             <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
                                 <Nav.Item as="li">
                                     <Nav.Link eventKey="reviews">Reviews</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item as="li">
+                                    <Nav.Link eventKey="followedusers">Followed Users</Nav.Link>
                                 </Nav.Item>
                                 <Nav.Item as="li">
                                     <Nav.Link eventKey="kennels">Followed Kennels</Nav.Link>
