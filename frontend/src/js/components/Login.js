@@ -98,7 +98,7 @@ class Login extends Component {
 
               <Toast className="mx-auto smallPopup" onClose={() => this.setState({showPopup: false})} show={this.state.showPopup} autohide>
 					        <Toast.Header className="smallPopup">
-						        <strong className="mr-auto">Username or Password incorrect!</strong>
+						        <strong className="mx-auto">Username or Password incorrect!</strong>
 					        </Toast.Header>
 				      </Toast>
 

@@ -38,7 +38,8 @@ class Review extends Component {
 			reviewAuthor: "",
 			reviewText: "",
 			reviewImgs: [],
-			reviewTags: [],
+			reviewTags: "",
+			reviewTagsArray: [],
 			rating: 0,
 			isLiked: false,
 			isDisliked: false,
@@ -83,27 +84,28 @@ class Review extends Component {
 					reviewAuthor: response.data.author,
 					reviewText: response.data.text,
 					rating: response.data.rating,
-					kennel: response.data.kennel_name
+					kennel: response.data.kennel_name,
+					reviewTagsArray: response.data.tags
 				});
 
 				var tagsStr = "";
-				if(response.data.tags.length > 0) {
+				if (response.data.tags.length > 0) {
 					tagsStr = tagsStr + response.data.tags[0];
 				}
 
-				for(var i = 1; i < response.data.tags.length; i++) {
+				for (var i = 1; i < response.data.tags.length; i++) {
 					tagsStr = tagsStr + ", " + response.data.tags[i];
 				}
 				this.setState({ reviewTags: tagsStr });
 
-				if(response.data.is_liked) {
-					this.setState({isLiked: true});
+				if (response.data.is_liked) {
+					this.setState({ isLiked: true });
 				}
-				if(response.data.is_disliked) {
-					this.setState({isDisliked: true});
+				if (response.data.is_disliked) {
+					this.setState({ isDisliked: true });
 				}
-				if(response.data.is_bookmarked) {
-					this.setState({isBookmarked: true});
+				if (response.data.is_bookmarked) {
+					this.setState({ isBookmarked: true });
 				}
 
 				// Check that any images were returned cuz can be undefined
@@ -142,9 +144,9 @@ class Review extends Component {
 
 			// Fills in commentArray based on response data
 			// Will populate comment cards
-			if(!this.state.commentsListed) {
+			if (!this.state.commentsListed) {
 
-				for(var i = 0; i < response.data.length; i++) {
+				for (var i = 0; i < response.data.length; i++) {
 					this.state.commentArray.push({
 						author: response.data[i].author_name,
 						text: response.data[i].text,
@@ -179,7 +181,7 @@ class Review extends Component {
 		var form = likeDislikeReviewJson(reviewId, token);
 
 		var url;
-		if (this.state.isBookmarked){
+		if (this.state.isBookmarked) {
 			url = '/unbookmark_review';
 		} else {
 			url = '/bookmark_review';
@@ -194,7 +196,7 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			if (this.state.isBookmarked){
+			if (this.state.isBookmarked) {
 				alert('Review successfully bookmarked!');
 			} else {
 				alert('Review successfully unbookmarked!');
@@ -214,14 +216,14 @@ class Review extends Component {
 
 	dislikeReview() {
 		updateLoggedInState(this);
-		if(isLoggedIn(this)) {
+		if (isLoggedIn(this)) {
 			// If already disliked removes dislike
-			if(this.state.isDisliked) {
+			if (this.state.isDisliked) {
 				this.setState({ isDisliked: false, rating: this.state.rating + 1 });
 			}
 
 			// If liked remove like and add dislike
-			else if(this.state.isLiked) {
+			else if (this.state.isLiked) {
 				this.setState({ isLiked: false, isDisliked: true, rating: this.state.rating - 2 });
 			}
 
@@ -260,14 +262,14 @@ class Review extends Component {
 
 	likeReview() {
 		updateLoggedInState(this);
-		if(isLoggedIn(this)) {
+		if (isLoggedIn(this)) {
 			// If already liked removes like
-			if(this.state.isLiked) {
+			if (this.state.isLiked) {
 				this.setState({ isLiked: false, rating: this.state.rating - 1 });
 			}
 
 			// If disliked remove dislike and add like
-			else if(this.state.isDisliked) {
+			else if (this.state.isDisliked) {
 				this.setState({ isDisliked: false, isLiked: true, rating: this.state.rating + 2 });
 			}
 
@@ -306,7 +308,7 @@ class Review extends Component {
 	}
 
 	deleteReview() {
-		
+
 		// Get review's id
 		var reviewId = this.props.match.params.id;
 
@@ -332,7 +334,7 @@ class Review extends Component {
 			alert('Review removal failed');
 
 		});
-		
+
 	}
 
 	postComment() {
@@ -364,13 +366,13 @@ class Review extends Component {
 
 			// TODO: Update page to display comment
 			comments.unshift({
-						author: response.data.author_name,
-						text: response.data.text,
-						time: response.data.timestamp,
-						rating: response.data.rating,
-						commentId: response.data.comment_uuid,
-						isLiked: response.data.is_liked,
-						isDisliked: response.data.is_disliked
+				author: response.data.author_name,
+				text: response.data.text,
+				time: response.data.timestamp,
+				rating: response.data.rating,
+				commentId: response.data.comment_uuid,
+				isLiked: response.data.is_liked,
+				isDisliked: response.data.is_disliked
 			});
 
 			// Update state to cause rerender
@@ -390,34 +392,34 @@ class Review extends Component {
 		let nameOfKennel = this.state.kennel;
 		let idOfReview = this.props.match.params.id;
 		let comments = this.state.commentArray.map(function (comment) {
-			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text} 
-			timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}
-			kennel={nameOfKennel} review={idOfReview}/>
+			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text}
+				timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}
+				kennel={nameOfKennel} review={idOfReview} />
 		});
 
 		let likeIconOpacity;
 		let dislikeIconOpacity;
 		let bookmarkOpacity;
 
-		if(this.state.isLiked) {
-			likeIconOpacity = {opacity: 1.0, cursor: 'pointer'};
+		if (this.state.isLiked) {
+			likeIconOpacity = { opacity: 1.0, cursor: 'pointer' };
 		}
 		else {
-			likeIconOpacity = {opacity: .6, cursor: 'pointer'};
+			likeIconOpacity = { opacity: .6, cursor: 'pointer' };
 		}
 
-		if(this.state.isDisliked) {
-			dislikeIconOpacity = {opacity: 1.0, cursor: 'pointer'};
+		if (this.state.isDisliked) {
+			dislikeIconOpacity = { opacity: 1.0, cursor: 'pointer' };
 		}
 		else {
-			dislikeIconOpacity = {opacity: .6, cursor: 'pointer'};
+			dislikeIconOpacity = { opacity: .6, cursor: 'pointer' };
 		}
 
-		if(this.state.isBookmarked) {
-			bookmarkOpacity = {opacity: 1.0, cursor: 'pointer'};
+		if (this.state.isBookmarked) {
+			bookmarkOpacity = { opacity: 1.0, cursor: 'pointer' };
 		}
 		else {
-			bookmarkOpacity = {opacity: .6, cursor: 'pointer'};
+			bookmarkOpacity = { opacity: .6, cursor: 'pointer' };
 		}
 
 
@@ -434,13 +436,13 @@ class Review extends Component {
 								<h5 id="kennel"><a class="profileLink" href={`/kennel-${this.state.kennel}`}>Kennel: {this.state.kennel}</a></h5>
 							</Col>
 							<Col className="text-right reviewIcon">
-								<Image onClick={this.deleteReview} style={{cursor: 'pointer'}} className="likePadding float-right" src={trashIcon} />
+								<Image onClick={this.deleteReview} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
 								<Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} />
 								<Link to={{
 									pathname: '/report',
 									state: {
-                                        is_comment: false,
-                                        comment_id: "",
+										is_comment: false,
+										comment_id: "",
 										kennel_name: this.state.kennel,
 										review_id: this.props.match.params.id
 									}
@@ -448,6 +450,17 @@ class Review extends Component {
 								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
 								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />
+								<Link to={{
+									pathname: "/editreview",
+									state: {
+										review_id: this.props.match.params.id,
+										kennel_name: this.state.kennel,
+										title: this.state.reviewTitle,
+										text: this.state.reviewText,
+										tags: this.state.reviewTagsArray,
+										images: this.state.reviewImgs
+									}
+								}}><Button className="logInEntry" variant="link">Edit Review</Button></Link>
 							</Col>
 						</Row>
 
@@ -488,8 +501,8 @@ class Review extends Component {
 
 			// Loading Symbol
 			reviewContent = <Row>
-                  				<Image className="mx-auto loadingIcon loading" src={LoadingIcon}></Image>
-               				</Row>;
+				<Image className="mx-auto loadingIcon loading" src={LoadingIcon}></Image>
+			</Row>;
 		}
 
 		return (
