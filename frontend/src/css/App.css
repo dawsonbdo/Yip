@@ -157,3 +157,9 @@ body {
 .button-color:hover {
   background-color: #C4C4C4;
 }
+
+.dropdown-menu {
+  max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

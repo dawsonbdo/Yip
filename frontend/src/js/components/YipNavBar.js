@@ -31,7 +31,10 @@ class YipNavBar extends Component {
       loggedIn: false,
       user: "",
       followedKennelsArray: [],
-      redirect: null
+      createdKennelsArray: [],
+      redirect: null,
+      followedKennelsLoaded: false,
+      createdKennelsLoaded: false
     };
 
     this.logout = this.logout.bind(this);
@@ -80,9 +83,38 @@ class YipNavBar extends Component {
       for (var i = 0; i < response.data.length; i++) {
         this.state.followedKennelsArray.push(response.data[i].kennel_name);
       }
-      this.forceUpdate();
+      this.setState({ followedKennelsLoaded: true });
+
     }).catch(error => {
       //alert('Failed to get kennels');
+    });
+
+    axios({
+      method: 'get',
+      url: '/get_created_kennels/' + token,
+    }).then(response => {
+
+      // alert('Users created kennels successfully grabbed from database!');
+
+      console.log("CREATED KENNELS");
+
+      // Store created kennels in createdKennelArray
+      for (var i = 0; i < response.data.length; i++) {
+
+        // Print kennels to console for now
+        console.log(response.data[i]);
+
+        // Add kennel info to array for rendering kennel cards
+        this.state.createdKennelsArray.push(response.data[i].kennel_name);
+      }
+
+      this.setState({ createdKennelsLoaded: true });
+
+    }).catch(error => {
+
+      // Review not found in database
+      alert('User has no created kennels');
+
     });
 
   }
@@ -91,11 +123,18 @@ class YipNavBar extends Component {
     const followedKennels = this.state.followedKennelsArray.map(function (kennel) {
       return <Dropdown.Item href={`/kennel-${kennel}`}>{kennel}</Dropdown.Item>
     });
+    const createdKennels = this.state.createdKennelsArray.map(function (kennel) {
+      return <Dropdown.Item href={`/kennel-${kennel}`}>{kennel}</Dropdown.Item>
+    });
     let logBtn;
     if (isLoggedIn(this)) {
       logBtn = <div>
         <DropdownButton id="dropdown-item-button" title="Kennels" className="mr-2 float-left" variant="light">
+          <Dropdown.Header>Followed</Dropdown.Header>
           {followedKennels}
+          <Dropdown.Divider />
+          <Dropdown.Header>Created</Dropdown.Header>
+          {createdKennels}
         </DropdownButton>
         <DropdownButton id="dropdown-item-button" title="More" className="mr-2 float-left" variant="light">
           <Dropdown.Item href={`/user-${this.state.user}`}>View Profile</Dropdown.Item>

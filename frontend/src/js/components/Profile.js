@@ -334,7 +334,7 @@ class Profile extends Component {
             url: '/get_created_kennels/' + token,
         }).then(response => {
 
-            alert('Users created kennels successfully grabbed from database!');
+            // alert('Users created kennels successfully grabbed from database!');
 
             console.log("CREATED KENNELS");
             console.log(response.data);
