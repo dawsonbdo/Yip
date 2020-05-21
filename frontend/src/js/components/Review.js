@@ -396,7 +396,7 @@ class Review extends Component {
 	render() {
 
 		// Gets the comments in their comment cards
-		const comments = this.state.commentArray.map(function (comment) {
+		let comments = this.state.commentArray.map(function (comment) {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text} 
 			timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}/>
 		});
@@ -442,7 +442,7 @@ class Review extends Component {
 							<Col className="text-right reviewIcon">
 								<Image onClick={this.deleteReview} style={{cursor: 'pointer'}} className="likePadding float-right" src={trashIcon} />
 								<Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} />
-								<Image onClick={this.reportReview} className="likePadding float-right pl-5" style={{opacity: .7}} src={shareIcon} />
+								<Image onClick={this.reportReview} className="likePadding float-right pl-5" style={{opacity: .7}} src={reportIcon} />
 								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
 								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />

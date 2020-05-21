@@ -36,6 +36,7 @@ body {
   /* box-shadow: 0 0 0 1px black, 0 3px 3px grey; */
   border-top-right-radius: 30px;
   border-top-left-radius: 30px;
+  color: black;
   padding-bottom: 5px;
 }
 
@@ -67,6 +68,13 @@ body {
   border: white; 
   background-color: white;
   color: grey;
+}
+
+.smallPopup {
+  border-radius: 30px;
+  background-color: #F58725;
+  border: #F58725;
+  color: black;
 }
 
 .logInEntryContainer {
@@ -155,4 +163,10 @@ body {
 
 .button-color:hover {
   background-color: #C4C4C4;
+}
+
+.dropdown-menu {
+  max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }

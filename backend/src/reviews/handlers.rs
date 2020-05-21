@@ -8,7 +8,6 @@ use crate::schema::review_dislike_relationships;
 use crate::schema::bookmarks;
 
 // Used for deleting reviews
-use crate::schema::reports;
 use crate::schema::comments;
 use crate::schema::comment_like_relationships;
 use crate::schema::comment_dislike_relationships;

@@ -15,6 +15,7 @@ import CreateKennel from './components/CreateKennel';
 import SearchResults from './components/SearchResults';
 import Profile from './components/Profile';
 import Inbox from './components/Inbox';
+import Report from './components/Report';
 
 const temp = ['Ralof: Hey, you. You\'re finally awake. You were trying to cross the border, \
 							right? Walked right into that Imperial ambush, same as us, and that \
@@ -69,6 +70,7 @@ function App() {
 		  <Route path="/user-:username" exact component={Profile} />
 		  <Route path="/inbox" exact component={Inbox} />
 		  <Route path="/kennel-:kennelName" component={Kennel} />
+          <Route path="/report" exact component={Report} />
         </Switch>
       </div>
     </Router>

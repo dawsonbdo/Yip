@@ -6,6 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
+import Toast from 'react-bootstrap/Toast';
 
 import { Redirect } from 'react-router-dom';
 
@@ -22,7 +23,8 @@ class Register extends Component {
 
         this.state = {
             validated: false,
-            redirect: null
+            redirect: null,
+            showPopup: null,
         };
 
         this.attemptRegistration = this.attemptRegistration.bind(this);
@@ -56,13 +58,15 @@ class Register extends Component {
         var regex = /^[A-Za-z0-9_]+$/;
         var isValidUsername = regex.test(username);
         if (!isValidUsername) {
-            alert("Username can only contain letters, numbers, and underscores!");
+            this.setState({showPopup: "Username can only contain letters, numbers, and underscores!"});
+            // alert("Username can only contain letters, numbers, and underscores!");
             return;
         }
 
         // Check that passwords match
         if (password !== repassword) {
-            alert('Passwords do not match!');
+            this.setState({showPopup: 'Passwords do not match!'});
+            // alert('Passwords do not match!');
             return;
         }
 
@@ -84,7 +88,8 @@ class Register extends Component {
         }).catch(error => {
 
             // Username or email already exist
-            alert('Username or Email already registered!');
+            this.setState({showPopup: 'Username or Email already registered!'});
+            // alert('Username or Email already registered!');
 
             // This is how to check if username is taken and/or email is taken
             console.log("User Taken: " + error.response.data.includes("username"));
@@ -104,6 +109,13 @@ class Register extends Component {
 
                         <Col className="text-center">
                             <Link to="/"><img src={corgi}></img></Link>
+
+                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({showPopup: null})} show={this.state.showPopup} autohide>
+                                <Toast.Header className="smallPopup">
+                                    <strong className="mr-auto">{this.state.showPopup}</strong>
+                                </Toast.Header>
+				            </Toast>
+
                             <div className="logInForm">
                                 <h1 className="logInLabel"> Sign Up</h1>
                                 <Form noValidate validated={this.state.validated} id="form" onSubmit={this.attemptRegistration} className="logInEntryContainer">
