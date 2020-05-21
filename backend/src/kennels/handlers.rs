@@ -24,7 +24,12 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
         kennel_name: kennel.kennel_name,
         tags: if kennel.muted_words.iter().len() == 0 {None} else {Some(kennel.tags)},
         follower_count: get_follower_count(uuid, connection),
-        muted_words: if kennel.muted_words.iter().len() == 0 {None} else {Some(kennel.muted_words)},
+        muted_words: match kennel.muted_words{
+            Some(words) => Some(words),
+            None => {
+                println!("NONE");
+                None},
+        },
         rules: if kennel.rules.eq("") {None} else {Some(kennel.rules.clone())},
         mod_uuid: if mod_id.is_nil() {auth::get_uuid_from_token(&kennel.token)} else {mod_id},
     }
@@ -451,13 +456,14 @@ pub struct Kennel {
     pub kennel_uuid: String,
     pub tags: Vec<String>,
     pub kennel_name: String,
-    pub muted_words: Vec<String>,
+    pub muted_words: Option<Vec<String>>,
     pub rules: String,
     pub token: String,
 }
 
 // Struct represneting the fields of a kennel that is inserted into database
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[changeset_options(treat_none_as_null="true")]
 #[table_name = "kennels"]
 pub struct DbKennel {
     pub kennel_uuid: Uuid,
