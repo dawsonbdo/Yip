@@ -20,6 +20,7 @@ export function createReviewJson(id = "", title = "", text = "", author = "", ta
                 images: {},
                 rating: 0,
                 tags: tags,
+              };
     return form
 };
 
