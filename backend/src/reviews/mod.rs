@@ -633,6 +633,7 @@ fn edit_review(review: ReviewMultipart, review_uuid: String, connection: DbConn)
 	Ok(status::Accepted(None))
 
 	/*
+	
 	// Converts string to a uuid
 	let uuid = Uuid::parse_str(&review_uuid).unwrap();
 
@@ -654,7 +655,66 @@ fn edit_review(review: ReviewMultipart, review_uuid: String, connection: DbConn)
 		// Review not found in database
 		Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
 	}
+
+	// Create object from stringified version passed in
+	let review_value : Value = serde_json::from_str(&data.review).unwrap();
+	let review_obj = review_value.as_object().unwrap();
+
+	// Create vector of file paths
+	let mut paths = vec![];
+
+	// Iterate through files passed in, store on server in static/reviewpics/<filename>
+	for (i, img) in data.images.iter().enumerate() {
+
+		// Create file path using filename, create file with it, write the image
+		let file_path = format!("static/reviewpics/{}", &data.names[i]);
+		let mut buffer = File::create(file_path.clone()).unwrap();
+		
+		// Catch error
+		match buffer.write(&img){
+			Ok(w) => w,
+			Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+		};
+
+		// Add path to vector
+		paths.push(format!("reviewpics/{}", &data.names[i]));
+	}
+
+	// Create review object in correct format
+	let review = review_creation_helper(review_obj, paths);
+	
+	// Check that user is not banned from kennel
+	let user_uuid = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);
+	let kennel_id = match Uuid::parse_str(&review.kennel_uuid[1..37]) {
+		Ok(id) => id,
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+	};
+
+	match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
+		Ok(rel) => if rel == 1 {return Err(status::Conflict(Some("User is banned from kennel".to_string())));} else {()},
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+	}
+
+	// Check that no muted words in review text
+	let muted_words = match super::kennels::handlers::get(kennel_id, &connection){
+		Ok(k) => match k.muted_words {
+			Some(words) => words,
+			None => vec![],
+		},
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+	};
+
+	for word in muted_words {
+		if review.text.contains(&word) || review.title.contains(&word) {
+			return Err(status::Conflict(Some("Review using muted word".to_string())));
+		}
+	}
+
+
+
 	*/
+	
+	
 }
 
 /** 

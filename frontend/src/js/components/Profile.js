@@ -27,14 +27,17 @@ class Profile extends Component {
         this.state = {
             username: "",
             showReviews: true,
-            showRules: false,
+            showKennels: false,
             showBookmarks: false,
+            showCreatedKennels: false,
             reviewArray: [],
             kennelArray: [],
+            createdKennelArray: [],
             bookmarkArray: [],
             profileReviewsListed: false,
             profileKennelsListed: false,
             profileBookmarksListed: false,
+            profileCreatedKennelsListed: false,
             isOwner: false,
             followBtnText: "Follow",
             isFollowing: false
@@ -141,13 +144,20 @@ class Profile extends Component {
     handleSelect(eventKey) {
 
         if (eventKey == "reviews") {
-            this.setState({ showReviews: true, showKennels: false, showBookmarks: false });
+            this.setState({ showReviews: true, showKennels: false, 
+                showBookmarks: false, showCreatedKennels: false });
         }
         if (eventKey == "kennels") {
-            this.setState({ showReviews: false, showKennels: true, showBookmarks: false });
+            this.setState({ showReviews: false, showKennels: true, 
+                showBookmarks: false, showCreatedKennels: false });
         }
         if (eventKey == "bookmarks") {
-            this.setState({ showReviews: false, showKennels: false, showBookmarks: true });
+            this.setState({ showReviews: false, showKennels: false, 
+                showBookmarks: true, showCreatedKennels: false });
+        }
+        if (eventKey == "createdkennels") {
+            this.setState({ showReviews: false, showKennels: false, 
+                showBookmarks: false, showCreatedKennels: true });
         }
     }
 
@@ -156,7 +166,7 @@ class Profile extends Component {
     componentDidMount() {
 
         updateLoggedInState(this);
-        
+
         // Load user profile (get from URL)
         var username = this.props.match.params.username;
 
@@ -319,6 +329,48 @@ class Profile extends Component {
 
         });
 
+        axios({
+            method: 'get',
+            url: '/get_created_kennels/' + token,
+        }).then(response => {
+
+            alert('Users created kennels successfully grabbed from database!');
+
+            console.log("CREATED KENNELS");
+            console.log(response.data);
+
+            // Store created kennels in createdKennelArray
+            for (var i = 0; i < response.data.length; i++) {
+
+                // Print kennels to console for now
+                console.log(response.data[i]);
+
+                var tagsStr = "";
+                if (response.data[i].tags.length > 0) {
+                    tagsStr = tagsStr + response.data[i].tags[0];
+                }
+                for (var j = 1; j < response.data[i].tags.length; j++) {
+                    tagsStr = tagsStr + ", " + response.data[i].tags[j];
+                }
+
+                // Add kennel info to array for rendering kennel cards
+                this.state.createdKennelArray.push({
+                    kennelName: response.data[i].kennel_name,
+                    kennelRules: response.data[i].rules,
+                    kennelTags: tagsStr,
+                    followerCount: response.data[i].follower_count
+                });
+            }
+
+            this.setState({ profileCreatedKennelsListed: true });
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('User has no created kennels');
+
+        });
+
     }
 
 
@@ -330,6 +382,9 @@ class Profile extends Component {
                 kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
         });
         const kennels = this.state.kennelArray.map(function (kennel) {
+            return <KennelCard kennelName={kennel.kennelName} kennelRules={kennel.kennelRules} kennelTags={kennel.kennelTags} followerCount={kennel.followerCount} />
+        });
+        const createdKennels = this.state.createdKennelArray.map(function (kennel) {
             return <KennelCard kennelName={kennel.kennelName} kennelRules={kennel.kennelRules} kennelTags={kennel.kennelTags} followerCount={kennel.followerCount} />
         });
         const bookmarks = this.state.bookmarkArray.map(function (review) {
@@ -347,6 +402,9 @@ class Profile extends Component {
         }
         if (this.state.showBookmarks) {
             profileContent = bookmarks;
+        }
+        if (this.state.showCreatedKennels) {
+            profileContent = createdKennels;
         }
 
         // Hides buttons on own profile
@@ -374,7 +432,10 @@ class Profile extends Component {
                                     <Nav.Link eventKey="reviews">Reviews</Nav.Link>
                                 </Nav.Item>
                                 <Nav.Item as="li">
-                                    <Nav.Link eventKey="kennels">Kennels</Nav.Link>
+                                    <Nav.Link eventKey="kennels">Followed Kennels</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item as="li">
+                                    <Nav.Link eventKey="createdkennels">Created Kennels</Nav.Link>
                                 </Nav.Item>
                                 <Nav.Item as="li">
                                     <Nav.Link eventKey="bookmarks">Bookmarks</Nav.Link>

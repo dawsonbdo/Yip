@@ -145,6 +145,18 @@ pub fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgCo
 }
 
 /**
+ * Method that gets returns all kennels that user has created
+ * @param id: uuid of user
+ * @param connection: database connection
+ *
+ * @return returns vector of all DbKennels
+ */
+pub fn all_created_kennels(id: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbKennel>> {
+
+    kennels::table.filter(kennels::mod_uuid.eq(id)).load::<DbKennel>(&*connection)
+}
+
+/**
  * Method that gets returns all kennels that user is following
  * @param id: uuid of user
  * @param connection: database connection

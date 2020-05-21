@@ -13,6 +13,7 @@ import homeIcon from '../../assets/home.png';
 import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png';
 import commentIcon from '../../assets/comment.png';
+import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
@@ -26,7 +27,8 @@ class ReviewCard extends Component {
         this.state = {
             rating: 0,
             isLiked: false,
-            isDisliked: false
+            isDisliked: false,
+            loginPrompt: false,
         }
 
         // Binds button handler
@@ -62,6 +64,9 @@ class ReviewCard extends Component {
 				this.setState({ isDisliked: true, rating: this.state.rating - 1 });
 			}
 
+        } else {
+            this.setState({loginPrompt: true});
+            return;
         }
 
         // TODO: Get uuid of review from url probably
@@ -110,6 +115,9 @@ class ReviewCard extends Component {
 			else {
 				this.setState({ isLiked: true, rating: this.state.rating + 1 });
 			}
+        } else {
+            this.setState({loginPrompt: true});
+            return;
         }
 
         // TODO: Get uuid of review from url probably
@@ -137,7 +145,7 @@ class ReviewCard extends Component {
             alert('Review like failed');
 
         });
-    }
+    } 
 
     render() {
         let likeIconOpacity;
@@ -158,8 +166,15 @@ class ReviewCard extends Component {
             <Container className="pb-5">
                 <Row>
                     <Col></Col>
-
                     <Col xs={10} className="text-center">
+
+                        <Toast className="mx-auto logInEntry" onClose={() => this.setState({loginPrompt: false})} show={this.state.loginPrompt}>
+					        <Toast.Header className="logInLabel">
+						        <strong className="mr-auto">You must sign in to like/dislike reviews</strong>
+					        </Toast.Header>
+					        <Toast.Body>Click <a href="/login">here</a> to sign in</Toast.Body>
+				        </Toast>
+
                         <div className="logInForm">
                                 <div className="logInLabel">
                                     <Container>
@@ -182,6 +197,7 @@ class ReviewCard extends Component {
                                     <Container>
                                         <Row>
                                             <Col>
+                                                
                                                 <Image onClick={this.likeReview} style={likeIconOpacity} className="float-left likePadding" width="45" src={likeIcon} />
                                                 <h4 className="float-left likePadding">{this.state.rating}</h4>
                                                 <Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} />
