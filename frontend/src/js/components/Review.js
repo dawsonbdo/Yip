@@ -38,6 +38,7 @@ class Review extends Component {
 			reviewAuthor: "",
 			reviewText: "",
 			reviewImgs: [],
+			reviewTags: [],
 			rating: 0,
 			isLiked: false,
 			isDisliked: false,
@@ -84,6 +85,16 @@ class Review extends Component {
 					rating: response.data.rating,
 					kennel: response.data.kennel_name
 				});
+
+				var tagsStr = "";
+				if(response.data.tags.length > 0) {
+					tagsStr = tagsStr + response.data.tags[0];
+				}
+
+				for(var i = 1; i < response.data.tags.length; i++) {
+					tagsStr = tagsStr + ", " + response.data.tags[i];
+				}
+				this.setState({ reviewTags: tagsStr });
 
 				if(response.data.is_liked) {
 					this.setState({isLiked: true});
@@ -445,6 +456,7 @@ class Review extends Component {
 					<Row className="reviewContent">
 						<Col xs={7} className="text-left">
 							<p id="text" dangerouslySetInnerHTML={{ __html: this.state.reviewText }}></p>
+							<p>Tags: {this.state.reviewTags}</p>
 						</Col>
 
 						<Col xs={5} className="reviewPicture text-center align">
