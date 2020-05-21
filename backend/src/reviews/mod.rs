@@ -596,10 +596,24 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
 			//println!("Mod Uuid: {}", mod_uuid);
 			//println!("Token Uuid: {}", uuid);
 
+			let images = r.images;
+
 			// If token matches author of review, or moderator of kennel, attempt to delete
 			if profile_username.eq(&r.author) || profile_uuid.eq(&mod_uuid) { 
 				match handlers::delete(uuid, &connection){
-					Ok(_u) => Ok(status::Accepted(None)),
+					Ok(_u) => {
+						// TODO: Delete files from server of old review
+						for img in images{
+							let p = format!("static/{}", img);
+							println!("DELETE: {}", p);
+							match std::fs::remove_file(p){
+								Ok(_u) => (),
+								Err(e) => println!("ERROR: {}", e.to_string()),
+							};
+						}
+
+						Ok(status::Accepted(None))
+					},
 					Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
 				}
 			} else {
@@ -712,8 +726,8 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, connection: DbConn) -
  *
  * @return returns review uuid if successfuly created, otherwise conflict status
  */
-#[post("/create_review", data="<data>")]
-fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, status::Conflict<String>> { 
+#[post("/create_review/<token>", data="<data>")]
+fn create_review(data: ReviewMultipart, token: String, connection: DbConn) -> Result<String, status::Conflict<String>> { 
 
 	// Create object from stringified version passed in
 	let review_value : Value = serde_json::from_str(&data.review).unwrap();
@@ -722,11 +736,14 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, st
 	// Create vector of file paths
 	let mut paths = vec![];
 
+	// Get user uuid for inserting pictures
+	let user_uuid = auth::get_uuid_from_token(&token);
+
 	// Iterate through files passed in, store on server in static/reviewpics/<filename>
 	for (i, img) in data.images.iter().enumerate() {
 
 		// Create file path using filename, create file with it, write the image
-		let file_path = format!("static/reviewpics/{}", &data.names[i]);
+		let file_path = format!("static/reviewpics/{}{}", user_uuid, &data.names[i]);
 		let mut buffer = File::create(file_path.clone()).unwrap();
 		
 		// Catch error
@@ -736,18 +753,22 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, st
 		};
 
 		// Add path to vector
-		paths.push(format!("reviewpics/{}", &data.names[i]));
+		paths.push(format!("reviewpics/{}{}", user_uuid, &data.names[i]));
 	}
 
 	// Create review object in correct format
 	let review = review_creation_helper(review_obj, paths, data.tags);
-	
+
 	// Check that user is not banned from kennel
-	let user_uuid = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);
 	let kennel_id = match Uuid::parse_str(&review.kennel_uuid[1..37]) {
 		Ok(id) => id,
-		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))), //TODO delete pictures
 	};
+
+	match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
+		Ok(rel) => if rel == 1 {return Err(status::Conflict(Some("User is banned from kennel".to_string())));} else {()},
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))), //TODO delete pictures
+	}
 
 	// Get the muted words
 	let muted_words = match super::kennels::handlers::get(kennel_id, &connection){
@@ -755,25 +776,21 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, st
 			Some(words) => words,
 			None => vec![],
 		},
-		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))), //TODO delete pictures
 	};
 
 	// Check that no muted words in review text
 	for word in muted_words {
 		if review.text.contains(&word) || review.title.contains(&word) {
-			return Err(status::Conflict(Some("Review using muted word".to_string())));
+			return Err(status::Conflict(Some("Review using muted word".to_string()))); // TODO delete pictures
 		}
 	}
 
-	match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
-		Ok(rel) => if rel == 1 {return Err(status::Conflict(Some("User is banned from kennel".to_string())));} else {()},
-		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
-	}
-
+	
 	// Attempt to insert review into database
 	match handlers::insert(review, &connection){
 		Ok(r) => Ok(r.review_uuid.hyphenated().to_string()),
-		Err(e) => Err(status::Conflict(Some(e.to_string()))),
+		Err(e) => Err(status::Conflict(Some(e.to_string()))), //TODO delete pictures
 	}
 
 }

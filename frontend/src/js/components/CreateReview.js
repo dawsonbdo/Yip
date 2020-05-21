@@ -116,7 +116,7 @@ class CreateReview extends Component {
     // Send POST request with review multipart
     axios({
       method: 'post',
-      url: '/create_review',
+      url: '/create_review/' + user,
       data: fd
     }).then(response => {
 
