@@ -26,11 +26,14 @@ class CreateReview extends Component {
     this.state = {
       pictures: [],
       kennelId: null,
+      tags: [],
+      checkedTags: [],
       redirect: null,
       validated: false
     };
     this.onDrop = this.onDrop.bind(this);
     this.postReview = this.postReview.bind(this);
+    this.handleCheck = this.handleCheck.bind(this);
   }
 
   componentDidMount() {
@@ -45,7 +48,7 @@ class CreateReview extends Component {
     }).then(response => {
       // Gets kennel id
       console.log(response.data);
-      this.setState({ kennelId: response.data.kennel_uuid });
+      this.setState({ kennelId: response.data.kennel_uuid, tags: response.data.tags });
     }).catch(error => {
       alert('Kennel does not exist in database');
     });
@@ -55,6 +58,10 @@ class CreateReview extends Component {
     this.setState({
       pictures: this.state.pictures.concat(picture)
     });
+  }
+
+  handleCheck(index, event) {
+    this.state.checkedTags[index] = event.target.checked;
   }
 
   postReview() {
@@ -92,7 +99,13 @@ class CreateReview extends Component {
       fd.append('name', this.state.pictures[idx].name);
     }
 
-   // fd.append()
+    for(var i = 0; i < this.state.checkedTags.length; i++) {
+      if(this.state.checkedTags[i]) {
+        fd.append('tag', this.state.tags[i]);
+      }
+    }
+
+    // fd.append()
 
     // TODO: add tags like this (IF NO TAGS, DONT APPEND ANYTHING TO FD)
     // fd.append('tag', tags[i])
@@ -121,9 +134,22 @@ class CreateReview extends Component {
   }
 
   render() {
+
+    let tagCheckboxes = this.state.tags.map((tag, index) => (
+      <div key={`default-checkbox`} className="mb-3">
+        <Form.Check
+          type="checkbox"
+          id={tag}
+          label={`${tag}`}
+          onChange={this.handleCheck.bind(this, index)}
+        />
+      </div>
+    ))
+
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />
     }
+
     else {
       return (
         <Container>
@@ -133,17 +159,21 @@ class CreateReview extends Component {
               <div className="logInForm">
                 <h1 className="logInLabel">Create Review</h1>
                 <Form noValidate validated={this.state.validated} className="logInEntryContainer" onSubmit={this.postReview}>
-                <div className="logInEntryContainer">
+                  <div className="logInEntryContainer">
                     <Form.Control id="kennel" className="logInEntry" size="lg" type="text" readOnly defaultValue={this.props.location.state.kennel_name} />
                   </div>
                   <div className="logInEntryContainer">
-                    <Form.Control id="title" className="logInEntry" size="lg" type="text" placeholder="Title" required/>
+                    <Form.Control id="title" className="logInEntry" size="lg" type="text" placeholder="Title" required />
                     <Form.Control.Feedback type="invalid">Review title required.</Form.Control.Feedback>
                   </div>
                   <div className="logInEntryContainer">
-                    <Form.Control id="text" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" required/>
+                    <Form.Control id="text" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" required />
                     <Form.Control.Feedback type="invalid">Review description required.</Form.Control.Feedback>
                   </div>
+                  <div><Form>
+                    <h3>Select Tags</h3>
+                    {tagCheckboxes}
+                  </Form></div>
                   <div className="logInEntryContainer">
                     <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                   </div>

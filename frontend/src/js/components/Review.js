@@ -38,6 +38,7 @@ class Review extends Component {
 			reviewAuthor: "",
 			reviewText: "",
 			reviewImgs: [],
+			reviewTags: [],
 			rating: 0,
 			isLiked: false,
 			isDisliked: false,
@@ -82,8 +83,10 @@ class Review extends Component {
 					reviewAuthor: response.data.author,
 					reviewText: response.data.text,
 					rating: response.data.rating,
-					kennel: response.data.kennel_name
+					kennel: response.data.kennel_name,
+					reviewTags: response.data.tags
 				});
+				alert(response.data.tags)
 
 				if(response.data.is_liked) {
 					this.setState({isLiked: true});
@@ -431,6 +434,7 @@ class Review extends Component {
 					<Row className="reviewContent">
 						<Col xs={7} className="text-left">
 							<p id="text" dangerouslySetInnerHTML={{ __html: this.state.reviewText }}></p>
+							{this.state.reviewTags}
 						</Col>
 
 						<Col xs={5} className="reviewPicture text-center align">
