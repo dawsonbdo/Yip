@@ -259,6 +259,36 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
 
 }
 
+/**
+ * Method that returns a single comment given it ID
+ */
+#[get("/get_comment/<comment_uuid>/<token>", rank=1)]
+fn get_comment(comment_uuid: String, token: String, connection: DbConn) -> Result<Json<DisplayComment>, status::NotFound<String>> {
+
+	// Get name from token
+	let profile_name = auth::get_user_from_token(&token);
+	let uuid = auth::get_uuid_from_token(&token);
+
+	// Attempt to parse comment uuid
+	let comment_uuid = match Uuid::parse_str(&comment_uuid){
+		Ok(c) => c,
+		Err(e) => return Err(status::NotFound(e.to_string())), 
+	};
+
+	// Attempts to get the comment
+	match handlers::get(comment_uuid, &connection){
+		Ok(c) => {
+			// Update is_author field
+			let mut vec : Vec<DisplayComment> = vec![];
+			vec.push(c);
+
+			Ok(Json(updateDisplayCommentFields(&profile_name, uuid, vec.clone(), &connection).pop().unwrap()))
+		},
+		Err(e) => Err(status::NotFound(e.to_string())),
+	}
+
+}
+
 /** 
  * Method that creates a comment
  * @param comment: JSON of the comment
@@ -266,7 +296,7 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
  * @return returns TBD
  */
 #[post("/create_comment/<name>", data="<comment>", rank=1)]
-fn create_comment(comment: Json<InputComment>, name: String, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+fn create_comment(comment: Json<InputComment>, name: String, connection: DbConn) -> Result<Json<DisplayComment>, status::Conflict<String>> {
 	//println!("Timestamp: {}", &comment.timestamp);
 
 	// Check for valid token
@@ -310,7 +340,7 @@ fn create_comment(comment: Json<InputComment>, name: String, connection: DbConn)
 	
 	// Check if successful insertion into database
 	match successful_creation {
-		Ok(_id) => Ok(status::Accepted(None)),
+		Ok(c) => Ok(Json(c)),
 		Err(e) => Err(status::Conflict(Some(e.to_string()))),
 	}
 	
@@ -320,5 +350,5 @@ fn create_comment(comment: Json<InputComment>, name: String, connection: DbConn)
  * Mount the comment routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_comment, remove_comment, get_comments, like_comment, dislike_comment])  
+    rocket.mount("/", routes![create_comment, remove_comment, get_comment, get_comments, like_comment, dislike_comment])  
 }
