@@ -10,7 +10,7 @@ use crate::auth;
 use crate::db;
 use crate::search;
 
-use handlers::{Review, DisplayReview, DbReview};
+use handlers::{Review, DisplayReview};
 use rocket_contrib::json::Json;
 
 use db::DbConn;
@@ -45,7 +45,7 @@ struct ReviewToken {
  *
  * @return returns vector of DisplayReviews with updated fields
  */
-fn updateDisplayReviewFields(profile_username: &str, uuid: Uuid, reviews: Vec<DisplayReview>, connection: &DbConn) -> Vec<DisplayReview> {
+fn update_display_review_fields(profile_username: &str, uuid: Uuid, reviews: Vec<DisplayReview>, connection: &DbConn) -> Vec<DisplayReview> {
 
 	// Gets all user's like relationships
 	let likes = handlers::get_user_likes(uuid, connection).unwrap();
@@ -208,7 +208,7 @@ fn like_dislike_helper(input: Json<ReviewToken>, like: bool, connection: DbConn)
     	Ok(uuid) => if like {result = handlers::like(uuid, profile_uuid, &connection);}
     			 else {result = handlers::dislike(uuid, profile_uuid, &connection);},
     	// Not a valid comment uuid string
-    	Err(e) => return Err(status::BadRequest(Some("Review not foudn".to_string()))),
+    	Err(_e) => return Err(status::BadRequest(Some("Review not foudn".to_string()))), //TODO: uninformative error message
     }
     
     
@@ -388,15 +388,15 @@ fn get_kennel_reviews(kennel_name: String, token: String, connection: DbConn) ->
 			}  
 
 			// Create a vector with all of the reviews to as ordered
-			let mut reviewsOrdered : Vec<DisplayReview> = vec![];
+			let mut reviews_ordered : Vec<DisplayReview> = vec![];
 
 			// Order by newness for now 
 			for (review, _) in pq.into_sorted_iter() {
 
-				reviewsOrdered.push(review);
+				reviews_ordered.push(review);
 			}
 
-			Ok(Json(updateDisplayReviewFields(&profile_username, uuid, reviewsOrdered, &connection)))
+			Ok(Json(update_display_review_fields(&profile_username, uuid, reviews_ordered, &connection)))
 		},
 		Err(e) => Err(status::NotFound(e.to_string())),
 	}
@@ -458,15 +458,15 @@ fn get_user_bookmarked_reviews(username: String, token: String, connection: DbCo
 	let profile_username = auth::get_user_from_token(&token);
 
 	// Create a vector with all of the reviews to as ordered
-	let mut reviewsOrdered : Vec<DisplayReview> = vec![];
+	let mut reviews_ordered : Vec<DisplayReview> = vec![];
 
 	// Order by newness for now 
 	for (review, _) in pq.into_sorted_iter() {
 
-		reviewsOrdered.push(review);
+		reviews_ordered.push(review);
 	}
 
-	Ok(Json(updateDisplayReviewFields(&profile_username, token_uuid, reviewsOrdered, &connection)))
+	Ok(Json(update_display_review_fields(&profile_username, token_uuid, reviews_ordered, &connection)))
 }
 
 
@@ -516,16 +516,16 @@ fn get_user_reviews(username: String, token: String, connection: DbConn) -> Resu
 	}  
 
 	// Create a vector with all of the reviews to as ordered
-	let mut reviewsOrdered : Vec<DisplayReview> = vec![];
+	let mut reviews_ordered : Vec<DisplayReview> = vec![];
 
 	// Order by newness for now 
 	for (review, _) in pq.into_sorted_iter() {
 
-		reviewsOrdered.push(review);
+		reviews_ordered.push(review);
 	}
 
 	// Updates display review fields using token passed in
-	Ok(Json(updateDisplayReviewFields(&profile_username, token_uuid, reviewsOrdered, &connection)))
+	Ok(Json(update_display_review_fields(&profile_username, token_uuid, reviews_ordered, &connection)))
 }
 
 /** 
@@ -765,10 +765,10 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 
 		// Pattern match to make sure successful, convert to DisplayReviews if so
 	    match handlers::all(&connection) {
-	        Ok(r) => reviews = (r.iter()
+	        Ok(r) => reviews = r.iter()
 	                     .map(|review| handlers::to_review(review))
-	                     .collect()),
-	        Err(e) => (),
+	                     .collect(),
+	        Err(_e) => (), //TODO uninformative error
 	    };
 
 	    // Sort reviews by hotness using pq 
@@ -784,10 +784,10 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 		// TODO: Generate generic most recent popular reviews 
 
 		match handlers::all(&connection) {
-	        Ok(r) => reviews = (r.iter()
+	        Ok(r) => reviews = r.iter()
 	                     .map(|review| handlers::to_review(review))
-	                     .collect()),
-	        Err(e) => (),
+	                     .collect(),
+	        Err(_e) => (), //TODO unhandled error
 	    };
 
 	    // Sort reviews by newness using pq 
@@ -800,16 +800,16 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	}
 
 	// Create a vector with all of the reviews to as ordered
-	let mut reviewsOrdered : Vec<DisplayReview> = vec![];
+	let mut reviews_ordered : Vec<DisplayReview> = vec![];
 
 	// Order by newness for now 
 	for (review, _) in pq.into_sorted_iter() {
 
-		reviewsOrdered.push(review);
+		reviews_ordered.push(review);
 	}
 
 	// Return a Result depending on if reviews were found
-	if reviewsOrdered.iter().len() == 0 {
+	if reviews_ordered.iter().len() == 0 {
 		Err(status::NotFound("No Reviews".to_string()))
 	} else {
 
@@ -823,7 +823,7 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 		};
 		
 		// Set is_author, is_liked, is_disliked fields
-		Ok(Json(updateDisplayReviewFields(&profile_username, uuid, reviewsOrdered, &connection)))
+		Ok(Json(update_display_review_fields(&profile_username, uuid, reviews_ordered, &connection)))
 	}
 }
 
