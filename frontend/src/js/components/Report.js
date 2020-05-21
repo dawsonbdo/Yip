@@ -58,15 +58,23 @@ class Profile extends Component {
 
         // Get fields to create Report to pass as data
         var kennel_name = this.state.reviewFrom.kennel_name;
-        var is_comment = false;
-        var comment_id = "";
-        var review_id = this.state.reviewFrom.review_id;
-        var reason = "test"; //TODO
+        var is_comment = this.state.reviewFrom.is_comment;
+        var comment_id = this.state.reviewFrom.comment_id;
+        if(is_comment) {
+            var review_id = "";
+        }
+        else {
+            var review_id = this.state.reviewFrom.review_id;
+        }
+        var reason = document.getElementById('reason').value;
         var escalated = false; //TODO
         var token = localStorage.getItem('jwtToken');
 
         console.log(kennel_name);
         console.log(review_id);
+        console.log(reason);
+        console.log(comment_id);
+        console.log(is_comment);
         // Create form for request 
         var form = reportJson(kennel_name, is_comment, comment_id, review_id, reason, escalated, token);
 
@@ -79,12 +87,15 @@ class Profile extends Component {
 
             alert('Review successfully reported!');
 
-            this.setState({ redirect: "/" });
+            let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
+            this.setState({ redirect: redirectUrl });
 
         }).catch(error => {
 
             // Failed to dislike review
             alert('Review report failed');
+            let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
+            this.setState({ redirect: redirectUrl });
 
         });
     }
@@ -104,7 +115,7 @@ class Profile extends Component {
                                 <h1 className="logInLabel">Report Reason</h1>
                                 <Form noValidate validated={this.state.validated} onSubmit={this.reportReview} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
-                                        <Form.Control className="logInEntry" as="textarea" placeholder="Write your reason here." required />
+                                        <Form.Control id="reason" className="logInEntry" as="textarea" placeholder="Write your reason here." required />
                                         <Form.Control.Feedback type="invalid">Reason needed.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">

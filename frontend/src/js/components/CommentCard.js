@@ -8,6 +8,7 @@ import Container from 'react-bootstrap/Container';
 import Image from 'react-bootstrap/Image';
 import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png';
+import reportIcon from '../../assets/report.png';
 
 import { likeDislikeCommentJson, updateLoggedInState, isLoggedIn } from './BackendHelpers.js';
 
@@ -161,6 +162,17 @@ class CommentCard extends Component {
                                     <Row>
                                         <Col>
                                             <h4 className="text-left pt-2 pl-2"><a class="profileLink" href={`/user-${this.props.commenterName}`}>{this.props.commenterName}</a></h4>
+                                        </Col>
+                                        <Col>
+                                            <Link to={{
+                                                pathname: '/report',
+                                                state: {
+                                                    is_comment: true,
+                                                    comment_id: this.props.commentId,
+                                                    kennel_name: this.props.kennel,
+                                                    review_id: this.props.review
+                                                }
+                                            }}><Image className="likePadding float-right" src={reportIcon} /></Link>
                                         </Col>
                                     </Row>
                                 </Container>

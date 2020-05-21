@@ -51,7 +51,6 @@ class Review extends Component {
 		this.dislikeReview = this.dislikeReview.bind(this);
 		this.deleteReview = this.deleteReview.bind(this);
 		this.bookmarkReview = this.bookmarkReview.bind(this);
-		// this.reportReview = this.reportReview.bind(this);
 	}
 
 	componentDidMount() {
@@ -363,9 +362,12 @@ class Review extends Component {
 	render() {
 
 		// Gets the comments in their comment cards
+		let nameOfKennel = this.state.kennel;
+		let idOfReview = this.props.match.params.id;
 		let comments = this.state.commentArray.map(function (comment) {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text} 
-			timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}/>
+			timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}
+			kennel={nameOfKennel} review={idOfReview}/>
 		});
 
 		let likeIconOpacity;
@@ -412,6 +414,8 @@ class Review extends Component {
 								<Link to={{
 									pathname: '/report',
 									state: {
+                                        is_comment: false,
+                                        comment_id: "",
 										kennel_name: this.state.kennel,
 										review_id: this.props.match.params.id
 									}
