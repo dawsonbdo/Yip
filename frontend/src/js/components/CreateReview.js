@@ -92,6 +92,14 @@ class CreateReview extends Component {
       fd.append('name', this.state.pictures[idx].name);
     }
 
+   // fd.append()
+
+    // TODO: add tags like this (IF NO TAGS, DONT APPEND ANYTHING TO FD)
+    // fd.append('tag', tags[i])
+    //
+    //
+    // ^^^^^^^^^^^^^^^^^^^^^^^
+
     // Send POST request with review multipart
     axios({
       method: 'post',

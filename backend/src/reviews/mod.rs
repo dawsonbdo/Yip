@@ -166,7 +166,7 @@ fn list_reviews_helper(connection: &DbConn) -> Json<Vec<String>> {
  *
  * @return returns a Review object
  */
-fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -> Review {
+fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>, tags: Vec<String> ) -> Review {
 
 	// TODO: Figure out tags once implemented in frontend
 	Review {
@@ -176,7 +176,7 @@ fn review_creation_helper(review_obj: &Map<String, Value>, paths: Vec<String>) -
 		text: review_obj.get("text").unwrap().to_string(),
 		images: if paths.iter().len() == 0 {None} else {Some(paths)},
 		rating: review_obj.get("rating").unwrap().as_i64().unwrap() as i32,
-		tags: None,
+		tags: if tags.len() > 0 {Some(tags.clone())} else {None},
 	}
 }
 
@@ -752,7 +752,7 @@ fn create_review(data: ReviewMultipart, connection: DbConn) -> Result<String, st
 	}
 
 	// Create review object in correct format
-	let review = review_creation_helper(review_obj, paths);
+	let review = review_creation_helper(review_obj, paths, data.tags);
 	
 	// Check that user is not banned from kennel
 	let user_uuid = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);

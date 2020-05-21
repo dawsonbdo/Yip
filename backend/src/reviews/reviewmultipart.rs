@@ -10,6 +10,7 @@ pub struct ReviewMultipart {
     pub review: String,
     pub images: Vec<Vec<u8>>,
     pub names: Vec<String>,
+    pub tags: Vec<String>,
 }
 
 impl<'a> FromData<'a> for ReviewMultipart {
@@ -41,6 +42,7 @@ impl<'a> FromData<'a> for ReviewMultipart {
         let mut review = None;
         let mut images = vec![];
         let mut names = vec![];
+        let mut tags = vec![];
 
         mp.foreach_entry(|mut entry| match &*entry.headers.name {
             "review" => {
@@ -58,6 +60,11 @@ impl<'a> FromData<'a> for ReviewMultipart {
                 entry.data.read_to_string(&mut n).expect("not text");
                 names.push(Some(n).expect("name not set"));
             }
+            "tag" => {
+                let mut p = String::new();
+                entry.data.read_to_string(&mut p).expect("not text");
+                tags.push(Some(p).expect("name not set"));
+            }
             other => panic!("No known key {}", other),
         })
         .expect("Unable to iterate");
@@ -66,6 +73,7 @@ impl<'a> FromData<'a> for ReviewMultipart {
             review: review.expect("rip"),
             images: images,
             names: names,
+            tags: tags,
         };
 
         // End custom
