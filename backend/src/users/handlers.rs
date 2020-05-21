@@ -97,6 +97,30 @@ pub fn get_block_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConne
 }
 
 /**
+ * Method that returns a vector with all of the users a user is following
+ * @param id: Uuid of user
+ * @param connection: database connection
+ *
+ * @return returns a vector of DbUsers
+ */
+pub fn all_user_followees(id: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbFollowUser>> {
+    reviewer_follow_relationships::table
+        .filter(reviewer_follow_relationships::follower.eq(id))
+        .load::<DbFollowUser>(&*connection)
+}
+
+/*
+// Struct representing the fields of block relationship row that is returned by DB
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[table_name = "reviewer_follow_relationships"]
+pub struct DbFollowUser {
+    pub pkey: i64,
+    pub follower: Uuid,
+    pub followee: Uuid,
+}
+*/
+
+/**
  * Method that returns a vector with all of the users in database
  * @param connection: database connection
  *

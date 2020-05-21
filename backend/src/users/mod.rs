@@ -3,7 +3,7 @@ pub mod handlers;
 use crate::auth;
 use crate::db;
 
-use handlers::{User, DbUser, DisplayUser};
+use handlers::{User, DbUser, DisplayUser, DbFollowUser};
 use rocket_contrib::json::Json;
 use rocket::response::status;
 
@@ -153,6 +153,31 @@ fn block_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Acce
 		Ok(_b) => Ok(status::Accepted(None)),
 		Err(e) => Err(status::Conflict(Some(e.to_string()))),
 	}
+}
+
+/** 
+ * Method that returns all the users a username follows
+ * @param username: name of user
+ * @param connection: database connection
+ *
+ * @return returns vector of the users
+ */
+#[get("/get_followed_users/<username>")]
+fn get_followed_users(username: String, connection: DbConn) -> Result<Json<Vec<DbFollowUser>>, status::NotFound<String>> {
+
+	// Get uuid from user
+	let uuid = handlers::get_uuid_from_username(&username, &connection);
+
+	// If not nil, return all of the followed users
+	if !uuid.is_nil(){
+		match handlers::all_user_followees(uuid, &connection) {
+			Ok(k) => Ok(Json(k)),
+			Err(_e) => Err(status::NotFound("No followed users".to_string()))
+		}
+	} else {
+		Err(status::NotFound("User not found".to_string()))
+	}
+	
 }
 
 /** 
@@ -342,5 +367,5 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
  * Mount the user routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![login, register, recover_password, list_users, auth, get_user, block_user, follow_user, unfollow_user, get_username])  
+    rocket.mount("/", routes![login, register, recover_password, list_users, auth, get_user, get_followed_users, block_user, follow_user, unfollow_user, get_username])  
 }
