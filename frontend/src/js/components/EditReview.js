@@ -124,7 +124,7 @@ class EditReview extends Component {
     // Send POST request with review multipart
     axios({
       method: 'post',
-      url: '/edit_review/' + this.props.location.state.id,
+      url: '/edit_review/' + this.props.location.state.id + '/' + user,
       data: fd
     }).then(response => {
 
