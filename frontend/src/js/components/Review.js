@@ -38,7 +38,8 @@ class Review extends Component {
 			reviewAuthor: "",
 			reviewText: "",
 			reviewImgs: [],
-			reviewTags: [],
+			reviewTags: "",
+			reviewTagsArray: [],
 			rating: 0,
 			isLiked: false,
 			isDisliked: false,
@@ -83,7 +84,8 @@ class Review extends Component {
 					reviewAuthor: response.data.author,
 					reviewText: response.data.text,
 					rating: response.data.rating,
-					kennel: response.data.kennel_name
+					kennel: response.data.kennel_name,
+					reviewTagsArray: response.data.tags
 				});
 
 				var tagsStr = "";
@@ -455,7 +457,7 @@ class Review extends Component {
 										kennel_name: this.state.kennel,
 										title: this.state.reviewTitle,
 										text: this.state.reviewText,
-										tags: this.state.reviewTags,
+										tags: this.state.reviewTagsArray,
 										images: this.state.reviewImgs
 									}
 								}}><Button className="logInEntry" variant="link">Edit Review</Button></Link>

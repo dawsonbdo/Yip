@@ -49,9 +49,22 @@ class EditReview extends Component {
       // Gets kennel id
       console.log(response.data);
       this.setState({ kennelId: response.data.kennel_uuid, tags: response.data.tags });
-      for(var i = 0; i < this.props.location.state.tags.length; i++) {
 
+      // Iterate over current existing tags
+      for(var i = 0; i < this.props.location.state.tags.length; i++) {
+        // Check that tags still exist (in case moderator edited tags)
+        //alert(this.props.location.state.tags[i])
+        if(response.data.tags.indexOf(this.props.location.state.tags[i]) !== -1) {
+            // Index of current tag in kennel tags array
+            var idxOfTag = response.data.tags.indexOf(this.props.location.state.tags[i]);
+
+            // Makes tag that was already selected checked by default
+            this.state.checkedTags[idxOfTag] = true;
+            //alert(this.state.checkedTags[idxOfTag])
+        }
       }
+
+      this.setState({ checkedTags: this.state.checkedTags });
 
     }).catch(error => {
       alert('Kennel does not exist in database');
@@ -151,7 +164,7 @@ class EditReview extends Component {
           id={tag}
           label={`${tag}`}
           onChange={this.handleCheck.bind(this, index)}
-          defaultChecked={true}
+          defaultChecked={this.state.checkedTags[index]}
         />
       </div>
     ))
