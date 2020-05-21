@@ -437,7 +437,8 @@ class Review extends Component {
 								<h4 id="author"><a class="profileLink" href={`/user-${this.state.reviewAuthor}`}>Reviewer: {this.state.reviewAuthor}</a></h4>
 								<h5 id="kennel"><a class="profileLink" href={`/kennel-${this.state.kennel}`}>Kennel: {this.state.kennel}</a></h5>
 							</Col>
-							<Col className="text-right reviewIcon">
+							<Col className="text-right reviewIcon">a
+								{/*If isAuthor then render the deleteReview button*/}
 								{this.state.isAuthor &&
 									<Image onClick={this.deleteReview} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
 								}
@@ -450,10 +451,12 @@ class Review extends Component {
 										kennel_name: this.state.kennel,
 										review_id: this.props.match.params.id
 									}
-								}}><Image className="likePadding float-right pl-5" src={reportIcon} /></Link>
+								}}><Image className="likePadding float-right" src={reportIcon} /></Link>
+								<Image style={{ cursor: 'pointer' }} className="likePadding float-right pl-5" src={shareIcon} />
 								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
 								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />
+								{/*If isAuthor then render the editReview button*/}
 								{this.state.isAuthor &&
 									<Link to={{
 										pathname: "/editreview",
