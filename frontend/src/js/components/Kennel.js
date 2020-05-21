@@ -39,6 +39,7 @@ class Kennel extends Component {
             bannedString: "",
             kennelReviewsListed: false,
             kennelInfoListed: false,
+            isModerator: false
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -233,6 +234,7 @@ class Kennel extends Component {
             this.setState({ mutedString: mutedStr });
             //this.setState({ bannedString: bannedStr });
             this.setState({ kennelInfoListed: true });
+            this.setState({ isModerator: response.data.is_moderator });
 
         }).catch(error => {
 
@@ -240,6 +242,8 @@ class Kennel extends Component {
             alert('Kennel does not exist in database');
 
         });
+
+
     }
 
     render() {
@@ -288,15 +292,17 @@ class Kennel extends Component {
                         </Jumbotron>
                     </Col>
                     <Col>
-                        <Link to={{
-                            pathname: "/editkennel",
-                            state: {
-                                rules: this.state.rules,
-                                tags: this.state.tagsString,
-                                mutedWords: this.state.mutedString,
-                                kennel_name: this.state.kennel_name
-                            }
-                        }}><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
+                        {this.state.isModerator &&
+                            <Link to={{
+                                pathname: "/editkennel",
+                                state: {
+                                    rules: this.state.rules,
+                                    tags: this.state.tagsString,
+                                    mutedWords: this.state.mutedString,
+                                    kennel_name: this.state.kennel_name
+                                }
+                            }}><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
+                        }
                         <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
                         <Link to={{
                             pathname: "/createreview",
