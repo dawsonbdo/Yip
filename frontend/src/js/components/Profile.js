@@ -438,7 +438,7 @@ class Profile extends Component {
                 kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
         });
         const users = this.state.followedUsersArray.map(function (user) {
-            return <li>{user}</li>
+            return <li><a href={`/user-${user}`}>{user}</a></li>
         });
 
         // Determines what to display based on which tab selected
