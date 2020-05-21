@@ -346,12 +346,18 @@ class Profile extends Component {
                 console.log(response.data[i]);
 
                 var tagsStr = "";
-                if (response.data[i].tags.length > 0) {
-                    tagsStr = tagsStr + response.data[i].tags[0];
+                // Make sure there are tags in the kennel to avoid error
+                if (response.data[i].tags != null){
+                    if (response.data[i].tags.length > 0) {
+                        tagsStr = tagsStr + response.data[i].tags[0];
+                    }
+                    for (var j = 1; j < response.data[i].tags.length; j++) {
+                        tagsStr = tagsStr + ", " + response.data[i].tags[j];
+                    }
+                } else {
+                    tagsStr = "None" // No tags, TODO: indicate it idk lol
                 }
-                for (var j = 1; j < response.data[i].tags.length; j++) {
-                    tagsStr = tagsStr + ", " + response.data[i].tags[j];
-                }
+               
 
                 // Add kennel info to array for rendering kennel cards
                 this.state.createdKennelArray.push({
