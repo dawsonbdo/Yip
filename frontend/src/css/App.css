@@ -70,6 +70,13 @@ body {
   color: grey;
 }
 
+.smallPopup {
+  border-radius: 30px;
+  background-color: #F58725;
+  border: #F58725;
+  color: black;
+}
+
 .logInEntryContainer {
   padding: 5px;
 }

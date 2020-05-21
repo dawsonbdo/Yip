@@ -8,7 +8,8 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
-import Alert from 'react-bootstrap/Alert';
+import Toast from 'react-bootstrap/Toast';
+
 
 import axios from 'axios'
 
@@ -21,7 +22,8 @@ class Login extends Component {
 
     this.state = {
       redirect: null,
-      validated: false
+      validated: false,
+      showPopup: false,
     };
 
     // Binds button handler
@@ -70,9 +72,7 @@ class Login extends Component {
     }).catch(error => {
 
       // Error for failed login
-      this.setState({ failedLogin: true });
-      alert('Username or Password incorrect!');
-
+      this.setState({ failedLogin: true, showPopup: true });
     });
   }
 
@@ -87,6 +87,14 @@ class Login extends Component {
             <Col></Col>
             <Col className="text-center">
               <Link to="/"><img src={corgiImage} /></Link>
+
+              <Toast className="mx-auto smallPopup" onClose={() => this.setState({showPopup: false})} show={this.state.showPopup} autohide>
+					        <Toast.Header className="smallPopup">
+						        <strong className="mr-auto">Username or Password incorrect!</strong>
+					        </Toast.Header>
+					        {/* <Toast.Body>Click <a href="/login">here</a> to sign in</Toast.Body> */}
+				      </Toast>
+
               <div className="logInForm">
                 <h1 className="logInLabel">Log In</h1>
                 <Form noValidate validated={this.state.validated} onSubmit={this.attemptLogin} className="logInEntryContainer">
