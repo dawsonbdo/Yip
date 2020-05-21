@@ -51,7 +51,7 @@ class Review extends Component {
 		this.dislikeReview = this.dislikeReview.bind(this);
 		this.deleteReview = this.deleteReview.bind(this);
 		this.bookmarkReview = this.bookmarkReview.bind(this);
-		this.reportReview = this.reportReview.bind(this);
+		// this.reportReview = this.reportReview.bind(this);
 	}
 
 	componentDidMount() {
@@ -153,39 +153,6 @@ class Review extends Component {
 
 			// Review comments not found in database
 			alert('Review comments not found');
-
-		});
-	}
-
-
-	reportReview() {
-
-		// Get fields to create Report to pass as data
-        var kennel_name = this.state.kennel
-        var is_comment = false;
-        var comment_id = "";
-        var review_id = this.props.match.params.id;
-        var reason = "test"; //TODO
-        var escalated = false; //TODO
-        var token = localStorage.getItem('jwtToken');
-
-		// Create form for request 
-		var form = reportJson(kennel_name, is_comment, comment_id, review_id, reason, escalated, token);
-
-		// Send POST request
-		axios({
-			method: 'post',
-			url: '/create_report',
-			data: form
-		}).then(response => {
-
-			alert('Review successfully reported!');
-
-
-		}).catch(error => {
-
-			// Failed to dislike review
-			alert('Review report failed');
 
 		});
 	}
@@ -442,7 +409,13 @@ class Review extends Component {
 							<Col className="text-right reviewIcon">
 								<Image onClick={this.deleteReview} style={{cursor: 'pointer'}} className="likePadding float-right" src={trashIcon} />
 								<Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} />
-								<Image onClick={this.reportReview} className="likePadding float-right pl-5" style={{opacity: .7}} src={reportIcon} />
+								<Link to={{
+									pathname: '/report',
+									state: {
+										kennel_name: this.state.kennel,
+										review_id: this.props.match.params.id
+									}
+								}}><Image className="likePadding float-right pl-5" src={reportIcon} /></Link>
 								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
 								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />
@@ -499,10 +472,3 @@ class Review extends Component {
 }
 
 export default Review;
-
-/*Review.propTypes = {
-	reviewName: PropTypes.string.isRequired,
-	reviewerName: PropTypes.string.isRequired,
-	reviewText: PropTypes.string.isRequired,
-	reviewImg: PropTypes.string.isRequired
-};*/

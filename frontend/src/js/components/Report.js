@@ -12,7 +12,7 @@ import Alert from 'react-bootstrap/Alert';
 
 import axios from 'axios'
 
-import { createUserJson } from './BackendHelpers.js';
+import { reportJson } from './BackendHelpers.js';
 
 class Profile extends Component {
 
@@ -22,11 +22,22 @@ class Profile extends Component {
         this.state = {
             redirect: null,
             validated: false,
-			kennel: ""
+			reviewFrom: {}
         };
 
         // Binds button handler
         this.reportReview = this.reportReview.bind(this);
+    }
+
+    componentDidMount() {
+        //const { handle } = this.props.match.params;
+        const reviewState = this.props.location.state;
+    
+        // fetch(`localhost:8000/kennel-${handle}`)
+        //   .then((kennel) => {
+        //     this.setState(() => ({ kennel }))
+        //   })
+        this.setState({ reviewFrom: reviewState});
     }
 
     /**
@@ -46,14 +57,16 @@ class Profile extends Component {
         }
 
         // Get fields to create Report to pass as data
-        var kennel_name = this.state.kennel
+        var kennel_name = this.state.reviewFrom.kennel_name;
         var is_comment = false;
         var comment_id = "";
-        var review_id = this.props.match.params.id;
+        var review_id = this.state.reviewFrom.review_id;
         var reason = "test"; //TODO
         var escalated = false; //TODO
         var token = localStorage.getItem('jwtToken');
 
+        console.log(kennel_name);
+        console.log(review_id);
         // Create form for request 
         var form = reportJson(kennel_name, is_comment, comment_id, review_id, reason, escalated, token);
 
@@ -92,7 +105,7 @@ class Profile extends Component {
                                 <Form noValidate validated={this.state.validated} onSubmit={this.reportReview} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
                                         <Form.Control className="logInEntry" as="textarea" placeholder="Write your reason here." required />
-                                        <Form.Control.Feedback type="invalid">Reason needed</Form.Control.Feedback>
+                                        <Form.Control.Feedback type="invalid">Reason needed.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Button className="logInEntry" type="submit" variant="primary" >Submit</Button>
