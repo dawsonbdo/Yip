@@ -155,6 +155,37 @@ fn block_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Acce
 	}
 }
 
+/**
+ * Helper method that returns name of a followee
+ */
+fn get_name(user: &DisplayFollowUser) -> String {
+	user.followee.clone()
+}
+
+/** 
+ * Method that returns all the names of users a username follows
+ * @param username: name of user
+ * @param connection: database connection
+ *
+ * @return returns vector of the users
+ */
+pub fn get_followed_users_names(username: &str, connection: &DbConn) -> Result<Vec<String>, String> {
+
+	// Get uuid from user
+	let uuid = handlers::get_uuid_from_username(&username, connection);
+
+	// If not nil, return all of the followed users
+	if !uuid.is_nil(){
+		match handlers::all_user_followees(uuid, connection) {
+			Ok(k) => Ok(k.iter().map(|followee| get_name(followee)).collect()),
+			Err(_e) => Err("No followed users".to_string())
+		}
+	} else {
+		Err("User not found".to_string())
+	}
+	
+}
+
 /** 
  * Method that returns all the users a username follows
  * @param username: name of user

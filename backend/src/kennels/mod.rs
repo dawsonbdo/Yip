@@ -161,7 +161,42 @@ fn search_kennels(query: String, connection: DbConn) -> Result<Json<Vec<DisplayK
     }
 }
 
+/**
+ * Helper method that returns name of a followee
+ */
+fn get_name(kennel: &DbKennel) -> String {
+	kennel.kennel_name.clone()
+}
 
+/** 
+ * Method that returns all the names of kennels a username follows
+ * @param username: name of user
+ * @param connection: database connection
+ *
+ * @return returns vector of the kennel names
+ */
+pub fn get_followed_kennels_names(username: &str, connection: &DbConn) -> Result<Vec<String>, String> {
+
+	// Get uuid from user
+	let uuid = super::users::handlers::get_uuid_from_username(username, connection);
+
+	// If not nil, return all of the followed users
+	if !uuid.is_nil(){
+		match handlers::all_user_kennels(uuid, connection) {
+			Ok(k) => {
+				let mut vec : Vec<String> = vec![];
+				for kennel in k {
+					vec.push(kennel.kennel_name);
+				}
+				Ok(vec)
+			},
+			Err(_e) => Err("No followed kennels".to_string())
+		}
+	} else {
+		Err("Kennel not found".to_string())
+	}
+	
+}
 
 /** 
  * Method that returns a kennel from database given the name

@@ -28,6 +28,7 @@ use serde_json::{Value, Map};
 use super::users;
 
 use std::collections::HashMap;
+use chrono::{Utc, NaiveDate, DateTime, NaiveDateTime};
 
 // Struct with review ID and user token for editing/deleting reviews
 #[derive(Queryable, Serialize, Deserialize)]
@@ -801,6 +802,26 @@ fn list_reviews(connection: DbConn) -> Json<Vec<String>> {
 	list_reviews_helper(&connection)
 }
 
+fn calcPersonalizedHotness(hotness: i64, kennels: &Vec<String>, users: &Vec<String>, review: &DisplayReview) -> i64 {
+	let followed_kennel = if kennels.contains(&review.kennel_name) {1.0} else {0.0};
+	let followed_user = if users.contains(&review.author) {1.0} else {0.0};
+	
+	// Scale factor of hotness (TODO: adjust values probably)
+
+	// If review posted within past 12 hours by followed user, extra boost
+	let curTime = Utc::now().naive_utc();
+	let newness = curTime.signed_duration_since(review.timestamp).num_seconds();
+	let personalizedFactor;
+	if newness < 43200 { //12 hrs = 43200 seconds
+		//println!("NEW REVIEW");
+		return (300.0 + 150.0*followed_kennel + hotness as f64) as i64;
+	} else {
+		personalizedFactor = 1.0 + followed_kennel*0.5 + followed_user*0.5;
+	}
+
+	hotness*personalizedFactor as i64
+}
+
 /** 
  * Method that loads all of the reviews on home page, given a jwt
  * @param token: the jwt of user, "0" if not logged in
@@ -815,39 +836,47 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 
 	let mut pq = priority_queue::PriorityQueue::new();
 
+	// Get all of the reviews in database and map to DisplayReviews
+	match handlers::all(&connection) {
+	    Ok(r) => reviews = r.iter()
+	                .map(|review| handlers::to_review(review))
+	                .collect(),
+	    Err(e) => return Err(status::NotFound(e.to_string())),
+	};
+
 	// Check if user is logged in by checking token passed in
-	if auth::validate_token(token.clone()) {
+	if auth::validate_token(token.clone()) { // Generate user specific reviews 
 
-		// TODO: Generate user specific reviews based on followed kennels
+		// Get username of token
+		let username = auth::get_user_from_token(&token);
+		
+		
+		// Get list of followed kennels 
+		let kennels : Vec<String> = match super::kennels::get_followed_kennels_names(&username, &connection){
+			Ok(k) => k,
+			Err(_e) => vec![], 
+		};
 
-		// Pattern match to make sure successful, convert to DisplayReviews if so
-	    match handlers::all(&connection) {
-	        Ok(r) => reviews = r.iter()
-	                     .map(|review| handlers::to_review(review))
-	                     .collect(),
-	        Err(_e) => (), //TODO uninformative error
-	    };
+		
+		// Get list of followed users
+		let users : Vec<String> = match super::users::get_followed_users_names(&username, &connection){
+			Ok(k) => k,
+			Err(_e) => vec![], 
+		};
+		
+		
 
-	    // Sort reviews by hotness using pq 
+	    // Sort reviews by personalized hotness (followed users/reviews) using pq 
 	    for r in reviews {
-	    	//let timestamp = r.timestamp;
 		    let hotness = r.hotness;
-		    pq.push(r, hotness);
+		    let personalizedHotness = calcPersonalizedHotness(hotness, &kennels, &users, &r);
+		    pq.push(r, personalizedHotness);
 	    }  
 
 
-	} else {
+	} else { // Generate generic most recent popular reviews from all kennels
 
-		// TODO: Generate generic most recent popular reviews 
-
-		match handlers::all(&connection) {
-	        Ok(r) => reviews = r.iter()
-	                     .map(|review| handlers::to_review(review))
-	                     .collect(),
-	        Err(_e) => (), //TODO unhandled error
-	    };
-
-	    // Sort reviews by newness using pq 
+	    // Push reviews into priority queue using regular hotness
 	    for r in reviews {
 	    	//let timestamp = r.timestamp;
 	    	let hotness = r.hotness;
@@ -859,13 +888,13 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	// Create a vector with all of the reviews to as ordered
 	let mut reviews_ordered : Vec<DisplayReview> = vec![];
 
-	// Order by newness for now 
+	// Order reviews by priority
 	for (review, _) in pq.into_sorted_iter() {
 
 		reviews_ordered.push(review);
 	}
 
-	// Return a Result depending on if reviews were found
+	// Make sure reviews were found
 	if reviews_ordered.iter().len() == 0 {
 		Err(status::NotFound("No Reviews".to_string()))
 	} else {
@@ -879,7 +908,7 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 			Err(_e) => "".to_string(),
 		};
 		
-		// Set is_author, is_liked, is_disliked fields
+		// Set is_author, is_liked, is_disliked fields, is_bookmarked
 		Ok(Json(update_display_review_fields(&profile_username, uuid, reviews_ordered, &connection)))
 	}
 }
