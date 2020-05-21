@@ -542,11 +542,10 @@ pub fn insert(review: Review, connection: &PgConnection) -> QueryResult<DbReview
  *
  * @return returns a bool if successfuly edited 
  */
-pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> QueryResult<()> {
+pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> QueryResult<DbReview> {
      diesel::update(reviews::table.find(id))
         .set(&from_review(review, connection))
-        .get_result::<DbReview>(connection)?;
-        Ok(())
+        .get_result::<DbReview>(connection)
 }
 
 /**
@@ -688,6 +687,7 @@ pub struct Review {
 
 // Struct representing the fields of a review that is inserted into database
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[changeset_options(treat_none_as_null="true")]
 #[table_name = "reviews"]
 pub struct InsertReview {
     pub review_uuid: Uuid,
@@ -703,7 +703,7 @@ pub struct InsertReview {
     pub rating: i32,
 }
 
-// Struct representing the fields of a review that is inserted into database
+// Struct representing the fields of a review that is retrived from database
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
 #[table_name = "reviews"]
 pub struct DbReview {

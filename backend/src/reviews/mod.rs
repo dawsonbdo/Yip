@@ -605,7 +605,6 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
 						// TODO: Delete files from server of old review
 						for img in images{
 							let p = format!("static/{}", img);
-							println!("DELETE: {}", p);
 							match std::fs::remove_file(p){
 								Ok(_u) => (),
 								Err(e) => println!("ERROR: {}", e.to_string()),
@@ -632,19 +631,25 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
  *
  * @return returns TBD
  */
-#[post("/edit_review/<review_uuid>", data="<data>")]
-fn edit_review(data: ReviewMultipart, review_uuid: String, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
+#[post("/edit_review/<review_uuid>/<token>", data="<data>")]
+fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
 	
+	// Parse review uuid
 	let rev_uuid = match Uuid::parse_str(&review_uuid) {
 		Ok(id) => id,
 		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
 	};
 
-	// Check that review_uuid is valid and get images if valid
-	let images = match handlers::get(rev_uuid, &connection){
-		Ok(r) => (r.images),
+	// Get token uuid and name
+	let user_uuid = auth::get_uuid_from_token(&token);
+	let username = auth::get_user_from_token(&token);
+
+	// Check that review_uuid is valid and get images of review if valid and author is correct
+	let old_review = match handlers::get(rev_uuid, &connection){
+		Ok(r) => r,
 		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
 	};
+	let images : Vec<String> = if old_review.author.eq(&username) {old_review.images} else {vec![]};
 	
 	// Create object from stringified version passed in
 	let review_value : Value = serde_json::from_str(&data.review).unwrap();
@@ -653,32 +658,26 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, connection: DbConn) -
 	// Create vector of file paths
 	let mut paths = vec![];
 
-	// Iterate through files passed in, store on server in static/reviewpics/<filename>
-	for (i, img) in data.images.iter().enumerate() {
+	// Get all the file paths that will be created
+	for name in &data.names {
 
-		// Create file path using filename, create file with it, write the image
-		let file_path = format!("static/reviewpics/{}", &data.names[i]);
-		let mut buffer = File::create(file_path.clone()).unwrap();
-		
-		// Catch error
-		match buffer.write(&img){
-			Ok(w) => w,
-			Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
-		};
-
-		// Add path to vector
-		paths.push(format!("reviewpics/{}", &data.names[i]));
+		// Add path created by uuid and filename to vector
+		paths.push(format!("reviewpics/{}{}", user_uuid, name));
 	}
 
 	// Create review object in correct format
 	let review = review_creation_helper(review_obj, paths, data.tags);
 	
 	// Check that user is not banned from kennel
-	let user_uuid = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);
 	let kennel_id = match Uuid::parse_str(&review.kennel_uuid[1..37]) {
 		Ok(id) => id,
 		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
 	};
+
+	match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
+		Ok(rel) => if rel == 1 {return Err(status::Unauthorized(Some("User is banned from kennel".to_string())));} else {()},
+		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
+	}
 
 	// Get the muted words
 	let muted_words = match super::kennels::handlers::get(kennel_id, &connection){
@@ -696,20 +695,55 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, connection: DbConn) -
 		}
 	}
 
-	match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
-		Ok(rel) => if rel == 1 {return Err(status::Unauthorized(Some("User is banned from kennel".to_string())));} else {()},
-		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
-	}
-
 	// Attempt to update review in database
 	match handlers::update(rev_uuid, review, &connection){
 		Ok(r) => { 
-			// TODO: Delete files from server of old review
-			for img in images{
-				std::fs::remove_file(img);
-			}
+			// Attempt to insert pictures
+
+			// Iterate through files passed in, store on server in static/reviewpics/<filename>
+			for (i, img) in data.images.iter().enumerate() {
+
+				// Create file path using filename, create file with it, write the image
+				let file_path = format!("static/reviewpics/{}{}", user_uuid, &data.names[i]);
+				let mut buffer = File::create(file_path.clone()).unwrap();
 				
-			
+				// Catch error
+				match buffer.write(&img){
+					Ok(w) => w,
+					Err(e) => {
+						// If error writing image to server, delete the review
+						let del_review = ReviewToken {
+							review_uuid: r.review_uuid.hyphenated().to_string(),
+							token: token.clone(),
+						};
+
+						remove_review(Json(del_review), connection);
+
+						return Err(status::Unauthorized(Some(e.to_string())))
+					},
+				};
+					
+			}
+
+			// TODO: Delete images of files that were removed from orig review
+			let imgs = match r.images {
+					Some(imgs) => imgs,
+					None => vec![]
+				};
+			for img in images{
+				// Don't delete if in the list of new images
+				if imgs.contains(&img){
+					continue;
+				}
+				
+
+				// Attempt to delete old img
+				let p = format!("static/{}", img);
+				match std::fs::remove_file(p){
+					Ok(_u) => (),
+					Err(e) => println!("ERROR: {}", e.to_string()),
+				};
+			}
 
 			Ok(status::Accepted(None))
 		},
@@ -733,41 +767,31 @@ fn create_review(data: ReviewMultipart, token: String, connection: DbConn) -> Re
 	let review_value : Value = serde_json::from_str(&data.review).unwrap();
 	let review_obj = review_value.as_object().unwrap();
 
-	// Create vector of file paths
-	let mut paths = vec![];
-
 	// Get user uuid for inserting pictures
 	let user_uuid = auth::get_uuid_from_token(&token);
 
-	// Iterate through files passed in, store on server in static/reviewpics/<filename>
-	for (i, img) in data.images.iter().enumerate() {
+	// Create vector of file paths
+	let mut paths = vec![];
 
-		// Create file path using filename, create file with it, write the image
-		let file_path = format!("static/reviewpics/{}{}", user_uuid, &data.names[i]);
-		let mut buffer = File::create(file_path.clone()).unwrap();
-		
-		// Catch error
-		match buffer.write(&img){
-			Ok(w) => w,
-			Err(e) => return Err(status::Conflict(Some(e.to_string()))),
-		};
+	// Get all the file paths that will be created
+	for name in &data.names {
 
-		// Add path to vector
-		paths.push(format!("reviewpics/{}{}", user_uuid, &data.names[i]));
+		// Add path created by uuid and filename to vector
+		paths.push(format!("reviewpics/{}{}", user_uuid, name));
 	}
 
-	// Create review object in correct format
+	// Create review object in correct format from data passed in
 	let review = review_creation_helper(review_obj, paths, data.tags);
 
 	// Check that user is not banned from kennel
 	let kennel_id = match Uuid::parse_str(&review.kennel_uuid[1..37]) {
 		Ok(id) => id,
-		Err(e) => return Err(status::Conflict(Some(e.to_string()))), //TODO delete pictures
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
 	};
 
 	match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
 		Ok(rel) => if rel == 1 {return Err(status::Conflict(Some("User is banned from kennel".to_string())));} else {()},
-		Err(e) => return Err(status::Conflict(Some(e.to_string()))), //TODO delete pictures
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))), 
 	}
 
 	// Get the muted words
@@ -776,20 +800,48 @@ fn create_review(data: ReviewMultipart, token: String, connection: DbConn) -> Re
 			Some(words) => words,
 			None => vec![],
 		},
-		Err(e) => return Err(status::Conflict(Some(e.to_string()))), //TODO delete pictures
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))), 
 	};
 
 	// Check that no muted words in review text
 	for word in muted_words {
 		if review.text.contains(&word) || review.title.contains(&word) {
-			return Err(status::Conflict(Some("Review using muted word".to_string()))); // TODO delete pictures
+			return Err(status::Conflict(Some("Review using muted word".to_string()))); 
 		}
 	}
-
 	
 	// Attempt to insert review into database
 	match handlers::insert(review, &connection){
-		Ok(r) => Ok(r.review_uuid.hyphenated().to_string()),
+		Ok(r) => {
+				// Attempt to insert pictures
+
+				// Iterate through files passed in, store on server in static/reviewpics/<filename>
+				for (i, img) in data.images.iter().enumerate() {
+
+					// Create file path using filename, create file with it, write the image
+					let file_path = format!("static/reviewpics/{}{}", user_uuid, &data.names[i]);
+					let mut buffer = File::create(file_path.clone()).unwrap();
+					
+					// Catch error
+					match buffer.write(&img){
+						Ok(w) => w,
+						Err(e) => {
+							// If error writing image to server, delete the review
+							let del_review = ReviewToken {
+							    review_uuid: r.review_uuid.hyphenated().to_string(),
+							    token: token.clone(),
+							};
+
+							remove_review(Json(del_review), connection);
+
+							return Err(status::Conflict(Some(e.to_string())))
+						},
+					};
+					
+				}
+
+				Ok(r.review_uuid.hyphenated().to_string())
+			},
 		Err(e) => Err(status::Conflict(Some(e.to_string()))), //TODO delete pictures
 	}
 
