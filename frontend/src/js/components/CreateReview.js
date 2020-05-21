@@ -135,6 +135,11 @@ class CreateReview extends Component {
 
   render() {
 
+    let selectTagsTitle;
+    if(this.state.tags.length > 0) {
+      selectTagsTitle = <h4 className="mu-3">Select Tags</h4>;
+    }
+
     let tagCheckboxes = this.state.tags.map((tag, index) => (
       <div key={`default-checkbox`} className="mb-3">
         <Form.Check
@@ -171,7 +176,7 @@ class CreateReview extends Component {
                     <Form.Control.Feedback type="invalid">Review description required.</Form.Control.Feedback>
                   </div>
                   <div><Form>
-                    <h3>Select Tags</h3>
+                    {selectTagsTitle}
                     {tagCheckboxes}
                   </Form></div>
                   <div className="logInEntryContainer">
