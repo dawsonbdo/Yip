@@ -113,7 +113,7 @@ class YipNavBar extends Component {
     }).catch(error => {
 
       // Review not found in database
-      alert('User has no created kennels');
+      //alert('User has no created kennels');
 
     });
 

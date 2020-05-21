@@ -20,7 +20,7 @@ struct KennelUpdate {
     kennel_uuid: String,
     tags: Vec<String>,
     kennel_name: String,
-    muted_words: Vec<String>,
+    muted_words: Option<Vec<String>>,
     rules: String,
     bans: Vec<String>,
     token: String,
@@ -343,7 +343,10 @@ fn edit_kennel(kennel: Json<KennelUpdate>, connection: DbConn) -> Result<status:
 		kennel_uuid: kennel.kennel_uuid.clone(),
     	tags: kennel.tags.clone(),
     	kennel_name: kennel.kennel_name.clone(),
-    	muted_words: kennel.muted_words.clone(),
+    	muted_words: match &kennel.muted_words{
+    		Some(words) => Some(words.to_vec()),
+    		None => None
+    	},
     	rules: kennel.rules.clone(),
     	token: kennel.token.clone(),
 	};
