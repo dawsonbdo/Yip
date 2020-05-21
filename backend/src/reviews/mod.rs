@@ -492,15 +492,6 @@ fn get_user_reviews(username: String, token: String, connection: DbConn) -> Resu
 	// Makes database call to get all reviews with kennel uuid
 	let all_reviews = handlers::all_user_reviews(uuid, &connection);
 
-	/*
-	// Prints out title/text/rating of each review in database
-	for v in &all_reviews {
-		for r in v.iter() {
-			println!("Author Name: {} Title: {} Time: {}", r.author, r.title, r.timestamp.to_string());
-		} 
-	}
-	*/
-
 	// Get tokens uuid
 	let token_uuid = auth::get_uuid_from_token(&token);
 
@@ -511,9 +502,8 @@ fn get_user_reviews(username: String, token: String, connection: DbConn) -> Resu
 
 	// Sort reviews by newness using pq (greatest NaiveDateTime value)
 	for r in all_reviews.unwrap() {
-	    //let timestamp = r.timestamp;
-	    let hotness = r.hotness;
-	    pq.push(r, hotness);
+	    let timestamp = r.timestamp;
+	    pq.push(r, timestamp);
 	}  
 
 	// Create a vector with all of the reviews to as ordered
