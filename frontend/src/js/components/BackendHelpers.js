@@ -12,14 +12,14 @@ export function createUserJson(username = "", email = "", password = "") {
 };
 
 // Creates a JSON Review object
-export function createReviewJson(id = "", title = "", text = "", author = "") {
+export function createReviewJson(id = "", title = "", text = "", author = "", tags = "") {
     var form = {kennel_uuid: id,
                 title: title,
                 author: author,
                 text: text,
                 images: {},
                 rating: 0,
-                tags: {}};
+                tags: tags;
     return form
 };
 
@@ -34,7 +34,7 @@ export function reportJson(kennel = "", is_comment = "", comment_id = "", review
                 reporter_token: token,
               };
     return form
-    
+
 };
 
 // Creates a JSON Kennel object
