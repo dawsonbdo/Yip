@@ -7,6 +7,7 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Toast from 'react-bootstrap/Toast';
+import Spinner from 'react-bootstrap/Spinner';
 
 import { Redirect } from 'react-router-dom';
 
@@ -25,6 +26,7 @@ class Register extends Component {
             validated: false,
             redirect: null,
             showPopup: null,
+            loading: false,
         };
 
         this.attemptRegistration = this.attemptRegistration.bind(this);
@@ -59,16 +61,16 @@ class Register extends Component {
         var isValidUsername = regex.test(username);
         if (!isValidUsername) {
             this.setState({showPopup: "Username can only contain letters, numbers, and underscores!"});
-            // alert("Username can only contain letters, numbers, and underscores!");
             return;
         }
 
         // Check that passwords match
         if (password !== repassword) {
             this.setState({showPopup: 'Passwords do not match!'});
-            // alert('Passwords do not match!');
             return;
         }
+
+        this.setState({loading: true});
 
         // Send POST request with database User json
         axios({
@@ -83,13 +85,12 @@ class Register extends Component {
             // Redirect to login after registering
             this.setState({ redirect: "/login" });
 
-            alert('Account successfully created!');
+            this.setState({showPopup: 'Account successfully created!'});
 
         }).catch(error => {
 
             // Username or email already exist
-            this.setState({showPopup: 'Username or Email already registered!'});
-            // alert('Username or Email already registered!');
+            this.setState({showPopup: 'Username or Email already registered!', loading: false});
 
             // This is how to check if username is taken and/or email is taken
             console.log("User Taken: " + error.response.data.includes("username"));
@@ -98,6 +99,11 @@ class Register extends Component {
     }
 
     render() {
+        let loading = <div></div>;
+        if(this.state.loading) {
+            loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+        }
+
         if (this.state.redirect) {
             return <Redirect to={this.state.redirect} />
         }
@@ -139,7 +145,10 @@ class Register extends Component {
                                         <Link to="/login"><Button variant="link">Already have an account?</Button></Link>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Button className="logInEntry" type="submit">Submit</Button>
+                                        <Button className="logInEntry" type="submit">
+                                            <div>Submit</div>
+                                            {loading}
+                                        </Button>
                                     </div>
                                 </Form>
                             </div>

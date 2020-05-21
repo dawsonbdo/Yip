@@ -9,6 +9,7 @@ import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
 import Toast from 'react-bootstrap/Toast';
+import Spinner from 'react-bootstrap/Spinner';
 
 
 import axios from 'axios'
@@ -24,6 +25,7 @@ class Login extends Component {
       redirect: null,
       validated: false,
       showPopup: false,
+      loading: false,
     };
 
     // Binds button handler
@@ -48,6 +50,7 @@ class Login extends Component {
       this.setState({ validated: true });
       return;
     }
+    this.setState({ loading: true });
 
     // Parses login form with username/email and password
     var email = document.getElementById('login').value;
@@ -67,16 +70,21 @@ class Login extends Component {
 
       // Redirect to home after successful login
       this.setState({ redirect: "/" });
-
+      
 
     }).catch(error => {
 
       // Error for failed login
-      this.setState({ failedLogin: true, showPopup: true });
+      this.setState({ failedLogin: true, showPopup: true, loading: false});
     });
   }
 
   render() {
+    let loading = <div></div>;
+    if(this.state.loading) {
+      loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+    }
+
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />
     }
@@ -109,7 +117,10 @@ class Login extends Component {
                     <Link to="/recoverpassword"><Button variant="link">Forgot Password?</Button></Link>
                   </div>
                   <div className="logInEntryContainer">
-                    <Button className="logInEntry" type="submit" variant="primary" >Submit</Button>
+                    <Button className="logInEntry" type="submit" variant="primary">
+                      <div>Submit</div>
+                      {loading}
+                    </Button>
                   </div>
                 </Form>
               </div>
