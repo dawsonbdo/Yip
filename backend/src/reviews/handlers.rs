@@ -284,13 +284,13 @@ pub fn calculate_rating(review_uuid: Uuid, connection: &PgConnection) -> i32 {
 
     // Get number of likes
     match likes {
-        Ok(r) => rating += (r as i32),
+        Ok(r) => rating += r as i32,
         Err(_e) => rating += 0,
     }
 
     // Get number of dislikes
     match dislikes {
-        Ok(r) => rating -= (r as i32),
+        Ok(r) => rating -= r as i32,
         Err(_e) => rating -= 0,
     }
 
@@ -333,7 +333,7 @@ pub fn calculate_hotness(review_uuid: Uuid, rating: i32, connection: &PgConnecti
  *
  * @return result indicating if successfully updated
  */
-pub fn update_review_rating(review_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
+pub fn update_review_rating(review_uuid: Uuid, connection: &PgConnection) -> QueryResult<()>{
 
     // Get new rating
     let new_count = calculate_rating(review_uuid, connection);
@@ -346,12 +346,13 @@ pub fn update_review_rating(review_uuid: Uuid, connection: &PgConnection) -> Que
     // Update hotness
     diesel::update(reviews::table.find(review_uuid))
                         .set(reviews::columns::hotness.eq(hotness))
-                        .execute(connection);
+                        .execute(connection)?;
 
     // Update review rating
     diesel::update(reviews::table.find(review_uuid))
                         .set(reviews::columns::rating.eq(new_count))
-                        .execute(connection)
+                        .execute(connection)?;
+    Ok(())
 }
 
 
@@ -382,7 +383,9 @@ pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection)
     };
 
     // Attempt to delete from like table
-    delete_like_dislike(review_uuid, profile_uuid, true, connection);
+    if let Err(_e) = delete_like_dislike(review_uuid, profile_uuid, false, connection){ 
+        //TODO update to distinguish expected and unexpected failures
+    }
 
     // Creates object to be inserted to the like review table
     let dislike_review = DislikeReview {
@@ -407,7 +410,7 @@ pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection)
  *
  * @retun returns result of either Accepted or BadRequest status
  */
-pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
+pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> { //TODO this is not a handler and shouldn't return an HTTP status.
     
     // Prints the uuids received
     println!("Review uuid: {}", review_uuid);
@@ -426,7 +429,9 @@ pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) ->
     };
 
     // Attempt to delete from dislike table
-    delete_like_dislike(review_uuid, profile_uuid, false, connection);
+    if let Err(_e) = delete_like_dislike(review_uuid, profile_uuid, false, connection){ 
+        //TODO update to distinguish expected and unexpected failures
+    }
 
     // Creates object to be inserted to the like review table
     let like_review = LikeReview {
@@ -538,13 +543,11 @@ pub fn insert(review: Review, connection: &PgConnection) -> QueryResult<DbReview
  *
  * @return returns a bool if successfuly edited 
  */
-pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> bool {
-    match diesel::update(reviews::table.find(id))
+pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> QueryResult<()> {
+     diesel::update(reviews::table.find(id))
         .set(&from_review(review, connection))
-        .get_result::<DbReview>(connection) {
-            Ok(_u) => return true,
-            Err(_e) => return false,
-        }
+        .get_result::<DbReview>(connection)?;
+        Ok(())
 }
 
 /**
@@ -558,7 +561,7 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // TODO: Delete all the comments, and relationships ie likes/dislikes
 
     // Delete all bookmarks
-    let bookmarks = diesel::delete(bookmarks::table
+    diesel::delete(bookmarks::table
              .filter(bookmarks::review.eq(id)))
              .execute(connection)?;
 
