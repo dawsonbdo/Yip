@@ -44,7 +44,8 @@ class Review extends Component {
 			isLiked: false,
 			isDisliked: false,
 			isBookmarked: false,
-			kennel: ""
+			kennel: "",
+			isAuthor: false
 		};
 
 		// Binds button handler
@@ -120,6 +121,7 @@ class Review extends Component {
 				console.log("Is Liked: " + response.data.is_liked);
 				console.log("Is Disliked: " + response.data.is_disliked);
 
+				this.setState({ isAuthor: response.data.is_author });
 				this.setState({ reviewListed: true });
 				this.forceUpdate();
 			}
@@ -436,7 +438,9 @@ class Review extends Component {
 								<h5 id="kennel"><a class="profileLink" href={`/kennel-${this.state.kennel}`}>Kennel: {this.state.kennel}</a></h5>
 							</Col>
 							<Col className="text-right reviewIcon">
-								<Image onClick={this.deleteReview} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
+								{this.state.isAuthor &&
+									<Image onClick={this.deleteReview} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
+								}
 								<Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} />
 								<Link to={{
 									pathname: '/report',
@@ -450,17 +454,19 @@ class Review extends Component {
 								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
 								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />
-								<Link to={{
-									pathname: "/editreview",
-									state: {
-										review_id: this.props.match.params.id,
-										kennel_name: this.state.kennel,
-										title: this.state.reviewTitle,
-										text: this.state.reviewText,
-										tags: this.state.reviewTagsArray,
-										images: this.state.reviewImgs
-									}
-								}}><Button className="logInEntry" variant="link">Edit Review</Button></Link>
+								{this.state.isAuthor &&
+									<Link to={{
+										pathname: "/editreview",
+										state: {
+											review_id: this.props.match.params.id,
+											kennel_name: this.state.kennel,
+											title: this.state.reviewTitle,
+											text: this.state.reviewText,
+											tags: this.state.reviewTagsArray,
+											images: this.state.reviewImgs
+										}
+									}}><Button className="logInEntry" variant="link">Edit Review</Button></Link>
+								}
 							</Col>
 						</Row>
 
