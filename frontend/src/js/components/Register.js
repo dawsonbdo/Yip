@@ -118,7 +118,7 @@ class Register extends Component {
 
                             <Toast className="mx-auto smallPopup" onClose={() => this.setState({showPopup: null})} show={this.state.showPopup} autohide>
                                 <Toast.Header className="smallPopup">
-                                    <strong className="mr-auto">{this.state.showPopup}</strong>
+                                    <strong className="mx-auto">{this.state.showPopup}</strong>
                                 </Toast.Header>
 				            </Toast>
 

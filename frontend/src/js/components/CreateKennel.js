@@ -8,6 +8,7 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
+import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
@@ -21,6 +22,7 @@ class CreateKennel extends Component {
     this.state = {
       redirect: null,
       validated: false,
+      showPopup: false
     };
 
     // Binds button handler
@@ -79,7 +81,8 @@ class CreateKennel extends Component {
 
     }).catch(error => {
 
-      alert('Kennel with that name already exists.');
+      //alert('Kennel with that name already exists.');
+      this.setState({ showPopup: true });
 
     });
 
@@ -96,6 +99,13 @@ class CreateKennel extends Component {
 
             <Col className="text-center">
               <Link to="/"><img src={corgiImage} /></Link>
+
+              <Toast className="mx-auto smallPopup" onClose={() => this.setState({showPopup: false})} show={this.state.showPopup} autohide>
+					        <Toast.Header className="smallPopup">
+						        <strong className="mx-auto">Kennel name already exists!</strong>
+					        </Toast.Header>
+				      </Toast>
+
               <div className="logInForm">
                 <h1 className="logInLabel">Create Kennel</h1>
                 <Form noValidate validated={this.state.validated} onSubmit={this.createKennel} className="logInEntryContainer">
