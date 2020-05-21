@@ -8,6 +8,7 @@ use crate::schema::review_dislike_relationships;
 use crate::schema::bookmarks;
 
 // Used for deleting reviews
+use crate::schema::reports;
 use crate::schema::comments;
 use crate::schema::comment_like_relationships;
 use crate::schema::comment_dislike_relationships;
@@ -560,6 +561,9 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // TODO: Delete all the comments, and relationships ie likes/dislikes
 
     // Delete all reports
+    diesel::delete(reports::table
+             .filter(reports::review_id.eq(id)))
+             .execute(connection)?;
 
     // Delete all bookmarks
     diesel::delete(bookmarks::table

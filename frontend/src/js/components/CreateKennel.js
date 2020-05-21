@@ -53,9 +53,17 @@ class CreateKennel extends Component {
     // TODO: Parsing on the tags and muted words (comma separated)
     var tagsStr = document.getElementById('tags').value;
     var tags = tagsStr.split(", ");
-    var mutedStr = document.getElementById('mute').value;
-    var mutedWords = mutedStr.split(", ");
     var rules = document.getElementById('rules').value;
+
+    var mutedStr = document.getElementById('mute').value; 
+    var mutedWords;
+    // Check muted words for whitespace
+    if (mutedStr === null || mutedStr.match(/^ *$/) !== null){
+      mutedWords = null;
+     
+    } else {
+      mutedWords = mutedStr.split(", ");
+    }
 
     // Create form to send
     var form = createKennelJson(title, tags, mutedWords, rules, token);
