@@ -296,10 +296,10 @@ class Kennel extends Component {
                             <Link to={{
                                 pathname: "/editkennel",
                                 state: {
-                                    rules: this.state.rules,
-                                    tags: this.state.tagsString,
-                                    mutedWords: this.state.mutedString,
-                                    kennel_name: this.state.kennel_name
+                                  rules: this.state.rules,
+                                  tags: this.state.tagsString,
+                                  mutedWords: this.state.mutedString,
+                                  kennel_name: this.state.kennel_name
                                 }
                             }}><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
                         }

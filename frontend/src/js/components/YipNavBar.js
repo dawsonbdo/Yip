@@ -158,7 +158,9 @@ class YipNavBar extends Component {
           <Dropdown.Item href={`/user-${this.state.user}`}>View Profile</Dropdown.Item>
           <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
         </DropdownButton>
-        <Button onClick={this.logout} type="submit" variant="light" className="mr-2 float-left">Logout</Button></div>;
+        <Link to={{
+          pathname: "/login",
+        }}><Button onClick={this.logout} type="submit" variant="light" className="mr-2 float-left">Logout</Button></Link></div>;
     } else {
       logBtn = <div><Link to="/login"><Button id="login" type="submit" variant="light" className="mr-2">Login</Button></Link>
         <Link to="/register"><Button type="submit" variant="light" className="mr-2">Register</Button></Link></div>;
