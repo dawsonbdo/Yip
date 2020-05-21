@@ -528,7 +528,6 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DisplayReview> {
  * @return returns DbReview created if succesful, otherwise error
  */
 pub fn insert(review: Review, connection: &PgConnection) -> QueryResult<DbReview> {
-
     // Inserts review into database, returns review created
     diesel::insert_into(reviews::table)
         .values(&from_review(review, connection))
