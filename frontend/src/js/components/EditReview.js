@@ -32,12 +32,13 @@ class EditReview extends Component {
       validated: false
     };
     this.onDrop = this.onDrop.bind(this);
-    this.postReview = this.postReview.bind(this);
+    this.updateReview = this.updateReview.bind(this);
     this.handleCheck = this.handleCheck.bind(this);
   }
 
   componentDidMount() {
     var kennelName = this.props.location.state.kennel_name;
+    // this.setState({ pictures: this.props.location.state.images }); TODO images
     var token = localStorage.getItem('jwtToken');
     // Format URL to send in GET request
     var reqUrl = "/get_kennel/" + kennelName + "/" + token;
@@ -53,14 +54,12 @@ class EditReview extends Component {
       // Iterate over current existing tags
       for(var i = 0; i < this.props.location.state.tags.length; i++) {
         // Check that tags still exist (in case moderator edited tags)
-        //alert(this.props.location.state.tags[i])
         if(response.data.tags.indexOf(this.props.location.state.tags[i]) !== -1) {
             // Index of current tag in kennel tags array
             var idxOfTag = response.data.tags.indexOf(this.props.location.state.tags[i]);
 
             // Makes tag that was already selected checked by default
             this.state.checkedTags[idxOfTag] = true;
-            //alert(this.state.checkedTags[idxOfTag])
         }
       }
 
@@ -81,7 +80,7 @@ class EditReview extends Component {
     this.state.checkedTags[index] = event.target.checked;
   }
 
-  postReview() {
+  updateReview() {
 
     event.preventDefault();
     event.stopPropagation();
@@ -109,12 +108,12 @@ class EditReview extends Component {
     fd.append('review', JSON.stringify(form));
 
     // Iterate through all pictures adding image/name to form
-    for (var idx = 0; idx < this.state.pictures.length; idx++) {
+    /*for (var idx = 0; idx < this.state.pictures.length; idx++) { TODO images
 
       // Append current image/name
       fd.append('image', this.state.pictures[idx]);
       fd.append('name', this.state.pictures[idx].name);
-    }
+    }*/ 
 
     for(var i = 0; i < this.state.checkedTags.length; i++) {
       if(this.state.checkedTags[i]) {
@@ -122,18 +121,10 @@ class EditReview extends Component {
       }
     }
 
-    // fd.append()
-
-    // TODO: add tags like this (IF NO TAGS, DONT APPEND ANYTHING TO FD)
-    // fd.append('tag', tags[i])
-    //
-    //
-    // ^^^^^^^^^^^^^^^^^^^^^^^
-
     // Send POST request with review multipart
     axios({
       method: 'post',
-      url: '/create_review/' + user,
+      url: '/edit_review/' + this.props.location.state.id,
       data: fd
     }).then(response => {
 
@@ -143,7 +134,7 @@ class EditReview extends Component {
     }).catch(error => {
 
       // Failed to create review
-      alert('Review creation failed');
+      alert('Review edit failed');
 
     });
 
@@ -181,7 +172,7 @@ class EditReview extends Component {
               <Link to="/"><img src={corgiImage} /></Link>
               <div className="logInForm">
                 <h1 className="logInLabel">Edit Review</h1>
-                <Form noValidate validated={this.state.validated} className="logInEntryContainer" onSubmit={this.postReview}>
+                <Form noValidate validated={this.state.validated} className="logInEntryContainer" onSubmit={this.updateReview}>
                   <div className="logInEntryContainer">
                     <Form.Control id="kennel" className="logInEntry" size="lg" type="text" readOnly defaultValue={this.props.location.state.kennel_name} />
                   </div>
@@ -201,7 +192,7 @@ class EditReview extends Component {
                     <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                   </div>
                   <div className="logInEntryContainer">
-                    <Button className="logInEntry" variant="primary" type="submit">Post</Button>
+                    <Button className="logInEntry" variant="primary" type="submit">Update</Button>
                     <Button className="logInEntry" onClick={this.props.history.goBack} variant="primary">Cancel</Button>
                   </div>
                 </Form>
