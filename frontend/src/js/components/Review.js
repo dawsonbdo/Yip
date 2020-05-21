@@ -352,7 +352,21 @@ class Review extends Component {
 
 			alert('Comment successfully posted to database!');
 
+			let comments = this.state.commentArray;
+
 			// TODO: Update page to display comment
+			comments.unshift({
+						author: response.data.author_name,
+						text: response.data.text,
+						time: response.data.timestamp,
+						rating: response.data.rating,
+						commentId: response.data.comment_uuid,
+						isLiked: response.data.is_liked,
+						isDisliked: response.data.is_disliked
+			});
+
+			// Update state to cause rerender
+			this.setState({ commentArray: comments });
 
 		}).catch(error => {
 

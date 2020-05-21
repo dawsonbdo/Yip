@@ -3,7 +3,7 @@ pub mod handlers;
 use crate::auth;
 use crate::db;
 
-use handlers::{User, DbUser, DisplayUser, DbFollowUser};
+use handlers::{User, DbUser, DisplayUser, DisplayFollowUser};
 use rocket_contrib::json::Json;
 use rocket::response::status;
 
@@ -163,7 +163,7 @@ fn block_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Acce
  * @return returns vector of the users
  */
 #[get("/get_followed_users/<username>")]
-fn get_followed_users(username: String, connection: DbConn) -> Result<Json<Vec<DbFollowUser>>, status::NotFound<String>> {
+fn get_followed_users(username: String, connection: DbConn) -> Result<Json<Vec<DisplayFollowUser>>, status::NotFound<String>> {
 
 	// Get uuid from user
 	let uuid = handlers::get_uuid_from_username(&username, &connection);

@@ -97,28 +97,36 @@ pub fn get_block_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConne
 }
 
 /**
+ * Method that converts DbFollowUser to DisplayFollowerUser
+ * @param followee: the DbFollowUser
+ * @param connection: database connection
+ *
+ * @return returns a DisplayFollowUser
+ */
+fn to_display_follower(followee: &DbFollowUser, connection: &PgConnection) -> DisplayFollowUser {
+    DisplayFollowUser{
+        followee: match get_user_from_uuid(followee.followee, connection){
+            Ok(f) => f.username,
+            Err(e) => "".to_string(),
+        }
+    }
+}
+
+/**
  * Method that returns a vector with all of the users a user is following
  * @param id: Uuid of user
  * @param connection: database connection
  *
  * @return returns a vector of DbUsers
  */
-pub fn all_user_followees(id: Uuid, connection: &PgConnection) -> QueryResult<Vec<DbFollowUser>> {
-    reviewer_follow_relationships::table
+pub fn all_user_followees(id: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayFollowUser>> {
+    match reviewer_follow_relationships::table
         .filter(reviewer_follow_relationships::follower.eq(id))
-        .load::<DbFollowUser>(&*connection)
+        .load::<DbFollowUser>(&*connection){
+            Ok(followees) => Ok(followees.iter().map(|followee| to_display_follower(followee, connection)).collect()),
+            Err(e) => Err(e),
+        }
 }
-
-/*
-// Struct representing the fields of block relationship row that is returned by DB
-#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
-#[table_name = "reviewer_follow_relationships"]
-pub struct DbFollowUser {
-    pub pkey: i64,
-    pub follower: Uuid,
-    pub followee: Uuid,
-}
-*/
 
 /**
  * Method that returns a vector with all of the users in database
@@ -206,7 +214,7 @@ pub fn get_uuid_from_username(username: &str, connection: &PgConnection) -> Uuid
 }
 
 /**
- * Method that returns username of a user given their uuid
+ * Method that returns user of a user given their uuid
  * @param id: the uuid
  * @param connection: database connection
  *
@@ -391,6 +399,12 @@ pub fn update(id: Uuid, new_password: &str, connection: &PgConnection) -> bool {
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(users::table.find(id))
         .execute(connection)
+}
+
+// Struct used for displaying followed users on profile
+#[derive(Queryable, Serialize, Deserialize)]
+pub struct DisplayFollowUser {
+    pub followee: String,
 }
 
 // Struct representing the fields of block relationship row that is inserted
