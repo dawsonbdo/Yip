@@ -39,6 +39,7 @@ class YipNavBar extends Component {
 
     this.logout = this.logout.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   logout(event) {
@@ -70,6 +71,23 @@ class YipNavBar extends Component {
 
     // Redirect to search results page with search type and query in url
     this.setState({ redirect: `/searchresults-${event}-${query}` });
+
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Get user input from search bar
+    var query = document.getElementById('searchBar').value;
+
+    // Ignore input that only contains whitespace
+    if (query.replace(/ /g, '') === "") {
+      return;
+    }
+
+    // Redirect to search results page with search type and query in url
+    this.setState({ redirect: `/searchresults-Reviews-${query}` });
 
   }
 
@@ -161,23 +179,23 @@ class YipNavBar extends Component {
             </Nav>
           </Navbar.Collapse> */}
             {/* <Button className="" variant="warning">Inbox</Button> */}
-            <Form inline className="ml-auto float-right pt-3">
+            <Form inline className="ml-auto float-right pt-3" onSubmit={this.handleSubmit}>
               <FormGroup>
                 <FormControl id="searchBar" type="text" placeholder="Search for Reviews or Kennels" />
                 {/* <Button type="submit" variant="warning">Search</Button> */}
               </FormGroup>
+              <DropdownButton
+                alignRight
+                className="pr-4"
+                onSelect={this.handleSearch}
+                title="Search"
+                id="dropdown-menu-align-right"
+                variant="light"
+                type="submit">
+                <Dropdown.Item eventKey="Reviews">Reviews</Dropdown.Item>
+                <Dropdown.Item eventKey="Kennels">Kennels</Dropdown.Item>
+              </DropdownButton>
             </Form>
-            <DropdownButton
-              alignRight
-              className="pr-4"
-              onSelect={this.handleSearch}
-              title="Search"
-              id="dropdown-menu-align-right"
-              variant="light"
-              type="submit">
-              <Dropdown.Item eventKey="Reviews">Reviews</Dropdown.Item>
-              <Dropdown.Item eventKey="Kennels">Kennels</Dropdown.Item>
-            </DropdownButton>
           </Navbar>
         </div>
       )
