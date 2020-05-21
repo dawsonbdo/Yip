@@ -92,7 +92,6 @@ class Login extends Component {
 					        <Toast.Header className="smallPopup">
 						        <strong className="mr-auto">Username or Password incorrect!</strong>
 					        </Toast.Header>
-					        {/* <Toast.Body>Click <a href="/login">here</a> to sign in</Toast.Body> */}
 				      </Toast>
 
               <div className="logInForm">
