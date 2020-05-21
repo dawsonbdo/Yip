@@ -627,35 +627,20 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
  *
  * @return returns TBD
  */
-#[post("/edit_review/<review_uuid>", data="<review>")]
-fn edit_review(review: ReviewMultipart, review_uuid: String, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
+#[post("/edit_review/<review_uuid>", data="<data>")]
+fn edit_review(data: ReviewMultipart, review_uuid: String, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
 	
-	Ok(status::Accepted(None))
+	let rev_uuid = match Uuid::parse_str(&review_uuid) {
+		Ok(id) => id,
+		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
+	};
 
-	/*
+	// Check that review_uuid is valid and get images if valid
+	let images = match handlers::get(rev_uuid, &connection){
+		Ok(r) => (r.images),
+		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
+	};
 	
-	// Converts string to a uuid
-	let uuid = Uuid::parse_str(&review_uuid).unwrap();
-
-	// Get Review from database
-	let review = handlers::get(uuid, &connection);
-
-	// Pattern match to see if review found successfully
-	match review {
-		Ok(r) => {
-			// If token matches author of review, TODO: attempt to update
-			if profile_username.eq(&r.author) { 
-				// TODO: Attempt to updat
-
-				Ok(status::Accepted(None))
-			} else {
-				Err(status::Unauthorized(Some("User is not the author".to_string())))
-			}
-		},
-		// Review not found in database
-		Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
-	}
-
 	// Create object from stringified version passed in
 	let review_value : Value = serde_json::from_str(&data.review).unwrap();
 	let review_obj = review_value.as_object().unwrap();
@@ -673,7 +658,7 @@ fn edit_review(review: ReviewMultipart, review_uuid: String, connection: DbConn)
 		// Catch error
 		match buffer.write(&img){
 			Ok(w) => w,
-			Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+			Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
 		};
 
 		// Add path to vector
@@ -681,38 +666,50 @@ fn edit_review(review: ReviewMultipart, review_uuid: String, connection: DbConn)
 	}
 
 	// Create review object in correct format
-	let review = review_creation_helper(review_obj, paths);
+	let review = review_creation_helper(review_obj, paths, data.tags);
 	
 	// Check that user is not banned from kennel
 	let user_uuid = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);
 	let kennel_id = match Uuid::parse_str(&review.kennel_uuid[1..37]) {
 		Ok(id) => id,
-		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
 	};
 
-	match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
-		Ok(rel) => if rel == 1 {return Err(status::Conflict(Some("User is banned from kennel".to_string())));} else {()},
-		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
-	}
-
-	// Check that no muted words in review text
+	// Get the muted words
 	let muted_words = match super::kennels::handlers::get(kennel_id, &connection){
 		Ok(k) => match k.muted_words {
 			Some(words) => words,
 			None => vec![],
 		},
-		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
 	};
 
+	// Check that no muted words in review text
 	for word in muted_words {
 		if review.text.contains(&word) || review.title.contains(&word) {
-			return Err(status::Conflict(Some("Review using muted word".to_string())));
+			return Err(status::Unauthorized(Some("Review using muted word".to_string())));
 		}
 	}
 
+	match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
+		Ok(rel) => if rel == 1 {return Err(status::Unauthorized(Some("User is banned from kennel".to_string())));} else {()},
+		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
+	}
 
+	// Attempt to update review in database
+	match handlers::update(rev_uuid, review, &connection){
+		Ok(r) => { 
+			// TODO: Delete files from server of old review
+			for img in images{
+				std::fs::remove_file(img);
+			}
+				
+			
 
-	*/
+			Ok(status::Accepted(None))
+		},
+		Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
+	}
 	
 	
 }
