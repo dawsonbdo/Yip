@@ -560,6 +560,8 @@ pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> QueryResul
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // TODO: Delete all the comments, and relationships ie likes/dislikes
 
+    // Delete all reports
+
     // Delete all bookmarks
     diesel::delete(bookmarks::table
              .filter(bookmarks::review.eq(id)))
