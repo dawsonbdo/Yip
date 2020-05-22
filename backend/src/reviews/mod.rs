@@ -670,7 +670,7 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 		Ok(r) => r,
 		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
 	};
-	let images : Vec<String> = if old_review.author.eq(&username) {old_review.images} else {vec![]};
+	let images : Vec<String> = if old_review.author.eq(&username) {old_review.images} else {return Err(status::Unauthorized(Some("only author can edit".to_string())))};
 	
 	// Create object from stringified version passed in
 	let review_value : Value = serde_json::from_str(&data.review).unwrap();
