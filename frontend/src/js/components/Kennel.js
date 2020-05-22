@@ -14,6 +14,7 @@ import Button from 'react-bootstrap/Button';
 import Jumbotron from "react-bootstrap/Jumbotron";
 import LoadingIcon from '../../assets/loadingIcon.gif';
 import TagCard from './TagCard';
+import RuleCard from './RuleCard';
 import { Redirect } from 'react-router-dom';
 import Nav from 'react-bootstrap/Nav';
 
@@ -39,7 +40,7 @@ class Kennel extends Component {
             tagsArray: [],
             reportsReviewsArray: [],
             reportsCommentsArray: [],
-            rules: "",
+            rulesArray: [],
             tagsString: "",
             mutedString: "",
             bannedString: "",
@@ -201,11 +202,28 @@ class Kennel extends Component {
             this.setState({
                 kennel_name: response.data.kennel_name,
                 follower_count: response.data.follower_count,
-                rules: response.data.rules
             });
 
             if (response.data.is_following) {
                 this.setState({ isFollowing: true, followBtnText: "Unfollow" });
+            }
+
+            // Iterate through rules
+            var rulesStr;
+            if( response.data.rules.length > 0) {
+                rulesStr = rulesStr + response.data.rules[0] + "\n";
+                this.state.rulesArray.push(response.data.rules[0]);
+            }
+            for (var i = 1; i < response.data.rules.length; i++) {
+
+                // Add rules to rulesArray and recreate rules string as prop for editkennel
+                rulesStr = rulesStr + response.data.rules[i];
+
+                // Add newline character after every rule except the last one
+                if(i != response.data.rules.length - 1) {
+                    rulesStr = rulesStr + "\n";
+                }
+                this.state.rulesArray.push(response.data.rules[i]);
             }
 
             // Iterate through tags
@@ -322,6 +340,9 @@ class Kennel extends Component {
         const tags = this.state.tagsArray.map(function (tag) {
             return <TagCard tag={tag} />
         });
+        const rules = this.state.rulesArray.map(function (rule) {
+           return <RuleCard rule={rule} /> 
+        });
         const reviewReports = this.state.reportsReviewsArray.map(function (report) {
             return <Message messageText={report.reason} messagerName={report.author} timestamp={report.timestamp} reportTitle={report.title} commentBody="" reviewId={report.review_uuid} />
         });
@@ -335,7 +356,7 @@ class Kennel extends Component {
             kennelContent = reviews;
         }
         if (this.state.showRules) {
-            kennelContent = this.state.rules;
+            kennelContent = rules;
         }
         if (this.state.showTags) {
             kennelContent = tags;

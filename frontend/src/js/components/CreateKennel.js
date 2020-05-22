@@ -55,7 +55,7 @@ class CreateKennel extends Component {
     // TODO: Parsing on the tags and muted words (comma separated)
     var tagsStr = document.getElementById('tags').value;
     var tags = tagsStr.split(", ");
-    var rules = document.getElementById('rules').value;
+    var rules = document.getElementById('rules').value.split("\n");
 
     var mutedStr = document.getElementById('mute').value; 
     var mutedWords;
@@ -116,7 +116,7 @@ class CreateKennel extends Component {
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Rules</Form.Label>
-                    <Form.Control id="rules" className="logInEntry" type="text" as="textarea" />
+                    <Form.Control id="rules" className="logInEntry" placeholder="Enter rules line by line" type="text" as="textarea" />
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Tags</Form.Label>

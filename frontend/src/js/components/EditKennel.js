@@ -42,7 +42,7 @@ class EditKennel extends Component {
     var title = this.props.location.state.kennel_name;
 
     // Parses form 
-    var rules = document.getElementById('rules').value; 
+    var rules = document.getElementById('rules').value.split("\n"); 
 
     // TODO: Parsing on the tags and muted words (comma separated)
     var tagsStr = document.getElementById('tags').value;
