@@ -369,10 +369,38 @@ class Kennel extends Component {
         if (this.state.kennelInfoListed && this.state.kennelReviewsListed) {
             kennel = <Container>
                 <Row className="align-items-center">
-                    <Col xs={9} className="text-center">
+                    <Col className="text-center">
                         <Jumbotron id="jumbotron" className="text-left">
-                            <h1>{this.state.kennel_name}</h1>
-                            <h4>{this.state.follower_count} Followers</h4>
+                            <Row>
+                                <Col xs={7}>
+                                    <h1>{this.state.kennel_name}</h1>
+                                    <h4>{this.state.follower_count} Followers</h4>
+                                </Col>
+                                <Col>
+                                <div className="float-right kennelBtns">
+                                    {/*If isModerator then render the Edit Kennel Button*/}
+                                    {this.state.isModerator &&
+                                        <Link to={{
+                                            pathname: "/editkennel",
+                                            state: {
+                                                rules: this.state.rulesStringProp,
+                                                tags: this.state.tagsString,
+                                                mutedWords: this.state.mutedString,
+                                                kennel_name: this.state.kennel_name,
+                                                description: this.state.description
+                                            }
+                                        }}><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
+                                    }
+                                    <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
+                                    <Link to={{
+                                        pathname: "/createreview",
+                                        state: {
+                                            kennel_name: this.state.kennel_name
+                                        }
+                                    }}><Button className="logInEntry" type="submit" variant="link">Post Review</Button></Link>
+                                    </div>
+                                </Col>
+                            </Row>
                             <p>{this.state.description}</p>
                             <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
                                 <Nav.Item as="li">
@@ -397,28 +425,7 @@ class Kennel extends Component {
                             </Nav>
                         </Jumbotron>
                     </Col>
-                    <Col>
-                        {/*If isModerator then render the Edit Kennel Button*/}
-                        {this.state.isModerator &&
-                            <Link to={{
-                                pathname: "/editkennel",
-                                state: {
-                                    rules: this.state.rulesStringProp,
-                                    tags: this.state.tagsString,
-                                    mutedWords: this.state.mutedString,
-                                    kennel_name: this.state.kennel_name,
-                                    description: this.state.description
-                                }
-                            }}><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
-                        }
-                        <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
-                        <Link to={{
-                            pathname: "/createreview",
-                            state: {
-                                kennel_name: this.state.kennel_name
-                            }
-                        }}><Button className="logInEntry" type="submit" variant="link">Post Review</Button></Link>
-                    </Col>
+                    
                 </Row>
                 <div>{kennelContent}</div>
             </Container>

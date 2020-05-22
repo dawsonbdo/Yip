@@ -189,3 +189,7 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
 }
+
+.kennelBtns {
+  padding-top: 22px;
+}
