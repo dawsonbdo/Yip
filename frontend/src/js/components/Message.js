@@ -22,7 +22,7 @@ class Message extends Component {
             isRendered: true
         }
 
-        this.handleSelect = this.handleSelect.bind(this);
+        this.deleteReport = this.deleteReport.bind(this);
     }
 
     componentDidMount() {
@@ -34,8 +34,8 @@ class Message extends Component {
 
     deleteReport() {
 		// Get review's id
-		var reportId = this.props.report_id;
-        var kennelName = this.props.kennel_name;
+		var reportId = this.props.reportId;
+        var kennelName = this.props.kennelName;
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -46,7 +46,7 @@ class Message extends Component {
 		// Send POST request
 		axios({
 			method: 'post',
-			url: '/remove_review'
+			url: reqUrl
 		}).then(response => {
 
 			//alert('Review successfully removed!');
