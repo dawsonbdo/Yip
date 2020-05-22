@@ -69,7 +69,21 @@ pub fn get_relationship_report(review_uuid: Uuid, profile_username: &str, connec
 }
 
 /**
- * Method that gets returns all reports by a user
+ * Method that gets returns all reports by a user that are comments
+ * @param username: username of user
+ * @param connection: database connection
+ *
+ * @return returns vector of all DbReports
+ */
+pub fn all_user_comment_reports(username: &str, connection: &PgConnection) -> QueryResult<Vec<DbReport>> {
+    reports::table
+            .filter(reports::reporter_name.eq(username))
+            .filter(reports::is_comment.eq(true))
+            .load::<DbReport>(connection)
+}
+
+/**
+ * Method that gets returns all reports by a user that are reviews
  * @param username: username of user
  * @param connection: database connection
  *
