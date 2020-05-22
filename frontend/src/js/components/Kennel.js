@@ -209,7 +209,7 @@ class Kennel extends Component {
             }
 
             // Iterate through rules
-            var rulesStr;
+            var rulesStr = "";
             if( response.data.rules.length > 0) {
                 rulesStr = rulesStr + response.data.rules[0] + "\n";
                 this.state.rulesArray.push(response.data.rules[0]);

@@ -56,6 +56,7 @@ class CreateKennel extends Component {
     var tagsStr = document.getElementById('tags').value;
     var tags = tagsStr.split(", ");
     var rules = document.getElementById('rules').value.split("\n");
+    console.log(rules);
 
     var mutedStr = document.getElementById('mute').value; 
     var mutedWords;
