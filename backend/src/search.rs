@@ -129,6 +129,8 @@ fn tf_idf(reviews: Vec<DbReview>, query_words: Vec<&str>, connection: &PgConnect
     	
     }
 
+    //jaro_dist("martha", "marhta");
+
     searched_reviews
 
 }
@@ -159,6 +161,7 @@ fn calc_tf_review(term: &str, review: &DbReview) -> f32{
 
     // Keep track of number of time term occures
     let mut term_count = 0;
+    let mut j_dist = 0.0;
 
 	// Iterate through title calculating number of times term appears
 	for t in title_tokens {
@@ -167,6 +170,7 @@ fn calc_tf_review(term: &str, review: &DbReview) -> f32{
 		if t.eq(term){
 			term_count += 1;
 		}
+        j_dist += jaro_dist(&t, term);
 	}
 
 	// Iterate through review text calculating number of times term appears
@@ -176,12 +180,83 @@ fn calc_tf_review(term: &str, review: &DbReview) -> f32{
 		if t.eq(term){
 			term_count += 1;
 		}
+        j_dist += jaro_dist(&t, term);
 	}
 
-	//println!("Term Count: {} Total Words: {}", term_count, total_words);
+    println!("Jaro Score ({}): {}", term, j_dist);
+    println!("TF: {}", (term_count as f32) / (total_words as f32));
 
+	//println!("Term Count: {} Total Words: {}", term_count, total_words);
+    j_dist + (term_count as f32) / (total_words as f32)
 	// Return tf value
-	(term_count as f32) / (total_words as f32)
+	//(term_count as f32) / (total_words as f32)
+}
+
+/**
+ * Helper method that returns jaro distance of two strings
+ * @param str1: 1st string
+ * @param str2: 2nd string
+ *
+ * @return returns value
+ */
+pub fn jaro_dist(str1: &str, str2: &str) -> f32 {
+
+    //println!("WTF");
+
+    let s1 : Vec<char> = str1.to_string().chars().collect();
+    let s2 : Vec<char> = str2.to_string().chars().collect();
+
+    let mut m = 0.0;
+    for c in str1.to_string().chars(){
+        if str2.contains(c){
+            m += 1.0;
+        }
+    }
+
+    let mut t = 0.0;
+    if s1.len() > s2.len() {
+
+        for i in 0..s2.len(){
+            if !s1[i].eq(&s2[i]){
+                t += 1.0;
+            }
+        }
+
+        t += (s1.len() - s2.len()) as f32;
+
+    } else {
+
+        for i in 0..s1.len(){
+            if !s1[i].eq(&s2[i]){
+                t += 1.0;
+            }
+        }
+
+        t += (s2.len() - s1.len()) as f32;
+
+    }
+
+    //println!("VALS: {} {} {} {}", m, t, s1.len(), s2.len());
+
+
+    t = t/2.0;
+
+    let d = (1 as f32/3 as f32) * ((m / s1.len() as f32 ) + (m / s2.len() as f32) + ((m-t) / m as f32));
+
+    //let t1 : String = s1.iter().collect();
+    //let t2 : String = s2.iter().collect();
+    //println!("JARO DIST ({}, {}): {}", t1, t2, d);
+
+    if d > 0.85 {
+        d
+    } else {
+        0.0
+    }
+    //println!("VALS: {} {} {} {}", m, t, s1.len(), s2.len());
+
+    
+
+  
 }
 
 /**
