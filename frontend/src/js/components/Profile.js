@@ -10,6 +10,7 @@ import YipNavBar from "./YipNavBar";
 import LoadingIcon from '../../assets/loadingIcon.gif';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
+import UserCard from './UserCard';
 import ReviewCard from './ReviewCard';
 import ImageUploader from 'react-images-upload';
 import corgiImage from '../../assets/corgi_shadow.png';
@@ -439,7 +440,7 @@ class Profile extends Component {
                 kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
         });
         const users = this.state.followedUsersArray.map(function (user) {
-            return <li><a href={`/user-${user}`}>{user}</a></li>
+            return <UserCard userName={user} />
         });
 
         // Determines what to display based on which tab selected
