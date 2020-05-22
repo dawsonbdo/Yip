@@ -24,6 +24,7 @@ struct KennelUpdate {
     rules: String,
     bans: Vec<String>,
     token: String,
+    description: String,
 }
 
 // Struct with kennel id and user jwt for banning users
@@ -384,6 +385,7 @@ fn edit_kennel(kennel: Json<KennelUpdate>, connection: DbConn) -> Result<status:
     	},
     	rules: kennel.rules.clone(),
     	token: kennel.token.clone(),
+    	description: kennel.description.clone(),
 	};
 
 	// Attempt to update kennel in database

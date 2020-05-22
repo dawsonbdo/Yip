@@ -13,6 +13,7 @@ import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Jumbotron from "react-bootstrap/Jumbotron";
 import LoadingIcon from '../../assets/loadingIcon.gif';
+import TagCard from './TagCard';
 import { Redirect } from 'react-router-dom';
 import Nav from 'react-bootstrap/Nav';
 
@@ -319,7 +320,7 @@ class Kennel extends Component {
                 kennelName={review.kennel} rating={review.rating} />
         });
         const tags = this.state.tagsArray.map(function (tag) {
-            return <p>{tag}</p>
+            return <TagCard tag={tag} />
         });
         const reviewReports = this.state.reportsReviewsArray.map(function (report) {
             return <Message messageText={report.reason} messagerName={report.author} timestamp={report.timestamp} reportTitle={report.title} commentBody="" reviewId={report.review_uuid} />

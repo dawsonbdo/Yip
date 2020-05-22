@@ -39,27 +39,29 @@ export function reportJson(kennel = "", is_comment = "", comment_id = "", review
 };
 
 // Creates a JSON Kennel object
-export function createKennelJson(name = "", tags = "", muted_words = "", rules = "", token ="") {
+export function createKennelJson(name = "", tags = "", muted_words = "", rules = "", token ="", description ="") {
     var form = {kennel_uuid: "00000000-0000-0000-0000-000000000000",
                 tags: tags,
                 kennel_name: name,
                 muted_words: muted_words,
                 rules: rules,
-                token: token
+                token: token,
+                description: description
                 };
 
     return form
 };
 
 // Creates a JSON Kennel object for editing
-export function editKennelJson(name = "", tags = "", muted_words = "", rules = "", bans ="", token ="") {
+export function editKennelJson(name = "", tags = "", muted_words = "", rules = "", bans ="", token ="", description="") {
     var form = {kennel_uuid: "00000000-0000-0000-0000-000000000000",
                 tags: tags,
                 kennel_name: name,
                 muted_words: muted_words,
                 rules: rules,
                 bans: bans,
-                token: token
+                token: token,
+                description: description
                 };
 
     return form
