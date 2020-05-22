@@ -29,7 +29,7 @@ class EditReview extends Component {
       tags: [],
       checkedTags: [],
       redirect: null,
-      validated: false
+      validated: false,
     };
     this.onDrop = this.onDrop.bind(this);
     this.updateReview = this.updateReview.bind(this);
@@ -51,6 +51,10 @@ class EditReview extends Component {
       console.log(response.data);
       this.setState({ kennelId: response.data.kennel_uuid, tags: response.data.tags });
 
+      for(var i = 0; i < response.data.tags.length; i++) {
+        this.state.checkedTags[i] = false;
+      }
+
       // Iterate over current existing tags
       for(var i = 0; i < this.props.location.state.tags.length; i++) {
         // Check that tags still exist (in case moderator edited tags)
@@ -60,6 +64,7 @@ class EditReview extends Component {
 
             // Makes tag that was already selected checked by default
             this.state.checkedTags[idxOfTag] = true;
+
         }
       }
 
@@ -77,7 +82,8 @@ class EditReview extends Component {
   }
 
   handleCheck(index, event) {
-    this.state.checkedTags[index] = event.target.checked;
+    this.state.checkedTags[index] = !this.state.checkedTags[index];
+    this.setState({ checkedTags: this.state.checkedTags });
   }
 
   updateReview() {
@@ -154,8 +160,10 @@ class EditReview extends Component {
           type="checkbox"
           id={tag}
           label={`${tag}`}
+          //onChange={this.handleCheck.bind(this, index)}
+          //defaultChecked={this.state.checkedTags[index]}
           onChange={this.handleCheck.bind(this, index)}
-          defaultChecked={this.state.checkedTags[index]}
+          checked={this.state.checkedTags[index]}
         />
       </div>
     ))
