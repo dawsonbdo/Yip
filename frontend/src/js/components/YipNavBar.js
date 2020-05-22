@@ -109,7 +109,7 @@ class YipNavBar extends Component {
 
     axios({
       method: 'get',
-      url: '/get_created_kennels/' + token,
+      url: '/get_created_kennels/' + this.state.user,
     }).then(response => {
 
       // alert('Users created kennels successfully grabbed from database!');
