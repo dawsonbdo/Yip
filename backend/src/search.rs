@@ -170,7 +170,7 @@ fn calc_tf_review(term: &str, review: &DbReview) -> f32{
 		if t.eq(term){
 			term_count += 1;
 		}
-        j_dist += jaro_dist(&t, term);
+        j_dist += jaro_dist(&t, term, 0.85);
 	}
 
 	// Iterate through review text calculating number of times term appears
@@ -180,7 +180,7 @@ fn calc_tf_review(term: &str, review: &DbReview) -> f32{
 		if t.eq(term){
 			term_count += 1;
 		}
-        j_dist += jaro_dist(&t, term);
+        j_dist += jaro_dist(&t, term, 0.85);
 	}
 
     println!("Jaro Score ({}): {}", term, j_dist);
@@ -199,7 +199,7 @@ fn calc_tf_review(term: &str, review: &DbReview) -> f32{
  *
  * @return returns value
  */
-pub fn jaro_dist(str1: &str, str2: &str) -> f32 {
+pub fn jaro_dist(str1: &str, str2: &str, margin: f32) -> f32 {
 
     //println!("WTF");
 
@@ -247,7 +247,7 @@ pub fn jaro_dist(str1: &str, str2: &str) -> f32 {
     //let t2 : String = s2.iter().collect();
     //println!("JARO DIST ({}, {}): {}", t1, t2, d);
 
-    if d > 0.85 {
+    if d > margin {
         d
     } else {
         0.0
@@ -386,10 +386,17 @@ fn calc_tf_kennel(term: &str, kennel: &DbKennel) -> f32{
     // Keep track of number of time term occures
     let mut term_count = 0;
 
+    let mut j_dist = 0.0;
+
     // If term occurs in title, count as 3 occurrences
     if name.contains(term) {
         term_count += 3;
     }
+
+    for s in name.split(" "){
+        j_dist += jaro_dist(term, s, 0.75);
+    }
+
 
     // Iterate through tags
     for t in tags {
@@ -401,10 +408,11 @@ fn calc_tf_kennel(term: &str, kennel: &DbKennel) -> f32{
         if tag.contains(term){
             term_count += 1;
         }
+        j_dist += jaro_dist(term, t, 0.8);
     }
 
     println!("Term Count: {} Total Words: {}", term_count, total_words);
 
     // Return tf value
-    (term_count as f32) / (total_words as f32)
+    j_dist + ((term_count as f32) / (total_words as f32))
 }
