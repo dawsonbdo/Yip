@@ -577,6 +577,7 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 				Ok(u) => u != 0,
 				Err(_e) => false,
 			};
+			r.is_moderator = super::kennels::handlers::get_kennel_mod_uuid_from_name(r.kennel_name.clone(), &connection).eq(&profile_uuid);
 			
 			
 			Ok(Json(r))
