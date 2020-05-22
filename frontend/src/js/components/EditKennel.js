@@ -8,6 +8,7 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
+import Spinner from 'react-bootstrap/Spinner';
 
 import axios from 'axios'
 
@@ -20,7 +21,8 @@ class EditKennel extends Component {
 
     this.state = {
       redirect: null,
-      validated: false
+      validated: false,
+      loading: false
     };
 
     // Binds button handler
@@ -36,31 +38,33 @@ class EditKennel extends Component {
     event.preventDefault();
     event.stopPropagation();
 
+    this.setState({loading: true});
+
     var token = localStorage.getItem('jwtToken');
 
     // Get kennel name passed in as prop
     var title = this.props.location.state.kennel_name;
 
     // Parses form 
-    var rules = document.getElementById('rules').value; 
+    var rules = document.getElementById('rules').value;
 
     // TODO: Parsing on the tags and muted words (comma separated)
     var tagsStr = document.getElementById('tags').value;
     var tags = tagsStr.split(", ");
 
-    var mutedStr = document.getElementById('mute').value; 
+    var mutedStr = document.getElementById('mute').value;
     var mutedWords;
 
     var desc = document.getElementById('description').value;
     // Check muted words for whitespace
-    if (mutedStr === null || mutedStr.match(/^ *$/) !== null){
+    if (mutedStr === null || mutedStr.match(/^ *$/) !== null) {
       mutedWords = null;
-     
+
     } else {
       mutedWords = mutedStr.split(", ");
     }
 
-    var banStr = document.getElementById('bans').value; 
+    var banStr = document.getElementById('bans').value;
     var bans = banStr.split(", ");
 
 
@@ -81,12 +85,18 @@ class EditKennel extends Component {
     }).catch(error => {
 
       alert('failed kennel update');
+      this.setState({loading: false});
 
     });
 
   }
 
   render() {
+    let loading = <div></div>;
+    if (this.state.loading) {
+      loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+    }
+
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />
     }
@@ -94,7 +104,7 @@ class EditKennel extends Component {
       return (
         <Container>
           <Row className="align-items-center">
-            
+
             <Col className="text-center">
               <Link to="/"><img src={corgiImage} /></Link>
               <div className="logInForm">
@@ -102,32 +112,32 @@ class EditKennel extends Component {
                 <Form noValidate validated={this.state.validated} onSubmit={this.updateKennel} className="logInEntryContainer">
                   <div className="logInEntryContainer">
                     <Form.Label>Description</Form.Label>
-                    <Form.Control id="description" className="logInEntry" defaultValue={this.props.location.state.description} type="text" as="textarea"/>
+                    <Form.Control id="description" className="logInEntry" defaultValue={this.props.location.state.description} type="text" as="textarea" />
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Rules</Form.Label>
-                    <Form.Control id="rules" className="logInEntry" defaultValue={this.props.location.state.rules} type="text" as="textarea"/>
+                    <Form.Control id="rules" className="logInEntry" defaultValue={this.props.location.state.rules} type="text" as="textarea" />
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Tags</Form.Label>
-                    <Form.Control id="tags" className="logInEntry" defaultValue={this.props.location.state.tags} type="text"/>
+                    <Form.Control id="tags" className="logInEntry" defaultValue={this.props.location.state.tags} type="text" />
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Muted Words</Form.Label>
-                    <Form.Control id="mute" className="logInEntry" defaultValue={this.props.location.state.mutedWords} type="text"/>
+                    <Form.Control id="mute" className="logInEntry" defaultValue={this.props.location.state.mutedWords} type="text" />
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Banned Reviewers</Form.Label>
-                    <Form.Control id="bans" className="logInEntry" type="text"/>
+                    <Form.Control id="bans" className="logInEntry" type="text" />
                   </div>
                   <div className="logInEntryContainer">
-                    <Button className="logInEntry" type="submit" variant="primary">Save</Button>
+                    <Button className="logInEntry" type="submit" variant="primary"><div>Save{loading}</div></Button>
                     <Button className="logInEntry" onClick={this.props.history.goBack} variant="primary">Cancel</Button>
                   </div>
                 </Form>
               </div>
             </Col>
-            
+
           </Row>
         </Container>
       )

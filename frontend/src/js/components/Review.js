@@ -19,6 +19,7 @@ import bookmarkIcon from '../../assets/bookmark.png';
 import reportIcon from '../../assets/report.png';
 import trashIcon from '../../assets/trash.png';
 import editIcon from '../../assets/edit.png';
+import Spinner from 'react-bootstrap/Spinner';
 
 import axios from 'axios'
 
@@ -47,7 +48,8 @@ class Review extends Component {
 			isBookmarked: false,
 			kennel: "",
 			isAuthor: false,
-			isModerator: false
+			isModerator: false,
+			loading: false
 		};
 
 		// Binds button handler
@@ -351,7 +353,11 @@ class Review extends Component {
 
 	}
 
-	postComment() {
+	postComment(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
+		this.setState({loading: true});
 		// TODO: Get uuid of review from url probably
 		var reviewId = this.props.match.params.id;
 		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
@@ -374,7 +380,7 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			alert('Comment successfully posted to database!');
+			//alert('Comment successfully posted to database!');
 
 			let comments = this.state.commentArray;
 
@@ -390,13 +396,17 @@ class Review extends Component {
 				isAuthor: true
 			});
 
+			document.getElementById('commentForm').reset();
+
 			// Update state to cause rerender
 			this.setState({ commentArray: comments });
+			this.setState({loading: false});
 
 		}).catch(error => {
 
 			// Failed to post comment
 			alert('Comment post failed');
+			this.setState({loading: false});
 
 		});
 	}
@@ -412,6 +422,10 @@ class Review extends Component {
 	}
 
 	render() {
+		let loading = <div></div>;
+        if(this.state.loading) {
+            loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+        }
 
 		// Gets the comments in their comment cards
 		let nameOfKennel = this.state.kennel;
@@ -517,12 +531,12 @@ class Review extends Component {
 							<Col xs={10} className="text-center">
 								<div className="logInForm">
 									<h3 className="logInLabel pt-2 pb-2">Leave a Comment</h3>
-									<Form className="logInEntryContainer">
+									<Form id="commentForm" className="logInEntryContainer" onSubmit={this.postComment}>
 										<div className="logInEntryContainer">
-											<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" />
+											<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" required/>
 										</div>
 										<div className="logInEntryContainer">
-											<Button onClick={this.postComment} className="logInEntry" variant="primary">Post</Button>
+											<Button className="logInEntry" type="submit" variant="primary"><div>Post{loading}</div></Button>
 										</div>
 									</Form>
 								</div>

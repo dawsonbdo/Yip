@@ -9,6 +9,8 @@ import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
 import Alert from 'react-bootstrap/Alert';
+import Spinner from 'react-bootstrap/Spinner';
+import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
@@ -22,7 +24,9 @@ class Profile extends Component {
         this.state = {
             redirect: null,
             validated: false,
-			reviewFrom: {}
+            reviewFrom: {},
+            loading: false,
+            showPopup: false
         };
 
         // Binds button handler
@@ -32,12 +36,12 @@ class Profile extends Component {
     componentDidMount() {
         //const { handle } = this.props.match.params;
         const reviewState = this.props.location.state;
-    
+
         // fetch(`localhost:8000/kennel-${handle}`)
         //   .then((kennel) => {
         //     this.setState(() => ({ kennel }))
         //   })
-        this.setState({ reviewFrom: reviewState});
+        this.setState({ reviewFrom: reviewState });
     }
 
     /**
@@ -56,11 +60,13 @@ class Profile extends Component {
             return;
         }
 
+        this.setState({ loading: true });
+
         // Get fields to create Report to pass as data
         var kennel_name = this.state.reviewFrom.kennel_name;
         var is_comment = this.state.reviewFrom.is_comment;
         var comment_id = this.state.reviewFrom.comment_id;
-        if(is_comment) {
+        if (is_comment) {
             var review_id = "";
         }
         else {
@@ -85,7 +91,7 @@ class Profile extends Component {
             data: form
         }).then(response => {
 
-            alert('Review successfully reported!');
+            //alert('Review successfully reported!');
 
             let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
             this.setState({ redirect: redirectUrl });
@@ -93,14 +99,20 @@ class Profile extends Component {
         }).catch(error => {
 
             // Failed to dislike review
-            alert('Review report failed');
-            let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
-            this.setState({ redirect: redirectUrl });
+            // alert('Review report failed');
+            //let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
+            //this.setState({ redirect: redirectUrl });
+            this.setState({ loading: false, showPopup: true });
 
         });
     }
 
     render() {
+        let loading = <div></div>;
+        if (this.state.loading) {
+            loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+        }
+
         if (this.state.redirect) {
             return <Redirect to={this.state.redirect} />
         }
@@ -111,6 +123,13 @@ class Profile extends Component {
                         <Col></Col>
                         <Col className="text-center">
                             <Link to="/"><img src={corgiImage} /></Link>
+
+                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
+                                <Toast.Header className="smallPopup">
+                                    <strong className="mx-auto">Review already reported!</strong>
+                                </Toast.Header>
+                            </Toast>
+
                             <div className="logInForm">
                                 <h1 className="logInLabel">Report Reason</h1>
                                 <Form noValidate validated={this.state.validated} onSubmit={this.reportReview} className="logInEntryContainer">
@@ -119,7 +138,8 @@ class Profile extends Component {
                                         <Form.Control.Feedback type="invalid">Reason needed.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Button className="logInEntry" type="submit" variant="primary" >Submit</Button>
+                                        <Button className="logInEntry" type="submit" variant="primary"><div>Submit{loading}</div></Button>
+                                        <Button className="logInEntry" onClick={this.props.history.goBack} variant="primary">Cancel</Button>
                                     </div>
                                 </Form>
                             </div>
