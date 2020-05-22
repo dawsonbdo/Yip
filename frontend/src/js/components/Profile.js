@@ -191,11 +191,6 @@ class Profile extends Component {
             console.log("FOLLOWED USER");
             console.log(response.data);
 
-            this.setState({
-                username: response.data.username,
-                isOwner: response.data.is_owner,
-            });
-
             for(var i = 0; i < response.data.length; i++) {
                 this.state.followedUsersArray.push(response.data[i].followee);
             }
