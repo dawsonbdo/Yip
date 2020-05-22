@@ -393,7 +393,12 @@ class Review extends Component {
 	}
 
 	getURL() {
-		alert("test");
+		var url = document.createElement('textarea');
+		url.innerText = window.location.href;
+		document.body.appendChild(url);
+		url.select();
+		document.execCommand('copy');
+		url.remove();
 	}
 
 	render() {
