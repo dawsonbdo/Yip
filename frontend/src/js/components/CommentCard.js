@@ -37,6 +37,8 @@ class CommentCard extends Component {
             isDisliked: this.props.isDisliked
         });
         updateLoggedInState(this);
+
+        alert(this.props.isModerator);
     }
 
     deleteComment() {
@@ -244,5 +246,6 @@ export default CommentCard;
 CommentCard.propTypes = {
     commenterName: PropTypes.string.isRequired,
     commentText: PropTypes.string.isRequired,
-    timestamp: PropTypes.string.isRequired
+    timestamp: PropTypes.string.isRequired,
+    isModerator: PropTypes.bool.isRequired
 }
