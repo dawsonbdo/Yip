@@ -18,9 +18,11 @@ class Message extends Component {
     constructor(props) {
         super(props);
 
-        // this.state = {
-        //     rating: 0
-        // }
+        this.state = {
+            isRendered: true
+        }
+
+        this.handleSelect = this.handleSelect.bind(this);
     }
 
     componentDidMount() {
@@ -30,14 +32,44 @@ class Message extends Component {
         updateLoggedInState(this);
     }
 
+    deleteReport() {
+		// Get review's id
+		var reportId = this.props.report_id;
+        var kennelName = this.props.kennel_name;
+
+		// Get token
+		var token = localStorage.getItem('jwtToken');
+
+		// Create form for request
+		var reqUrl = '/delete_report/' + reportId + '/' + kennelName + '/' + token;
+
+		// Send POST request
+		axios({
+			method: 'post',
+			url: '/remove_review'
+		}).then(response => {
+
+			//alert('Review successfully removed!');
+			this.setState({ isRendered: false });
+
+		}).catch(error => {
+
+			alert('Report removal failed');
+
+		});
+    }
+
     render() {
         let isComment = this.props.commentBody;
         let redirectUrl = '/review-' + this.props.reviewId;
+        let rendered = this.state.isRendered;
         return (
+            <>
+            { rendered &&
             <Container className="pb-5">
                 <Row>
                     <Col></Col>
-
+            
                     <Col xs={10} className="text-center">
                         <div className="logInForm">
                             <div className="logInLabel">
@@ -47,7 +79,7 @@ class Message extends Component {
                                             <h4 className="text-left pt-2 pl-2"><a class="profileLink" href={`/user-${this.props.messagerName}`}>{this.props.messagerName}</a></h4>
                                         </Col>
                                         <Col>
-									        <Image onClick={this.deleteReview} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
+									        <Image onClick={this.deleteReport} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
                                         </Col>
                                     </Row>
                                 </Container>
@@ -88,6 +120,8 @@ class Message extends Component {
                     <Col></Col>
                 </Row>
             </Container>
+            }
+            </>
         )
     }
 }
