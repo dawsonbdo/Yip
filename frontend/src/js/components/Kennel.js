@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import Form from 'react-bootstrap/Form';
 import ReviewCard from './ReviewCard';
+import Message from './Message';
 import YipNavBar from './YipNavBar';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
@@ -29,10 +30,14 @@ class Kennel extends Component {
             showReviews: true,
             showRules: false,
             showTags: false,
+            showReviewReports: true,
+            showCommentReports: false,
             isFollowing: false,
             followBtnText: "Follow",
             reviewArray: [],
             tagsArray: [],
+            reportsReviewsArray: [],
+            reportsCommentsArray: [],
             rules: "",
             tagsString: "",
             mutedString: "",
@@ -49,20 +54,27 @@ class Kennel extends Component {
     handleSelect(eventKey) {
 
         if (eventKey == "reviews") {
-            this.setState({ showReviews: true, showRules: false, showTags: false });
+            this.setState({ showReviews: true, showRules: false, showTags: false, showReviewReports: false, showCommentReports: false });
         }
         if (eventKey == "rules") {
-            this.setState({ showReviews: false, showRules: true, showTags: false });
+            this.setState({ showReviews: false, showRules: true, showTags: false, showReviewReports: false, showCommentReports: false });
         }
         if (eventKey == "tags") {
-            this.setState({ showReviews: false, showRules: false, showTags: true });
+            this.setState({ showReviews: false, showRules: false, showTags: true, showReviewReports: false, showCommentReports: false });
         }
+        if (eventKey == "reviewReports") {
+            this.setState({ showReviews: false, showRules: false, showTags: false, showReviewReports: true, showCommentReports: false });
+        }
+        if (eventKey == "commentReports") {
+            this.setState({ showReviews: false, showRules: false, showTags: false, showReviewReports: false, showCommentReports: true });
+        }
+
     }
 
     followKennel() {
 
         updateLoggedInState(this);
-        if(isLoggedIn(this)) {
+        if (isLoggedIn(this)) {
 
             if (!this.state.isFollowing) {
                 this.setState({ isFollowing: true, followBtnText: "Unfollow" });
@@ -182,7 +194,7 @@ class Kennel extends Component {
         }).then(response => {
 
             // alert('Kennel info successfully grabbed from database!');
-            console.log(response.data);
+            // console.log(response.data);
 
             // Updates kennel name
             this.setState({
@@ -244,6 +256,59 @@ class Kennel extends Component {
         });
 
 
+        // Get token 
+        var token = localStorage.getItem('jwtToken');
+
+        // Format URL to send in GET request
+        reqUrl = "/get_kennel_reports_reviews/" + kennelName + "/" + token;
+
+        // Send GET request with kennel name to get kennel information
+        axios({
+            method: 'get',
+            url: reqUrl
+        }).then(response => {
+
+            if (response.data.length > 0) {
+                this.state.reportsReviewsArray.push(response.data[0]);
+            }
+            for (var i = 1; i < response.data.length; i++) {
+                this.state.reportsReviewsArray.push(response.data[i]);
+            }
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('Review Report error');
+
+        });
+
+        // Get token 
+        var token = localStorage.getItem('jwtToken');
+
+        // Format URL to send in GET request
+        reqUrl = "/get_kennel_reports_comments/" + kennelName + "/" + token;
+
+        // Send GET request with kennel name to get kennel information
+        axios({
+            method: 'get',
+            url: reqUrl
+        }).then(response => {
+
+            // Iterate through tags
+            if (response.data.length > 0) {
+                this.state.reportsCommentsArray.push(response.data[0]);
+            }
+            for (var i = 1; i < response.data.length; i++) {
+
+                this.state.reportsCommentsArray.push(response.data[i]);
+            }
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('Comment Report error');
+
+        });
     }
 
     render() {
@@ -255,6 +320,12 @@ class Kennel extends Component {
         });
         const tags = this.state.tagsArray.map(function (tag) {
             return <p>{tag}</p>
+        });
+        const reviewReports = this.state.reportsReviewsArray.map(function (report) {
+            return <Message messageText={report.reason} messagerName={report.author} timestamp={report.timestamp} reportTitle={report.title} commentBody="" reviewId={report.review_uuid} />
+        });
+        const commentReports = this.state.reportsCommentsArray.map(function (report) {
+            return <Message messageText={report.reason} messagerName={report.author_name} timestamp={report.timestamp} reportTitle="" commentBody={report.text} reviewId="" />
         });
 
         // Determines what to display based on which tab selected
@@ -268,6 +339,13 @@ class Kennel extends Component {
         if (this.state.showTags) {
             kennelContent = tags;
         }
+        if (this.state.showReviewReports) {
+            kennelContent = reviewReports;
+        }
+        if (this.state.showCommentReports) {
+            kennelContent = commentReports;
+        }
+
 
         // Renders either kennel or loading screen
         let kennel;
@@ -288,6 +366,16 @@ class Kennel extends Component {
                                 <Nav.Item as="li">
                                     <Nav.Link eventKey="tags">Tags</Nav.Link>
                                 </Nav.Item>
+                                {this.state.isModerator &&
+                                    <>
+                                        <Nav.Item as="li">
+                                            <Nav.Link eventKey="reviewReports">Reported Reviews</Nav.Link>
+                                        </Nav.Item>
+                                        <Nav.Item as="li">
+                                            <Nav.Link eventKey="commentReports">Reported Comments</Nav.Link>
+                                        </Nav.Item>
+                                    </>
+                                }
                             </Nav>
                         </Jumbotron>
                     </Col>
@@ -297,10 +385,10 @@ class Kennel extends Component {
                             <Link to={{
                                 pathname: "/editkennel",
                                 state: {
-                                  rules: this.state.rules,
-                                  tags: this.state.tagsString,
-                                  mutedWords: this.state.mutedString,
-                                  kennel_name: this.state.kennel_name
+                                    rules: this.state.rules,
+                                    tags: this.state.tagsString,
+                                    mutedWords: this.state.mutedString,
+                                    kennel_name: this.state.kennel_name
                                 }
                             }}><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
                         }
