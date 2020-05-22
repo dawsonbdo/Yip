@@ -68,6 +68,7 @@ table! {
         muted_words -> Nullable<Array<Text>>,
         rules -> Nullable<Varchar>,
         mod_uuid -> Uuid,
+        description -> Varchar,
     }
 }
 

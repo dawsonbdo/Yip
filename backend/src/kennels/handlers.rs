@@ -32,6 +32,7 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
         },
         rules: if kennel.rules.eq("") {None} else {Some(kennel.rules.clone())},
         mod_uuid: if mod_id.is_nil() {auth::get_uuid_from_token(&kennel.token)} else {mod_id},
+        description: kennel.description,
     }
 }
 
@@ -128,6 +129,7 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
             Some(r) => r.to_string(),
             None => "".to_string(),
         },
+        description: kennel.description.clone(),
     }
 
 }
@@ -459,6 +461,7 @@ pub struct Kennel {
     pub muted_words: Option<Vec<String>>,
     pub rules: String,
     pub token: String,
+    pub description: String,
 }
 
 // Struct represneting the fields of a kennel that is inserted into database
@@ -473,6 +476,7 @@ pub struct DbKennel {
     pub muted_words: Option<Vec<String>>,
     pub rules: Option<String>,
     pub mod_uuid: Uuid,
+    pub description: String,
 }
 
 // Struct represneting the fields of a kennel that is returned to frontend
@@ -487,4 +491,5 @@ pub struct DisplayKennel {
     pub is_banned: bool,
     pub muted_words: Option<Vec<String>>,
     pub rules: String,
+    pub description: String,
 }
