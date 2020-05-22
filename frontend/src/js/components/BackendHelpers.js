@@ -60,7 +60,7 @@ export function editKennelJson(name = "", tags = "", muted_words = "", rules = "
                 muted_words: muted_words,
                 rules: rules,
                 bans: bans,
-                token: token
+                token: token,
                 description: description
                 };
 
