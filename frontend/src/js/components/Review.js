@@ -45,7 +45,8 @@ class Review extends Component {
 			isDisliked: false,
 			isBookmarked: false,
 			kennel: "",
-			isAuthor: false
+			isAuthor: false,
+			isModerator: false
 		};
 
 		// Binds button handler
@@ -118,11 +119,13 @@ class Review extends Component {
 				// TODO: Render edit/delete buttons depending on if author of review
 				console.log("Is Author: " + response.data.is_author);
 
+				console.log("Is Moderator: " + response.data.is_moderator);
 				// TODO: Render like/dislike buttons depending on if liked
 				console.log("Is Liked: " + response.data.is_liked);
 				console.log("Is Disliked: " + response.data.is_disliked);
 
 				this.setState({ isAuthor: response.data.is_author });
+				this.setState({ isModerator: response.data.is_moderator });
 				this.setState({ reviewListed: true });
 				this.forceUpdate();
 			}
@@ -443,8 +446,9 @@ class Review extends Component {
 								<h5 id="kennel"><a class="profileLink" href={`/kennel-${this.state.kennel}`}>Kennel: {this.state.kennel}</a></h5>
 							</Col>
 							<Col className="text-right reviewIcon">
-								{/*If isAuthor then render the deleteReview button*/}
-								{this.state.isAuthor &&
+
+								{/*If isAuthor of isModerator then render the deleteReview button*/}
+								{(this.state.isAuthor || this.state.isModerator) &&
 									<Image onClick={this.deleteReview} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
 								}
 								<Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} />
@@ -461,6 +465,7 @@ class Review extends Component {
 								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
 								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />
+
 								{/*If isAuthor then render the editReview button*/}
 								{this.state.isAuthor &&
 									<Link to={{
