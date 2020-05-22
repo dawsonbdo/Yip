@@ -25,6 +25,12 @@ class Home extends Component {
       reviewsListed: false
     };
 
+    this.resetAuthState = this.resetAuthState.bind(this);
+
+  }
+
+  resetAuthState() {
+    location.reload();
   }
 
   // After component is loaded, update auth state
@@ -86,7 +92,7 @@ class Home extends Component {
 
     return (
       <div>
-        <YipNavBar />
+        <YipNavBar fromHomePage={true} resetAuthHomePage={this.resetAuthState}/>
         <Jumbotron id="jumbotron" className="text-center">
           <h1>Welcome to Yip!</h1>
           <p>

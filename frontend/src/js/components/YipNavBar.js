@@ -46,6 +46,10 @@ class YipNavBar extends Component {
   logout(event) {
     localStorage.removeItem('jwtToken');
     updateLoggedInState(this);
+
+    if(this.props.fromHomePage) {
+      this.props.resetAuthHomePage();
+    }
   }
 
   // After component is loaded, update auth state
