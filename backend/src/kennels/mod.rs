@@ -388,6 +388,8 @@ fn edit_kennel(kennel: Json<KennelUpdate>, connection: DbConn) -> Result<status:
     	description: kennel.description.clone(),
 	};
 
+	println!("TAGS: {}", k.tags[0]);
+
 	// Attempt to update kennel in database
 	let successful_edit = handlers::update(moderator, k, &connection);
 	
