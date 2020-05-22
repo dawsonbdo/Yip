@@ -10,7 +10,7 @@ import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
-import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
+import { isLoggedIn, updateLoggedInState, updateLoggedInUser } from './BackendHelpers.js';
 
 import axios from 'axios'
 
@@ -22,7 +22,8 @@ class Home extends Component {
     this.state = {
       loggedIn: false,
       reviewArray: [],
-      reviewsListed: false
+      reviewsListed: false,
+      user: ""
     };
 
     this.resetAuthState = this.resetAuthState.bind(this);
@@ -38,6 +39,7 @@ class Home extends Component {
 
     // Updates logged in state of the component
     updateLoggedInState(this);
+    updateLoggedInUser(this);
 
     // Load reviews
     axios({
@@ -77,31 +79,40 @@ class Home extends Component {
 
 
   render() {
+    let greeting = "Welcome to Yip!";
+    let homePageMessage = "A community-based review site.";
+    if (this.state.loggedIn) {
+      greeting = "Welcome back, " + this.state.user + "!";
+      homePageMessage = "Check out the latest reviews from kennels and reviewers you follow."
+    }
+
+    let homeContent;
     let reviews;
     if (this.state.reviewsListed) {
       reviews = this.state.reviewArray.map(function (review) {
-        return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} 
-        kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked}/>
+        return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
+          kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
       });
-    } else {
-      // Loading Symbol
-      reviews = <Row>
-                  <Image className="mx-auto loadingIcon" src={LoadingIcon}></Image>
-                </Row>;
-    }
-
-    return (
-      <div>
-        <YipNavBar fromHomePage={true} resetAuthHomePage={this.resetAuthState}/>
+      homeContent = <div>
         <Jumbotron id="jumbotron" className="text-center">
-          <h1>Welcome to Yip!</h1>
-          <p>
-            A community-based review site.
-                </p>
+          <h1>{greeting}</h1>
+          <p>{homePageMessage}</p>
           <p id="authstatus">
           </p>
         </Jumbotron>
         {reviews}
+      </div>
+    } else {
+      // Loading Symbol
+      homeContent = <Row>
+        <Image className="mx-auto loadingIcon loading" src={LoadingIcon}></Image>
+      </Row>;
+    }
+
+    return (
+      <div>
+        <YipNavBar fromHomePage={true} resetAuthHomePage={this.resetAuthState} />
+        {homeContent}
       </div>
     )
   }
