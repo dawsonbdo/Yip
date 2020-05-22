@@ -17,6 +17,7 @@ import SearchResults from './components/SearchResults';
 import Profile from './components/Profile';
 import Inbox from './components/Inbox';
 import Report from './components/Report';
+import TransferOwnership from './components/TransferOwnership';
 
 function App() {
   
@@ -38,6 +39,7 @@ function App() {
 		  <Route path="/inbox" exact component={Inbox} />
 		  <Route path="/kennel-:kennelName" component={Kennel} />
           <Route path="/report" exact component={Report} />
+		  <Route path="/transferownership" exact component={TransferOwnership} />
         </Switch>
       </div>
     </Router>
