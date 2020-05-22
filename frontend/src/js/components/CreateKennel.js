@@ -55,7 +55,7 @@ class CreateKennel extends Component {
     // TODO: Parsing on the tags and muted words (comma separated)
     var tagsStr = document.getElementById('tags').value;
     var tags = tagsStr.split(", ");
-    var rules = document.getElementById('rules').value.split("\n");
+    var rules = document.getElementById('rules').value;
     console.log(rules);
 
     var mutedStr = document.getElementById('mute').value; 

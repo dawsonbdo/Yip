@@ -41,6 +41,7 @@ class Kennel extends Component {
             reportsReviewsArray: [],
             reportsCommentsArray: [],
             rulesArray: [],
+            rulesStringProp: "",
             tagsString: "",
             mutedString: "",
             bannedString: "",
@@ -208,22 +209,10 @@ class Kennel extends Component {
                 this.setState({ isFollowing: true, followBtnText: "Unfollow" });
             }
 
-            // Iterate through rules
-            var rulesStr = "";
-            if( response.data.rules.length > 0) {
-                rulesStr = rulesStr + response.data.rules[0] + "\n";
-                this.state.rulesArray.push(response.data.rules[0]);
-            }
-            for (var i = 1; i < response.data.rules.length; i++) {
-
-                // Add rules to rulesArray and recreate rules string as prop for editkennel
-                rulesStr = rulesStr + response.data.rules[i];
-
-                // Add newline character after every rule except the last one
-                if(i != response.data.rules.length - 1) {
-                    rulesStr = rulesStr + "\n";
-                }
-                this.state.rulesArray.push(response.data.rules[i]);
+            // Split rules be newline to display in rules cards
+            var rulesArr = response.data.rules.split("\n");
+            for (var i = 0; i < rulesArr.length; i++) {
+                this.state.rulesArray.push(rulesArr[i]);
             }
 
             // Iterate through tags
@@ -261,6 +250,7 @@ class Kennel extends Component {
     
             }*/
 
+            this.setState({ rulesStringProp: response.data.rules });
             this.setState({ tagsString: tagsStr });
             this.setState({ mutedString: mutedStr });
             //this.setState({ bannedString: bannedStr });
@@ -410,7 +400,7 @@ class Kennel extends Component {
                             <Link to={{
                                 pathname: "/editkennel",
                                 state: {
-                                    rules: this.state.rules,
+                                    rules: this.state.rulesStringProp,
                                     tags: this.state.tagsString,
                                     mutedWords: this.state.mutedString,
                                     kennel_name: this.state.kennel_name
