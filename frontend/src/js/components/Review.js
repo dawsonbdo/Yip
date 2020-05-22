@@ -409,10 +409,11 @@ class Review extends Component {
 		// Gets the comments in their comment cards
 		let nameOfKennel = this.state.kennel;
 		let idOfReview = this.props.match.params.id;
+		let modStatus = this.state.isModerator;
 		let comments = this.state.commentArray.map(function (comment) {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text}
 				timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}
-				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor}/>
+				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor} isModerator={modStatus}/>
 		});
 
 		let likeIconOpacity;
