@@ -392,6 +392,7 @@ class Review extends Component {
 		});
 	}
 
+	// Copies URL into clipboard to Share the Review URL
 	getURL() {
 		var url = document.createElement('textarea');
 		url.innerText = window.location.href;
@@ -500,7 +501,7 @@ class Review extends Component {
 							<Image id="img" src={this.state.reviewImgs[0]} />
 						</Col>
 					</Row>
-					<Container className="pb-5">
+					<Container className="pb-5" id="comments">
 						<Row className="align-items-center reviewLeaveComment">
 							<Col></Col>
 							<Col xs={10} className="text-center">
