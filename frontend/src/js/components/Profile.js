@@ -14,6 +14,7 @@ import ReviewCard from './ReviewCard';
 import ImageUploader from 'react-images-upload';
 import corgiImage from '../../assets/corgi_shadow.png';
 import KennelCard from './KennelCard';
+import corgiPFP from '../../assets/corgi_pfp.png';
 
 import axios from 'axios'
 
@@ -477,8 +478,11 @@ class Profile extends Component {
                 <Row className="align-items-center">
                     <Col xs={8} className="text-center">
                         <Jumbotron id="jumbotron" className="text-left">
-                            <h1>{this.state.username}</h1>
-                            <Image id="img" className="profilePic" src={corgiImage} />
+                            <Row classname="pb-5">
+                                <Image id="img" className="profilePic pb-2" src={corgiPFP} />
+                                <h1 className="profileName">{this.state.username}</h1>
+                                <Image id="img" className="profilePic pl-1 pb-2" src={corgiPFP} />
+                            </Row>
                             <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
                                 <Nav.Item as="li">
                                     <Nav.Link eventKey="reviews">Reviews</Nav.Link>
