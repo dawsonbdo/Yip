@@ -255,11 +255,11 @@ fn get_followed_kennels(token: String, connection: DbConn) -> Result<Json<Vec<Db
  *
  * @return returns JSON of the review or error status
  */
-#[get("/get_created_kennels/<token>")]
-fn get_created_kennels(token: String, connection: DbConn) -> Result<Json<Vec<DbKennel>>, status::NotFound<String>> {
+#[get("/get_created_kennels/<username>")]
+fn get_created_kennels(username: String, connection: DbConn) -> Result<Json<Vec<DbKennel>>, status::NotFound<String>> {
 
 	// Get the uuid from token
-	let uuid = auth::get_uuid_from_token(&token);
+	let uuid = super::users::handlers::get_uuid_from_username(&username, &connection);
 
 	// If not nil, return all of the followed kennels
 	if !uuid.is_nil(){
