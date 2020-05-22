@@ -286,6 +286,7 @@ class Kennel extends Component {
             method: 'get',
             url: reqUrl
         }).then(response => {
+            console.log(response.data);
 
             if (response.data.length > 0) {
                 this.state.reportsReviewsArray.push(response.data[0]);
@@ -312,6 +313,7 @@ class Kennel extends Component {
             method: 'get',
             url: reqUrl
         }).then(response => {
+            console.log(response.data);
 
             // Iterate through tags
             if (response.data.length > 0) {
@@ -344,10 +346,11 @@ class Kennel extends Component {
            return <RuleCard rule={rule} /> 
         });
         const reviewReports = this.state.reportsReviewsArray.map(function (report) {
-            return <Message messageText={report.reason} messagerName={report.author} timestamp={report.timestamp} reportTitle={report.title} commentBody="" reviewId={report.review_uuid} />
+            return <Message messageText={report.reason} messagerName={report.author} timestamp={report.timestamp} reportTitle={report.title} commentBody="" reviewId={report.review_uuid} reportId={report.report_id} kennelName={report.kennel_name} />
         });
+        let nameOfKennel = this.state.kennel_name;
         const commentReports = this.state.reportsCommentsArray.map(function (report) {
-            return <Message messageText={report.reason} messagerName={report.author_name} timestamp={report.timestamp} reportTitle="" commentBody={report.text} reviewId="" />
+            return <Message messageText={report.reason} messagerName={report.author_name} timestamp={report.timestamp} reportTitle="" commentBody={report.text} reviewId="" reportId={report.report_id} kennelName={nameOfKennel} />
         });
 
         // Determines what to display based on which tab selected
