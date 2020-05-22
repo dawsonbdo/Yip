@@ -30,7 +30,7 @@ class Kennel extends Component {
             showReviews: true,
             showRules: false,
             showTags: false,
-            showReviewReports: true,
+            showReviewReports: false,
             showCommentReports: false,
             isFollowing: false,
             followBtnText: "Follow",
