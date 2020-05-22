@@ -22,7 +22,7 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
     DbKennel{
         kennel_uuid: if uuid.is_nil() {Uuid::new_v4()} else {uuid}, // generate random uuid for kennel
         kennel_name: kennel.kennel_name,
-        tags: if kennel.muted_words.iter().len() == 0 {None} else {Some(kennel.tags)},
+        tags: if kennel.tags.iter().len() == 0 {None} else {Some(kennel.tags)},
         follower_count: get_follower_count(uuid, connection),
         muted_words: match kennel.muted_words{
             Some(words) => Some(words),

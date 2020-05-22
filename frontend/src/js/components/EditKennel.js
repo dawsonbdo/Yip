@@ -63,7 +63,7 @@ class EditKennel extends Component {
 
 
     // Create form to send
-    var form = editKennelJson(title, tags, mutedWords, rules, bans, token);
+    var form = editKennelJson(title, tags, mutedWords, rules, bans, token, "description");
 
     console.log(form);
 

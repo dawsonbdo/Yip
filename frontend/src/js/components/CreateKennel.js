@@ -69,7 +69,7 @@ class CreateKennel extends Component {
     }
 
     // Create form to send
-    var form = createKennelJson(title, tags, mutedWords, rules, token);
+    var form = createKennelJson(title, tags, mutedWords, rules, token, "description");
 
     // Send POST request with kennel name and tags
     axios({
