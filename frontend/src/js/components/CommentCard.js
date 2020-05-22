@@ -9,6 +9,7 @@ import Image from 'react-bootstrap/Image';
 import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png';
 import reportIcon from '../../assets/report.png';
+import trashIcon from '../../assets/trash.png';
 
 import { likeDislikeCommentJson, updateLoggedInState, isLoggedIn } from './BackendHelpers.js';
 
@@ -26,6 +27,7 @@ class CommentCard extends Component {
 
         this.like = this.like.bind(this);
         this.dislike = this.dislike.bind(this);
+        this.deleteComment = this.deleteComment.bind(this);
     }
 
     componentDidMount() {
@@ -35,6 +37,36 @@ class CommentCard extends Component {
             isDisliked: this.props.isDisliked
         });
         updateLoggedInState(this);
+    }
+
+    deleteComment() {
+
+        var token = localStorage.getItem('jwtToken');
+
+        // Create form for request
+        var form = {
+            comment_uuid: this.props.commentId,
+            token: token,
+        };;
+
+        var url = '/remove_comment/' + this.props.kennel;
+
+        // Send POST request
+        axios({
+            method: 'post',
+            url: url,
+            data: form
+        }).then(response => {
+
+            alert('Comment successfully removed');
+
+        }).catch(error => {
+
+            // Failed to dislike review
+            alert('Comment removal failed');
+
+        });
+
     }
 
     like() {
@@ -161,9 +193,12 @@ class CommentCard extends Component {
                                 <Container>
                                     <Row>
                                         <Col>
-                                            <h4 className="text-left pt-2 pl-2"><a class="profileLink" href={`/user-${this.props.commenterName}`}>{this.props.commenterName}</a></h4>
+                                            <h4 className="text-left pt-2 pl-2"><a class="profileLink" 
+                                                href={`/user-${this.props.commenterName}`}>{this.props.commenterName}</a></h4>
                                         </Col>
                                         <Col>
+                                            <Image onClick={this.deleteComment} style={{ cursor: 'pointer' }}
+                                                className="likePadding float-right" src={trashIcon} width="50"/>
                                             <Link to={{
                                                 pathname: '/report',
                                                 state: {
@@ -172,7 +207,7 @@ class CommentCard extends Component {
                                                     kennel_name: this.props.kennel,
                                                     review_id: this.props.review
                                                 }
-                                            }}><Image className="likePadding float-right" src={reportIcon} /></Link>
+                                            }}><Image className="likePadding float-right" src={reportIcon} width="50"/></Link>
                                         </Col>
                                     </Row>
                                 </Container>
