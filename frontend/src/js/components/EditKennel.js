@@ -50,6 +50,8 @@ class EditKennel extends Component {
 
     var mutedStr = document.getElementById('mute').value; 
     var mutedWords;
+
+    var desc = document.getElementById('description').value;
     // Check muted words for whitespace
     if (mutedStr === null || mutedStr.match(/^ *$/) !== null){
       mutedWords = null;
@@ -63,7 +65,7 @@ class EditKennel extends Component {
 
 
     // Create form to send
-    var form = editKennelJson(title, tags, mutedWords, rules, bans, token, "description");
+    var form = editKennelJson(title, tags, mutedWords, rules, bans, token, desc);
 
     console.log(form);
 
@@ -98,6 +100,10 @@ class EditKennel extends Component {
               <div className="logInForm">
                 <h1 className="logInLabel">Edit Kennel</h1>
                 <Form noValidate validated={this.state.validated} onSubmit={this.updateKennel} className="logInEntryContainer">
+                  <div className="logInEntryContainer">
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control id="description" className="logInEntry" defaultValue={this.props.location.state.description} type="text" as="textarea"/>
+                  </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Rules</Form.Label>
                     <Form.Control id="rules" className="logInEntry" defaultValue={this.props.location.state.rules} type="text" as="textarea"/>

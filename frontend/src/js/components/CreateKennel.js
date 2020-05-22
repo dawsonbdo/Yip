@@ -60,6 +60,8 @@ class CreateKennel extends Component {
 
     var mutedStr = document.getElementById('mute').value; 
     var mutedWords;
+
+    var desc = document.getElementById('description').value;
     // Check muted words for whitespace
     if (mutedStr === null || mutedStr.match(/^ *$/) !== null){
       mutedWords = null;
@@ -69,7 +71,7 @@ class CreateKennel extends Component {
     }
 
     // Create form to send
-    var form = createKennelJson(title, tags, mutedWords, rules, token, "description");
+    var form = createKennelJson(title, tags, mutedWords, rules, token, desc);
 
     // Send POST request with kennel name and tags
     axios({
@@ -114,6 +116,10 @@ class CreateKennel extends Component {
                     <Form.Label>Kennel Name</Form.Label>
                     <Form.Control id="title" className="logInEntry" type="text" required/>
                     <Form.Control.Feedback type="invalid">Kennel name required.</Form.Control.Feedback>
+                  </div>
+                  <div className="logInEntryContainer">
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control id="description" className="logInEntry" placeholder="Enter description" type="text" as="textarea"/>
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Rules</Form.Label>

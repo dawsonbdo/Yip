@@ -32,6 +32,7 @@ class Kennel extends Component {
             showReviews: true,
             showRules: false,
             showTags: false,
+            description: "",
             showReviewReports: false,
             showCommentReports: false,
             isFollowing: false,
@@ -256,6 +257,7 @@ class Kennel extends Component {
             //this.setState({ bannedString: bannedStr });
             this.setState({ kennelInfoListed: true });
             this.setState({ isModerator: response.data.is_moderator });
+            this.setState({ description: response.data.description });
 
         }).catch(error => {
 
@@ -371,6 +373,7 @@ class Kennel extends Component {
                         <Jumbotron id="jumbotron" className="text-left">
                             <h1>{this.state.kennel_name}</h1>
                             <h4>{this.state.follower_count} Followers</h4>
+                            <p>{this.state.description}</p>
                             <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
                                 <Nav.Item as="li">
                                     <Nav.Link eventKey="reviews">Reviews</Nav.Link>
@@ -403,7 +406,8 @@ class Kennel extends Component {
                                     rules: this.state.rulesStringProp,
                                     tags: this.state.tagsString,
                                     mutedWords: this.state.mutedString,
-                                    kennel_name: this.state.kennel_name
+                                    kennel_name: this.state.kennel_name,
+                                    description: this.state.description
                                 }
                             }}><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
                         }
