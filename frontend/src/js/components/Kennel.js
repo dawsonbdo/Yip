@@ -17,6 +17,7 @@ import TagCard from './TagCard';
 import RuleCard from './RuleCard';
 import { Redirect } from 'react-router-dom';
 import Nav from 'react-bootstrap/Nav';
+import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
@@ -48,7 +49,9 @@ class Kennel extends Component {
             bannedString: "",
             kennelReviewsListed: false,
             kennelInfoListed: false,
-            isModerator: false
+            isModerator: false,
+            loginPrompt: false,
+            loginPromptAction: ""
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -86,6 +89,9 @@ class Kennel extends Component {
             else {
                 this.setState({ isFollowing: false, followBtnText: "Follow" });
             }
+        }
+        else {
+            this.setState({loginPrompt: true, loginPromptAction: "follow"});
         }
 
         // Get kennel name somehow
@@ -368,6 +374,19 @@ class Kennel extends Component {
         let kennel;
         if (this.state.kennelInfoListed && this.state.kennelReviewsListed) {
             kennel = <Container>
+                <Toast style={{
+						position: 'fixed',
+						top: 110,
+						zIndex: 1,
+						left: '50%',
+						transform: 'translate(-50%, 0%)'
+					}} className="mx-auto logInEntry" onClose={() => this.setState({ loginPrompt: false })} show={this.state.loginPrompt}>
+						<Toast.Header className="logInLabel">
+							<strong className="mx-auto">You must sign in to {this.state.loginPromptAction} kennels</strong>
+						</Toast.Header>
+						<Toast.Body style={{textAlign: 'center'}}>Click <a href="/login">here</a> to sign in</Toast.Body>
+					</Toast>
+
                 <Row className="align-items-center">
                     <Col className="text-center">
                         <Jumbotron id="jumbotron" className="text-left">

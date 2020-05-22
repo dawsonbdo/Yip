@@ -20,6 +20,7 @@ import reportIcon from '../../assets/report.png';
 import trashIcon from '../../assets/trash.png';
 import editIcon from '../../assets/edit.png';
 import Spinner from 'react-bootstrap/Spinner';
+import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
@@ -49,7 +50,9 @@ class Review extends Component {
 			kennel: "",
 			isAuthor: false,
 			isModerator: false,
-			loading: false
+			loading: false,
+			loginPrompt: false,
+			action: ""
 		};
 
 		// Binds button handler
@@ -187,7 +190,6 @@ class Review extends Component {
 
 	bookmarkReview() {
 		// TODO: Get uuid of review from url probably
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 		var reviewId = this.props.match.params.id;
 
 		// Get token
@@ -197,10 +199,19 @@ class Review extends Component {
 		var form = likeDislikeReviewJson(reviewId, token);
 
 		var url;
-		if (this.state.isBookmarked) {
-			url = '/unbookmark_review';
+
+		if (isLoggedIn(this)) {
+
+			if (this.state.isBookmarked) {
+				url = '/unbookmark_review';
+			} else {
+				url = '/bookmark_review';
+			}
+
 		} else {
-			url = '/bookmark_review';
+
+			this.setState({ loginPrompt: true, action: "bookmark" });
+			return;
 		}
 
 		this.setState({ isBookmarked: !this.state.isBookmarked });
@@ -212,17 +223,17 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			if (this.state.isBookmarked) {
+			/*if (this.state.isBookmarked) {
 				alert('Review successfully bookmarked!');
 			} else {
 				alert('Review successfully unbookmarked!');
-			}
+			}*/
 
 
 		}).catch(error => {
 
 			// Failed to dislike review
-			alert('Review bookmark/unbookmark failed');
+			// alert('Review bookmark/unbookmark failed');
 
 			// Revert preemptive frontend update
 			this.setState({ isBookmarked: !this.state.isBookmarked });
@@ -248,7 +259,11 @@ class Review extends Component {
 				this.setState({ isDisliked: true, rating: this.state.rating - 1 });
 			}
 
+		} else {
+			this.setState({ loginPrompt: true, action: "dislike" });
+			return;
 		}
+
 		// TODO: Get uuid of review from url probably
 		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 		var reviewId = this.props.match.params.id;
@@ -294,7 +309,12 @@ class Review extends Component {
 				this.setState({ isLiked: true, rating: this.state.rating + 1 });
 			}
 
+		} else {
+
+			this.setState({ loginPrompt: true, action: "like" });
+			return;
 		}
+
 		// TODO: Get uuid of review from url probably
 		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 		var reviewId = this.props.match.params.id;
@@ -357,7 +377,14 @@ class Review extends Component {
 		event.preventDefault();
 		event.stopPropagation();
 
-		this.setState({loading: true});
+		if (!isLoggedIn(this)) {
+
+			this.setState({ loginPrompt: true, action: "comment on" });
+			return;
+
+		}
+
+		this.setState({ loading: true });
 		// TODO: Get uuid of review from url probably
 		var reviewId = this.props.match.params.id;
 		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
@@ -400,13 +427,13 @@ class Review extends Component {
 
 			// Update state to cause rerender
 			this.setState({ commentArray: comments });
-			this.setState({loading: false});
+			this.setState({ loading: false });
 
 		}).catch(error => {
 
 			// Failed to post comment
 			alert('Comment post failed');
-			this.setState({loading: false});
+			this.setState({ loading: false });
 
 		});
 	}
@@ -423,9 +450,9 @@ class Review extends Component {
 
 	render() {
 		let loading = <div></div>;
-        if(this.state.loading) {
-            loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
-        }
+		if (this.state.loading) {
+			loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+		}
 
 		// Gets the comments in their comment cards
 		let nameOfKennel = this.state.kennel;
@@ -435,7 +462,7 @@ class Review extends Component {
 		let comments = this.state.commentArray.map(function (comment, index) {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text}
 				timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}
-				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor} isModerator={modStatus} commentIndex={index} rerenderReview={rerenderReview}/>
+				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor} isModerator={modStatus} commentIndex={index} rerenderReview={rerenderReview} />
 		});
 
 		let likeIconOpacity;
@@ -469,6 +496,19 @@ class Review extends Component {
 		if (this.state.reviewListed && this.state.commentsListed) {
 			reviewContent =
 				<div>
+					<Toast style={{
+						position: 'fixed',
+						top: 110,
+						zIndex: 1,
+						left: '50%',
+						transform: 'translate(-50%, 0%)'
+					}} className="mx-auto logInEntry" onClose={() => this.setState({ loginPrompt: false })} show={this.state.loginPrompt}>
+						<Toast.Header className="logInLabel">
+							<strong className="mx-auto">You must sign in to {this.state.action} reviews</strong>
+						</Toast.Header>
+						<Toast.Body style={{textAlign: 'center'}}>Click <a href="/login">here</a> to sign in</Toast.Body>
+					</Toast>
+
 					<Jumbotron id="jumbotron">
 						<Row>
 							<Col className="text-left">
@@ -533,7 +573,7 @@ class Review extends Component {
 									<h3 className="logInLabel pt-2 pb-2">Leave a Comment</h3>
 									<Form id="commentForm" className="logInEntryContainer" onSubmit={this.postComment}>
 										<div className="logInEntryContainer">
-											<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" required/>
+											<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" required />
 										</div>
 										<div className="logInEntryContainer">
 											<Button className="logInEntry" type="submit" variant="primary"><div>Post{loading}</div></Button>
