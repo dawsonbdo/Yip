@@ -161,7 +161,8 @@ class Review extends Component {
 						rating: response.data[i].rating,
 						commentId: response.data[i].comment_uuid,
 						isLiked: response.data[i].is_liked,
-						isDisliked: response.data[i].is_disliked
+						isDisliked: response.data[i].is_disliked,
+						isAuthor: response.data[i].is_author
 					});
 
 				}
@@ -393,6 +394,7 @@ class Review extends Component {
 		});
 	}
 
+	// Copies URL into clipboard to Share the Review URL
 	getURL() {
 		var url = document.createElement('textarea');
 		url.innerText = window.location.href;
@@ -410,7 +412,7 @@ class Review extends Component {
 		let comments = this.state.commentArray.map(function (comment) {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text}
 				timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}
-				kennel={nameOfKennel} review={idOfReview} />
+				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor}/>
 		});
 
 		let likeIconOpacity;
@@ -500,7 +502,7 @@ class Review extends Component {
 							<Image id="img" src={this.state.reviewImgs[0]} />
 						</Col>
 					</Row>
-					<Container className="pb-5">
+					<Container className="pb-5" id="comments">
 						<Row className="align-items-center reviewLeaveComment">
 							<Col></Col>
 							<Col xs={10} className="text-center">
