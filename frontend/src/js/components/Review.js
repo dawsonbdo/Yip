@@ -18,6 +18,7 @@ import shareIcon from '../../assets/share.png';
 import bookmarkIcon from '../../assets/bookmark.png';
 import reportIcon from '../../assets/report.png';
 import trashIcon from '../../assets/trash.png';
+import editIcon from '../../assets/edit.png';
 
 import axios from 'axios'
 
@@ -456,6 +457,20 @@ class Review extends Component {
 								{(this.state.isAuthor || this.state.isModerator) &&
 									<Image onClick={this.deleteReview} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
 								}
+								{/*If isAuthor then render the editReview button*/}
+								{this.state.isAuthor &&
+									<Link to={{
+										pathname: "/editreview",
+										state: {
+											review_id: this.props.match.params.id,
+											kennel_name: this.state.kennel,
+											title: this.state.reviewTitle,
+											text: this.state.reviewText,
+											tags: this.state.reviewTagsArray,
+											images: this.state.reviewImgs
+										}
+									}}><Image className="likePadding float-right pl-3" src={editIcon} width="60" /></Link>
+								}
 								<Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} />
 								<Link to={{
 									pathname: '/report',
@@ -470,21 +485,6 @@ class Review extends Component {
 								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
 								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />
-
-								{/*If isAuthor then render the editReview button*/}
-								{this.state.isAuthor &&
-									<Link to={{
-										pathname: "/editreview",
-										state: {
-											review_id: this.props.match.params.id,
-											kennel_name: this.state.kennel,
-											title: this.state.reviewTitle,
-											text: this.state.reviewText,
-											tags: this.state.reviewTagsArray,
-											images: this.state.reviewImgs
-										}
-									}}><Button className="logInEntry" variant="link">Edit Review</Button></Link>
-								}
 							</Col>
 						</Row>
 
