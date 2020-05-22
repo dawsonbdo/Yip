@@ -77,6 +77,7 @@ pub fn to_review(review: &DbReview) -> DisplayReview {
         is_liked: false,
         is_disliked: false,
         is_bookmarked: false,
+        is_reported: false,
         review_uuid: review.review_uuid,
         hotness: review.hotness.unwrap() as i64,
     }
@@ -686,6 +687,7 @@ pub struct DisplayReview {
     pub is_liked: bool,
     pub is_disliked: bool,
     pub is_bookmarked: bool,
+    pub is_reported: bool,
     pub review_uuid: Uuid,
     pub hotness: i64,
 }
