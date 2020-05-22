@@ -34,7 +34,8 @@ class YipNavBar extends Component {
       createdKennelsArray: [],
       redirect: null,
       followedKennelsLoaded: false,
-      createdKennelsLoaded: false
+      createdKennelsLoaded: false,
+      loadedUser: false,
     };
 
     this.logout = this.logout.bind(this);
@@ -107,10 +108,18 @@ class YipNavBar extends Component {
       //alert('Failed to get kennels');
     });
 
-    axios({
+   
+
+  }
+
+  componentDidUpdate(){
+    if ( this.state.user != "" && !this.state.loadedUser ){
+      this.setState({loadedUser:true});
+       axios({
+      
       method: 'get',
-      url: '/get_created_kennels/' + token,
-    }).then(response => {
+      url: '/get_created_kennels/' + this.state.user,
+      }).then(response => {
 
       // alert('Users created kennels successfully grabbed from database!');
 
@@ -134,7 +143,8 @@ class YipNavBar extends Component {
       //alert('User has no created kennels');
 
     });
-
+    }
+   
   }
 
   render() {

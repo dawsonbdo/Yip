@@ -57,6 +57,9 @@ fn update_display_review_fields(profile_username: &str, uuid: Uuid, reviews: Vec
 	// Get all user's bookmark relationships
 	let bookmarks = handlers::get_user_bookmarks(uuid, connection).unwrap();
 
+	// Get all user's report relationships
+	let reports = super::reports::handlers::all_user_review_reports(profile_username, connection).unwrap();
+
 	// Create hash map for the review likes and dislikes by user
 	let mut review_likes_dislikes = HashMap::new();
 
@@ -77,12 +80,21 @@ fn update_display_review_fields(profile_username: &str, uuid: Uuid, reviews: Vec
 		review_bookmarks.insert(b.review, 1);
 	}
 
+	// Create hash map for the reported reviews
+	let mut review_reports = HashMap::new();
+
+	// Iterate through reported reviews
+	for r in reports.iter() {
+		review_reports.insert(r.review_id.unwrap(), 1);
+	}
+
 	let mut reviews_updated : Vec<DisplayReview> = vec![];
 
 	// Set isAuthor, isLiked, isDisliked fields
 	for mut r in reviews {
 		let ld_val = review_likes_dislikes.get(&r.review_uuid);
 		let b_val = review_bookmarks.get(&r.review_uuid);
+		let r_val = review_reports.get(&r.review_uuid);
 
 		r.is_author = profile_username.eq(&r.author); // set field of DisplayReview
 		r.is_liked = match ld_val{
@@ -94,6 +106,10 @@ fn update_display_review_fields(profile_username: &str, uuid: Uuid, reviews: Vec
 			None => false,
 		};
 		r.is_bookmarked = match b_val{
+			Some(v) => *v == 1,
+			None => false,
+		};
+		r.is_reported = match r_val{
 			Some(v) => *v == 1,
 			None => false,
 		};
@@ -557,6 +573,12 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 				Ok(u) => u != 0,
 				Err(_e) => false,
 			};
+			r.is_reported = match super::reports::handlers::get_relationship_report(review_uuid, &profile_username, &connection){
+				Ok(u) => u != 0,
+				Err(_e) => false,
+			};
+			r.is_moderator = super::kennels::handlers::get_kennel_mod_uuid_from_name(r.kennel_name.clone(), &connection).eq(&profile_uuid);
+			
 			
 			Ok(Json(r))
 		},
@@ -649,7 +671,7 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 		Ok(r) => r,
 		Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
 	};
-	let images : Vec<String> = if old_review.author.eq(&username) {old_review.images} else {vec![]};
+	let images : Vec<String> = if old_review.author.eq(&username) {old_review.images} else {return Err(status::Unauthorized(Some("only author can edit".to_string())))};
 	
 	// Create object from stringified version passed in
 	let review_value : Value = serde_json::from_str(&data.review).unwrap();

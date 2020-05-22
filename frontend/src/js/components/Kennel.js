@@ -380,6 +380,7 @@ class Kennel extends Component {
                         </Jumbotron>
                     </Col>
                     <Col>
+                        {/*If isModerator then render the Edit Kennel Button*/}
                         {this.state.isModerator &&
                             <Link to={{
                                 pathname: "/editkennel",

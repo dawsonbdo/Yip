@@ -79,6 +79,7 @@ fn to_comment(comment: &DbComment) -> DisplayComment {
         rating: comment.rating, // TODO: Have this be up to date in db
         is_liked: false, // handled in mod.rs
         is_disliked: false, // handled in mod.rs
+        is_reported: false, // mod.rs
     }
 }
 
@@ -437,6 +438,7 @@ pub struct DisplayComment {
     pub rating: i32,
     pub is_liked: bool,
     pub is_disliked: bool,
+    pub is_reported: bool,
 }
 
 // Struct representing the fields of a comment passed in from frontend contains

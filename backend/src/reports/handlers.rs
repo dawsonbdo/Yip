@@ -50,13 +50,58 @@ fn to_report(report: &DbReport, connection: &PgConnection) -> DisplayReport {
         timestamp: report.timestamp,
     }
 }
+/**
+
+ * Helper method that returns row in report table based on params
+ * @param review_uuid: the review uuid
+ * @param profile_username: the profile name
+ * @param connection: database connection
+ *
+ * @return returns a result containing size if found, otherwise error
+ */
+pub fn get_relationship_report(review_uuid: Uuid, profile_username: &str, connection: &PgConnection) -> QueryResult<usize>{
+    
+    // Filters review like relationship table
+    reports::table
+             .filter(reports::review_id.eq(review_uuid))
+             .filter(reports::reporter_name.eq(profile_username))
+             .execute(connection)
+}
+
+/**
+ * Method that gets returns all reports by a user that are comments
+ * @param username: username of user
+ * @param connection: database connection
+ *
+ * @return returns vector of all DbReports
+ */
+pub fn all_user_comment_reports(username: &str, connection: &PgConnection) -> QueryResult<Vec<DbReport>> {
+    reports::table
+            .filter(reports::reporter_name.eq(username))
+            .filter(reports::is_comment.eq(true))
+            .load::<DbReport>(connection)
+}
+
+/**
+ * Method that gets returns all reports by a user that are reviews
+ * @param username: username of user
+ * @param connection: database connection
+ *
+ * @return returns vector of all DbReports
+ */
+pub fn all_user_review_reports(username: &str, connection: &PgConnection) -> QueryResult<Vec<DbReport>> {
+    reports::table
+            .filter(reports::reporter_name.eq(username))
+            .filter(reports::is_comment.eq(false))
+            .load::<DbReport>(connection)
+}
 
 /**
  * Method that gets returns all reports in a kennel
  * @param kennel_uuid: uuid of kennel
  * @param connection: database connection
  *
- * @return returns vector of all DbKennels
+ * @return returns vector of all DisplayReports in kennel
  */
 pub fn all_kennel_reports(kennel_uuid: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayReport>> {
 

@@ -18,6 +18,7 @@ import shareIcon from '../../assets/share.png';
 import bookmarkIcon from '../../assets/bookmark.png';
 import reportIcon from '../../assets/report.png';
 import trashIcon from '../../assets/trash.png';
+import editIcon from '../../assets/edit.png';
 
 import axios from 'axios'
 
@@ -45,7 +46,8 @@ class Review extends Component {
 			isDisliked: false,
 			isBookmarked: false,
 			kennel: "",
-			isAuthor: false
+			isAuthor: false,
+			isModerator: false
 		};
 
 		// Binds button handler
@@ -54,6 +56,7 @@ class Review extends Component {
 		this.dislikeReview = this.dislikeReview.bind(this);
 		this.deleteReview = this.deleteReview.bind(this);
 		this.bookmarkReview = this.bookmarkReview.bind(this);
+		this.getURL = this.getURL.bind(this);
 	}
 
 	componentDidMount() {
@@ -117,11 +120,13 @@ class Review extends Component {
 				// TODO: Render edit/delete buttons depending on if author of review
 				console.log("Is Author: " + response.data.is_author);
 
+				console.log("Is Moderator: " + response.data.is_moderator);
 				// TODO: Render like/dislike buttons depending on if liked
 				console.log("Is Liked: " + response.data.is_liked);
 				console.log("Is Disliked: " + response.data.is_disliked);
 
 				this.setState({ isAuthor: response.data.is_author });
+				this.setState({ isModerator: response.data.is_moderator });
 				this.setState({ reviewListed: true });
 				this.forceUpdate();
 			}
@@ -388,6 +393,15 @@ class Review extends Component {
 		});
 	}
 
+	getURL() {
+		var url = document.createElement('textarea');
+		url.innerText = window.location.href;
+		document.body.appendChild(url);
+		url.select();
+		document.execCommand('copy');
+		url.remove();
+	}
+
 	render() {
 
 		// Gets the comments in their comment cards
@@ -438,22 +452,12 @@ class Review extends Component {
 								<h5 id="kennel"><a class="profileLink" href={`/kennel-${this.state.kennel}`}>Kennel: {this.state.kennel}</a></h5>
 							</Col>
 							<Col className="text-right reviewIcon">
-								{this.state.isAuthor &&
+
+								{/*If isAuthor of isModerator then render the deleteReview button*/}
+								{(this.state.isAuthor || this.state.isModerator) &&
 									<Image onClick={this.deleteReview} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
 								}
-								<Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} />
-								<Link to={{
-									pathname: '/report',
-									state: {
-										is_comment: false,
-										comment_id: "",
-										kennel_name: this.state.kennel,
-										review_id: this.props.match.params.id
-									}
-								}}><Image className="likePadding float-right pl-5" src={reportIcon} /></Link>
-								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
-								<h4 className="likePadding float-right">{this.state.rating}</h4>
-								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />
+								{/*If isAuthor then render the editReview button*/}
 								{this.state.isAuthor &&
 									<Link to={{
 										pathname: "/editreview",
@@ -465,8 +469,22 @@ class Review extends Component {
 											tags: this.state.reviewTagsArray,
 											images: this.state.reviewImgs
 										}
-									}}><Button className="logInEntry" variant="link">Edit Review</Button></Link>
+									}}><Image className="likePadding float-right pl-3" src={editIcon} width="60" /></Link>
 								}
+								<Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} />
+								<Link to={{
+									pathname: '/report',
+									state: {
+										is_comment: false,
+										comment_id: "",
+										kennel_name: this.state.kennel,
+										review_id: this.props.match.params.id
+									}
+								}}><Image className="likePadding float-right" src={reportIcon} /></Link>
+								<Image onClick={this.getURL} style={{ cursor: 'pointer' }} className="likePadding float-right pl-5" src={shareIcon} />
+								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
+								<h4 className="likePadding float-right">{this.state.rating}</h4>
+								<Image onClick={this.likeReview} style={likeIconOpacity} className="likePadding float-right" src={likeIcon} />
 							</Col>
 						</Row>
 

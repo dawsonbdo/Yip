@@ -40,6 +40,9 @@ fn updateDisplayCommentFields(profile_username: &str, uuid: Uuid, comments: Vec<
 	// Gets all user's dislike relationships
 	let dislikes = handlers::get_user_dislikes(uuid, connection).unwrap();
 
+	// Get all comment reports
+	let reports = super::reports::handlers::all_user_comment_reports(profile_username, connection).unwrap();
+
 	// Create hash map for the review likes and dislikes by user
 	let mut comment_likes_dislikes = HashMap::new();
 
@@ -52,12 +55,21 @@ fn updateDisplayCommentFields(profile_username: &str, uuid: Uuid, comments: Vec<
 		comment_likes_dislikes.insert(d.disliker, -1);
 	}
 
+	// Create hash map for the reported reviews
+	let mut comment_reports = HashMap::new();
+
+	// Iterate through reported reviews
+	for r in reports.iter() {
+		comment_reports.insert(r.comment_id.unwrap(), 1);
+	}
+
 
 	let mut comments_updated : Vec<DisplayComment> = vec![];
 
 	// Set isAuthor, isLiked, isDisliked fields
 	for mut c in comments {
 		let val = comment_likes_dislikes.get(&c.comment_uuid);
+		let r_val = comment_reports.get(&c.comment_uuid);
 
 		c.is_author = profile_username.eq(&c.author_name); // set field of DisplayComment
 		c.is_liked = match val{
@@ -66,6 +78,10 @@ fn updateDisplayCommentFields(profile_username: &str, uuid: Uuid, comments: Vec<
 		};
 		c.is_disliked = match val{
 			Some(v) => *v == -1,
+			None => false,
+		};
+		c.is_reported = match r_val{
+			Some(v) => *v == 1,
 			None => false,
 		};
 

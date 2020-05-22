@@ -10,10 +10,12 @@ import YipNavBar from "./YipNavBar";
 import LoadingIcon from '../../assets/loadingIcon.gif';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
+import UserCard from './UserCard';
 import ReviewCard from './ReviewCard';
 import ImageUploader from 'react-images-upload';
 import corgiImage from '../../assets/corgi_shadow.png';
 import KennelCard from './KennelCard';
+import corgiPFP from '../../assets/corgi_pfp.png';
 
 import axios from 'axios'
 
@@ -188,11 +190,6 @@ class Profile extends Component {
             // TODO: Render user information
             console.log("FOLLOWED USER");
             console.log(response.data);
-
-            this.setState({
-                username: response.data.username,
-                isOwner: response.data.is_owner,
-            });
 
             for(var i = 0; i < response.data.length; i++) {
                 this.state.followedUsersArray.push(response.data[i].followee);
@@ -371,7 +368,7 @@ class Profile extends Component {
 
         axios({
             method: 'get',
-            url: '/get_created_kennels/' + token,
+            url: '/get_created_kennels/' + username,
         }).then(response => {
 
             // alert('Users created kennels successfully grabbed from database!');
@@ -438,7 +435,7 @@ class Profile extends Component {
                 kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
         });
         const users = this.state.followedUsersArray.map(function (user) {
-            return <li><a href={`/user-${user}`}>{user}</a></li>
+            return <UserCard userName={user} />
         });
 
         // Determines what to display based on which tab selected
@@ -477,8 +474,11 @@ class Profile extends Component {
                 <Row className="align-items-center">
                     <Col xs={8} className="text-center">
                         <Jumbotron id="jumbotron" className="text-left">
-                            <h1>{this.state.username}</h1>
-                            <Image id="img" className="profilePic" src={corgiImage} />
+                            <Row classname="pb-5">
+                                <Image id="img" className="profilePic pb-2" src={corgiPFP} />
+                                <h1 className="profileName">{this.state.username}</h1>
+                                <Image id="img" className="profilePic pl-1 pb-2" src={corgiPFP} />
+                            </Row>
                             <Nav onSelect={this.handleSelect} defaultActiveKey="reviews" variant="tabs" as="ul">
                                 <Nav.Item as="li">
                                     <Nav.Link eventKey="reviews">Reviews</Nav.Link>
