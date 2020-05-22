@@ -38,7 +38,6 @@ class CommentCard extends Component {
         });
         updateLoggedInState(this);
 
-        alert(this.props.isModerator);
     }
 
     deleteComment() {
@@ -199,7 +198,7 @@ class CommentCard extends Component {
                                                 href={`/user-${this.props.commenterName}`}>{this.props.commenterName}</a></h4>
                                         </Col>
                                         <Col>
-                                            {this.props.isAuthor && <Image onClick={this.deleteComment} style={{ cursor: 'pointer' }}
+                                            {(this.props.isAuthor || this.props.isModerator) && <Image onClick={this.deleteComment} style={{ cursor: 'pointer' }}
                                                 className="likePadding float-right" src={trashIcon} width="50"/>}
                                             <Link to={{
                                                 pathname: '/report',
