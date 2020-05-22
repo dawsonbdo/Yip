@@ -57,6 +57,12 @@ class Review extends Component {
 		this.deleteReview = this.deleteReview.bind(this);
 		this.bookmarkReview = this.bookmarkReview.bind(this);
 		this.getURL = this.getURL.bind(this);
+		this.rerenderOnCommentDelete = this.rerenderOnCommentDelete.bind(this);
+	}
+
+	rerenderOnCommentDelete(index) {
+		this.state.commentArray.splice(index, 1);
+		this.forceUpdate();
 	}
 
 	componentDidMount() {
@@ -380,7 +386,8 @@ class Review extends Component {
 				rating: response.data.rating,
 				commentId: response.data.comment_uuid,
 				isLiked: response.data.is_liked,
-				isDisliked: response.data.is_disliked
+				isDisliked: response.data.is_disliked,
+				isAuthor: true
 			});
 
 			// Update state to cause rerender
@@ -410,10 +417,11 @@ class Review extends Component {
 		let nameOfKennel = this.state.kennel;
 		let idOfReview = this.props.match.params.id;
 		let modStatus = this.state.isModerator;
-		let comments = this.state.commentArray.map(function (comment) {
+		let rerenderReview = this.rerenderOnCommentDelete;
+		let comments = this.state.commentArray.map(function (comment, index) {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text}
 				timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}
-				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor} isModerator={modStatus}/>
+				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor} isModerator={modStatus} commentIndex={index} rerenderReview={rerenderReview}/>
 		});
 
 		let likeIconOpacity;
