@@ -44,23 +44,32 @@
 
 <h1>How to use Docker</h1>
 
-<h3>Using VSCode remote container extension</h3>
+<h2>Installation</h2>
 
-1. Open the yip folder in vscode
-2. A popup should ask if you want to reopen the folder in the conatiner
-3. Reopen the folder in the container using the Dockerfile
-4. The first time the image will need to be built which may take a while
+1. Install Docker for your OS here: https://docs.docker.com/install/#supported-platforms 
+2. Note Docker Desktop is preferred as compatibility with Docker Toolbox has not been verified
+3. If on Windows, add the yip folder to File sharing: Docker Desktop settings -> Resources -> File Sharing
 
-<h3>Using the command line</h3>
+<h2>Using VSCode remote container extension</h2>
+
+1. Install the VSCode Remote container extension
+2. Open the yip folder in vscode
+3. A popup should ask if you want to reopen the folder in the conatiner
+4. Reopen the folder in the container using the Dockerfile
+5. If there is no popup to reopen in the container, click on the green remote container icon in the bottom left of vscode and then select Reopen in container
+6. Make sure to reopen using the existing Dockerfile
+7. The first time the image will need to be built which may take a while
+
+<h2>Using the command line</h2>
 
 1. The image can be built by running 'docker build -t yip .' from the yip folder
 
-<h4>Running with the command line option #1</h4>
+<h3>Running with the command line option 1</h3>
 
 1. The image can be run with 'docker run --network="host" -it yip /bin/bash'
 2. Run 'cargo build' and then 'cargo run'. Go to http://localhost:8000/. 
 
-<h4>Running with the command line option #2</h4>
+<h3>Running with the command line option 2</h3>
 
 1. The image can be run with 'docker run -p 8000:8000 -it yip /bin/bash'
 2. Run 'cargo build' and then 'ROCKET_ENV=stage cargo run'. Go to http://0.0.0.0:8000.
