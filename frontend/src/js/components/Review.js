@@ -479,7 +479,7 @@ class Review extends Component {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text}
 				timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}
 				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor} isModerator={modStatus} commentIndex={index}
-				rerenderReview={rerenderReview} handleInvalidLike={handleInvalidLike} loggedIn={isLoggedIn} />
+				rerenderReview={rerenderReview} handleInvalidLike={handleInvalidLike} loggedIn={isLoggedIn} isReported={comment.isReported} />
 		});
 
 		let likeIconOpacity;

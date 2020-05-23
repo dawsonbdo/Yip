@@ -178,6 +178,7 @@ class CommentCard extends Component {
     render() {
         let likeIconOpacity;
         let dislikeIconOpacity;
+        let reportOpacity;
         if (this.state.isLiked) {
             likeIconOpacity = { opacity: 1.0, cursor: 'pointer' };
         }
@@ -189,6 +190,12 @@ class CommentCard extends Component {
         }
         else {
             dislikeIconOpacity = { opacity: .6, cursor: 'pointer' };
+        }
+        if (this.props.isReported) {
+            reportOpacity = { opacity: 1.0, cursor: 'pointer' };
+        }
+        else {
+            reportOpacity = { opacity: .6, cursor: 'pointer' };
         }
         return (
             <Container className="pb-5">
@@ -216,7 +223,7 @@ class CommentCard extends Component {
                                                         kennel_name: this.props.kennel,
                                                         review_id: this.props.review
                                                     }
-                                                }}><Image className="likePadding float-right" src={reportIcon} width="50" /></Link>}
+                                                }}><Image style={reportOpacity} className="likePadding float-right" src={reportIcon} width="50" /></Link>}
                                         </Col>
                                     </Row>
                                 </Container>
