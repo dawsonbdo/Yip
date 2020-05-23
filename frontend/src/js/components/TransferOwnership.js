@@ -14,7 +14,10 @@ import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
-import { reportJson } from './BackendHelpers.js';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from '@material-ui/core/TextField';
+
+import { setAllUsers, reportJson } from './BackendHelpers.js';
 
 class TransferOwnership extends Component {
 
@@ -26,7 +29,8 @@ class TransferOwnership extends Component {
             validated: false,
             reviewFrom: {},
             loading: false,
-            showPopup: false
+            showPopup: false,
+            allUsers: []
         };
 
         // Binds button handler
@@ -41,6 +45,10 @@ class TransferOwnership extends Component {
         //   .then((kennel) => {
         //     this.setState(() => ({ kennel }))
         //   })
+
+        // Load the usernames from db
+        setAllUsers(this);
+
         this.setState({ reviewFrom: reviewState });
     }
 
@@ -62,30 +70,6 @@ class TransferOwnership extends Component {
         }
 
         this.setState({ loading: true });
-
-
-        // send post request when implemented
-        /*var kennel_name = this.state.reviewFrom.kennel_name;
-        var is_comment = this.state.reviewFrom.is_comment;
-        var comment_id = this.state.reviewFrom.comment_id;
-        if (is_comment) {
-            var review_id = "";
-        }
-        else {
-            var review_id = this.state.reviewFrom.review_id;
-        }
-        var reason = document.getElementById('reason').value;
-        var escalated = false; //TODO
-        var token = localStorage.getItem('jwtToken');
-
-        console.log(kennel_name);
-        console.log(review_id);
-        console.log(reason);
-        console.log(comment_id);
-        console.log(is_comment);
-        // Create form for request 
-        var form = reportJson(kennel_name, is_comment, comment_id, review_id, reason, escalated, token);
-        */
 
         var kennel_name = this.state.reviewFrom.kennel_name;
         var token = localStorage.getItem('jwtToken');
@@ -141,7 +125,15 @@ class TransferOwnership extends Component {
                                 <Form noValidate validated={this.state.validated} onSubmit={this.transferOwnership} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
                                         <Form.Label>Select a new Moderator</Form.Label>
-                                        <Form.Control id="username" className="logInEntry" as="textarea" placeholder="Enter username here." required />
+                                        <Autocomplete
+                                          id="username"
+                                          options={this.state.allUsers}
+                                          getOptionLabel={(option) => option.name}
+                                          style={{ width: 300 }}
+                                          renderInput={(params) => <TextField {...params} label="Enter username here." variant="outlined" />}
+                                        />
+                                        {/*<Form.Control id="username" className="logInEntry" as="textarea" placeholder="Enter username here." required /> */}
+                                     
                                         <Form.Control.Feedback type="invalid">Username required.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">

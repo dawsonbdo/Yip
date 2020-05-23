@@ -205,6 +205,36 @@ export async function updateLoggedInUserAndWebSocket(page){
       });
 }
 
+export async function setAllUsers(page){
+        axios({
+            method: 'get',
+            url: '/get_all_users'
+        }).then(response => {
+
+            alert('All users receieved');
+
+            if ( response.data == undefined || response.data.length == 0 ){
+                alert('No past messages in inbox');
+                return;
+            }
+
+            var users = [];
+
+            for ( var i = 0; i < response.data.length; i++ ){
+                users.push({name: response.data[i]});
+            }
+
+            page.setState({allUsers: users});
+
+           
+        }).catch(error => {
+
+            // Failed to dislike review
+            alert('Failed to load all users');
+
+        });
+}
+
 // Updates the user state of the page
 export async function updateLoggedInUser(page){
       // Send POST request with token for authenticatio

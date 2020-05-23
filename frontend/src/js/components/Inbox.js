@@ -13,7 +13,7 @@ import Form from 'react-bootstrap/Form';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 
-import { isLoggedIn, updateLoggedInState, updateLoggedInUserAndWebSocket } from './BackendHelpers.js';
+import { setAllUsers, isLoggedIn, updateLoggedInState, updateLoggedInUserAndWebSocket } from './BackendHelpers.js';
 
 import axios from 'axios';
 
@@ -46,36 +46,11 @@ class Inbox extends Component {
         // Sets user that is logged in and open web socket
         updateLoggedInUserAndWebSocket(this);
 
+        // Set allUsers field by making call to server
+        setAllUsers(this);
+
+
         var token = localStorage.getItem('jwtToken');
-
-        // Set all users in db by getting list 
-        axios({
-            method: 'get',
-            url: '/get_all_users'
-        }).then(response => {
-
-            alert('All users receieved');
-
-            if ( response.data == undefined || response.data.length == 0 ){
-                alert('No past messages in inbox');
-                return;
-            }
-
-            var users = [];
-
-            for ( var i = 0; i < response.data.length; i++ ){
-                users.push({name: response.data[i]});
-            }
-
-            this.setState({allUsers: users});
-
-           
-        }).catch(error => {
-
-            // Failed to dislike review
-            alert('Failed to load all users');
-
-        });
 
         // Set past users by getting list 
         axios({
