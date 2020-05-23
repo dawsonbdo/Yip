@@ -3,7 +3,7 @@ pub mod handlers;
 use crate::auth;
 use crate::db;
 
-use handlers::{User, DbUser, DisplayUser, DisplayFollowUser};
+use handlers::{User, DisplayUser, DisplayFollowUser};
 use rocket_contrib::json::Json;
 use rocket::response::status;
 

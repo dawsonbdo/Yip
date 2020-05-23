@@ -119,7 +119,7 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
         is_moderator: kennel.mod_uuid.eq(&profile_uuid), 
         is_banned: match super::super::kennels::handlers::get_relationship_ban(kennel.kennel_uuid, profile_uuid, &connection){
                         Ok(rel) => rel == 1,
-                        Err(e) => false,
+                        Err(_e) => false,
                     }, 
         muted_words: match &kennel.muted_words{
             Some(w) => Some(w.to_vec()),

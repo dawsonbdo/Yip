@@ -18,7 +18,7 @@ use rocket::response::status;
  * @return returns TBD
  */
 #[get("/get_past_recipients/<sender>")]
-fn get_past_recipients(sender: String, connection: DbConn) -> Result<Json<Vec<String>>, status::Conflict<String>> {
+fn get_past_recipients(sender: String, _connection: DbConn) -> Result<Json<Vec<String>>, status::Conflict<String>> {
 	
 	println!("Sender: {}", sender);
 

@@ -16,7 +16,7 @@ fn from_message(message: Message, connection: &PgConnection) -> InsertMessage {
     
 }
 
-fn to_message(message: &DbMessage, sender: Uuid, connection: &PgConnection) -> DisplayMessage {
+fn to_message(message: &DbMessage, sender: Uuid, _connection: &PgConnection) -> DisplayMessage {
         DisplayMessage{
             is_sender: sender.eq(&message.sender),
             text: message.text.clone(),

@@ -52,11 +52,11 @@ pub fn to_display_user(user: DbUser, token: String, connection: &PgConnection) -
         is_owner: user.profile_uuid.eq(&profile_uuid),
         is_blocked: match get_block_relationship(profile_uuid, user.profile_uuid, connection) {
                         Ok(_u) => true,
-                        Err(e) => false,
+                        Err(_e) => false,
                     },
         is_followed: match get_follow_relationship(profile_uuid, user.profile_uuid, connection) {
                         Ok(_u) => true,
-                        Err(e) => false,
+                        Err(_e) => false,
                     },
     }
 
@@ -107,7 +107,7 @@ fn to_display_follower(followee: &DbFollowUser, connection: &PgConnection) -> Di
     DisplayFollowUser{
         followee: match get_user_from_uuid(followee.followee, connection){
             Ok(f) => f.username,
-            Err(e) => "".to_string(),
+            Err(_e) => "".to_string(),
         }
     }
 }
@@ -277,7 +277,7 @@ pub fn follow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Resu
         .values(follow_user)
         .get_result::<DbFollowUser>(connection) {
             Ok(_u) => Ok(status::Accepted(None)),
-            Err(e) => Err(status::Conflict(Some("Already following".to_string()))),
+            Err(_e) => Err(status::Conflict(Some("Already following".to_string()))),
         }
     
 }

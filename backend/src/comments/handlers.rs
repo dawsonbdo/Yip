@@ -106,13 +106,13 @@ pub fn calculate_rating(comment_uuid: Uuid, connection: &PgConnection) -> i32 {
 
     // Get number of likes
     match likes {
-        Ok(r) => rating += (r as i32),
+        Ok(r) => rating += r as i32,
         Err(_e) => rating += 0,
     }
 
     // Get number of dislikes
     match dislikes {
-        Ok(r) => rating -= (r as i32),
+        Ok(r) => rating -= r as i32,
         Err(_e) => rating -= 0,
     }
 

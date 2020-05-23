@@ -3,7 +3,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 use crate::schema::reports;
 use super::super::{kennels};
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::{NaiveDateTime};
 use crate::auth;
 
 /**
@@ -19,11 +19,11 @@ fn from_report(report: InputReport, connection: &PgConnection) -> InsertReport {
         is_comment: report.is_comment,
         comment_id: match Uuid::parse_str(&report.comment_id) {
             Ok(u) => Some(u),
-            Err(e) => None,
+            Err(_e) => None,
         },
         review_id: match Uuid::parse_str(&report.review_id) {
             Ok(u) => Some(u),
-            Err(e) => None,
+            Err(_e) => None,
         },
         reason: report.reason,
         escalated: report.escalated,

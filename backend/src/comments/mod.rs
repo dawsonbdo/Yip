@@ -32,7 +32,7 @@ struct CommentUser {
  *
  * @return returns vector of DisplayComments with updated fields
  */
-fn updateDisplayCommentFields(profile_username: &str, uuid: Uuid, comments: Vec<DisplayComment>, connection: &DbConn) -> Vec<DisplayComment> {
+fn update_display_comment_fields(profile_username: &str, uuid: Uuid, comments: Vec<DisplayComment>, connection: &DbConn) -> Vec<DisplayComment> {
 
 	// Gets all user's like relationships
 	let likes = handlers::get_user_likes(uuid, connection).unwrap();
@@ -138,7 +138,7 @@ fn like_dislike_helper(input: Json<CommentUser>, like: bool, connection: DbConn)
     	Ok(uuid) => if like {result = handlers::like(uuid, profile_uuid, &connection);}
     			 else {result = handlers::dislike(uuid, profile_uuid, &connection);},
     	// Not a valid comment uuid string
-    	Err(e) => return Err(status::BadRequest(Some("Comment not foudn".to_string()))),
+    	Err(_e) => return Err(status::BadRequest(Some("Comment not foudn".to_string()))),
     }
     
     
@@ -260,15 +260,15 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
 			}  
 
 			// Create a vector with all of the reviews to as ordered
-			let mut commentsOrdered : Vec<DisplayComment> = vec![];
+			let mut comments_ordered : Vec<DisplayComment> = vec![];
 
 			// Order by newness for now 
 			for (comment, _) in pq.into_sorted_iter() {
 
-				commentsOrdered.push(comment);
+				comments_ordered.push(comment);
 			}
 
-			Ok(Json(updateDisplayCommentFields(&profile_username, uuid, commentsOrdered, &connection)))
+			Ok(Json(update_display_comment_fields(&profile_username, uuid, comments_ordered, &connection)))
 		},
 		Err(e) => Err(status::NotFound(e.to_string())),
 	}
@@ -298,7 +298,7 @@ fn get_comment(comment_uuid: String, token: String, connection: DbConn) -> Resul
 			let mut vec : Vec<DisplayComment> = vec![];
 			vec.push(c);
 
-			Ok(Json(updateDisplayCommentFields(&profile_name, uuid, vec.clone(), &connection).pop().unwrap()))
+			Ok(Json(update_display_comment_fields(&profile_name, uuid, vec.clone(), &connection).pop().unwrap()))
 		},
 		Err(e) => Err(status::NotFound(e.to_string())),
 	}

@@ -28,7 +28,7 @@ use serde_json::{Value, Map};
 use super::users;
 
 use std::collections::HashMap;
-use chrono::{Utc, NaiveDate, DateTime, NaiveDateTime};
+use chrono::Utc;
 
 // Struct with review ID and user token for editing/deleting reviews
 #[derive(Queryable, Serialize, Deserialize)]
@@ -895,24 +895,24 @@ fn list_reviews(connection: DbConn) -> Json<Vec<String>> {
 	list_reviews_helper(&connection)
 }
 
-fn calcPersonalizedHotness(hotness: i64, kennels: &Vec<String>, users: &Vec<String>, review: &DisplayReview) -> i64 {
+fn calc_personalized_hotness(hotness: i64, kennels: &Vec<String>, users: &Vec<String>, review: &DisplayReview) -> i64 {
 	let followed_kennel = if kennels.contains(&review.kennel_name) {1.0} else {0.0};
 	let followed_user = if users.contains(&review.author) {1.0} else {0.0};
 	
 	// Scale factor of hotness (TODO: adjust values probably)
 
 	// If review posted within past 12 hours by followed user, extra boost
-	let curTime = Utc::now().naive_utc();
-	let newness = curTime.signed_duration_since(review.timestamp).num_seconds();
-	let personalizedFactor;
+	let cur_time = Utc::now().naive_utc();
+	let newness = cur_time.signed_duration_since(review.timestamp).num_seconds();
+	let personalized_factor;
 	if newness < 43200 { //12 hrs = 43200 seconds
 		//println!("NEW REVIEW");
 		return (300.0 + 150.0*followed_kennel + hotness as f64) as i64;
 	} else {
-		personalizedFactor = 1.0 + followed_kennel*0.5 + followed_user*0.5;
+		personalized_factor = 1.0 + followed_kennel*0.5 + followed_user*0.5;
 	}
 
-	hotness*personalizedFactor as i64
+	hotness*personalized_factor as i64
 }
 
 /** 
@@ -962,8 +962,8 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 	    // Sort reviews by personalized hotness (followed users/reviews) using pq 
 	    for r in reviews {
 		    let hotness = r.hotness;
-		    let personalizedHotness = calcPersonalizedHotness(hotness, &kennels, &users, &r);
-		    pq.push(r, personalizedHotness);
+		    let personalized_hotness = calc_personalized_hotness(hotness, &kennels, &users, &r);
+		    pq.push(r, personalized_hotness);
 	    }  
 
 

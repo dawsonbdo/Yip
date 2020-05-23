@@ -4,7 +4,6 @@
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate serde_derive;
 
-#[macro_use] extern crate serde_json;
 extern crate dotenv;
 extern crate rocket_contrib;
 extern crate r2d2;
@@ -49,7 +48,7 @@ mod db;
 mod search;
 mod error;
 
-static mut conns : Vec<Connection> = Vec::new(); 
+static mut CONNS : Vec<Connection> = Vec::new(); 
 
 // Keeps track of a connection with id and Sender
 struct Connection {
@@ -59,9 +58,9 @@ struct Connection {
 
 impl Handler for Connection {
 
-    fn on_request(&mut self, req: &Request) -> Result<(Response)> {
+    fn on_request(&mut self, req: &Request) -> Result<Response> {
         unsafe {
-            conns.push(Connection {
+            CONNS.push(Connection {
                 out: self.out.clone(),
                 id: {
                     let mut char_vec: Vec<char> = req.resource().to_string().chars().collect();
@@ -76,13 +75,13 @@ impl Handler for Connection {
                     // Store the username?
                     let mut char_vec: Vec<char> = id.to_string().chars().collect();
                     char_vec.remove(0);
-                    self.id = char_vec.into_iter().collect();;
+                    self.id = char_vec.into_iter().collect();
                     Response::from_request(req)
             },
         }
     }
 
-    fn on_open(&mut self, handshake: Handshake) -> Result<()> {
+    fn on_open(&mut self, _handshake: Handshake) -> Result<()> {
         println!("ON OPEN");
         Ok(())
     }
@@ -90,7 +89,7 @@ impl Handler for Connection {
     fn on_message(&mut self, message: Message) -> Result<()> {
         // Iterate through connections (delete this l8r)
         unsafe {
-            for connection in &conns{
+            for connection in &CONNS{
                 println!("Connection Id: {}", connection.id);
             }
         }
@@ -117,7 +116,7 @@ impl Handler for Connection {
         println!("MSG: {}", msg);
 
         // Get the message as a Message object
-        let message = if raw_message.contains("!warn") {
+        let _message = if raw_message.contains("!warn") {
             let warn_message = "One of the clients sent warning to the server.";
             println!("{}", &warn_message);
             Message::Text("There was warning from another user.".to_string())
@@ -127,8 +126,8 @@ impl Handler for Connection {
 
         // Send the message if the other user is connected to socket
         unsafe {
-            for connection in &conns{
-                if (connection.id.eq(&user)){
+            for connection in &CONNS{
+                if connection.id.eq(&user) {
                     println!("USER CONNECTED CURRENTLY");
                     return connection.out.send(msg)
                 }
@@ -142,7 +141,7 @@ impl Handler for Connection {
     fn on_close(&mut self, code: CloseCode, reason: &str) {
         // Iterate through connections and remove
         unsafe {
-            conns.retain(|c| !c.id.eq(&self.id) );
+            CONNS.retain(|c| !c.id.eq(&self.id) );
         }
 
         println!("ON CLOSE");

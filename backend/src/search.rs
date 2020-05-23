@@ -1,12 +1,11 @@
 use diesel;
 use diesel::prelude::*;
-use uuid::Uuid;
 
 use crate::reviews;
-use reviews::handlers::{Review, DisplayReview, DbReview};
+use reviews::handlers::{DisplayReview, DbReview};
 
 use crate::kennels;
-use kennels::handlers::{Kennel, DbKennel, DisplayKennel};
+use kennels::handlers::{DbKennel, DisplayKennel};
 
 use radix_heap;
 
@@ -20,7 +19,7 @@ use radix_heap;
 pub fn search_reviews(query: String, connection: &PgConnection) -> QueryResult<Vec<DisplayReview>> {
     
     // Get vector of all reviews in database (returns error if failed)
-    let mut reviews = reviews::handlers::all(connection)?;
+    let reviews = reviews::handlers::all(connection)?;
     
     // Convert query to lowercase
     let mut query_lowercase = query.clone();
@@ -42,7 +41,7 @@ pub fn search_reviews(query: String, connection: &PgConnection) -> QueryResult<V
  *
  * @return returns vector of reviews
  */
-fn tf_idf(reviews: Vec<DbReview>, query_words: Vec<&str>, connection: &PgConnection) -> Vec<DisplayReview> {
+fn tf_idf(reviews: Vec<DbReview>, query_words: Vec<&str>, _connection: &PgConnection) -> Vec<DisplayReview> {
 
 	// Get number of reviews and terms
 	let num_docs = reviews.len();
@@ -53,7 +52,7 @@ fn tf_idf(reviews: Vec<DbReview>, query_words: Vec<&str>, connection: &PgConnect
 	let mut review_sum_tf_idfs : Vec<f32> = Vec::with_capacity(num_docs);
 
 	// Initialize the vectors 0
-	for i in 0..num_docs {
+	for _i in 0..num_docs {
 		review_tfs.push(0.0);
 		review_sum_tf_idfs.push(0.0);
 	}
@@ -102,7 +101,7 @@ fn tf_idf(reviews: Vec<DbReview>, query_words: Vec<&str>, connection: &PgConnect
     for i in 0..num_docs {
 
     	// Pushes to heap if greater than 0
-    	if ( review_sum_tf_idfs[i] > 0.0 ){
+    	if review_sum_tf_idfs[i] > 0.0 {
     		let wrapped_sumtfidf = ordered_float::NotNan::<f32>::from(review_sum_tf_idfs[i]);
     		heap.push(wrapped_sumtfidf, i);
     	}
@@ -269,7 +268,7 @@ pub fn jaro_dist(str1: &str, str2: &str, margin: f32) -> f32 {
 pub fn search_kennels(query: String, connection: &PgConnection) -> QueryResult<Vec<DisplayKennel>> {
     
     // Get vector of all kennels in database (returns error if failed)
-    let mut kennels = kennels::handlers::all(connection)?;
+    let kennels = kennels::handlers::all(connection)?;
     
     // Convert query to lowercase
     let mut query_lowercase = query.clone();
@@ -301,7 +300,7 @@ fn kennel_similarity(kennels: Vec<DbKennel>, query_words: Vec<&str>, connection:
     let mut kennel_scores : Vec<f32> = Vec::with_capacity(num_kennels);
 
     // Initialize the vectors 0
-    for i in 0..num_kennels {
+    for _i in 0..num_kennels {
         kennel_scores.push(0.0);
     }
 
@@ -329,7 +328,7 @@ fn kennel_similarity(kennels: Vec<DbKennel>, query_words: Vec<&str>, connection:
     for i in 0..num_kennels {
 
         // Pushes to heap if greater than 0
-        if ( kennel_scores[i] > 0.0 ){
+        if kennel_scores[i] > 0.0 {
             let score = ordered_float::NotNan::<f32>::from(kennel_scores[i]);
             heap.push(score, i);
         }
@@ -373,7 +372,7 @@ fn calc_tf_kennel(term: &str, kennel: &DbKennel) -> f32{
 
     // Convert kennel name/tags to lowercase
     let mut name = kennel.kennel_name.clone();
-    let mut tags = match kennel.tags.as_ref() {
+    let tags = match kennel.tags.as_ref() {
         Some(t) => t,
         None => &empty_vec,
     };

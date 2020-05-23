@@ -2,10 +2,8 @@ pub mod handlers;
 
 use crate::db;
 
-use handlers::{InputReport, DisplayReport, ReviewReport, CommentReport};
+use handlers::{InputReport, ReviewReport, CommentReport};
 use rocket_contrib::json::Json;
-
-use super::reviews::handlers::DisplayReview;
 
 use db::DbConn;
 
@@ -26,7 +24,7 @@ use uuid::Uuid;
  *
  * @return returns vector of DisplayComments with updated fields
  */
-fn updateDisplayCommentFields(profile_username: &str, uuid: Uuid, comments: Vec<CommentReport>, connection: &DbConn) -> Vec<CommentReport> {
+fn update_display_comment_fields(profile_username: &str, uuid: Uuid, comments: Vec<CommentReport>, connection: &DbConn) -> Vec<CommentReport> {
 
 	// Gets all user's like relationships
 	let likes = super::reviews::handlers::get_user_likes(uuid, connection).unwrap();
@@ -78,7 +76,7 @@ fn updateDisplayCommentFields(profile_username: &str, uuid: Uuid, comments: Vec<
  *
  * @return returns vector of DisplayReviews with updated fields
  */
-fn updateDisplayReportFields(profile_username: &str, uuid: Uuid, reviews: Vec<ReviewReport>, connection: &DbConn) -> Vec<ReviewReport> {
+fn update_display_report_fields(profile_username: &str, uuid: Uuid, reviews: Vec<ReviewReport>, connection: &DbConn) -> Vec<ReviewReport> {
 
 	// Gets all user's like relationships
 	let likes = super::reviews::handlers::get_user_likes(uuid, connection).unwrap();
@@ -197,7 +195,7 @@ fn get_kennel_reports_comments(kennel_name: String, token: String, connection: D
 			// Get comment of report and make sure valid comment
 			let comment = match super::comments::handlers::get(r.comment_id.unwrap(), &connection){
 				Ok(t) => t,
-				Err(e) => continue,
+				Err(_e) => continue,
 			};
 
 			// Create a CommentReport
@@ -223,19 +221,19 @@ fn get_kennel_reports_comments(kennel_name: String, token: String, connection: D
 	}
 	
 	// Create a vector with all of the reviews to as ordered
-	let mut commentsOrdered : Vec<CommentReport> = vec![];
+	let mut comments_ordered : Vec<CommentReport> = vec![];
 
 	// Order by newness for now 
 	for (comment, _) in pq.into_sorted_iter() {
-		commentsOrdered.push(comment);
+		comments_ordered.push(comment);
 	}
 
 	let profile_username = auth::get_user_from_token(&token);
 	let uuid = auth::get_uuid_from_token(&token);
 
-	let updatedFieldsComments = updateDisplayCommentFields(&profile_username, uuid, commentsOrdered, &connection);
+	let updated_fields_comments = update_display_comment_fields(&profile_username, uuid, comments_ordered, &connection);
 
-	Ok(Json(updatedFieldsComments))
+	Ok(Json(updated_fields_comments))
 }
 
 
@@ -277,7 +275,7 @@ fn get_kennel_reports_reviews(kennel_name: String, token: String, connection: Db
 			// Get review of report and make sure valid review
 			let review = match super::reviews::handlers::get(r.review_id.unwrap(), &connection){
 				Ok(t) => t,
-				Err(e) => continue,
+				Err(_e) => continue,
 			};
 
 			// Create a ReviewReport
@@ -309,19 +307,19 @@ fn get_kennel_reports_reviews(kennel_name: String, token: String, connection: Db
 	}
 	
 	// Create a vector with all of the reviews to as ordered
-	let mut reviewsOrdered : Vec<ReviewReport> = vec![];
+	let mut reviews_ordered : Vec<ReviewReport> = vec![];
 
 	// Order by newness for now 
 	for (review, _) in pq.into_sorted_iter() {
-		reviewsOrdered.push(review);
+		reviews_ordered.push(review);
 	}
 
 	let profile_username = auth::get_user_from_token(&token);
 	let uuid = auth::get_uuid_from_token(&token);
 
-	let updatedFieldsReviews = updateDisplayReportFields(&profile_username, uuid, reviewsOrdered, &connection);
+	let updated_fields_reviews = update_display_report_fields(&profile_username, uuid, reviews_ordered, &connection);
 
-	Ok(Json(updatedFieldsReviews))
+	Ok(Json(updated_fields_reviews))
 }
 
 
