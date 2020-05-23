@@ -50,6 +50,7 @@ class Kennel extends Component {
             kennelReviewsListed: false,
             kennelInfoListed: false,
             isModerator: false,
+            moderator: "",
             loginPrompt: false,
             loginPromptAction: ""
         }
@@ -204,12 +205,13 @@ class Kennel extends Component {
         }).then(response => {
 
             // alert('Kennel info successfully grabbed from database!');
-            // console.log(response.data);
+            console.log(response.data);
 
             // Updates kennel name
             this.setState({
                 kennel_name: response.data.kennel_name,
                 follower_count: response.data.follower_count,
+                moderator: response.data.mod_name
             });
 
             if (response.data.is_following) {
@@ -245,6 +247,8 @@ class Kennel extends Component {
                 mutedStr = mutedStr + ", " + response.data.muted_words[i];
 
             }
+
+
 
             /*var bannedStr = "";
             if(response.data.bans.length > 0) {
@@ -393,6 +397,7 @@ class Kennel extends Component {
                             <Row>
                                 <Col xs={7}>
                                     <h1>{this.state.kennel_name}</h1>
+                                    <h3><a class="profileLink" href={`/user-${this.state.moderator}`}>Moderator: {this.state.moderator}</a></h3>
                                     <h4>{this.state.follower_count} Followers</h4>
                                 </Col>
                                 <Col>
