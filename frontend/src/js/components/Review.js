@@ -49,6 +49,7 @@ class Review extends Component {
 			kennel: "",
 			isAuthor: false,
 			isModerator: false,
+			isReported: false,
 			loading: false,
 			loginPrompt: false,
 			action: ""
@@ -135,6 +136,10 @@ class Review extends Component {
 				if (response.data.is_bookmarked) {
 					this.setState({ isBookmarked: true });
 				}
+				if (response.data.is_reported) {
+					this.setState({ isReported: true });
+				}
+
 
 				// Check that any images were returned cuz can be undefined
 				if (response.data.images != undefined) {
@@ -180,7 +185,8 @@ class Review extends Component {
 						commentId: response.data[i].comment_uuid,
 						isLiked: response.data[i].is_liked,
 						isDisliked: response.data[i].is_disliked,
-						isAuthor: response.data[i].is_author
+						isAuthor: response.data[i].is_author,
+						isReported: response.data[i].is_reported
 					});
 
 				}
@@ -479,6 +485,7 @@ class Review extends Component {
 		let likeIconOpacity;
 		let dislikeIconOpacity;
 		let bookmarkOpacity;
+		let reportOpacity;
 
 		// Update icon opacity to indicate whether selected
 		if (this.state.isLiked) {
@@ -500,6 +507,13 @@ class Review extends Component {
 		}
 		else {
 			bookmarkOpacity = { opacity: .6, cursor: 'pointer' };
+		}
+
+		if (this.state.isReported) {
+			reportOpacity = { opacity: 1.0, cursor: 'pointer' };
+		}
+		else {
+			reportOpacity = { opacity: .6, cursor: 'pointer' };
 		}
 
 
@@ -558,7 +572,7 @@ class Review extends Component {
 											kennel_name: this.state.kennel,
 											review_id: this.props.match.params.id
 										}
-									}}><Image className="likePadding float-right" src={reportIcon} /></Link>}
+									}}><Image className="likePadding float-right" style={reportOpacity} src={reportIcon} /></Link>}
 								<Image onClick={this.getURL} style={{ cursor: 'pointer' }} className="likePadding float-right pl-5" src={shareIcon} />
 								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>
