@@ -178,8 +178,8 @@ fn home() -> Option<NamedFile> {
 }
 
 // Load home page for random URL
-#[get("/<url>", rank=2)]
-fn url(url: String) -> Option<NamedFile> {
+#[get("/<_url>", rank=2)]
+fn url(_url: String) -> Option<NamedFile> {
 	// Random file path, give home page
 	NamedFile::open("static/pages/index.html").ok()
 }

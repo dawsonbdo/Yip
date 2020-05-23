@@ -221,7 +221,10 @@ export async function setAllUsers(page){
             var users = [];
 
             for ( var i = 0; i < response.data.length; i++ ){
-                users.push({name: response.data[i]});
+              console.log("TYPE " + (typeof response.data[i]));
+                if ( response.data[i] != page.state.user ){
+                  users.push({name: response.data[i]});
+                }
             }
 
             page.setState({allUsers: users});

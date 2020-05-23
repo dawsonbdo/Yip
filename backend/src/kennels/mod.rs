@@ -162,13 +162,6 @@ fn search_kennels(query: String, connection: DbConn) -> Result<Json<Vec<DisplayK
     }
 }
 
-/**
- * Helper method that returns name of a followee
- */
-fn get_name(kennel: &DbKennel) -> String {
-	kennel.kennel_name.clone()
-}
-
 /** 
  * Method that returns all the names of kennels a username follows
  * @param username: name of user
