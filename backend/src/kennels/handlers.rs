@@ -99,6 +99,9 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
     // Converts token into uuid
     let profile_uuid = auth::get_uuid_from_token(&token);
 
+    // Gets mods name
+    let mod_name = super::super::users::handlers::get_username_from_uuid(kennel.mod_uuid, connection);
+
     // Temp
     let empty_vec : Vec<String> = vec![];
     let empty_vec2 : Vec<String> = vec![];
@@ -130,6 +133,7 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
             None => "".to_string(),
         },
         description: kennel.description.clone(),
+        mod_name: mod_name,
     }
 
 }
@@ -511,4 +515,5 @@ pub struct DisplayKennel {
     pub muted_words: Option<Vec<String>>,
     pub rules: String,
     pub description: String,
+    pub mod_name: String,
 }
