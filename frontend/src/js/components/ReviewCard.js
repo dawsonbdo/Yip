@@ -17,6 +17,9 @@ import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
+import TimeAgo from 'timeago-react'; // var TimeAgo = require('timeago-react');
+
+
 import { likeDislikeReviewJson, isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
 
 class ReviewCard extends Component {
@@ -29,6 +32,7 @@ class ReviewCard extends Component {
             isLiked: false,
             isDisliked: false,
             loginPrompt: false,
+            timestamp: "",
         }
 
         // Binds button handler
@@ -40,7 +44,8 @@ class ReviewCard extends Component {
         this.setState({
             rating: this.props.rating,
             isLiked: this.props.isLiked,
-            isDisliked: this.props.isDisliked
+            isDisliked: this.props.isDisliked,
+            timestamp: (new Date(this.props.timestamp)).toString()
         })
 
         updateLoggedInState(this);
@@ -202,6 +207,12 @@ class ReviewCard extends Component {
                                                 <h4 className="float-left likePadding">{this.state.rating}</h4>
                                                 <Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="float-left likePadding" width="45" src={dislikeIcon} />
                                                 <Link to={`/kennel-${this.props.kennelName}`}><Image className="float-right" width="40" src={homeIcon} style={{opacity: .8}}/></Link>
+                                                <TimeAgo
+                                                  style={{padding: "10px"}}
+                                                  className="float-right"
+                                                  datetime={this.state.timestamp}
+                                                />
+
                                             </Col>
                                         </Row>
                                     </Container>
