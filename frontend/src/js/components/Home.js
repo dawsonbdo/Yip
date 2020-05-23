@@ -18,7 +18,6 @@ class Home extends Component {
   constructor(props) {
     super(props);
 
-    // Creates state to keep track of if logged in
     this.state = {
       loggedIn: false,
       reviewArray: [],
@@ -30,11 +29,17 @@ class Home extends Component {
 
   }
 
+  /**
+   * Called by navbar if user logs out from homepage.
+   * Resets homepage and its components (review cards) to logged out state.
+   */
   resetAuthState() {
     location.reload();
   }
 
-  // After component is loaded, update auth state
+  /**
+   * updates auth state after homepage loaded and lists reviews
+   */
   componentDidMount() {
 
     // Updates logged in state of the component
@@ -51,8 +56,9 @@ class Home extends Component {
       if (!this.state.reviewsListed) {
         for (var i = 0; i < response.data.length; i++) {
 
-          // Print reviews to console for now
           console.log(response.data[i]);
+
+          // Add necessary review info for rendering review cards to reviewArray
           this.state.reviewArray.push({
             title: response.data[i].title,
             author: response.data[i].author,
@@ -66,6 +72,7 @@ class Home extends Component {
 
         }
 
+        // Used for loading logic
         this.setState({ reviewsListed: true });
       }
 
@@ -79,6 +86,8 @@ class Home extends Component {
 
 
   render() {
+
+    // Personalized or general greeting depending on whether used logged in
     let greeting = "Welcome to Yip!";
     let homePageMessage = "A community-based review site.";
     if (this.state.loggedIn) {
@@ -88,6 +97,8 @@ class Home extends Component {
 
     let homeContent;
     let reviews;
+
+    // Renders when reviews are loaded from backend
     if (this.state.reviewsListed) {
       reviews = this.state.reviewArray.map(function (review) {
         return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}

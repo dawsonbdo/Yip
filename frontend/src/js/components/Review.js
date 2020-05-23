@@ -9,7 +9,6 @@ import Image from 'react-bootstrap/Image';
 import YipNavBar from "./YipNavBar";
 import CommentCard from './CommentCard';
 import LoadingIcon from '../../assets/loadingIcon.gif';
-import commentIcon from '../../assets/comment.png';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import likeIcon from '../../assets/like.png';
@@ -65,19 +64,22 @@ class Review extends Component {
 		this.rerenderOnCommentDelete = this.rerenderOnCommentDelete.bind(this);
 	}
 
+	/**
+	 * Called by a comment card when deleted.
+	 * Removes deleted comment from commentArray and rerenders comment cards to reflect deletion.
+	 */
 	rerenderOnCommentDelete(index) {
 		this.state.commentArray.splice(index, 1);
 		this.forceUpdate();
 	}
 
+	/**
+	 * Loads review and its comments from database
+	 */
 	componentDidMount() {
-		// TODO: Display stuff based on if logged in or not (ie form to post comment)
 		updateLoggedInState(this);
 
-		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
-
-		// SKYRIM REVIEW
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		// Gets review id from URL
 		var reviewId = this.props.match.params.id;
 
 		var token = localStorage.getItem('jwtToken');
@@ -93,7 +95,8 @@ class Review extends Component {
 
 			// alert('Review successfully grabbed from database!');
 			if (!this.reviewListed) {
-				// TODO: Fill in html using response 
+
+				// Sets states to contain review info for rendering
 				this.setState({
 					reviewTitle: response.data.title,
 					reviewAuthor: response.data.author,
@@ -103,16 +106,17 @@ class Review extends Component {
 					reviewTagsArray: response.data.tags
 				});
 
+				// Convert tags array to list of tags
 				var tagsStr = "";
 				if (response.data.tags.length > 0) {
 					tagsStr = tagsStr + response.data.tags[0];
 				}
-
 				for (var i = 1; i < response.data.tags.length; i++) {
 					tagsStr = tagsStr + ", " + response.data.tags[i];
 				}
 				this.setState({ reviewTags: tagsStr });
 
+				// Renders like/dislike/bookmark icons to be selected or deselected
 				if (response.data.is_liked) {
 					this.setState({ isLiked: true });
 				}
@@ -128,11 +132,8 @@ class Review extends Component {
 					this.state.reviewImgs.push(response.data.images[0]);
 				}
 
-				// TODO: Render edit/delete buttons depending on if author of review
 				console.log("Is Author: " + response.data.is_author);
-
 				console.log("Is Moderator: " + response.data.is_moderator);
-				// TODO: Render like/dislike buttons depending on if liked
 				console.log("Is Liked: " + response.data.is_liked);
 				console.log("Is Disliked: " + response.data.is_disliked);
 
@@ -158,10 +159,7 @@ class Review extends Component {
 
 			//alert('Review comments successfully grabbed from database!');
 
-			// TODO: Fill in html using response 
-
-			// Fills in commentArray based on response data
-			// Will populate comment cards
+			// Fills in commentArray based on response data to render comment cards
 			if (!this.state.commentsListed) {
 
 				for (var i = 0; i < response.data.length; i++) {
@@ -231,8 +229,6 @@ class Review extends Component {
 
 
 		}).catch(error => {
-
-			// Failed to dislike review
 			// alert('Review bookmark/unbookmark failed');
 
 			// Revert preemptive frontend update
@@ -260,12 +256,13 @@ class Review extends Component {
 			}
 
 		} else {
+
+			// Renders popup prompting user to log in if logged out
 			this.setState({ loginPrompt: true, action: "dislike" });
 			return;
 		}
 
-		// TODO: Get uuid of review from url probably
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		// review id from URL
 		var reviewId = this.props.match.params.id;
 
 		// Get token
@@ -311,12 +308,12 @@ class Review extends Component {
 
 		} else {
 
+			// Renders popup prompting user to login
 			this.setState({ loginPrompt: true, action: "like" });
 			return;
 		}
 
-		// TODO: Get uuid of review from url probably
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		// review id from URL
 		var reviewId = this.props.match.params.id;
 
 		// Get token
@@ -377,6 +374,7 @@ class Review extends Component {
 		event.preventDefault();
 		event.stopPropagation();
 
+		// Prompts user to login if they attempt to post comment logged out
 		if (!isLoggedIn(this)) {
 
 			this.setState({ loginPrompt: true, action: "comment on" });
@@ -385,9 +383,9 @@ class Review extends Component {
 		}
 
 		this.setState({ loading: true });
-		// TODO: Get uuid of review from url probably
+
+		// id from URL
 		var reviewId = this.props.match.params.id;
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -411,7 +409,7 @@ class Review extends Component {
 
 			let comments = this.state.commentArray;
 
-			// TODO: Update page to display comment
+			// Updates page to display new comment
 			comments.unshift({
 				author: response.data.author_name,
 				text: response.data.text,
@@ -423,6 +421,7 @@ class Review extends Component {
 				isAuthor: true
 			});
 
+			// Clears text field after successful post
 			document.getElementById('commentForm').reset();
 
 			// Update state to cause rerender
@@ -469,6 +468,7 @@ class Review extends Component {
 		let dislikeIconOpacity;
 		let bookmarkOpacity;
 
+		// Update icon opacity to indicate whether selected
 		if (this.state.isLiked) {
 			likeIconOpacity = { opacity: 1.0, cursor: 'pointer' };
 		}
