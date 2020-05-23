@@ -206,6 +206,34 @@ pub fn get_followed_kennels_names(username: &str, connection: &DbConn) -> Result
  *
  * @return returns JSON of the review or error status
  */
+#[post("/transfer_ownership/<username>/<token>/<kennel_name>")]
+fn transfer_ownership(username: String, token: String, kennel_name: String, connection: DbConn) -> Result<status::Accepted<String>, status::NotFound<String>> {
+
+	// Get token uuid
+	let token_uuid = auth::get_uuid_from_token(&token);
+
+	// Get uuid from user
+	let uuid = users::handlers::get_uuid_from_username(&username, &connection);
+
+	// Make sure valid uuids
+	if token_uuid.is_nil() || uuid.is_nil() {
+		return Err(status::NotFound("User does not exist or invalid token".to_string()));
+	}
+
+	// Attempt to update 
+	match handlers::update_kennel_owner(kennel_name, uuid, &connection) {
+		Ok(u) => if u == 0 {Err(status::NotFound("failed transfer".to_string()))} else {Ok(status::Accepted(None))},
+		Err(e) => Err(status::NotFound(e.to_string())),
+	}	
+}
+
+/** 
+ * Method that returns a kennel from database given the name
+ * @param name: name of kennel
+ * @param connection: database connection
+ *
+ * @return returns JSON of the review or error status
+ */
 #[get("/get_followed_kennels_username/<username>")]
 fn get_followed_kennels_username(username: String, connection: DbConn) -> Result<Json<Vec<DbKennel>>, status::NotFound<String>> {
 
@@ -445,5 +473,5 @@ fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Acc
  * Mount the kennel routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_kennel, edit_kennel, list_kennels, follow_kennel, get_created_kennels, unfollow_kennel, get_kennel, get_followed_kennels, get_followed_kennels_username, search_kennels])  
+    rocket.mount("/", routes![create_kennel, edit_kennel, transfer_ownership, list_kennels, follow_kennel, get_created_kennels, unfollow_kennel, get_kennel, get_followed_kennels, get_followed_kennels_username, search_kennels])  
 }

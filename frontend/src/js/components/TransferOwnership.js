@@ -63,6 +63,7 @@ class TransferOwnership extends Component {
 
         this.setState({ loading: true });
 
+
         // send post request when implemented
         /*var kennel_name = this.state.reviewFrom.kennel_name;
         var is_comment = this.state.reviewFrom.is_comment;
@@ -84,28 +85,32 @@ class TransferOwnership extends Component {
         console.log(is_comment);
         // Create form for request 
         var form = reportJson(kennel_name, is_comment, comment_id, review_id, reason, escalated, token);
+        */
+
+        var kennel_name = this.state.reviewFrom.kennel_name;
+        var token = localStorage.getItem('jwtToken');
+        var username = document.getElementById('username').value;
 
         // Send POST request
         axios({
             method: 'post',
-            url: '/create_report',
-            data: form
+            url: '/transfer_ownership/' + username + '/' + token + '/' + kennel_name
         }).then(response => {
 
-            //alert('Review successfully reported!');
+            alert('Kennel ownership successfully transferred');
 
-            let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
+            let redirectUrl = "/kennel-" + this.state.reviewFrom.kennel_name;
             this.setState({ redirect: redirectUrl });
 
         }).catch(error => {
 
             // Failed to dislike review
-            // alert('Review report failed');
+             alert('Kennel transfer failed');
             //let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
             //this.setState({ redirect: redirectUrl });
             this.setState({ loading: false, showPopup: true });
 
-        });*/
+        });
     }
 
     render() {
@@ -127,7 +132,7 @@ class TransferOwnership extends Component {
 
                             <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
                                 <Toast.Header className="smallPopup">
-                                    <strong className="mx-auto">Review already reported!</strong>
+                                    <strong className="mx-auto">User does not exist!</strong>
                                 </Toast.Header>
                             </Toast>
 
@@ -136,7 +141,7 @@ class TransferOwnership extends Component {
                                 <Form noValidate validated={this.state.validated} onSubmit={this.transferOwnership} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
                                         <Form.Label>Select a new Moderator</Form.Label>
-                                        <Form.Control id="reason" className="logInEntry" as="textarea" placeholder="Enter username here." required />
+                                        <Form.Control id="username" className="logInEntry" as="textarea" placeholder="Enter username here." required />
                                         <Form.Control.Feedback type="invalid">Username required.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">

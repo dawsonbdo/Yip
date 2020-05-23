@@ -266,6 +266,25 @@ pub fn get_kennel_mod_uuid_from_name(kennel_name: String, connection: &PgConnect
 }
 
 /**
+ * Method that updates the owner of a kennel
+ * @param kennel_name: name of kennel
+ * @param new_owner: uuid of new owner of kennel
+ * @param connection: database connection
+ *
+ * @return result indicating if successful (check if size == 1)
+ */
+pub fn update_kennel_owner(kennel_name: String, new_owner: Uuid, connection: &PgConnection) -> QueryResult<usize>{
+
+    // Get kennel from name
+    let kennel = get_kennel_from_name(kennel_name, &connection)?;
+
+    // Update kennel owner
+    diesel::update(kennels::table.find(kennel.kennel_uuid))
+                        .set(kennels::columns::mod_uuid.eq(new_owner))
+                        .execute(connection)
+}
+
+/**
  * Method that updates the number of followers of a kennel in DB
  * @param kennel_uuid: uuid of kennel
  * @param connection: database connection
