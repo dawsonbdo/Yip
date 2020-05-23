@@ -146,8 +146,7 @@ class Register extends Component {
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Button className="logInEntry" type="submit">
-                                            <div>Submit</div>
-                                            {loading}
+                                            <div>Submit{loading}</div>
                                         </Button>
                                     </div>
                                 </Form>

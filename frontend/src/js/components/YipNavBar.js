@@ -46,6 +46,10 @@ class YipNavBar extends Component {
   logout(event) {
     localStorage.removeItem('jwtToken');
     updateLoggedInState(this);
+
+    if(this.props.fromHomePage) {
+      this.props.resetAuthHomePage();
+    }
   }
 
   // After component is loaded, update auth state
@@ -157,16 +161,16 @@ class YipNavBar extends Component {
     let logBtn;
     if (isLoggedIn(this)) {
       logBtn = <div>
+        <DropdownButton id="dropdown-item-button" title={this.state.user} className="mr-2 float-left" variant="light">
+          <Dropdown.Item href={`/user-${this.state.user}`}>View Profile</Dropdown.Item>
+          <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
+        </DropdownButton>
         <DropdownButton id="dropdown-item-button" title="Kennels" className="mr-2 float-left" variant="light">
           <Dropdown.Header>Followed</Dropdown.Header>
           {followedKennels}
           <Dropdown.Divider />
           <Dropdown.Header>Created</Dropdown.Header>
           {createdKennels}
-        </DropdownButton>
-        <DropdownButton id="dropdown-item-button" title="More" className="mr-2 float-left" variant="light">
-          <Dropdown.Item href={`/user-${this.state.user}`}>View Profile</Dropdown.Item>
-          <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
         </DropdownButton>
         <Link to={{
           pathname: "/",

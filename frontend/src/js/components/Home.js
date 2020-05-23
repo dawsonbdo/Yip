@@ -10,7 +10,7 @@ import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
-import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
+import { isLoggedIn, updateLoggedInState, updateLoggedInUser } from './BackendHelpers.js';
 
 import axios from 'axios'
 
@@ -18,20 +18,33 @@ class Home extends Component {
   constructor(props) {
     super(props);
 
-    // Creates state to keep track of if logged in
     this.state = {
       loggedIn: false,
       reviewArray: [],
-      reviewsListed: false
+      reviewsListed: false,
+      user: ""
     };
+
+    this.resetAuthState = this.resetAuthState.bind(this);
 
   }
 
-  // After component is loaded, update auth state
+  /**
+   * Called by navbar if user logs out from homepage.
+   * Resets homepage and its components (review cards) to logged out state.
+   */
+  resetAuthState() {
+    location.reload();
+  }
+
+  /**
+   * updates auth state after homepage loaded and lists reviews
+   */
   componentDidMount() {
 
     // Updates logged in state of the component
     updateLoggedInState(this);
+    updateLoggedInUser(this);
 
     // Load reviews
     axios({
@@ -43,8 +56,9 @@ class Home extends Component {
       if (!this.state.reviewsListed) {
         for (var i = 0; i < response.data.length; i++) {
 
-          // Print reviews to console for now
           console.log(response.data[i]);
+
+          // Add necessary review info for rendering review cards to reviewArray
           this.state.reviewArray.push({
             title: response.data[i].title,
             author: response.data[i].author,
@@ -58,6 +72,7 @@ class Home extends Component {
 
         }
 
+        // Used for loading logic
         this.setState({ reviewsListed: true });
       }
 
@@ -71,31 +86,44 @@ class Home extends Component {
 
 
   render() {
-    let reviews;
-    if (this.state.reviewsListed) {
-      reviews = this.state.reviewArray.map(function (review) {
-        return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }} 
-        kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked}/>
-      });
-    } else {
-      // Loading Symbol
-      reviews = <Row>
-                  <Image className="mx-auto loadingIcon" src={LoadingIcon}></Image>
-                </Row>;
+
+    // Personalized or general greeting depending on whether used logged in
+    let greeting = "Welcome to Yip!";
+    let homePageMessage = "A community-based review site.";
+    if (this.state.loggedIn) {
+      greeting = "Welcome back, " + this.state.user + "!";
+      homePageMessage = "Check out the latest reviews from kennels and reviewers you follow."
     }
 
-    return (
-      <div>
-        <YipNavBar />
+    let homeContent;
+    let reviews;
+
+    // Renders when reviews are loaded from backend
+    if (this.state.reviewsListed) {
+      reviews = this.state.reviewArray.map(function (review) {
+        return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
+          kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
+      });
+      homeContent = <div>
         <Jumbotron id="jumbotron" className="text-center">
-          <h1>Welcome to Yip!</h1>
-          <p>
-            A community-based review site.
-                </p>
+          <h1>{greeting}</h1>
+          <p>{homePageMessage}</p>
           <p id="authstatus">
           </p>
         </Jumbotron>
         {reviews}
+      </div>
+    } else {
+      // Loading Symbol
+      homeContent = <Row>
+        <Image className="mx-auto loadingIcon loading" src={LoadingIcon}></Image>
+      </Row>;
+    }
+
+    return (
+      <div>
+        <YipNavBar fromHomePage={true} resetAuthHomePage={this.resetAuthState} />
+        {homeContent}
       </div>
     )
   }

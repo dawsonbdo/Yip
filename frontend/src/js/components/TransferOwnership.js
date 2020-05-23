@@ -16,7 +16,7 @@ import axios from 'axios'
 
 import { reportJson } from './BackendHelpers.js';
 
-class Profile extends Component {
+class TransferOwnership extends Component {
 
     constructor(props) {
         super(props);
@@ -30,7 +30,7 @@ class Profile extends Component {
         };
 
         // Binds button handler
-        this.reportReview = this.reportReview.bind(this);
+        this.transferOwnership = this.transferOwnership.bind(this);
     }
 
     componentDidMount() {
@@ -47,23 +47,24 @@ class Profile extends Component {
     /**
      * Function handler for login submit button
      */
-    reportReview(event) {
+    transferOwnership(event) {
+
         // Prevents page from refreshing on submit
         event.preventDefault();
         event.stopPropagation();
 
-        var registerForm = event.currentTarget;
+        var transferForm = event.currentTarget;
 
         // Displays error if fields are empty
-        if (registerForm.checkValidity() === false) {
+        if (transferForm.checkValidity() === false) {
             this.setState({ validated: true });
             return;
         }
 
         this.setState({ loading: true });
 
-        // Get fields to create Report to pass as data
-        var kennel_name = this.state.reviewFrom.kennel_name;
+        // send post request when implemented
+        /*var kennel_name = this.state.reviewFrom.kennel_name;
         var is_comment = this.state.reviewFrom.is_comment;
         var comment_id = this.state.reviewFrom.comment_id;
         if (is_comment) {
@@ -104,7 +105,7 @@ class Profile extends Component {
             //this.setState({ redirect: redirectUrl });
             this.setState({ loading: false, showPopup: true });
 
-        });
+        });*/
     }
 
     render() {
@@ -131,11 +132,12 @@ class Profile extends Component {
                             </Toast>
 
                             <div className="logInForm">
-                                <h1 className="logInLabel">Report Reason</h1>
-                                <Form noValidate validated={this.state.validated} onSubmit={this.reportReview} className="logInEntryContainer">
+                                <h1 className="logInLabel">Transfer Ownership</h1>
+                                <Form noValidate validated={this.state.validated} onSubmit={this.transferOwnership} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
-                                        <Form.Control id="reason" className="logInEntry" as="textarea" placeholder="Write your reason here." required />
-                                        <Form.Control.Feedback type="invalid">Reason needed.</Form.Control.Feedback>
+                                        <Form.Label>Select a new Moderator</Form.Label>
+                                        <Form.Control id="reason" className="logInEntry" as="textarea" placeholder="Enter username here." required />
+                                        <Form.Control.Feedback type="invalid">Username required.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Button className="logInEntry" type="submit" variant="primary"><div>Submit{loading}</div></Button>
@@ -153,4 +155,4 @@ class Profile extends Component {
 
 }
 
-export default Profile;
+export default TransferOwnership;

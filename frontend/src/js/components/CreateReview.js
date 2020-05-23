@@ -13,6 +13,7 @@ import corgiImage from '../../assets/corgi_shadow.png';
 import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png'
 import YipNavBar from "./YipNavBar";
+import Spinner from 'react-bootstrap/Spinner';
 
 import axios from 'axios'
 
@@ -29,7 +30,8 @@ class CreateReview extends Component {
       tags: [],
       checkedTags: [],
       redirect: null,
-      validated: false
+      validated: false,
+      loading: false
     };
     this.onDrop = this.onDrop.bind(this);
     this.postReview = this.postReview.bind(this);
@@ -76,6 +78,8 @@ class CreateReview extends Component {
       this.setState({ validated: true });
       return;
     }
+
+    this.setState({loading: true});
 
     // TODO: Get UTC time or something standard instead of just local time
 
@@ -127,6 +131,7 @@ class CreateReview extends Component {
 
       // Failed to create review
       alert('Review creation failed');
+      this.setState({loading: false});
 
     });
 
@@ -134,6 +139,10 @@ class CreateReview extends Component {
   }
 
   render() {
+    let loading = <div></div>;
+        if(this.state.loading) {
+            loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+        }
 
     let selectTagsTitle;
     if(this.state.tags.length > 0) {
@@ -183,7 +192,7 @@ class CreateReview extends Component {
                     <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                   </div>
                   <div className="logInEntryContainer">
-                    <Button className="logInEntry" variant="primary" type="submit">Post</Button>
+                    <Button className="logInEntry" variant="primary" type="submit"><div>Post{loading}</div></Button>
                     <Button className="logInEntry" onClick={this.props.history.goBack} variant="primary">Cancel</Button>
                   </div>
                 </Form>

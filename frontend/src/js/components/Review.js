@@ -9,7 +9,6 @@ import Image from 'react-bootstrap/Image';
 import YipNavBar from "./YipNavBar";
 import CommentCard from './CommentCard';
 import LoadingIcon from '../../assets/loadingIcon.gif';
-import commentIcon from '../../assets/comment.png';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import likeIcon from '../../assets/like.png';
@@ -19,6 +18,8 @@ import bookmarkIcon from '../../assets/bookmark.png';
 import reportIcon from '../../assets/report.png';
 import trashIcon from '../../assets/trash.png';
 import editIcon from '../../assets/edit.png';
+import Spinner from 'react-bootstrap/Spinner';
+import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
@@ -47,7 +48,10 @@ class Review extends Component {
 			isBookmarked: false,
 			kennel: "",
 			isAuthor: false,
-			isModerator: false
+			isModerator: false,
+			loading: false,
+			loginPrompt: false,
+			action: ""
 		};
 
 		// Binds button handler
@@ -60,19 +64,22 @@ class Review extends Component {
 		this.rerenderOnCommentDelete = this.rerenderOnCommentDelete.bind(this);
 	}
 
+	/**
+	 * Called by a comment card when deleted.
+	 * Removes deleted comment from commentArray and rerenders comment cards to reflect deletion.
+	 */
 	rerenderOnCommentDelete(index) {
 		this.state.commentArray.splice(index, 1);
 		this.forceUpdate();
 	}
 
+	/**
+	 * Loads review and its comments from database
+	 */
 	componentDidMount() {
-		// TODO: Display stuff based on if logged in or not (ie form to post comment)
 		updateLoggedInState(this);
 
-		// TODO: Parse the id from URL eventually (currently just copy review id from DB)
-
-		// SKYRIM REVIEW
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+		// Gets review id from URL
 		var reviewId = this.props.match.params.id;
 
 		var token = localStorage.getItem('jwtToken');
@@ -88,7 +95,8 @@ class Review extends Component {
 
 			// alert('Review successfully grabbed from database!');
 			if (!this.reviewListed) {
-				// TODO: Fill in html using response 
+
+				// Sets states to contain review info for rendering
 				this.setState({
 					reviewTitle: response.data.title,
 					reviewAuthor: response.data.author,
@@ -98,16 +106,17 @@ class Review extends Component {
 					reviewTagsArray: response.data.tags
 				});
 
+				// Convert tags array to list of tags
 				var tagsStr = "";
 				if (response.data.tags.length > 0) {
 					tagsStr = tagsStr + response.data.tags[0];
 				}
-
 				for (var i = 1; i < response.data.tags.length; i++) {
 					tagsStr = tagsStr + ", " + response.data.tags[i];
 				}
 				this.setState({ reviewTags: tagsStr });
 
+				// Renders like/dislike/bookmark icons to be selected or deselected
 				if (response.data.is_liked) {
 					this.setState({ isLiked: true });
 				}
@@ -123,11 +132,8 @@ class Review extends Component {
 					this.state.reviewImgs.push(response.data.images[0]);
 				}
 
-				// TODO: Render edit/delete buttons depending on if author of review
 				console.log("Is Author: " + response.data.is_author);
-
 				console.log("Is Moderator: " + response.data.is_moderator);
-				// TODO: Render like/dislike buttons depending on if liked
 				console.log("Is Liked: " + response.data.is_liked);
 				console.log("Is Disliked: " + response.data.is_disliked);
 
@@ -153,10 +159,7 @@ class Review extends Component {
 
 			//alert('Review comments successfully grabbed from database!');
 
-			// TODO: Fill in html using response 
-
-			// Fills in commentArray based on response data
-			// Will populate comment cards
+			// Fills in commentArray based on response data to render comment cards
 			if (!this.state.commentsListed) {
 
 				for (var i = 0; i < response.data.length; i++) {
@@ -185,7 +188,6 @@ class Review extends Component {
 
 	bookmarkReview() {
 		// TODO: Get uuid of review from url probably
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 		var reviewId = this.props.match.params.id;
 
 		// Get token
@@ -195,10 +197,19 @@ class Review extends Component {
 		var form = likeDislikeReviewJson(reviewId, token);
 
 		var url;
-		if (this.state.isBookmarked) {
-			url = '/unbookmark_review';
+
+		if (isLoggedIn(this)) {
+
+			if (this.state.isBookmarked) {
+				url = '/unbookmark_review';
+			} else {
+				url = '/bookmark_review';
+			}
+
 		} else {
-			url = '/bookmark_review';
+
+			this.setState({ loginPrompt: true, action: "bookmark" });
+			return;
 		}
 
 		this.setState({ isBookmarked: !this.state.isBookmarked });
@@ -210,17 +221,15 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			if (this.state.isBookmarked) {
+			/*if (this.state.isBookmarked) {
 				alert('Review successfully bookmarked!');
 			} else {
 				alert('Review successfully unbookmarked!');
-			}
+			}*/
 
 
 		}).catch(error => {
-
-			// Failed to dislike review
-			alert('Review bookmark/unbookmark failed');
+			// alert('Review bookmark/unbookmark failed');
 
 			// Revert preemptive frontend update
 			this.setState({ isBookmarked: !this.state.isBookmarked });
@@ -246,9 +255,14 @@ class Review extends Component {
 				this.setState({ isDisliked: true, rating: this.state.rating - 1 });
 			}
 
+		} else {
+
+			// Renders popup prompting user to log in if logged out
+			this.setState({ loginPrompt: true, action: "dislike" });
+			return;
 		}
-		// TODO: Get uuid of review from url probably
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+
+		// review id from URL
 		var reviewId = this.props.match.params.id;
 
 		// Get token
@@ -292,9 +306,14 @@ class Review extends Component {
 				this.setState({ isLiked: true, rating: this.state.rating + 1 });
 			}
 
+		} else {
+
+			// Renders popup prompting user to login
+			this.setState({ loginPrompt: true, action: "like" });
+			return;
 		}
-		// TODO: Get uuid of review from url probably
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+
+		// review id from URL
 		var reviewId = this.props.match.params.id;
 
 		// Get token
@@ -351,10 +370,22 @@ class Review extends Component {
 
 	}
 
-	postComment() {
-		// TODO: Get uuid of review from url probably
+	postComment(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
+		// Prompts user to login if they attempt to post comment logged out
+		if (!isLoggedIn(this)) {
+
+			this.setState({ loginPrompt: true, action: "comment on" });
+			return;
+
+		}
+
+		this.setState({ loading: true });
+
+		// id from URL
 		var reviewId = this.props.match.params.id;
-		//var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
 
 		// Get token
 		var token = localStorage.getItem('jwtToken');
@@ -374,11 +405,11 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			alert('Comment successfully posted to database!');
+			//alert('Comment successfully posted to database!');
 
 			let comments = this.state.commentArray;
 
-			// TODO: Update page to display comment
+			// Updates page to display new comment
 			comments.unshift({
 				author: response.data.author_name,
 				text: response.data.text,
@@ -390,13 +421,18 @@ class Review extends Component {
 				isAuthor: true
 			});
 
+			// Clears text field after successful post
+			document.getElementById('commentForm').reset();
+
 			// Update state to cause rerender
 			this.setState({ commentArray: comments });
+			this.setState({ loading: false });
 
 		}).catch(error => {
 
 			// Failed to post comment
 			alert('Comment post failed');
+			this.setState({ loading: false });
 
 		});
 	}
@@ -412,6 +448,10 @@ class Review extends Component {
 	}
 
 	render() {
+		let loading = <div></div>;
+		if (this.state.loading) {
+			loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+		}
 
 		// Gets the comments in their comment cards
 		let nameOfKennel = this.state.kennel;
@@ -421,13 +461,14 @@ class Review extends Component {
 		let comments = this.state.commentArray.map(function (comment, index) {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text}
 				timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}
-				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor} isModerator={modStatus} commentIndex={index} rerenderReview={rerenderReview}/>
+				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor} isModerator={modStatus} commentIndex={index} rerenderReview={rerenderReview} />
 		});
 
 		let likeIconOpacity;
 		let dislikeIconOpacity;
 		let bookmarkOpacity;
 
+		// Update icon opacity to indicate whether selected
 		if (this.state.isLiked) {
 			likeIconOpacity = { opacity: 1.0, cursor: 'pointer' };
 		}
@@ -455,6 +496,19 @@ class Review extends Component {
 		if (this.state.reviewListed && this.state.commentsListed) {
 			reviewContent =
 				<div>
+					<Toast style={{
+						position: 'fixed',
+						top: 110,
+						zIndex: 1,
+						left: '50%',
+						transform: 'translate(-50%, 0%)'
+					}} className="mx-auto logInEntry" onClose={() => this.setState({ loginPrompt: false })} show={this.state.loginPrompt}>
+						<Toast.Header className="logInLabel">
+							<strong className="mx-auto">You must sign in to {this.state.action} reviews</strong>
+						</Toast.Header>
+						<Toast.Body style={{textAlign: 'center'}}>Click <a href="/login">here</a> to sign in</Toast.Body>
+					</Toast>
+
 					<Jumbotron id="jumbotron">
 						<Row>
 							<Col className="text-left">
@@ -517,12 +571,12 @@ class Review extends Component {
 							<Col xs={10} className="text-center">
 								<div className="logInForm">
 									<h3 className="logInLabel pt-2 pb-2">Leave a Comment</h3>
-									<Form className="logInEntryContainer">
+									<Form id="commentForm" className="logInEntryContainer" onSubmit={this.postComment}>
 										<div className="logInEntryContainer">
-											<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" />
+											<Form.Control id="reviewComment" className="logInEntry" size="xl" as="textarea" placeholder="Ex. This is a good review!" required />
 										</div>
 										<div className="logInEntryContainer">
-											<Button onClick={this.postComment} className="logInEntry" variant="primary">Post</Button>
+											<Button className="logInEntry" type="submit" variant="primary"><div>Post{loading}</div></Button>
 										</div>
 									</Form>
 								</div>

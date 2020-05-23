@@ -17,6 +17,7 @@ import TagCard from './TagCard';
 import RuleCard from './RuleCard';
 import { Redirect } from 'react-router-dom';
 import Nav from 'react-bootstrap/Nav';
+import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
@@ -48,7 +49,9 @@ class Kennel extends Component {
             bannedString: "",
             kennelReviewsListed: false,
             kennelInfoListed: false,
-            isModerator: false
+            isModerator: false,
+            loginPrompt: false,
+            loginPromptAction: ""
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -86,6 +89,9 @@ class Kennel extends Component {
             else {
                 this.setState({ isFollowing: false, followBtnText: "Follow" });
             }
+        }
+        else {
+            this.setState({ loginPrompt: true, loginPromptAction: "follow" });
         }
 
         // Get kennel name somehow
@@ -335,7 +341,7 @@ class Kennel extends Component {
             return <TagCard tag={tag} />
         });
         const rules = this.state.rulesArray.map(function (rule) {
-           return <RuleCard rule={rule} /> 
+            return <RuleCard rule={rule} />
         });
         const reviewReports = this.state.reportsReviewsArray.map(function (report) {
             return <Message messageText={report.reason} messagerName={report.author} timestamp={report.timestamp} reportTitle={report.title} commentBody="" reviewId={report.review_uuid} reportId={report.report_id} kennelName={report.kennel_name} />
@@ -368,6 +374,19 @@ class Kennel extends Component {
         let kennel;
         if (this.state.kennelInfoListed && this.state.kennelReviewsListed) {
             kennel = <Container>
+                <Toast style={{
+                    position: 'fixed',
+                    top: 110,
+                    zIndex: 1,
+                    left: '50%',
+                    transform: 'translate(-50%, 0%)'
+                }} className="mx-auto logInEntry" onClose={() => this.setState({ loginPrompt: false })} show={this.state.loginPrompt}>
+                    <Toast.Header className="logInLabel">
+                        <strong className="mx-auto">You must sign in to {this.state.loginPromptAction} kennels</strong>
+                    </Toast.Header>
+                    <Toast.Body style={{ textAlign: 'center' }}>Click <a href="/login">here</a> to sign in</Toast.Body>
+                </Toast>
+
                 <Row className="align-items-center">
                     <Col className="text-center">
                         <Jumbotron id="jumbotron" className="text-left">
@@ -377,27 +396,38 @@ class Kennel extends Component {
                                     <h4>{this.state.follower_count} Followers</h4>
                                 </Col>
                                 <Col>
-                                <div className="float-right kennelBtns">
-                                    {/*If isModerator then render the Edit Kennel Button*/}
-                                    {this.state.isModerator &&
-                                        <Link to={{
-                                            pathname: "/editkennel",
-                                            state: {
-                                                rules: this.state.rulesStringProp,
-                                                tags: this.state.tagsString,
-                                                mutedWords: this.state.mutedString,
-                                                kennel_name: this.state.kennel_name,
-                                                description: this.state.description
-                                            }
-                                        }}><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
-                                    }
-                                    <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
-                                    <Link to={{
-                                        pathname: "/createreview",
-                                        state: {
-                                            kennel_name: this.state.kennel_name
+                                    <div className="float-right kennelBtns">
+                                        {/*If isModerator then render the Edit Kennel Button*/}
+                                        {this.state.isModerator &&
+                                            <div>
+                                                <Link to={{
+                                                    pathname: "/editkennel",
+                                                    state: {
+                                                        rules: this.state.rulesStringProp,
+                                                        tags: this.state.tagsString,
+                                                        mutedWords: this.state.mutedString,
+                                                        kennel_name: this.state.kennel_name,
+                                                        description: this.state.description
+                                                    }
+                                                }}><Button className="logInEntry" variant="link">Edit Kennel</Button></Link>
+                                                <Link to={{
+                                                    pathname: "/transferownership",
+                                                    state: {
+                                                        rules: this.state.rulesStringProp,
+                                                        tags: this.state.tagsString,
+                                                        mutedWords: this.state.mutedString,
+                                                        kennel_name: this.state.kennel_name,
+                                                        description: this.state.description
+                                                    }
+                                                }}><Button className="logInEntry" variant="link">Transfer Ownership</Button></Link></div>
                                         }
-                                    }}><Button className="logInEntry" type="submit" variant="link">Post Review</Button></Link>
+                                        <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
+                                        <Link to={{
+                                            pathname: "/createreview",
+                                            state: {
+                                                kennel_name: this.state.kennel_name
+                                            }
+                                        }}><Button className="logInEntry" type="submit" variant="link">Post Review</Button></Link>
                                     </div>
                                 </Col>
                             </Row>
@@ -425,7 +455,7 @@ class Kennel extends Component {
                             </Nav>
                         </Jumbotron>
                     </Col>
-                    
+
                 </Row>
                 <div>{kennelContent}</div>
             </Container>

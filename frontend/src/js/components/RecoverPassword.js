@@ -8,6 +8,8 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
+import Toast from 'react-bootstrap/Toast';
+import Spinner from 'react-bootstrap/Spinner';
 
 import axios from 'axios';
 
@@ -18,7 +20,9 @@ class RecoverPassword extends Component {
         super(props);
         this.state = {
             validated: false,
-            redirect: null
+            redirect: null,
+            showPopup: false,
+            loading: false
         };
         this.recoverPassword = this.recoverPassword.bind(this);
     }
@@ -38,6 +42,8 @@ class RecoverPassword extends Component {
             this.setState({ validated: true });
             return;
         }
+
+        this.setState({ loading: true });
 
         // Get the email, username, and password
         var email = document.getElementById('email').value;
@@ -66,14 +72,20 @@ class RecoverPassword extends Component {
             alert("Password successfully reset.");
 
         }).catch(error => {
-            
+
             // Failed recover password
-            alert("Incorrect Username or Email.");
+            //alert("Incorrect Username or Email.");
+            this.setState({ loading: false, showPopup: true });
 
         })
     }
 
     render() {
+        let loading = <div></div>;
+        if (this.state.loading) {
+            loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+        }
+
         if (this.state.redirect) {
             return <Redirect to={this.state.redirect} />
         }
@@ -84,27 +96,34 @@ class RecoverPassword extends Component {
                         <Col></Col>
                         <Col className="text-center">
                             <Link to="/"><img src={corgiImage} /></Link>
+
+                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
+                                <Toast.Header className="smallPopup">
+                                    <strong className="mx-auto">Incorrect Username or Email!</strong>
+                                </Toast.Header>
+                            </Toast>
+
                             <div className="logInForm">
                                 <h1 className="logInLabel">Reset Password</h1>
                                 <Form noValidate validated={this.state.validated} onSubmit={this.recoverPassword} className="logInEntryContainer">
                                     <div className="logInEntryContainer">
-                                        <Form.Control id="username" className="logInEntry" placeholder="Username" required/>
+                                        <Form.Control id="username" className="logInEntry" placeholder="Username" required />
                                         <Form.Control.Feedback type="invalid">Enter username.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Form.Control id="email" className="logInEntry" type="email" placeholder="Email" required/>
+                                        <Form.Control id="email" className="logInEntry" type="email" placeholder="Email" required />
                                         <Form.Control.Feedback type="invalid">Enter valid email.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Form.Control id="password" className="logInEntry" type="password" placeholder="New Password" required/>
+                                        <Form.Control id="password" className="logInEntry" type="password" placeholder="New Password" required />
                                         <Form.Control.Feedback type="invalid">Enter a new password.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Form.Control id="confirmPassword" className="logInEntry" type="password" placeholder="Re-Type Password" required/>
+                                        <Form.Control id="confirmPassword" className="logInEntry" type="password" placeholder="Re-Type Password" required />
                                         <Form.Control.Feedback type="invalid">Confirm new password.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Button className="logInEntry" type="submit">Submit</Button>
+                                        <Button className="logInEntry" type="submit"><div>Submit{loading}</div></Button>
                                     </div>
                                 </Form>
                             </div>
