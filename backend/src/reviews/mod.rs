@@ -225,7 +225,7 @@ fn like_dislike_helper(input: Json<ReviewToken>, like: bool, connection: DbConn)
     	Ok(uuid) => if like {result = handlers::like(uuid, profile_uuid, &connection);}
     			 else {result = handlers::dislike(uuid, profile_uuid, &connection);},
     	// Not a valid comment uuid string
-    	Err(_e) => return Err(status::BadRequest(Some("Review not foudn".to_string()))), //TODO: uninformative error message
+    	Err(_e) => return Err(status::BadRequest(Some("Review not found".to_string()))), //TODO: uninformative error message
     }
     
     
@@ -275,7 +275,7 @@ fn bookmark_helper(input: Json<ReviewToken>, bookmark: bool, connection: DbConn)
 
 				// Attempt to unbookmark the review
 			    match handlers::unbookmark(r, profile_uuid, &connection){
-			        Ok(u) => if u == 0 {Err("already bookmarked".to_string())} else {Ok(true)},
+			        Ok(u) => if u == 0 {Err("already unbookmarked".to_string())} else {Ok(true)},
 			        Err(e) => Err(e.to_string()),
 			    }
 			}

@@ -70,7 +70,7 @@ fn follow_unfollow_helper(input: Json<KennelUser>, follow: bool, connection: DbC
 	if kennel_uuid.is_nil() {
 
 		// Kennel name could not convert to a uuid (not found)
-		return Err(status::BadRequest(Some("Kennel not foudn".to_string())));
+		return Err(status::BadRequest(Some("Kennel not found".to_string())));
 	} else {
 
 		// Attempt to follow or unfollow depending on parameter

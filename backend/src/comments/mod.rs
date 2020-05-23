@@ -138,7 +138,7 @@ fn like_dislike_helper(input: Json<CommentUser>, like: bool, connection: DbConn)
     	Ok(uuid) => if like {result = handlers::like(uuid, profile_uuid, &connection);}
     			 else {result = handlers::dislike(uuid, profile_uuid, &connection);},
     	// Not a valid comment uuid string
-    	Err(_e) => return Err(status::BadRequest(Some("Comment not foudn".to_string()))),
+    	Err(_e) => return Err(status::BadRequest(Some("Comment not found".to_string()))),
     }
     
     
