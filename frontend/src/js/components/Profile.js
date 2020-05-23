@@ -16,6 +16,7 @@ import ImageUploader from 'react-images-upload';
 import corgiImage from '../../assets/corgi_shadow.png';
 import KennelCard from './KennelCard';
 import corgiPFP from '../../assets/corgi_pfp.png';
+import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
@@ -45,7 +46,9 @@ class Profile extends Component {
             profileFollowedUsersListed: false,
             isOwner: false,
             followBtnText: "Follow",
-            isFollowing: false
+            isFollowing: false,
+            loginPrompt: false,
+			action: ""
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -55,7 +58,6 @@ class Profile extends Component {
     }
 
     followProfile() {
-        updateLoggedInState(this);
 
         // Update follow button text for follow/unfollow
         if(isLoggedIn(this)) {
@@ -71,6 +73,10 @@ class Profile extends Component {
                     isFollowing: false
                 });
             }
+        }
+        else {
+            this.setState({loginPrompt: true, action: "follow"});
+            return;
         }
 
         // Load user profile (get from URL)
@@ -471,6 +477,19 @@ class Profile extends Component {
         let profile;
         if (this.state.profileKennelsListed && this.state.profileReviewsListed) {
             profile = <Container>
+                <Toast style={{
+						position: 'fixed',
+						top: 110,
+						zIndex: 1,
+						left: '50%',
+						transform: 'translate(-50%, 0%)'
+					}} className="mx-auto logInEntry" onClose={() => this.setState({ loginPrompt: false })} show={this.state.loginPrompt}>
+						<Toast.Header className="logInLabel">
+							<strong className="mx-auto">You must sign in to {this.state.action} reviewers</strong>
+						</Toast.Header>
+						<Toast.Body style={{ textAlign: 'center' }}>Click <a href="/login">here</a> to sign in</Toast.Body>
+					</Toast>
+
                 <Row className="align-items-center">
                     <Col xs={8} className="text-center">
                         <Jumbotron id="jumbotron" className="text-left">

@@ -164,6 +164,7 @@ class YipNavBar extends Component {
         <DropdownButton id="dropdown-item-button" title={this.state.user} className="mr-2 float-left" variant="light">
           <Dropdown.Item href={`/user-${this.state.user}`}>View Profile</Dropdown.Item>
           <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
+          <Dropdown.Item href="/inbox">Inbox</Dropdown.Item>
         </DropdownButton>
         <DropdownButton id="dropdown-item-button" title="Kennels" className="mr-2 float-left" variant="light">
           <Dropdown.Header>Followed</Dropdown.Header>
