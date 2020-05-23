@@ -73,12 +73,12 @@ table! {
 }
 
 table! {
-    messages (message_uuid) {
-        message_uuid -> Uuid,
+    messages (pkey) {
         sender -> Uuid,
         recipient -> Uuid,
         text -> Text,
-        timestamp -> Nullable<Timestamp>,
+        timestamp -> Timestamp,
+        pkey -> Int8,
     }
 }
 

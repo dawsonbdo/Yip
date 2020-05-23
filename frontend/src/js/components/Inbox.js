@@ -8,8 +8,9 @@ import Message from './Message';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import Form from 'react-bootstrap/Form';
 
-import { isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
+import { isLoggedIn, updateLoggedInState, updateLoggedInUserAndWebSocket } from './BackendHelpers.js';
 
 import axios from 'axios';
 
@@ -18,7 +19,21 @@ class Inbox extends Component {
         super(props);
 
         // Creates state to keep track of if logged in
-        this.state = { loggedIn: false };
+        this.state = { 
+            loggedIn: false,
+            inputElem: null,
+            messages: null, 
+            ws: null,
+            user: "",
+            recipient: ""
+        };
+
+        this.createHTMLMessage = this.createHTMLMessage.bind(this);
+        this.loadMessages = this.loadMessages.bind(this);
+    }
+
+    componentDidUpdate(){
+        
     }
 
     // After component is loaded, update auth state
@@ -26,38 +41,63 @@ class Inbox extends Component {
 
         // Updates logged in state of the component
         updateLoggedInState(this);
+
+        // Sets user that is logged in and open web socket
+        updateLoggedInUserAndWebSocket(this);
+
     }
 
-    // Displays if logged in on home page
-    componentDidUpdate() {
+    loadMessages(){
+        // Get token and recipient
+        var token = localStorage.getItem('jwtToken');
+        var recipient = document.getElementById('recipient').value;
 
+        // Set states (claer the curent messages)
+        let messages = document.querySelector('.messages');
+        messages.innerHTML = "";
+        this.setState({ messages: messages});
+        this.setState({ recipient: recipient });
 
-        // Load reviews
+        // Send GET request
         axios({
-            method: 'post',
-            url: '/load_reviews/' + localStorage.getItem('jwtToken')
+            method: 'get',
+            url: '/load_messages/' + token + '/' + recipient,
         }).then(response => {
 
-            // alert('Listed reviews');
-
-            // TODO: Populate ReviewCards using response.data (this is an array of DisplayReview objs)
-            //       (check backend/src/reviews/handlers.rs for the fields of a DisplayReview)
-
-            // Iterate through reviews
-            for (var i = 0; i < response.data.length; i++) {
-
-                // Print reviews to console for now
-                console.log(response.data[i]);
-
+            if ( response.data == undefined || response.data.length == 0 ){
+                alert('No messages from ' + recipient);
+                return;
             }
 
+            alert('Msgs sucessfuly received from ' + recipient);
+
+            for ( var i = response.data.length-1; i >= 0; i-- ){
+                console.log(response.data[i]);
+                if (response.data[i].is_sender){
+                    this.createHTMLMessage(response.data[i].text, 'client');
+                } else {
+                    this.createHTMLMessage(response.data[i].text, 'server');
+                }
+            }
+           
         }).catch(error => {
 
-            // Review not found in database
-            alert('Failed to list reviews');
+            // Failed to dislike review
+            alert('Msgs unsuccessfuly received');
 
         });
+    }
 
+    createHTMLMessage(msg, source){
+        var li = document.createElement("li");
+        var div = document.createElement("div");
+        li.classList.add('inboxli');
+        div.innerHTML += msg;
+        div.className += "messageInstance " + source;
+        li.appendChild(div);
+        let messages = this.state.messages;
+        messages.appendChild(li);
+        this.setState({ messages: messages });
     }
 
     render() {
@@ -67,19 +107,16 @@ class Inbox extends Component {
                 <YipNavBar />
                 <Jumbotron id="jumbotron" className="text-center">
                     <h1>Inbox: </h1>
+                    <Form.Control id="recipient" className="logInEntry" type="text" placeholder="Recipient" required />
+                    <Button onClick={this.loadMessages} className="logInEntry" type="submit" variant="primary">Load Messages</Button>
                 </Jumbotron>
-                <Container>
-                    <Row>
-                        <Col>
-				            <Message commenterName={"Name"} commentText={"Comment"} />
-				            <Message commenterName={"Name"} commentText={"Comment"} />
-				            <Message commenterName={"Name"} commentText={"Comment"} />
-				            <Message commenterName={"Name"} commentText={"Comment"} />
-				            <Message commenterName={"Name"} commentText={"Comment"} />
-				            <Message commenterName={"Name"} commentText={"Comment"} />
-                        </Col>
-                    </Row>
-                </Container>
+                <div>
+                    <div class="mainApp">
+                        <h1> Chat App </h1>
+                        <ul class="messages"></ul>
+                        <input class="chatMessage" />
+                    </div>
+                </div>
             </div>
         )
     }

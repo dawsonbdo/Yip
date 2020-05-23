@@ -117,6 +117,95 @@ function getDateTime(){
 }
 
 // Updates the user state of the page
+export async function updateLoggedInUserAndWebSocket(page){
+      // Send POST request with token for authenticatio
+      const localUser = await axios({
+        method: 'get',
+        url: '/get_username/' + localStorage.getItem('jwtToken'),
+      }).then((response) => {
+            //alert("CREATING SOCKET");
+
+            // Create web socket
+            var ws = new WebSocket('ws://127.0.0.1:8001/' + response.data);
+
+            var that = page;
+
+            // Adds message whenever received
+            ws.onmessage = function(msg) { 
+              
+              that.createHTMLMessage(msg.data, 'server');
+              
+            };
+
+            var inputElem = document.querySelector('.chatMessage');
+
+            // Set states
+            page.setState({ inputElem: inputElem });
+            page.setState({ ws: ws });
+
+
+            // Add listener to input
+            inputElem.addEventListener('keypress', function (e) {
+                var key = e.which || e.keyCode;
+                if (key === 13) {
+                    //alert("EMTER");
+
+                    // Get input and token and recipieint
+                    var inputElem = document.querySelector('.chatMessage');
+                    var token = localStorage.getItem('jwtToken');
+                    var recipient = page.state.recipient;
+
+                    // Create HTML message on local client
+                    that.createHTMLMessage(inputElem.value, 'client');
+
+                    // Send message to websocket server
+                    ws.send(recipient + "-" + inputElem.value);
+
+                    // Create form for request
+                    var form = {
+                        sender: token, //token
+                        recipient: recipient, //recipient username
+                        text: inputElem.value,
+                    };
+
+                    
+                    // Send POST request
+                    axios({
+                        method: 'post',
+                        url: '/create_message',
+                        data: form
+                    }).then(response => {
+
+                        //alert('Msg sucessfuly created in db');
+
+                    }).catch(error => {
+
+                        // Failed to dislike review
+                        alert('Msg unsuccessfuly sent to db');
+
+                    });
+                    
+                    
+
+                    // Empty input after sending
+                    inputElem.value = "";
+                    that.setState({ inputElem: inputElem });
+                }
+            });
+        
+
+        // Return username ("" if none)
+        return response.data;
+
+      });
+
+      // Update logged in state
+      page.setState({
+        user: localUser
+      });
+}
+
+// Updates the user state of the page
 export async function updateLoggedInUser(page){
       // Send POST request with token for authenticatio
       const localUser = await axios({

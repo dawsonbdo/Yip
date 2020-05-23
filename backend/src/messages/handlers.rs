@@ -7,13 +7,66 @@ use chrono::NaiveDateTime;
 
 use crate::auth;
 
-/**
- * Method that returns a vector with all of the messages
- */
-pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbMessage>> {
-    messages::table.load::<DbMessage>(&*connection)
+fn from_message(message: Message, connection: &PgConnection) -> InsertMessage {
+        InsertMessage{
+            sender: auth::get_uuid_from_token(&message.sender), 
+            recipient: super::super::users::handlers::get_uuid_from_username(&message.recipient, connection),
+            text: message.text,
+        }
+    
 }
 
+fn to_message(message: &DbMessage, sender: Uuid, connection: &PgConnection) -> DisplayMessage {
+        DisplayMessage{
+            is_sender: sender.eq(&message.sender),
+            text: message.text.clone(),
+            timestamp: message.timestamp,
+        }
+
+}
+
+
+/**
+ * Method that returns a vector with all of the messages between
+ * two users
+ * @param sender: the sender of a message (user logged in)
+ * @param recipient: the person user is chatting with
+ *
+ * @return returns all of the messages
+ */
+pub fn all_messages(sender: Uuid, recipient: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayMessage>> {
+    // Get vector of all matching messages
+    let messages = messages::table
+                      .filter(messages::sender.eq_any(vec![sender, recipient]))
+                      .filter(messages::recipient.eq_any(vec![sender, recipient]))
+                      .load::<DbMessage>(&*connection);
+
+
+    // Pattern match to make sure successful, convert to DisplayMessages if so
+    match messages {
+        Ok(r) => Ok(r.iter()
+                     .map(|msg| to_message(msg, sender, connection))
+                     .collect()),
+        Err(e) => Err(e),
+    }
+}
+
+
+/**
+ * CREATE MESSAGE: Method that attempts to create a new message in database, returns URL? 
+ */
+pub fn insert(message: Message, connection: &PgConnection) -> QueryResult<usize> {
+    // Prints the Message information that was received (register)
+    println!("Text: {}", message.text);
+    println!("Recipient: {}", message.recipient);
+
+    // Inserts message into database, returns uuid generated
+    diesel::insert_into(messages::table)
+        .values(from_message(message, connection))
+        .execute(connection)
+}
+
+/*
 /**
  * LOAD MESSAGE: Method that returns a DbMessage given the uuid
  */
@@ -23,34 +76,6 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbMessage> {
     messages::table.find(id).get_result::<DbMessage>(connection)
 }
 
-/**
- * CREATE MESSAGE: Method that attempts to create a new message in database, returns URL? 
- */
-pub fn insert(message: Message, connection: &PgConnection) -> Result<Uuid, String> {
-    // Prints the Message information that was received (register)
-    println!("Text: {}", message.text);
-    println!("Recipient: {}", message.recipient);
-
-    // Inserts message into database, returns uuid generated
-    match diesel::insert_into(messages::table)
-        .values(&DbMessage::from_message(message, connection))
-        .get_result::<DbMessage>(connection) {
-            Ok(m) => Ok(m.message_uuid),
-            Err(e) => Err(e.to_string()),
-        }
-}
-
-/**
- * EDIT Message: Method that updates a message in database
- */
-pub fn update(id: Uuid, message: Message, connection: &PgConnection) -> bool {
-    match diesel::update(messages::table.find(id))
-        .set(&DbMessage::from_message(message, connection))
-        .get_result::<DbMessage>(connection) {
-            Ok(_u) => return true,
-            Err(_e) => return false,
-        }
-}
 
 /**
  * DELETE Message: Method that removes a message in database
@@ -59,7 +84,7 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(messages::table.find(id))
         .execute(connection)
 }
-
+*/
 
 // Struct representing the fields of a message passed in from frontend contains
 #[derive(Queryable, Serialize, Deserialize)]
@@ -67,34 +92,32 @@ pub struct Message {
     pub sender: String, //token
     pub recipient: String, //recipient username
     pub text: String,
-    pub timestamp: String,
 }
 
-// Struct represneting the fields of a message that is inserted into database
+// Struct representing the fields of a message inserted into db contains
+#[derive(Insertable, Queryable, Serialize, Deserialize)]
+#[table_name = "messages"]
+pub struct InsertMessage {
+    pub sender: Uuid, //token
+    pub recipient: Uuid, //recipient username
+    pub text: String,
+}
+
+// Struct represneting the fields of a message that is retrieved from db
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
 #[table_name = "messages"]
 pub struct DbMessage {
-    pub message_uuid: Uuid,
     pub sender: Uuid, 
     pub recipient: Uuid, 
     pub text: String,
-    pub timestamp: Option<NaiveDateTime>,
+    pub timestamp: NaiveDateTime,
+    pub pkey: i64,
 }
 
-// Converts a Message to an DbMessage by calling functions on passed in values
-impl DbMessage{
-
-    fn from_message(message: Message, connection: &PgConnection) -> DbMessage {
-        DbMessage{
-            message_uuid: Uuid::new_v4(),
-            sender: auth::get_uuid_from_token(&message.sender), 
-            recipient: super::super::users::handlers::get_uuid_from_username(&message.recipient, connection),
-            text: message.text,
-            timestamp: match NaiveDateTime::parse_from_str(&message.timestamp, "%Y-%m-%d %H:%M:%S") {
-                Ok(t) => Some(t),
-                Err(_e) => None,
-            },
-        }
-    }
-
+// Struct representing the fields of a message inserted into db contains
+#[derive(Queryable, Serialize, Deserialize, std::hash::Hash, std::cmp::PartialEq, std::cmp::Eq)]
+pub struct DisplayMessage {
+    pub is_sender: bool,
+    pub text: String,
+    pub timestamp: NaiveDateTime,
 }
