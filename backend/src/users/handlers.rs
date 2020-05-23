@@ -129,6 +129,16 @@ pub fn all_user_followees(id: Uuid, connection: &PgConnection) -> QueryResult<Ve
 }
 
 /**
+ * Method that returns a vector with all of the usernames
+ * @param connection: database connection
+ *
+ * @return returns a vector of strings of usernames
+ */
+pub fn all_names(connection: &PgConnection) -> QueryResult<Vec<String>> {
+    users::table.select(users::username).load::<String>(&*connection)
+}
+
+/**
  * Method that returns a vector with all of the users in database
  * @param connection: database connection
  *

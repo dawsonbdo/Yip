@@ -10,6 +10,9 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from '@material-ui/core/TextField';
+
 import { isLoggedIn, updateLoggedInState, updateLoggedInUserAndWebSocket } from './BackendHelpers.js';
 
 import axios from 'axios';
@@ -25,15 +28,13 @@ class Inbox extends Component {
             messages: null, 
             ws: null,
             user: "",
-            recipient: ""
+            recipient: "",
+            allUsers: [],
+            pastUsers: []
         };
 
         this.createHTMLMessage = this.createHTMLMessage.bind(this);
         this.loadMessages = this.loadMessages.bind(this);
-    }
-
-    componentDidUpdate(){
-        
     }
 
     // After component is loaded, update auth state
@@ -45,6 +46,66 @@ class Inbox extends Component {
         // Sets user that is logged in and open web socket
         updateLoggedInUserAndWebSocket(this);
 
+        var token = localStorage.getItem('jwtToken');
+
+        // Set all users in db by getting list 
+        axios({
+            method: 'get',
+            url: '/get_all_users'
+        }).then(response => {
+
+            alert('All users receieved');
+
+            if ( response.data == undefined || response.data.length == 0 ){
+                alert('No past messages in inbox');
+                return;
+            }
+
+            var users = [];
+
+            for ( var i = 0; i < response.data.length; i++ ){
+                users.push({name: response.data[i]});
+            }
+
+            this.setState({allUsers: users});
+
+           
+        }).catch(error => {
+
+            // Failed to dislike review
+            alert('Failed to load all users');
+
+        });
+
+        // Set past users by getting list 
+        axios({
+            method: 'get',
+            url: '/get_past_recipients/' + token
+        }).then(response => {
+
+            if ( response.data == undefined || response.data.length == 0 ){
+                alert('No past messages in inbox');
+                return;
+            }
+
+            var users = [];
+
+            for ( var i = 0; i < response.data.length; i++ ){
+                users.push({name: response.data[i].user});
+            }
+
+            console.log("ALL USERS MESSAGED");
+            console.log(users);
+
+            alert('Past users you have messaged loaded');
+            this.setState({pastUsers: users});
+           
+        }).catch(error => {
+
+            // Failed to dislike review
+            alert('Past messages failed to load');
+
+        });
     }
 
     loadMessages(){
@@ -107,7 +168,13 @@ class Inbox extends Component {
                 <YipNavBar />
                 <Jumbotron id="jumbotron" className="text-center">
                     <h1>Inbox: </h1>
-                    <Form.Control id="recipient" className="logInEntry" type="text" placeholder="Recipient" required />
+                    <Autocomplete
+                      id="recipient"
+                      options={this.state.allUsers}
+                      getOptionLabel={(option) => option.name}
+                      style={{ width: 300 }}
+                      renderInput={(params) => <TextField {...params} label="Recipient" variant="outlined" />}
+                    />
                     <Button onClick={this.loadMessages} className="logInEntry" type="submit" variant="primary">Load Messages</Button>
                 </Jumbotron>
                 <div>

@@ -6,6 +6,8 @@ use crate::schema::messages;
 use chrono::NaiveDateTime;
 
 use crate::auth;
+use std::collections::HashMap;
+extern crate priority_queue;
 
 fn from_message(message: Message, connection: &PgConnection) -> InsertMessage {
         InsertMessage{
@@ -24,6 +26,62 @@ fn to_message(message: &DbMessage, sender: Uuid, _connection: &PgConnection) -> 
         }
 
 }
+
+/**
+ * Method that returns a vector with all of the messages a user in sender or recipient for
+ * @param sender: the sender of a message (user logged in)
+ * @param connection: database connection
+ *
+ * @return returns all of the messages
+ */
+pub fn all_user_messages(user: Uuid, connection: &PgConnection) -> QueryResult<Vec<UserTimestamp>> {
+    // Get vector of all matching messages
+    let messages = messages::table
+                      .filter(messages::sender.eq(user))
+                      .or_filter(messages::recipient.eq(user))
+                      .load::<DbMessage>(&*connection);
+
+    // Pattern match to make sure successful, convert to DisplayMessages if so
+    match messages {
+        Ok(msgs) => {
+                // Filter into a set so no duplicates
+                let mut users = HashMap::new();
+
+                // Iterate through messages, insert if newer timestamp
+                for m in msgs{
+                    let u = if m.sender.eq(&user) {m.recipient} else {m.sender};
+
+                    match users.get(&u){
+                        Some(n) => if m.timestamp > *n {users.insert(u, m.timestamp);} else {()},
+                        None => {users.insert(u, m.timestamp); ()},
+                    }
+                }
+
+                let mut pq = priority_queue::PriorityQueue::new();
+            
+                // Sort UserTimestamps by hotness using pq (greatest NaiveDateTime value)
+                for (k,v) in users.iter() {
+                    pq.push(k, v);
+                }  
+
+                // Create a vector with all of the reviews to as ordered
+                let mut ordered : Vec<UserTimestamp> = vec![];
+
+                // Order by timestamp
+                for (user, timestamp) in pq.into_sorted_iter() {
+
+                    ordered.push(UserTimestamp{
+                        user: super::super::users::handlers::get_username_from_uuid(*user, connection),
+                        timestamp: *timestamp,
+                    });
+                }
+
+                Ok(ordered)
+                },
+        Err(e) => Err(e),
+    }
+}
+
 
 
 /**
@@ -85,6 +143,13 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
         .execute(connection)
 }
 */
+
+// Struct representing the fields of a user and timestamp (for getting messagers)
+#[derive(std::hash::Hash, std::cmp::Eq, std::cmp::PartialEq, Queryable, Serialize, Deserialize)]
+pub struct UserTimestamp {
+    pub user: String, //token
+    pub timestamp: NaiveDateTime, //recipient username
+}
 
 // Struct representing the fields of a message passed in from frontend contains
 #[derive(Queryable, Serialize, Deserialize)]

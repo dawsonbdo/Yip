@@ -3,7 +3,7 @@ pub mod handlers;
 use crate::db;
 use crate::auth;
 extern crate priority_queue;
-use handlers::{Message, DisplayMessage};
+use handlers::{Message, DisplayMessage, UserTimestamp};
 use rocket_contrib::json::Json;
 
 use db::DbConn;
@@ -18,7 +18,7 @@ use rocket::response::status;
  * @return returns TBD
  */
 #[get("/get_past_recipients/<sender>")]
-fn get_past_recipients(sender: String, _connection: DbConn) -> Result<Json<Vec<String>>, status::Conflict<String>> {
+fn get_past_recipients(sender: String, connection: DbConn) -> Result<Json<Vec<UserTimestamp>>, status::Conflict<String>> {
 	
 	println!("Sender: {}", sender);
 
@@ -30,7 +30,11 @@ fn get_past_recipients(sender: String, _connection: DbConn) -> Result<Json<Vec<S
 		return Err(status::Conflict(Some("Invalid sender".to_string())));
 	}
 
-	Ok(Json(vec!["test".to_string()]))
+	// Get all messages where sender matches sender or recipient 
+	match handlers::all_user_messages(sender_uuid, &connection){
+		Ok(v) => Ok(Json(v)),
+		Err(e) => Err(status::Conflict(Some(e.to_string()))),
+	}
 }
 
 /** 

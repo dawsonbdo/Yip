@@ -277,6 +277,25 @@ fn auth(token: String) -> String {
  *
  * @return N/A
  */
+#[get("/get_all_users", rank=1)]
+fn get_all_users(connection: DbConn) -> Result<Json<Vec<String>>, status::NotFound<String>> {
+
+	// Makes database call to get all user names
+	let all_users = handlers::all_names(&connection);
+	
+	match all_users{
+		Ok(u) => Ok(Json(u)),
+		Err(e) => Err(status::NotFound(e.to_string())),
+	}
+
+}
+
+/**
+ * Method that prints out all the users in database
+ * @param connection: database connection
+ *
+ * @return N/A
+ */
 #[get("/users", rank=1)]
 fn list_users(connection: DbConn) -> () {
 
@@ -398,5 +417,5 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
  * Mount the user routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![login, register, recover_password, list_users, auth, get_user, get_followed_users, block_user, follow_user, unfollow_user, get_username])  
+    rocket.mount("/", routes![login, register, recover_password, get_all_users, list_users, auth, get_user, get_followed_users, block_user, follow_user, unfollow_user, get_username])  
 }
