@@ -217,8 +217,8 @@ pub fn username_email_linked(username: &str, email: &str, connection: &PgConnect
  * @return returns Uuid of User, nil if username does not exist in database
  */
 pub fn get_username_from_uuid(id: Uuid, connection: &PgConnection) -> String {
-    match users::table.find(id).get_result::<DbUser>(connection){
-        Ok(u) => u.username,
+    match users::table.find(id).select(users::username).get_result::<String>(connection){
+        Ok(u) => u,
         Err(e) => e.to_string(),
     }
 }

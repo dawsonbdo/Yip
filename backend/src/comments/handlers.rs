@@ -6,6 +6,7 @@ use uuid::Uuid;
 use crate::schema::comments;
 use crate::schema::comment_like_relationships;
 use crate::schema::comment_dislike_relationships;
+use crate::schema::reports;
 
 use chrono::NaiveDateTime;
 
@@ -59,7 +60,7 @@ fn from_comment(comment: InputComment, connection: &PgConnection) -> InsertComme
         author_uuid: author_uuid,
         text: comment.text.clone(),
         rating: 0, 
-        author_name: super::super::users::handlers::get_user_from_uuid(author_uuid, connection).unwrap().username,
+        author_name: super::super::users::handlers::get_username_from_uuid(author_uuid, connection),
     }
 }
 
@@ -378,15 +379,20 @@ pub fn update(id: Uuid, comment: InputComment, connection: &PgConnection) -> boo
  * @return returns usize (1 if deleted successfully)
  */
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
+    // Delete reports of comment
+    diesel::delete(reports::table
+             .filter(reports::comment_id.eq(id)))
+             .execute(connection)?;
+
     // Delete likes of comment
     diesel::delete(comment_like_relationships::table
             .filter(comment_like_relationships::comment.eq(id)))
-            .execute(connection);
+            .execute(connection)?;
 
     // Delete dislikes of comment
     diesel::delete(comment_dislike_relationships::table
             .filter(comment_dislike_relationships::comment.eq(id)))
-            .execute(connection);
+            .execute(connection)?;
 
     // Delete comment
     diesel::delete(comments::table.find(id))
