@@ -26,7 +26,8 @@ class Profile extends Component {
             validated: false,
             reviewFrom: {},
             loading: false,
-            showPopup: false
+            showPopup: false,
+            popupMsg: ""
         };
 
         // Binds button handler
@@ -41,6 +42,13 @@ class Profile extends Component {
         //   .then((kennel) => {
         //     this.setState(() => ({ kennel }))
         //   })
+        let msg;
+        if ( reviewState.is_comment ){
+            msg = "Comment already reported!";
+        } else {
+            msg = "Review already reported!";
+        }
+        this.setState({ popupMsg: msg });
         this.setState({ reviewFrom: reviewState });
     }
 
@@ -126,7 +134,7 @@ class Profile extends Component {
 
                             <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
                                 <Toast.Header className="smallPopup">
-                                    <strong className="mx-auto">Review already reported!</strong>
+                                    <strong className="mx-auto">{this.state.popupMsg}</strong>
                                 </Toast.Header>
                             </Toast>
 
