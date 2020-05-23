@@ -129,7 +129,7 @@ class TransferOwnership extends Component {
                                           id="username"
                                           options={this.state.allUsers}
                                           getOptionLabel={(option) => option.name}
-                                          style={{ width: 300 }}
+                                          style={{ width: 300, marginLeft: 'auto', marginRight: 'auto' }}
                                           renderInput={(params) => <TextField {...params} label="Enter username here." variant="outlined" />}
                                         />
                                         {/*<Form.Control id="username" className="logInEntry" as="textarea" placeholder="Enter username here." required /> */}

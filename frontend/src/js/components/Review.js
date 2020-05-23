@@ -62,6 +62,7 @@ class Review extends Component {
 		this.bookmarkReview = this.bookmarkReview.bind(this);
 		this.getURL = this.getURL.bind(this);
 		this.rerenderOnCommentDelete = this.rerenderOnCommentDelete.bind(this);
+		this.handleInvalidCommentLike = this.handleInvalidCommentLike.bind(this);
 	}
 
 	/**
@@ -71,6 +72,14 @@ class Review extends Component {
 	rerenderOnCommentDelete(index) {
 		this.state.commentArray.splice(index, 1);
 		this.forceUpdate();
+	}
+
+	/**
+	 * Called by comment card when user attempts to like/dislike a comment while logged out
+	 */
+	handleInvalidCommentLike() {
+		this.setState({ loginPrompt: true, action: "like/dislike comments on" });
+
 	}
 
 	/**
@@ -458,10 +467,13 @@ class Review extends Component {
 		let idOfReview = this.props.match.params.id;
 		let modStatus = this.state.isModerator;
 		let rerenderReview = this.rerenderOnCommentDelete;
+		let handleInvalidLike = this.handleInvalidCommentLike;
+		let isLoggedIn = this.state.loggedIn;
 		let comments = this.state.commentArray.map(function (comment, index) {
 			return <CommentCard commentId={comment.commentId} commenterName={comment.author} commentText={comment.text}
 				timestamp={comment.time} rating={comment.rating} isLiked={comment.isLiked} isDisliked={comment.isDisliked}
-				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor} isModerator={modStatus} commentIndex={index} rerenderReview={rerenderReview} />
+				kennel={nameOfKennel} review={idOfReview} isAuthor={comment.isAuthor} isModerator={modStatus} commentIndex={index}
+				rerenderReview={rerenderReview} handleInvalidLike={handleInvalidLike} loggedIn={isLoggedIn} />
 		});
 
 		let likeIconOpacity;
@@ -506,7 +518,7 @@ class Review extends Component {
 						<Toast.Header className="logInLabel">
 							<strong className="mx-auto">You must sign in to {this.state.action} reviews</strong>
 						</Toast.Header>
-						<Toast.Body style={{textAlign: 'center'}}>Click <a href="/login">here</a> to sign in</Toast.Body>
+						<Toast.Body style={{ textAlign: 'center' }}>Click <a href="/login">here</a> to sign in</Toast.Body>
 					</Toast>
 
 					<Jumbotron id="jumbotron">
@@ -537,15 +549,16 @@ class Review extends Component {
 									}}><Image className="likePadding float-right pl-3" src={editIcon} width="60" /></Link>
 								}
 								<Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} />
-								<Link to={{
-									pathname: '/report',
-									state: {
-										is_comment: false,
-										comment_id: "",
-										kennel_name: this.state.kennel,
-										review_id: this.props.match.params.id
-									}
-								}}><Image className="likePadding float-right" src={reportIcon} /></Link>
+								{this.state.loggedIn &&
+									<Link to={{
+										pathname: '/report',
+										state: {
+											is_comment: false,
+											comment_id: "",
+											kennel_name: this.state.kennel,
+											review_id: this.props.match.params.id
+										}
+									}}><Image className="likePadding float-right" src={reportIcon} /></Link>}
 								<Image onClick={this.getURL} style={{ cursor: 'pointer' }} className="likePadding float-right pl-5" src={shareIcon} />
 								<Image onClick={this.dislikeReview} style={dislikeIconOpacity} className="likePadding float-right" src={dislikeIcon} />
 								<h4 className="likePadding float-right">{this.state.rating}</h4>

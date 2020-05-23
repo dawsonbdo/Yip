@@ -73,8 +73,7 @@ class CommentCard extends Component {
 
     like() {
 
-        updateLoggedInState(this);
-        if (isLoggedIn(this)) {
+        if (this.props.loggedIn) {
             // If already liked removes like
             if (this.state.isLiked) {
                 this.setState({ isLiked: false, rating: this.state.rating - 1 });
@@ -89,6 +88,10 @@ class CommentCard extends Component {
             else {
                 this.setState({ isLiked: true, rating: this.state.rating + 1 });
             }
+        }
+        else {
+            this.props.handleInvalidLike();
+            return;
         }
 
         // TODO: Get uuid of comment from a prop probably
@@ -121,8 +124,7 @@ class CommentCard extends Component {
 
     dislike() {
 
-        updateLoggedInState(this);
-        if (isLoggedIn(this)) {
+        if (this.props.loggedIn) {
             // If already disliked removes dislike
             if (this.state.isDisliked) {
                 this.setState({ isDisliked: false, rating: this.state.rating + 1 });
@@ -138,8 +140,12 @@ class CommentCard extends Component {
                 this.setState({ isDisliked: true, rating: this.state.rating - 1 });
             }
 
-
         }
+        else {
+            this.props.handleInvalidLike();
+            return;
+        }
+
         // TODO: Get uuid of comment from a prop probably
         var commentId = this.props.commentId;
 
@@ -195,21 +201,22 @@ class CommentCard extends Component {
                                 <Container>
                                     <Row>
                                         <Col>
-                                            <h4 className="text-left pt-2 pl-2"><a class="profileLink" 
+                                            <h4 className="text-left pt-2 pl-2"><a class="profileLink"
                                                 href={`/user-${this.props.commenterName}`}>{this.props.commenterName}</a></h4>
                                         </Col>
                                         <Col>
                                             {(this.props.isAuthor || this.props.isModerator) && <Image onClick={this.deleteComment} style={{ cursor: 'pointer' }}
-                                                className="likePadding float-right" src={trashIcon} width="50"/>}
-                                            <Link to={{
-                                                pathname: '/report',
-                                                state: {
-                                                    is_comment: true,
-                                                    comment_id: this.props.commentId,
-                                                    kennel_name: this.props.kennel,
-                                                    review_id: this.props.review
-                                                }
-                                            }}><Image className="likePadding float-right" src={reportIcon} width="50"/></Link>
+                                                className="likePadding float-right" src={trashIcon} width="50" />}
+                                            {this.props.loggedIn &&
+                                                <Link to={{
+                                                    pathname: '/report',
+                                                    state: {
+                                                        is_comment: true,
+                                                        comment_id: this.props.commentId,
+                                                        kennel_name: this.props.kennel,
+                                                        review_id: this.props.review
+                                                    }
+                                                }}><Image className="likePadding float-right" src={reportIcon} width="50" /></Link>}
                                         </Col>
                                     </Row>
                                 </Container>

@@ -422,12 +422,13 @@ class Kennel extends Component {
                                                 }}><Button className="logInEntry" variant="link">Transfer Ownership</Button></Link></div>
                                         }
                                         <Button onClick={this.followKennel} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
-                                        <Link to={{
-                                            pathname: "/createreview",
-                                            state: {
-                                                kennel_name: this.state.kennel_name
-                                            }
-                                        }}><Button className="logInEntry" type="submit" variant="link">Post Review</Button></Link>
+                                        {isLoggedIn(this) &&
+                                            <Link to={{
+                                                pathname: "/createreview",
+                                                state: {
+                                                    kennel_name: this.state.kennel_name
+                                                }
+                                            }}><Button className="logInEntry" type="submit" variant="link">Post Review</Button></Link>}
                                     </div>
                                 </Col>
                             </Row>
