@@ -11,6 +11,29 @@ use db::DbConn;
 use rocket::response::status;
 
 /** 
+ * Method that returns list of all past usernames that sender has message/received msgs from
+ * @param sender: token of sender
+ * @param connection: database connection
+ *
+ * @return returns TBD
+ */
+#[get("/get_past_recipients/<sender>")]
+fn get_past_recipients(sender: String, connection: DbConn) -> Result<Json<Vec<String>>, status::Conflict<String>> {
+	
+	println!("Sender: {}", sender);
+
+	// Get uuid of sender
+	let sender_uuid = auth::get_uuid_from_token(&sender);
+
+	// Make sure uuids not nil
+	if sender_uuid.is_nil() {
+		return Err(status::Conflict(Some("Invalid sender".to_string())));
+	}
+
+	Ok(Json(vec!["test".to_string()]))
+}
+
+/** 
  * Method that returns all messages between a user and 
  * @param sender: token of sender
  * @param recipient: name of recipient
@@ -86,5 +109,5 @@ fn create_message(message: Json<Message>, connection: DbConn) -> Result<status::
  * Mount the message routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_message, load_messages])  
+    rocket.mount("/", routes![create_message, load_messages, get_past_recipients])  
 }
