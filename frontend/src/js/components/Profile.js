@@ -449,7 +449,12 @@ class Profile extends Component {
         let actionButtons;
         if (!this.state.isOwner) {
             actionButtons = <Col>
-                <Button className="logInEntry" type="submit" variant="primary">Message</Button>
+                 <Link to={{
+                                        pathname: '/inbox',
+                                        state: {
+                                            recipient: this.props.match.params.username
+                                        }
+                                    }}><Button className="logInEntry" type="submit" variant="primary">Message</Button></Link>
                 <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
                 <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
             </Col>;

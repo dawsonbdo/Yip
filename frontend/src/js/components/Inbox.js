@@ -40,6 +40,11 @@ class Inbox extends Component {
     // After component is loaded, update auth state
     componentDidMount() {
 
+        if (this.props.location.state != undefined){
+            this.setState({recipient: this.props.location.state.recipient});
+            this.loadMessages(this.props.location.state.recipient);
+        }
+
         // Updates logged in state of the component
         updateLoggedInState(this);
 
@@ -83,10 +88,18 @@ class Inbox extends Component {
         });
     }
 
-    loadMessages(){
+    loadMessages(rec=""){
+
+
         // Get token and recipient
         var token = localStorage.getItem('jwtToken');
-        var recipient = document.getElementById('recipient').value;
+        var recipient = "";
+        if (rec == ""){
+            recipient = document.getElementById('recipient').value;
+        } else {
+            recipient = rec;
+        }
+         
 
         // Set states (claer the curent messages)
         let messages = document.querySelector('.messages');
