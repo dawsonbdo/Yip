@@ -25,7 +25,7 @@ import { likeDislikeReviewJson, isLoggedIn, updateLoggedInState } from './Backen
 class ReviewCard extends Component {
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
             rating: 0,
@@ -41,6 +41,8 @@ class ReviewCard extends Component {
     }
 
     componentDidMount() {
+        //alert(this.props.reviewName)
+        //alert(this.props.rating)
         this.setState({
             rating: this.props.rating,
             isLiked: this.props.isLiked,

@@ -426,43 +426,24 @@ class Profile extends Component {
 
 
     render() {
-
         // Renders content cards for each tab on profile (Reviews, Kennels, Bookmarks)
-        const reviews = this.state.reviewArray.map(function (review) {
+        let reviews = this.state.reviewArray.map(function (review) {
             return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
                 kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp}/>
         });
-        const kennels = this.state.kennelArray.map(function (kennel) {
+        let kennels = this.state.kennelArray.map(function (kennel) {
             return <KennelCard kennelName={kennel.kennelName} kennelRules={kennel.kennelRules} kennelTags={kennel.kennelTags} followerCount={kennel.followerCount} />
         });
-        const createdKennels = this.state.createdKennelArray.map(function (kennel) {
+        let createdKennels = this.state.createdKennelArray.map(function (kennel) {
             return <KennelCard kennelName={kennel.kennelName} kennelRules={kennel.kennelRules} kennelTags={kennel.kennelTags} followerCount={kennel.followerCount} />
         });
-        const bookmarks = this.state.bookmarkArray.map(function (review) {
-            return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
-                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp}/>
+        let bookmarks = this.state.bookmarkArray.map(function (bookmark) {
+            return <ReviewCard reviewId={bookmark.id} reviewName={bookmark.title} reviewerName={bookmark.author} reviewPreview={{ __html: bookmark.text }}
+                kennelName={bookmark.kennel} rating={bookmark.rating} isLiked={bookmark.isLiked} isDisliked={bookmark.isDisliked} timestamp={bookmark.timestamp}/>
         });
-        const users = this.state.followedUsersArray.map(function (user) {
+        let users = this.state.followedUsersArray.map(function (user) {
             return <UserCard userName={user} />
         });
-
-        // Determines what to display based on which tab selected
-        let profileContent;
-        if (this.state.showReviews) {
-            profileContent = reviews;
-        }
-        if (this.state.showKennels) {
-            profileContent = kennels;
-        }
-        if (this.state.showBookmarks) {
-            profileContent = bookmarks;
-        }
-        if (this.state.showCreatedKennels) {
-            profileContent = createdKennels;
-        }
-        if(this.state.showFollowedUsers) {
-            profileContent = <ul>{users}</ul>;
-        }
 
         // Hides buttons on own profile
         let actionButtons;
@@ -521,7 +502,13 @@ class Profile extends Component {
                     </Col>
                     {actionButtons}
                 </Row>
-                <div>{profileContent}</div>
+                <div>
+                    {this.state.showReviews && reviews}
+                    {this.state.showKennels && kennels}
+                    {this.state.showBookmarks && bookmarks}
+                    {this.state.showCreatedKennels && createdKennels}
+                    {this.state.showFollowedUsers && <ul>{users}</ul>}
+                </div>
             </Container>
         } else {
             profile = <Row>
