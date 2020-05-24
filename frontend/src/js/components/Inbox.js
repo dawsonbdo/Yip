@@ -42,7 +42,7 @@ class Inbox extends Component {
 
         if (this.props.location.state != undefined){
             this.setState({recipient: this.props.location.state.recipient});
-            this.loadMessages(this.props.location.state.recipient);
+            this.loadMessages("", this.props.location.state.recipient);
         }
 
         // Updates logged in state of the component
@@ -88,7 +88,7 @@ class Inbox extends Component {
         });
     }
 
-    loadMessages(rec=""){
+    loadMessages(t, rec=""){
 
 
         // Get token and recipient
@@ -100,6 +100,8 @@ class Inbox extends Component {
             recipient = rec;
         }
          
+        console.log("RECIPIENT");
+        console.log(recipient);
 
         // Set states (claer the curent messages)
         let messages = document.querySelector('.messages');

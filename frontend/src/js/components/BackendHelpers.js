@@ -153,7 +153,10 @@ export async function updateLoggedInUserAndWebSocket(page){
                     // Get input and token and recipieint
                     var inputElem = document.querySelector('.chatMessage');
                     var token = localStorage.getItem('jwtToken');
-                    var recipient = page.state.recipient;
+                    var recipient = that.state.recipient;
+
+                    console.log("RECIPIENT");
+                    console.log(recipient);
 
                     // Create HTML message on local client
                     that.createHTMLMessage(inputElem.value, 'client');
@@ -167,6 +170,9 @@ export async function updateLoggedInUserAndWebSocket(page){
                         recipient: recipient, //recipient username
                         text: inputElem.value,
                     };
+
+                    console.log("FORM");
+                    console.log(form);
 
                     
                     // Send POST request
