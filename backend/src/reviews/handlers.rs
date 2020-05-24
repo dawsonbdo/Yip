@@ -579,7 +579,7 @@ pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> QueryResul
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // TODO: Delete all the comments, and relationships ie likes/dislikes
 
-    // Delete all reports
+    // Delete all reports on review
     diesel::delete(reports::table
              .filter(reports::review_id.eq(id)))
              .execute(connection)?;
@@ -592,7 +592,7 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // Get all comments
     let comments = comments::table.filter(comments::review_uuid.eq(id)).load::<DbComment>(&*connection)?;
 
-    // Delete all comments like dislikes
+    // Delete all comments like dislikes reports
     for c in comments.iter(){
         // Delete likes
         diesel::delete(comment_like_relationships::table
@@ -603,6 +603,12 @@ pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
         diesel::delete(comment_dislike_relationships::table
                   .filter(comment_dislike_relationships::comment.eq(c.comment_uuid)))
         .execute(connection)?;
+
+        // Delete reports
+        diesel::delete(reports::table
+             .filter(reports::comment_id.eq(c.comment_uuid)))
+             .execute(connection)?;
+
     }
     
     // Delete all comments
