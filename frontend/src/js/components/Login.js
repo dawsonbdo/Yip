@@ -118,7 +118,8 @@ class Login extends Component {
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" type="submit" variant="primary">
-                      <div>Submit{loading}</div>
+                      <div>Submit</div>
+                      {loading}
                     </Button>
                   </div>
                 </Form>

@@ -52,7 +52,9 @@ class Review extends Component {
 			isReported: false,
 			loading: false,
 			loginPrompt: false,
-			action: ""
+			action: "",
+			showPopup: false,
+			popupMsg: ""
 		};
 
 		// Binds button handler
@@ -156,7 +158,7 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Review not found in database
-			alert('Error loading review');
+			this.setState({showPopup: true, popupMsg: "Error loading review"});
 
 		});
 
@@ -191,7 +193,7 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Review comments not found in database
-			alert('Error loading review comments');
+			this.setState({showPopup: true, popupMsg: "Error loading review comments"});
 
 		});
 	}
@@ -235,8 +237,7 @@ class Review extends Component {
 
 
 		}).catch(error => {
-			// TODO: Make a Toast
-			alert('Review bookmark/unbookmark failed');
+			this.setState({showPopup: true, popupMsg: "Failed to bookmark review"});
 
 			// Revert preemptive frontend update
 			this.setState({ isBookmarked: !this.state.isBookmarked });
@@ -289,7 +290,7 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Failed to dislike review
-			alert('Review dislike failed');
+			this.setState({showPopup: true, popupMsg: "Failed to dislike review"});
 
 		});
 	}
@@ -339,7 +340,7 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Failed to like review
-			alert('Review like failed');
+			this.setState({showPopup: true, popupMsg: "Failed to like review"});
 
 		});
 	}
@@ -364,12 +365,12 @@ class Review extends Component {
 
 			alert('Review successfully removed!');
 			// TODO: handle re-rendering page when returning back
-			this.props.history.goBack(); 
+			this.props.history.goBack();
 
 
 		}).catch(error => {
 
-			// TODO: Toast 'unsucessful delete review'
+			this.setState({showPopup: true, popupMsg: "Failed to delete review"});
 
 		});
 
@@ -433,7 +434,7 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Failed to post comment
-			// TODO: Toast 'unsucessful post comment'
+			this.setState({showPopup: true, popupMsg: "Comment failed"});
 			this.setState({ loading: false });
 
 		});
@@ -447,7 +448,7 @@ class Review extends Component {
 		url.select();
 		document.execCommand('copy');
 		url.remove();
-		// TODO: Toast 'copied url to clipboard'
+		this.setState({showPopup: true, popupMsg: "Copied URL to clipboard"});
 	}
 
 	render() {
@@ -521,6 +522,17 @@ class Review extends Component {
 							<strong className="mx-auto">You must sign in to {this.state.action} reviews</strong>
 						</Toast.Header>
 						<Toast.Body style={{ textAlign: 'center' }}>Click <a href="/login">here</a> to sign in</Toast.Body>
+					</Toast>
+					<Toast style={{
+						position: 'fixed',
+						top: 110,
+						zIndex: 1,
+						left: '50%',
+						transform: 'translate(-50%, 0%)'
+					}} className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
+						<Toast.Header className="smallPopup">
+							<strong className="mx-auto">{this.state.popupMsg}</strong>
+						</Toast.Header>
 					</Toast>
 
 					<Jumbotron id="jumbotron">

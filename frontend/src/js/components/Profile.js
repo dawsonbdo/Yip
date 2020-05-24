@@ -318,7 +318,8 @@ class Profile extends Component {
                     rating: response.data[i].rating,
                     id: response.data[i].review_uuid,
                     isLiked: response.data[i].is_liked,
-                    isDisliked: response.data[i].is_disliked
+                    isDisliked: response.data[i].is_disliked,
+                    timestamp: response.data[i].timestamp
                 });
 
             }
@@ -358,7 +359,8 @@ class Profile extends Component {
                     rating: response.data[i].rating,
                     id: response.data[i].review_uuid,
                     isLiked: response.data[i].is_liked,
-                    isDisliked: response.data[i].is_disliked
+                    isDisliked: response.data[i].is_disliked,
+                    timestamp: response.data[i].timestamp
                 });
 
             }
@@ -428,7 +430,7 @@ class Profile extends Component {
         // Renders content cards for each tab on profile (Reviews, Kennels, Bookmarks)
         const reviews = this.state.reviewArray.map(function (review) {
             return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
-                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
+                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp}/>
         });
         const kennels = this.state.kennelArray.map(function (kennel) {
             return <KennelCard kennelName={kennel.kennelName} kennelRules={kennel.kennelRules} kennelTags={kennel.kennelTags} followerCount={kennel.followerCount} />
@@ -438,7 +440,7 @@ class Profile extends Component {
         });
         const bookmarks = this.state.bookmarkArray.map(function (review) {
             return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
-                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} />
+                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp}/>
         });
         const users = this.state.followedUsersArray.map(function (user) {
             return <UserCard userName={user} />
