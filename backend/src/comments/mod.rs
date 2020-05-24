@@ -48,11 +48,11 @@ fn update_display_comment_fields(profile_username: &str, uuid: Uuid, comments: V
 
 	// Iterate through likes and dislikes
 	for l in likes.iter() {
-		comment_likes_dislikes.insert(l.liker, 1);
+		comment_likes_dislikes.insert(l.comment, 1);
 	}
 
 	for d in dislikes.iter() {
-		comment_likes_dislikes.insert(d.disliker, -1);
+		comment_likes_dislikes.insert(d.comment, -1);
 	}
 
 	// Create hash map for the reported reviews
@@ -66,8 +66,11 @@ fn update_display_comment_fields(profile_username: &str, uuid: Uuid, comments: V
 
 	let mut comments_updated : Vec<DisplayComment> = vec![];
 
+
+
 	// Set isAuthor, isLiked, isDisliked fields
 	for mut c in comments {
+
 		let val = comment_likes_dislikes.get(&c.comment_uuid);
 		let r_val = comment_reports.get(&c.comment_uuid);
 
@@ -225,6 +228,9 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
 	// Get username from token passed in
 	let profile_username = auth::get_user_from_token(&token);
 
+	// Get user uuid from token passed in
+	let profile_uuid = auth::get_uuid_from_token(&token);
+
 	// Makes database call to get all comments with review uuid
 	let all_comments = handlers::all_review_comments(uuid, &connection);
 
@@ -249,7 +255,7 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
 				comments_ordered.push(comment);
 			}
 
-			Ok(Json(update_display_comment_fields(&profile_username, uuid, comments_ordered, &connection)))
+			Ok(Json(update_display_comment_fields(&profile_username, profile_uuid, comments_ordered, &connection)))
 		},
 		Err(e) => Err(status::NotFound(e.to_string())),
 	}
