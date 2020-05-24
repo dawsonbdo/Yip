@@ -129,7 +129,8 @@ impl Handler for Connection {
             for connection in &CONNS{
                 if connection.id.eq(&user) {
                     println!("USER CONNECTED CURRENTLY");
-                    return connection.out.send(msg)
+                    let formattedMsg = format!("{}-{}", self.id, msg);
+                    return connection.out.send(formattedMsg);
                 }
             }
         }

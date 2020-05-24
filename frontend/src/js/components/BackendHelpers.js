@@ -158,8 +158,10 @@ export async function updateLoggedInUserAndWebSocket(page){
                     console.log("RECIPIENT");
                     console.log(recipient);
 
+                    var msg = that.state.user + "-" + inputElem.value;
+
                     // Create HTML message on local client
-                    that.createHTMLMessage(inputElem.value, 'client');
+                    that.createHTMLMessage(msg, 'client');
 
                     // Send message to websocket server
                     ws.send(recipient + "-" + inputElem.value);

@@ -118,6 +118,11 @@ class Inbox extends Component {
 
             if ( response.data == undefined || response.data.length == 0 ){
                 alert('No messages from ' + recipient);
+                // Adds to list of users
+                var u = this.state.pastUsers;
+                u.unshift(recipient);
+                this.setState({ pastUsers: u }); 
+
                 return;
             }
 
@@ -126,9 +131,9 @@ class Inbox extends Component {
             for ( var i = response.data.length-1; i >= 0; i-- ){
                 console.log(response.data[i]);
                 if (response.data[i].is_sender){
-                    this.createHTMLMessage(response.data[i].text, 'client');
+                    this.createHTMLMessage(this.state.user + "-" + response.data[i].text, 'client');
                 } else {
-                    this.createHTMLMessage(response.data[i].text, 'server');
+                    this.createHTMLMessage(recipient + "-" + response.data[i].text, 'server');
                 }
             }
            
@@ -141,10 +146,46 @@ class Inbox extends Component {
     }
 
     createHTMLMessage(msg, source){
+        // Parse the message into sender + msg
+        var idx = msg.indexOf('-');
+        var sender = msg.substring(0, idx);
+        var parsedMsg = msg.substring(idx+1, msg.length);
+
+        console.log("msg: " + parsedMsg + "  source: " + source);
+        // If source is server only add to messages if its from current recipient
+        if (source == "server"){
+            console.log("server source");
+            // TODO: Check sender has previously sent (i.e in pastUsers)
+            var prev = this.state.pastUsers;
+            var senderIdx = prev.indexOf(sender);
+
+            // If previously sent, remove the occurence
+            if (senderIdx != -1){
+                // Remove from list
+                prev.splice(senderIdx, 1);
+            }
+
+            // Append to list
+            prev.unshift(sender);
+
+            // Update previous user list order
+            this.setState({ pastUsers: prev });
+
+            // Don't create HTML msg if sender not recipient
+            if (sender != this.state.recipient){
+
+                // TODO: add it to chat preview for that user
+
+                return;
+            }
+
+
+        }
+
         var li = document.createElement("li");
         var div = document.createElement("div");
         li.classList.add('inboxli');
-        div.innerHTML += msg;
+        div.innerHTML += parsedMsg;
         div.className += "messageInstance " + source;
         li.appendChild(div);
         let messages = this.state.messages;
@@ -169,10 +210,10 @@ class Inbox extends Component {
                       id="recipient"
                       options={this.state.allUsers}
                       getOptionLabel={(option) => option.name}
-                      style={{ width: 300 }}
+                      style={{ width: 300, marginLeft: 'auto', marginRight: 'auto'  }}
                       renderInput={(params) => <TextField {...params} label="Recipient" variant="outlined" />}
                     />
-                    <Button onClick={this.loadMessages} className="logInEntry" type="submit" variant="primary">Load Messages</Button>
+                    <Button onClick={this.loadMessages} className="logInEntry" type="submit" variant="primary">Send Message</Button>
                 </Jumbotron>
                 <section class="container">
                   <div class="left-half">
