@@ -452,7 +452,6 @@ class Profile extends Component {
                 <Button className="logInEntry" type="submit" variant="primary">Message</Button>
                 <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
                 <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
-                <Button onClick={this.reportProfile} className="logInEntry" type="submit" variant="primary">Report</Button>
             </Col>;
         }
 
