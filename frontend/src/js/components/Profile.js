@@ -48,7 +48,9 @@ class Profile extends Component {
             followBtnText: "Follow",
             isFollowing: false,
             loginPrompt: false,
-            action: ""
+            action: "",
+            showPopup: false,
+            popupMsg: ""
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -122,6 +124,11 @@ class Profile extends Component {
     }
 
     blockProfile() {
+        if (!isLoggedIn(this)) {
+            this.setState({ loginPrompt: true, action: "block" });
+            return;
+        }
+
         // Load user profile (get from URL)
         var username = this.props.match.params.username;
 
@@ -136,12 +143,12 @@ class Profile extends Component {
             data: form,
         }).then(response => {
 
-            alert('User successfully blocked');
+            this.setState({showPopup: true, popupMsg: "User successfully blocked"});
 
 
         }).catch(error => {
 
-            alert('User failed to block');
+            this.setState({showPopup: true, popupMsg: "Failed to block user"});
 
         });
     }
@@ -474,6 +481,7 @@ class Profile extends Component {
         let profile;
         if (this.state.profileKennelsListed && this.state.profileReviewsListed) {
             profile = <Container>
+
                 <Toast style={{
                     position: 'fixed',
                     top: 110,
@@ -486,6 +494,18 @@ class Profile extends Component {
                     </Toast.Header>
                     <Toast.Body style={{ textAlign: 'center' }}>Click <a href="/login">here</a> to sign in</Toast.Body>
                 </Toast>
+
+                <Toast style={{
+						position: 'fixed',
+						top: 110,
+						zIndex: 1,
+						left: '50%',
+						transform: 'translate(-50%, 0%)'
+					}} className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
+						<Toast.Header className="smallPopup">
+							<strong className="mx-auto">{this.state.popupMsg}</strong>
+						</Toast.Header>
+					</Toast>
 
                 <Row className="align-items-center">
                     <Col xs={8} className="text-center">
