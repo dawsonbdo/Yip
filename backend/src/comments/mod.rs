@@ -91,30 +91,11 @@ fn update_display_comment_fields(profile_username: &str, uuid: Uuid, comments: V
 	comments_updated
 }
 
-/**
- * Helper method that returns the username corresponding to a token, "" if none
- * @param token: the token
- * @param connection: database connection
- *
- * @return returns a String corresponding to username of token, "" if none
- */
-fn token_to_username(token: String, connection: &DbConn) -> String {
-
-	// Get uuid from token passed in
-	let profile_uuid = auth::get_uuid_from_token(&token);
-
-	// Look for the username of the uuid in database
-	match super::users::handlers::get_user_from_uuid(profile_uuid, connection){
-		Ok(u) => u.username,
-		Err(_e) => "".to_string(),
-	}
-}
-
 /** 
- * Helper method that follows or unfollows a kennel given parameter
- * @param kennel: JSON of a CommentUser (comment + token)
+ * Helper method that likes or dislikes a comment given parameter
+ * @param input: JSON of a CommentUser (comment + token)
  * @param like: bool indicating like or dislike
- * @param connetion: database connection
+ * @param connection: database connection
  *
  * @return returns a result with status Accepted or BadRequest
  */
@@ -154,9 +135,9 @@ fn like_dislike_helper(input: Json<CommentUser>, like: bool, connection: DbConn)
 }
 
 /** 
- * Handler method that unfollows a kennel
- * @param kennel: JSON of a CommentUser (comment + token)
- * @param connetion: database connection
+ * Handler method that unlikes a comment
+ * @param input: JSON of a CommentUser (comment + token)
+ * @param connection: database connection
  *
  * @return returns a result with status Accepted or BadRequest
  */
@@ -168,9 +149,9 @@ fn dislike_comment(input: Json<CommentUser>, connection: DbConn) -> Result<statu
 }
 
 /** 
- * Handler method that follows a kennel
- * @param kennel: JSON of a CommentUser (comment + token)
- * @param connetion: database connection
+ * Handler method that likes a comment
+ * @param input: JSON of a CommentUser (comment + token)
+ * @param connection: database connection
  *
  * @return returns a result with status Accepted or BadRequest
  */
@@ -192,7 +173,7 @@ fn like_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status::
 fn remove_comment(input: Json<CommentUser>, kennel_name: String, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
 
 	// Get tokens username
-	let profile_username = token_to_username(input.token.clone(), &connection);
+	let profile_username = auth::get_user_from_token(&input.token);
 
 	// Get tokens uuid
 	let profile_uuid = auth::get_uuid_from_token(&input.token);
@@ -242,7 +223,7 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
 	let uuid = Uuid::parse_str(&review_uuid).unwrap();
 
 	// Get username from token passed in
-	let profile_username = token_to_username(token.clone(), &connection);
+	let profile_username = auth::get_user_from_token(&token);
 
 	// Makes database call to get all comments with review uuid
 	let all_comments = handlers::all_review_comments(uuid, &connection);
