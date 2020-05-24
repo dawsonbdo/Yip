@@ -194,23 +194,60 @@ body {
   padding-top: 22px;
 }
 
-.mainApp {
+.chatApp {
   position:absolute;
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0px 20px;
+
 }
 
+.chatApp h1 {
+  position: relative;
+  bottom: 250px;
+}
+
+.chatApp ul {
+  position: relative;
+  bottom: 250px;
+  height: 400px;
+}
+
+.inboxUserLabel {
+  background-color: #E9E9E9;
+  /* box-shadow: 0 0 0 1px black, 0 3px 3px grey; */
+  border-top-right-radius: 30px;
+  border-top-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 30px;
+  color: black;
+  padding-bottom: 2px;
+  display: inline-block;
+}
+
+.button {
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+}
+
+.moveLeft{
+  position:relative;
+  left: -50px;
+}
+
+
 .chatMessage{
-  position:absolute;
-  bottom: 20px;
-  width: 90%;
-  margin: 5px;
+  position: relative;
+  width: 100%;
   font-size: 16px;
-  height: 50px;
+  height: 35px;
+  bottom: 275px;
   box-sizing: border-box;
-  padding: 0 10px;
   margin-top: 12px;
   border: solid 2px #929292;
   outline: none;
@@ -218,9 +255,17 @@ body {
 }
 
 .messages {
-  max-height: 80%;
   overflow-y: scroll;
   list-style-type: none;
+}
+
+.userlist {
+  overflow-y: scroll;
+  list-style-type: none;
+}
+
+.messages div {
+  max-height: 80%;
 }
 
 .messageInstance {
@@ -254,6 +299,8 @@ body {
   height: 50px;
   margin-top: 10px;
 }
+
+
 
 .input-tag {
   background: white;
@@ -307,4 +354,31 @@ body {
   padding: 0;
   transform: rotate(45deg);
   width: 15px;
+}
+
+section {
+  width: 100%;
+}
+
+article {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  padding: 1rem;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+/* Pattern styles */
+.left-half {
+  background-color: #ff9e2c;
+  float: left;
+  width: 20%;
+  height: 55%;
+}
+.right-half {
+  background-color: #b6701e;
+  float: left;
+  width: 80%;
+  height: 55%;
 }

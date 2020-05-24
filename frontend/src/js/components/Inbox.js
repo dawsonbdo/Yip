@@ -9,6 +9,7 @@ import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
+import InboxUser from './InboxUser';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
@@ -71,7 +72,7 @@ class Inbox extends Component {
             var users = [];
 
             for ( var i = 0; i < response.data.length; i++ ){
-                users.push({name: response.data[i].user});
+                users.push(response.data[i].user);
             }
 
             console.log("ALL USERS MESSAGED");
@@ -153,6 +154,12 @@ class Inbox extends Component {
 
     render() {
 
+        let that = this;
+
+        let users = this.state.pastUsers.map(function (user) {
+            return <InboxUser userName={user} loadUserMessages={that.loadMessages} />
+        });
+
         return (
             <div>
                 <YipNavBar />
@@ -167,13 +174,26 @@ class Inbox extends Component {
                     />
                     <Button onClick={this.loadMessages} className="logInEntry" type="submit" variant="primary">Load Messages</Button>
                 </Jumbotron>
-                <div>
-                    <div class="mainApp">
-                        <h1> Chat App </h1>
-                        <ul class="messages"></ul>
-                        <input class="chatMessage" />
-                    </div>
-                </div>
+                <section class="container">
+                  <div class="left-half">
+                    <article>
+                        <div>
+                            <ul class="userlist">
+                                {users}
+                            </ul>
+                        </div>
+                    </article>
+                  </div>
+                  <div class="right-half">
+                    <article>
+                        <div class="chatApp">
+                            <h1> {this.state.recipient} </h1>
+                            <ul class="messages"></ul>
+                            <input class="chatMessage" />
+                        </div>
+                    </article>
+                  </div>
+                </section>
             </div>
         )
     }
