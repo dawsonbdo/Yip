@@ -11,6 +11,8 @@ import { Redirect } from 'react-router-dom';
 import Toast from 'react-bootstrap/Toast';
 import Spinner from 'react-bootstrap/Spinner';
 
+import InputTag from './InputTag';
+
 import axios from 'axios'
 
 import { createKennelJson } from './BackendHelpers.js';
@@ -24,11 +26,18 @@ class CreateKennel extends Component {
       redirect: null,
       validated: false,
       showPopup: false,
-      loading: false
+      loading: false,
+      tags: "wat"
     };
 
     // Binds button handler
     this.createKennel = this.createKennel.bind(this);
+  }
+
+  updateTags(tags){
+    console.log("UPDATE TAGS: " );
+    console.log(tags);
+    this.setState({tags: tags});
   }
 
   /**
@@ -57,10 +66,14 @@ class CreateKennel extends Component {
     var rules = document.getElementById('rules').value;
 
     // TODO: Parsing on the tags and muted words (comma separated)
-    var tagsStr = document.getElementById('tags').value;
-    var tags = tagsStr.split(", ");
+
     var rules = document.getElementById('rules').value;
     console.log(rules);
+
+    // Uncomment if reverting to old tag form
+    //var tagsStr = document.getElementById('tags').value;
+    //var tags = tagsStr.split(", ");
+    var tags = this.state.tags;
 
     var mutedStr = document.getElementById('mute').value;
     var mutedWords;
@@ -97,6 +110,7 @@ class CreateKennel extends Component {
   }
 
   render() {
+
     let loading = <div></div>;
     if (this.state.loading) {
       loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
@@ -137,7 +151,8 @@ class CreateKennel extends Component {
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Tags</Form.Label>
-                    <Form.Control id="tags" className="logInEntry" placeholder="Enter as comma separated list" type="text" />
+                    <InputTag onTagChange={this.updateTags.bind(this)} />
+                    {/* <Form.Control id="tags" className="logInEntry" placeholder="Enter as comma separated list" type="text" /> */}
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Muted Words</Form.Label>
