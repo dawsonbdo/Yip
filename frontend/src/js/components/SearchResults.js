@@ -120,7 +120,8 @@ class SearchResults extends Component {
                     rating: response.data[i].rating,
                     id: response.data[i].review_uuid,
                     isLiked: response.data[i].is_liked,
-                    isDisliked: response.data[i].is_disliked
+                    isDisliked: response.data[i].is_disliked,
+                    timestamp: response.data[i].timestamp
                 });
 
             }
@@ -143,7 +144,7 @@ class SearchResults extends Component {
         if (this.props.match.params.searchType == "Reviews") {
             results = this.state.resultArray.map(function (result) {
                 return <ReviewCard reviewId={result.id} reviewName={result.title} reviewerName={result.author} reviewPreview={{ __html: result.text }}
-                    kennelName={result.kennel} rating={result.rating} isLiked={result.isLiked} isDisliked={result.isDisliked} />
+                    kennelName={result.kennel} rating={result.rating} isLiked={result.isLiked} isDisliked={result.isDisliked} timestamp={result.timestamp}/>
             });
         }
         else {

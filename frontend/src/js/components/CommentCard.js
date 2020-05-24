@@ -214,7 +214,7 @@ class CommentCard extends Component {
                                         <Col>
                                             {(this.props.isAuthor || this.props.isModerator) && <Image onClick={this.deleteComment} style={{ cursor: 'pointer' }}
                                                 className="likePadding float-right" src={trashIcon} width="50" />}
-                                            {this.props.loggedIn &&
+                                            {(this.props.loggedIn && !this.props.isAuthor) &&
                                                 <Link to={{
                                                     pathname: '/report',
                                                     state: {

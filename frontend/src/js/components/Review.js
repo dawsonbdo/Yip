@@ -563,7 +563,7 @@ class Review extends Component {
 									}}><Image className="likePadding float-right pl-3" src={editIcon} width="60" /></Link>
 								}
 								<Image onClick={this.bookmarkReview} style={bookmarkOpacity} className="likePadding float-right" src={bookmarkIcon} />
-								{this.state.loggedIn &&
+								{(this.state.loggedIn && !this.state.isAuthor) &&
 									<Link to={{
 										pathname: '/report',
 										state: {
