@@ -80,7 +80,6 @@ class Review extends Component {
 	 */
 	handleInvalidCommentLike() {
 		this.setState({ loginPrompt: true, action: "like/dislike comments on" });
-
 	}
 
 	/**
@@ -103,7 +102,6 @@ class Review extends Component {
 			url: reqUrl
 		}).then(response => {
 
-			// alert('Review successfully grabbed from database!');
 			if (!this.reviewListed) {
 
 				// Sets states to contain review info for rendering
@@ -154,12 +152,11 @@ class Review extends Component {
 				this.setState({ isAuthor: response.data.is_author });
 				this.setState({ isModerator: response.data.is_moderator });
 				this.setState({ reviewListed: true });
-				this.forceUpdate();
 			}
 		}).catch(error => {
 
 			// Review not found in database
-			alert('Review does not exist');
+			alert('Error loading review');
 
 		});
 
@@ -170,8 +167,6 @@ class Review extends Component {
 			method: 'get',
 			url: reqUrl
 		}).then(response => {
-
-			//alert('Review comments successfully grabbed from database!');
 
 			// Fills in commentArray based on response data to render comment cards
 			if (!this.state.commentsListed) {
@@ -196,13 +191,13 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Review comments not found in database
-			alert('Review comments not found');
+			alert('Error loading review comments');
 
 		});
 	}
 
 	bookmarkReview() {
-		// TODO: Get uuid of review from url probably
+		// Get uuid of review from url probably
 		var reviewId = this.props.match.params.id;
 
 		// Get token
@@ -236,15 +231,12 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			/*if (this.state.isBookmarked) {
-				alert('Review successfully bookmarked!');
-			} else {
-				alert('Review successfully unbookmarked!');
-			}*/
+			// TODO: Toast 'successful review'
 
 
 		}).catch(error => {
-			// alert('Review bookmark/unbookmark failed');
+			// TODO: Make a Toast
+			alert('Review bookmark/unbookmark failed');
 
 			// Revert preemptive frontend update
 			this.setState({ isBookmarked: !this.state.isBookmarked });
@@ -293,7 +285,6 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			// alert('Review successfully disliked!');
 
 		}).catch(error => {
 
@@ -344,8 +335,6 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			//alert('Review successfully liked!');
-
 
 		}).catch(error => {
 
@@ -374,12 +363,13 @@ class Review extends Component {
 		}).then(response => {
 
 			alert('Review successfully removed!');
-			this.props.history.goBack();
+			// TODO: handle re-rendering page when returning back
+			this.props.history.goBack(); 
 
 
 		}).catch(error => {
 
-			alert('Review removal failed');
+			// TODO: Toast 'unsucessful delete review'
 
 		});
 
@@ -420,8 +410,6 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			//alert('Comment successfully posted to database!');
-
 			let comments = this.state.commentArray;
 
 			// Updates page to display new comment
@@ -440,13 +428,12 @@ class Review extends Component {
 			document.getElementById('commentForm').reset();
 
 			// Update state to cause rerender
-			this.setState({ commentArray: comments });
-			this.setState({ loading: false });
+			this.setState({ commentArray: comments, loading: false });
 
 		}).catch(error => {
 
 			// Failed to post comment
-			alert('Comment post failed');
+			// TODO: Toast 'unsucessful post comment'
 			this.setState({ loading: false });
 
 		});
@@ -460,6 +447,7 @@ class Review extends Component {
 		url.select();
 		document.execCommand('copy');
 		url.remove();
+		// TODO: Toast 'copied url to clipboard'
 	}
 
 	render() {
