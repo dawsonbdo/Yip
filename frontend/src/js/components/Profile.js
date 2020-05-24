@@ -48,7 +48,7 @@ class Profile extends Component {
             followBtnText: "Follow",
             isFollowing: false,
             loginPrompt: false,
-			action: ""
+            action: ""
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -60,7 +60,7 @@ class Profile extends Component {
     followProfile() {
 
         // Update follow button text for follow/unfollow
-        if(isLoggedIn(this)) {
+        if (isLoggedIn(this)) {
             if (!this.state.isFollowing) {
                 this.setState({
                     followBtnText: "Unfollow",
@@ -75,7 +75,7 @@ class Profile extends Component {
             }
         }
         else {
-            this.setState({loginPrompt: true, action: "follow"});
+            this.setState({ loginPrompt: true, action: "follow" });
             return;
         }
 
@@ -155,24 +155,34 @@ class Profile extends Component {
     handleSelect(eventKey) {
 
         if (eventKey == "reviews") {
-            this.setState({ showReviews: true, showKennels: false, showFollowedUsers: false,
-                showBookmarks: false, showCreatedKennels: false });
+            this.setState({
+                showReviews: true, showKennels: false, showFollowedUsers: false,
+                showBookmarks: false, showCreatedKennels: false
+            });
         }
         if (eventKey == "kennels") {
-            this.setState({ showReviews: false, showKennels: true, showFollowedUsers: false,
-                showBookmarks: false, showCreatedKennels: false });
+            this.setState({
+                showReviews: false, showKennels: true, showFollowedUsers: false,
+                showBookmarks: false, showCreatedKennels: false
+            });
         }
         if (eventKey == "bookmarks") {
-            this.setState({ showReviews: false, showKennels: false, showFollowedUsers: false,
-                showBookmarks: true, showCreatedKennels: false });
+            this.setState({
+                showReviews: false, showKennels: false, showFollowedUsers: false,
+                showBookmarks: true, showCreatedKennels: false
+            });
         }
         if (eventKey == "createdkennels") {
-            this.setState({ showReviews: false, showKennels: false, showFollowedUsers: false,
-                showBookmarks: false, showCreatedKennels: true });
+            this.setState({
+                showReviews: false, showKennels: false, showFollowedUsers: false,
+                showBookmarks: false, showCreatedKennels: true
+            });
         }
         if (eventKey == "followedusers") {
-            this.setState({ showReviews: false, showKennels: false, showFollowedUsers: true,
-                showBookmarks: false, showCreatedKennels: false });
+            this.setState({
+                showReviews: false, showKennels: false, showFollowedUsers: true,
+                showBookmarks: false, showCreatedKennels: false
+            });
         }
     }
 
@@ -197,7 +207,7 @@ class Profile extends Component {
             console.log("FOLLOWED USER");
             console.log(response.data);
 
-            for(var i = 0; i < response.data.length; i++) {
+            for (var i = 0; i < response.data.length; i++) {
                 this.state.followedUsersArray.push(response.data[i].followee);
             }
 
@@ -263,7 +273,7 @@ class Profile extends Component {
 
                 var tagsStr = "";
                 // Make sure there are tags in the kennel to avoid error
-                if (response.data[i].tags != null){
+                if (response.data[i].tags != null) {
                     if (response.data[i].tags.length > 0) {
                         tagsStr = tagsStr + response.data[i].tags[0];
                     }
@@ -392,7 +402,7 @@ class Profile extends Component {
 
                 var tagsStr = "";
                 // Make sure there are tags in the kennel to avoid error
-                if (response.data[i].tags != null){
+                if (response.data[i].tags != null) {
                     if (response.data[i].tags.length > 0) {
                         tagsStr = tagsStr + response.data[i].tags[0];
                     }
@@ -402,7 +412,7 @@ class Profile extends Component {
                 } else {
                     tagsStr = "None" // No tags, TODO: indicate it idk lol
                 }
-               
+
 
                 // Add kennel info to array for rendering kennel cards
                 this.state.createdKennelArray.push({
@@ -429,7 +439,7 @@ class Profile extends Component {
         // Renders content cards for each tab on profile (Reviews, Kennels, Bookmarks)
         let reviews = this.state.reviewArray.map(function (review) {
             return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
-                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp}/>
+                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp} />
         });
         let kennels = this.state.kennelArray.map(function (kennel) {
             return <KennelCard kennelName={kennel.kennelName} kennelRules={kennel.kennelRules} kennelTags={kennel.kennelTags} followerCount={kennel.followerCount} />
@@ -439,7 +449,7 @@ class Profile extends Component {
         });
         let bookmarks = this.state.bookmarkArray.map(function (bookmark) {
             return <ReviewCard reviewId={bookmark.id} reviewName={bookmark.title} reviewerName={bookmark.author} reviewPreview={{ __html: bookmark.text }}
-                kennelName={bookmark.kennel} rating={bookmark.rating} isLiked={bookmark.isLiked} isDisliked={bookmark.isDisliked} timestamp={bookmark.timestamp}/>
+                kennelName={bookmark.kennel} rating={bookmark.rating} isLiked={bookmark.isLiked} isDisliked={bookmark.isDisliked} timestamp={bookmark.timestamp} />
         });
         let users = this.state.followedUsersArray.map(function (user) {
             return <UserCard userName={user} />
@@ -449,12 +459,12 @@ class Profile extends Component {
         let actionButtons;
         if (!this.state.isOwner) {
             actionButtons = <Col>
-                 <Link to={{
-                                        pathname: '/inbox',
-                                        state: {
-                                            recipient: this.props.match.params.username
-                                        }
-                                    }}><Button className="logInEntry" type="submit" variant="primary">Message</Button></Link>
+                <Link to={{
+                    pathname: '/inbox',
+                    state: {
+                        recipient: this.props.match.params.username
+                    }
+                }}><Button className="logInEntry" type="submit" variant="primary">Message</Button></Link>
                 <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
                 <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
             </Col>;
@@ -465,17 +475,17 @@ class Profile extends Component {
         if (this.state.profileKennelsListed && this.state.profileReviewsListed) {
             profile = <Container>
                 <Toast style={{
-						position: 'fixed',
-						top: 110,
-						zIndex: 1,
-						left: '50%',
-						transform: 'translate(-50%, 0%)'
-					}} className="mx-auto logInEntry" onClose={() => this.setState({ loginPrompt: false })} show={this.state.loginPrompt}>
-						<Toast.Header className="logInLabel">
-							<strong className="mx-auto">You must sign in to {this.state.action} reviewers</strong>
-						</Toast.Header>
-						<Toast.Body style={{ textAlign: 'center' }}>Click <a href="/login">here</a> to sign in</Toast.Body>
-					</Toast>
+                    position: 'fixed',
+                    top: 110,
+                    zIndex: 1,
+                    left: '50%',
+                    transform: 'translate(-50%, 0%)'
+                }} className="mx-auto logInEntry" onClose={() => this.setState({ loginPrompt: false })} show={this.state.loginPrompt}>
+                    <Toast.Header className="logInLabel">
+                        <strong className="mx-auto">You must sign in to {this.state.action} reviewers</strong>
+                    </Toast.Header>
+                    <Toast.Body style={{ textAlign: 'center' }}>Click <a href="/login">here</a> to sign in</Toast.Body>
+                </Toast>
 
                 <Row className="align-items-center">
                     <Col xs={8} className="text-center">
