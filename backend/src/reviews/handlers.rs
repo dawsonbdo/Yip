@@ -375,9 +375,10 @@ pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection)
     // Check if user already disliked kennel (delete dislike if already disliked)
     match get_relationship_dislike(review_uuid, profile_uuid, connection) {
         Ok(r) => if r != 0 {
+            println!("ALREADY DISLIKED");
             // Attempt to delete from dislike table
             match delete_like_dislike(review_uuid, profile_uuid, false, connection){
-                Ok(_u) => return Ok(status::Accepted(None)),
+                Ok(u) => if u == 1 {return Ok(status::Accepted(None))} else {return Err(status::BadRequest(Some("failed to delete dislike".to_string())))},
                 Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
             }
         },
@@ -385,7 +386,7 @@ pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection)
     };
 
     // Attempt to delete from like table
-    if let Err(_e) = delete_like_dislike(review_uuid, profile_uuid, false, connection){ 
+    if let Err(_e) = delete_like_dislike(review_uuid, profile_uuid, true, connection){ 
         //TODO update to distinguish expected and unexpected failures
     }
 
@@ -422,8 +423,9 @@ pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) ->
     match get_relationship_like(review_uuid, profile_uuid, connection) {
         Ok(r) => if r != 0 {
             // Attempt to delete from like table
+            println!("ALREADY LIKED");
             match delete_like_dislike(review_uuid, profile_uuid, true, connection){
-                Ok(_u) => return Ok(status::Accepted(None)),
+                Ok(u) => if u == 1 {return Ok(status::Accepted(None))} else {return Err(status::BadRequest(Some("failed to delete like".to_string())))},
                 Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
             }
         },
