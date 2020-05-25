@@ -71,7 +71,7 @@ class Register extends Component {
         }
 
         if(password.length < 8) {
-            this.setState({showPopup: 'Password must be atleast 8 characters!'});
+            this.setState({showPopup: 'Password must be at least 8 characters!'});
             return;
         }
 
