@@ -86,7 +86,7 @@ class Inbox extends Component {
 
         } else {
             // Show the past messages
-            displayMessages(recipient);
+            this.displayMessages(recipient);
         }
     }
 
