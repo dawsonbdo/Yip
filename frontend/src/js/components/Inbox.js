@@ -357,7 +357,7 @@ class Inbox extends Component {
                   <div class="right-half">
                     <article>
                         <div class="chatApp">
-                            <h1> {this.state.recipient} </h1>
+                            <h1> <a class="profileLink" href={`/user-${this.state.recipient}`}>{this.state.recipient}</a> </h1>
                             <ul class="messages"></ul>
                             <input class="chatMessage" />
                         </div>

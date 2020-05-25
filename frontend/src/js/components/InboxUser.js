@@ -23,13 +23,9 @@ class InboxUser extends Component {
     render() {
         return (
             <Container className="pb-3">
-                        
                         <div className="logInForm moveLeft inboxUserLabel">
-
-                                <button id="btn" onClick={this.changeUser} className="text-center pt-2 pl-2 button">{this.props.userName}</button>
-
+                                <button id="btn" onClick={this.changeUser}  className="text-center pt-2 pl-2 button">{this.props.userName}</button>
                         </div>
-                        
             </Container>
         )
     }
