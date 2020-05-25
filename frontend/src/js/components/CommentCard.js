@@ -59,7 +59,6 @@ class CommentCard extends Component {
             data: form
         }).then(response => {
 
-            alert('Comment successfully removed');
             this.props.rerenderReview(this.props.commentIndex);
 
         }).catch(error => {

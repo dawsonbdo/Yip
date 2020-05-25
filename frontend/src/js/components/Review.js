@@ -74,7 +74,7 @@ class Review extends Component {
 	 */
 	rerenderOnCommentDelete(index) {
 		this.state.commentArray.splice(index, 1);
-		this.forceUpdate();
+		this.setState({showPopup: true, popupMsg: "Comment successfully removed"});
 	}
 
 	/**
@@ -364,7 +364,7 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			alert('Review successfully removed!');
+			this.setState({showPopup: true, popupMsg: "Review successfully removed"});
 			// TODO: handle re-rendering page when returning back
 			this.props.history.goBack();
 
@@ -428,6 +428,8 @@ class Review extends Component {
 
 			// Clears text field after successful post
 			document.getElementById('commentForm').reset();
+
+			this.setState({showPopup: true, popupMsg: "Comment successfully posted"});
 
 			// Update state to cause rerender
 			this.setState({ commentArray: comments, loading: false });
