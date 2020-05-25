@@ -74,6 +74,8 @@ class YipNavBar extends Component {
       return;
     }
 
+    query = encodeURIComponent(query);
+
     // Redirect to search results page with search type and query in url
     this.setState({ redirect: `/searchresults-${event}-${query}` });
 
@@ -90,6 +92,8 @@ class YipNavBar extends Component {
     if (query.replace(/ /g, '') === "") {
       return;
     }
+
+    query = encodeURIComponent(query);
 
     // Redirect to search results page with search type and query in url
     this.setState({ redirect: `/searchresults-Reviews-${query}` });

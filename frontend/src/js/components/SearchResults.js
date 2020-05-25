@@ -22,6 +22,7 @@ class SearchResults extends Component {
             searchDisplay: false,
             results: false,
             resultArray: [],
+            query: ""
         };
     }
 
@@ -34,13 +35,15 @@ class SearchResults extends Component {
     }
 
     componentDidMount() {
+        this.setState({query: decodeURIComponent(this.props.match.params.query)});
+        var query = decodeURIComponent(this.props.match.params.query);
 
         // Search kennels or reviews depending on what user selected
         if (this.props.match.params.searchType == "Kennels") {
-            this.searchKennels(this.props.match.params.query);
+            this.searchKennels(query);
         }
         else {
-            this.searchReviews(this.props.match.params.query);
+            this.searchReviews(query);
         }
 
     }
@@ -158,7 +161,7 @@ class SearchResults extends Component {
             search =
                 <div>
                     <Jumbotron id="jumbotron" className="text-center">
-                        <h1>Results for '{this.props.match.params.query}' in {this.props.match.params.searchType}: </h1>
+                        <h1>Results for '{this.state.query}' in {this.props.match.params.searchType}: </h1>
                     </Jumbotron>
                     <Container>
                         <Row>
@@ -172,7 +175,7 @@ class SearchResults extends Component {
             search =
                 <div>
                     <Jumbotron id="jumbotron" className="text-center">
-                        <h1>No results for '{this.props.match.params.query}' in {this.props.match.params.searchType}. </h1>
+                        <h1>No results for '{this.state.query}' in {this.props.match.params.searchType}. </h1>
                     </Jumbotron>
                     <Container>
                         <Row>
