@@ -34,7 +34,8 @@ class Inbox extends Component {
             recipient: "",
             allUsers: [],
             pastUsers: [],
-            userMessages: new Map()
+            userMessages: new Map(),
+            userSeen: new Map()
         };
 
         this.displayHTMLMessage = this.displayHTMLMessage.bind(this);
@@ -43,6 +44,7 @@ class Inbox extends Component {
         this.loadAllMessages = this.loadAllMessages.bind(this);
         this.newLiveMessage = this.newLiveMessage.bind(this);
         this.newMessageHandler = this.newMessageHandler.bind(this);
+        this.updateSeen = this.updateSeen.bind(this);
     }
 
     // After component is loaded, update auth state
@@ -101,7 +103,7 @@ class Inbox extends Component {
         var parsedMsg = msg.substring(idx+1, msg.length);
 
         // Add message to list 
-        let msgObj = {is_sender: (source != 'server'), text: parsedMsg, timestamp: new Date()};
+        let msgObj = {is_sender: (source != 'server'), text: parsedMsg, timestamp: (new Date()).toString()};
 
         // Get current messages with sender
         let userMessages = this.state.userMessages;
@@ -139,11 +141,17 @@ class Inbox extends Component {
             // Update past users
             this.setState({pastUsers: pastUsers});
 
-
             // If client not currently messaging sender, don't render the message
             if ( !this.state.recipient != sender ){
+                // Set seen to false
+                let userSeen = this.state.userSeen;
+                userSeen.set(sender, false);
+                this.setState({userSeen: userSeen});
                 return;
             }
+
+            // Update seen
+            this.updateSeen(sender);
 
         } else {
             // Check if new recipient
@@ -163,10 +171,15 @@ class Inbox extends Component {
 
             // Update past users
             this.setState({pastUsers: pastUsers});
+
+            // Update seen
+            this.updateSeen(recipient);
         }
 
         // Display the message
         this.displayHTMLMessage(msg, source, msgObj.timestamp, this.state.recipient);
+
+
     }
 
     loadPastUsers(token){
@@ -211,17 +224,20 @@ class Inbox extends Component {
                 return;
             }
 
-            let userMessages = new Map()
+            let userMessages = new Map();
+            let userSeen = new Map();
 
             // Iterate through each UserMessage object (user + messages)
             for ( var i = 0; i < response.data.length; i++ ){
 
-                // Get user and messages 
+                // Get user and messages and seen
                 var user = response.data[i].user;
                 var msgs = response.data[i].messages;
+                var seen = response.data[i].seen;
 
                 // Append to array
                 userMessages.set(user, msgs);
+                userSeen.set(user, seen);
    
             }
 
@@ -229,6 +245,7 @@ class Inbox extends Component {
             console.log(userMessages);
 
             this.setState({userMessages: userMessages});
+            this.setState({userSeen: userSeen});
 
             // Display messages if props valid
             if (this.props.location.state != undefined){
@@ -249,7 +266,20 @@ class Inbox extends Component {
 
     displayMessages(recipient){
 
-        //alert("Display messages with: " + recipient);
+        // Print seen stuff
+        console.log("SEEN LIST");
+        console.log(this.state.userSeen);
+
+        // Update seen
+        this.updateSeen(recipient);
+
+        // If not a past user, add to list
+        let pastUsers = this.state.pastUsers;
+        if ( !pastUsers.includes(recipient) ){
+            // Add to list
+            pastUsers.unshift(recipient);
+            this.setState({pastUsers: pastUsers});
+        } 
 
         // Set states (clear the curent messages)
         let messages = document.querySelector('.messages');
@@ -277,6 +307,65 @@ class Inbox extends Component {
 
     }
 
+    updateSeen(sender){
+        // If sender is user, don't do anything
+        if ( sender == this.state.user ){
+            return;
+        }
+
+        // Check if already seen
+        let userSeen = this.state.userSeen;
+        let seen = userSeen.get(sender);
+
+        // If new user, update database 
+        if ( seen == undefined ){
+
+            // TODO: Make database calls to update seen field of msgs
+            // where user is recipient and sender is sender
+
+        } else if ( !seen ){ // Not seen yet, update database
+
+            // Update state of userSeen
+
+        } else { // Seen, 
+
+            // Just update DB
+
+        }
+
+        // Update DB
+        // Set past users by getting list 
+        axios({
+            method: 'post',
+            url: '/update_seen/' + localStorage.getItem('jwtToken') + '/' + sender
+        }).then(response => {
+
+            if ( response.data == undefined || response.data.length == 0 ){
+                alert('No past users messaged ');
+                return;
+            }
+
+            var users = [];
+
+            for ( var i = 0; i < response.data.length; i++ ){
+                users.push(response.data[i].user);
+            }
+
+            console.log(users);
+            this.setState({pastUsers: users});
+            alert('Past users you have messaged loaded');
+           
+        }).catch(error => {
+
+            // Failed to dislike review
+            alert('Past messages failed to load');
+
+        });
+
+        // Update state to show true
+        userSeen.set(sender, true);
+        this.setState({userSeen: userSeen});
+    }
 
     displayHTMLMessage(msg, source, timestamp="", recipient=""){
         // Parse the message into sender + msg
@@ -284,7 +373,6 @@ class Inbox extends Component {
         var sender = msg.substring(0, idx);
         var parsedMsg = msg.substring(idx+1, msg.length);
 
-        //console.log("msg: " + msg + "  source: " + source);
         // If source is server only add to messages if its from current recipient
         if (source == "server"){
             console.log("server source: " + msg);
@@ -327,7 +415,7 @@ class Inbox extends Component {
         let that = this;
 
         let users = this.state.pastUsers.map(function (user) {
-            return <InboxUser userName={user} onUserChange={that.displayMessages} />
+            return <InboxUser userName={user} onUserChange={that.displayMessages} userSeen={that.state.userSeen} />
         });
 
         return (

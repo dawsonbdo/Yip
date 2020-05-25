@@ -64,6 +64,37 @@ fn load_all_messages(sender: String, connection: DbConn) -> Result<Json<Vec<User
 	}	
 }
 
+
+/** 
+ * Method that updates the seen of messages sent by recipient and received by sender
+ * @param sender: token of sender
+ * @param recipient: name of recipient
+ * @param connection: database connection
+ *
+ * @return returns TBD
+ */
+#[post("/update_seen/<sender>/<recipient>")]
+fn update_seen(sender: String, recipient: String, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+	
+	println!("Sender: {} Recipient: {}", sender, recipient);
+
+	// Get uuid of sender
+	let sender_uuid = auth::get_uuid_from_token(&sender);
+
+	// Get uuid of recipient
+	let recipient_uuid = super::users::handlers::get_uuid_from_username(&recipient, &connection);
+
+	// Make sure neither uuids are nil
+	if sender_uuid.is_nil() || recipient_uuid.is_nil() {
+		return Err(status::Conflict(Some("Invalid sender or recipient".to_string())));
+	}
+
+	match handlers::seen_update(recipient_uuid, sender_uuid, &connection) {
+		Ok(u) => if u == 0 {Err(status::Conflict(Some("Failed seen update".to_string())))} else {Ok(status::Accepted(None))},
+		Err(e) => Err(status::Conflict(Some(e.to_string()))),
+	}
+}
+
 /** 
  * Method that returns all messages between a user and 
  * @param sender: token of sender
@@ -140,5 +171,5 @@ fn create_message(message: Json<Message>, connection: DbConn) -> Result<status::
  * Mount the message routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_message, load_messages, load_all_messages, get_past_recipients])  
+    rocket.mount("/", routes![create_message, update_seen, load_messages, load_all_messages, get_past_recipients])  
 }

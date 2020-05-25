@@ -49,6 +49,7 @@ pub fn all_user_messages(user: Uuid, connection: &PgConnection) -> QueryResult<V
         Ok(msgs) => {
                 // Filter into a set so no duplicates
                 let mut users : HashMap<Uuid, Vec<DisplayMessage>> = HashMap::new();
+                let mut seen : HashMap<Uuid, bool> = HashMap::new();
 
                 // Iterate through messages, adding to hashmap of user -> vec<displaymessages>
                 for m in msgs{
@@ -56,6 +57,13 @@ pub fn all_user_messages(user: Uuid, connection: &PgConnection) -> QueryResult<V
                     let disp = to_message(&m, user);
 
                     let u = if m.sender.eq(&user) {m.recipient} else {m.sender};
+
+                    // Check if any unseen messages from this user
+                    if !m.sender.eq(&user){
+                        if !m.seen {
+                            seen.insert(u, false);
+                        }
+                    }
 
                     match users.get(&u){
                         Some(vec) => {
@@ -81,6 +89,10 @@ pub fn all_user_messages(user: Uuid, connection: &PgConnection) -> QueryResult<V
                     let user_msg = UserMessage{
                         user: super::super::users::handlers::get_username_from_uuid(*k, connection),
                         messages: v.to_vec(),
+                        seen: match seen.get(k){
+                            Some(_u) => false,
+                            None => true,
+                        },
                     };
 
                     ordered.push(user_msg);
@@ -147,6 +159,20 @@ pub fn all_users_messaged(user: Uuid, connection: &PgConnection) -> QueryResult<
     }
 }
 
+/**
+ * Method that updates the seen between a sender and recipient
+ * @param sender: the sender of a message (person user is chatting with)
+ * @param recipient: user logged in
+ *
+ * @return returns all of the messages
+ */
+pub fn seen_update(sender: Uuid, recipient: Uuid, connection: &PgConnection) -> QueryResult<usize> {
+    // Get vector of all matching messages
+    diesel::update(messages::table
+                            .filter(messages::sender.eq(sender))
+                            .filter(messages::recipient.eq(recipient)))
+                            .set(messages::columns::seen.eq(true)).execute(connection)
+}
 
 
 /**
@@ -242,6 +268,7 @@ pub struct DbMessage {
     pub text: String,
     pub timestamp: NaiveDateTime,
     pub pkey: i64,
+    pub seen: bool,
 }
 
 // Struct representing the fields of a message returned to frontend
@@ -259,4 +286,5 @@ pub struct DisplayMessage {
 pub struct UserMessage {
     pub user: String,
     pub messages: Vec<DisplayMessage>,
+    pub seen: bool,
 }

@@ -79,6 +79,7 @@ table! {
         text -> Text,
         timestamp -> Timestamp,
         pkey -> Int8,
+        seen -> Bool,
     }
 }
 
