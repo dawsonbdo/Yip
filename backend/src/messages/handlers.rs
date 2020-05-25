@@ -18,7 +18,7 @@ fn from_message(message: Message, connection: &PgConnection) -> InsertMessage {
     
 }
 
-fn to_message(message: &DbMessage, sender: Uuid, _connection: &PgConnection) -> DisplayMessage {
+fn to_message(message: &DbMessage, sender: Uuid) -> DisplayMessage {
         DisplayMessage{
             is_sender: sender.eq(&message.sender),
             text: message.text.clone(),
@@ -27,14 +27,79 @@ fn to_message(message: &DbMessage, sender: Uuid, _connection: &PgConnection) -> 
 
 }
 
+
+
 /**
- * Method that returns a vector with all of the messages a user in sender or recipient for
+ * Method that returns a vector with a list of messages tied to each user messaged by user
+ * @param user: the user whose messages are retrieved
+ * @param connection: database connection
+ *
+ * @return returns all of the messages
+ */
+pub fn all_user_messages(user: Uuid, connection: &PgConnection) -> QueryResult<Vec<UserMessage>> {
+    // Get vector of all matching messages in increasing order of timestamp
+    let messages = messages::table
+                      .filter(messages::sender.eq(user))
+                      .or_filter(messages::recipient.eq(user))
+                      .order(messages::timestamp.asc())
+                      .load::<DbMessage>(&*connection);
+
+    // Pattern match to make sure successful, iterate through messages, adding to hashmap
+    match messages {
+        Ok(msgs) => {
+                // Filter into a set so no duplicates
+                let mut users : HashMap<Uuid, Vec<DisplayMessage>> = HashMap::new();
+
+                // Iterate through messages, adding to hashmap of user -> vec<displaymessages>
+                for m in msgs{
+                    // Create DisplayMessage
+                    let disp = to_message(&m, user);
+
+                    let u = if m.sender.eq(&user) {m.recipient} else {m.sender};
+
+                    match users.get(&u){
+                        Some(vec) => {
+                            // Add to list
+                            let mut v = vec.clone();
+                            v.push(disp);
+                            users.insert(u, v);
+                            ()
+                        },
+                        None => {
+                            users.insert(u, vec![disp]);
+                            ()
+                        },
+                    }
+                }
+
+                // Create a vector with all of the msgs ordered
+                let mut ordered : Vec<UserMessage> = vec![];
+
+                // Sort UserTimestamps by newness
+                for (k,v) in users.iter() {
+                    // Create UserMessage obj
+                    let user_msg = UserMessage{
+                        user: super::super::users::handlers::get_username_from_uuid(*k, connection),
+                        messages: v.to_vec(),
+                    };
+
+                    ordered.push(user_msg);
+                }  
+
+                Ok(ordered)
+                },
+        Err(e) => Err(e),
+    }
+}
+
+/**
+ * Method that returns a vector with a list of users the user has msgd and timstamp of most recent
  * @param sender: the sender of a message (user logged in)
  * @param connection: database connection
  *
  * @return returns all of the messages
  */
-pub fn all_user_messages(user: Uuid, connection: &PgConnection) -> QueryResult<Vec<UserTimestamp>> {
+pub fn all_users_messaged(user: Uuid, connection: &PgConnection) -> QueryResult<Vec<UserTimestamp>> {
     // Get vector of all matching messages
     let messages = messages::table
                       .filter(messages::sender.eq(user))
@@ -59,12 +124,12 @@ pub fn all_user_messages(user: Uuid, connection: &PgConnection) -> QueryResult<V
 
                 let mut pq = priority_queue::PriorityQueue::new();
             
-                // Sort UserTimestamps by hotness using pq (greatest NaiveDateTime value)
+                // Sort UserTimestamps by newness
                 for (k,v) in users.iter() {
                     pq.push(k, v);
                 }  
 
-                // Create a vector with all of the reviews to as ordered
+                // Create a vector with all of the msgs ordered
                 let mut ordered : Vec<UserTimestamp> = vec![];
 
                 // Order by timestamp
@@ -103,7 +168,7 @@ pub fn all_messages(sender: Uuid, recipient: Uuid, connection: &PgConnection) ->
     // Pattern match to make sure successful, convert to DisplayMessages if so
     match messages {
         Ok(r) => Ok(r.iter()
-                     .map(|msg| to_message(msg, sender, connection))
+                     .map(|msg| to_message(msg, sender))
                      .collect()),
         Err(e) => Err(e),
     }
@@ -179,10 +244,19 @@ pub struct DbMessage {
     pub pkey: i64,
 }
 
-// Struct representing the fields of a message inserted into db contains
-#[derive(Queryable, Serialize, Deserialize, std::hash::Hash, std::cmp::PartialEq, std::cmp::Eq)]
+// Struct representing the fields of a message returned to frontend
+#[derive(Queryable, Serialize, Deserialize, std::hash::Hash, std::cmp::PartialEq, std::cmp::Eq, std::clone::Clone)]
 pub struct DisplayMessage {
     pub is_sender: bool,
     pub text: String,
     pub timestamp: NaiveDateTime,
+}
+
+
+
+// Struct representing the fields used for having all messages from a user
+#[derive(Queryable, Serialize, Deserialize, std::hash::Hash, std::cmp::PartialEq, std::cmp::Eq)]
+pub struct UserMessage {
+    pub user: String,
+    pub messages: Vec<DisplayMessage>,
 }

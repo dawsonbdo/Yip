@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 
 import Jumbotron from "react-bootstrap/Jumbotron";
 import Button from 'react-bootstrap/Button';
@@ -13,6 +14,7 @@ import InboxUser from './InboxUser';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
+import TimeAgo from 'timeago-react'; // var TimeAgo = require('timeago-react');
 
 import { setAllUsers, isLoggedIn, updateLoggedInState, updateLoggedInUserAndWebSocket } from './BackendHelpers.js';
 
@@ -31,20 +33,20 @@ class Inbox extends Component {
             user: "",
             recipient: "",
             allUsers: [],
-            pastUsers: []
+            pastUsers: [],
+            userMessages: new Map()
         };
 
-        this.createHTMLMessage = this.createHTMLMessage.bind(this);
-        this.loadMessages = this.loadMessages.bind(this);
+        this.displayHTMLMessage = this.displayHTMLMessage.bind(this);
+        this.displayMessages = this.displayMessages.bind(this);
+        this.loadPastUsers = this.loadPastUsers.bind(this);
+        this.loadAllMessages = this.loadAllMessages.bind(this);
+        this.newLiveMessage = this.newLiveMessage.bind(this);
+        this.newMessageHandler = this.newMessageHandler.bind(this);
     }
 
     // After component is loaded, update auth state
     componentDidMount() {
-
-        if (this.props.location.state != undefined){
-            this.setState({recipient: this.props.location.state.recipient});
-            this.loadMessages("", this.props.location.state.recipient);
-        }
 
         // Updates logged in state of the component
         updateLoggedInState(this);
@@ -55,9 +57,119 @@ class Inbox extends Component {
         // Set allUsers field by making call to server
         setAllUsers(this);
 
-
         var token = localStorage.getItem('jwtToken');
 
+        // Load all of the past users        
+        this.loadPastUsers(token);
+
+        // Load all of messages from the token
+        this.loadAllMessages(token);
+    
+    }
+
+    newMessageHandler(){
+        // Get recipient
+        var recipient = document.getElementById('recipient').value;
+     
+        // Check if recipient already in list
+        let pastUsers = this.state.pastUsers;
+        if ( !pastUsers.includes(recipient) ){
+            // Add to list
+            pastUsers.unshift(recipient);
+            this.setState({pastUsers: pastUsers});
+
+            // Update message display
+            let messages = document.querySelector('.messages');
+            messages.innerHTML = "";
+            this.setState({ messages: messages});
+            this.setState({ recipient: recipient });
+
+        } else {
+            // Show the past messages
+            displayMessages(recipient);
+        }
+    }
+
+    /**
+     * Method called whenever client sends a message or receives a live message
+     * @param recipient: optional, only provide if source is client
+     */
+    newLiveMessage(msg, source, recipient=""){
+        // Parse the message into sender + msg
+        var idx = msg.indexOf('-');
+        var sender = msg.substring(0, idx);
+        var parsedMsg = msg.substring(idx+1, msg.length);
+
+        // Add message to list 
+        let msgObj = {is_sender: (source != 'server'), text: parsedMsg, timestamp: new Date()};
+
+        // Get current messages with sender
+        let userMessages = this.state.userMessages;
+        let curMsgs = userMessages.get(sender);
+
+        if ( curMsgs == undefined ){
+            // No messages preivously between the user and person, new list
+            userMessages.set(sender, [msgObj]);
+        } else {
+            // Previous messages, append to it
+            curMsgs.push(msgObj);
+            userMessages.set(sender, curMsgs)
+        }
+
+        // Update state of messges
+        this.setState({userMessages: userMessages});
+
+        // Check if client or source
+        if ( source == 'server' ){
+            // Check if new sender
+            let pastUsers = this.state.pastUsers;
+            var senderIdx = pastUsers.indexOf(sender);
+            if ( senderIdx == -1 ){
+                // Add to list if not
+                pastUsers.unshift(sender);
+            } else {
+
+                // Update index if not at the front already
+                if ( senderIdx != 0 ){
+                    pastUsers.splice(senderIdx, 1);
+                    pastUsers.unshift(sender);
+                }
+            }
+
+            // Update past users
+            this.setState({pastUsers: pastUsers});
+
+
+            // If client not currently messaging sender, don't render the message
+            if ( !this.state.recipient != sender ){
+                return;
+            }
+
+        } else {
+            // Check if new recipient
+            let pastUsers = this.state.pastUsers;
+            var recipientIdx = pastUsers.indexOf(recipient);
+            if ( recipientIdx == -1 ){
+                // Add to list if not
+                pastUsers.unshift(recipient);
+            } else {
+
+                // Update index if not at the front already
+                if ( senderIdx != 0 ){
+                    pastUsers.splice(recipientIdx, 1);
+                    pastUsers.unshift(recipient);
+                }
+            }
+
+            // Update past users
+            this.setState({pastUsers: pastUsers});
+        }
+
+        // Display the message
+        this.displayHTMLMessage(msg, source, msgObj.timestamp, this.state.recipient);
+    }
+
+    loadPastUsers(token){
         // Set past users by getting list 
         axios({
             method: 'get',
@@ -65,7 +177,7 @@ class Inbox extends Component {
         }).then(response => {
 
             if ( response.data == undefined || response.data.length == 0 ){
-                alert('No past messages in inbox');
+                alert('No past users messaged ');
                 return;
             }
 
@@ -75,11 +187,9 @@ class Inbox extends Component {
                 users.push(response.data[i].user);
             }
 
-            console.log("ALL USERS MESSAGED");
             console.log(users);
-
-            alert('Past users you have messaged loaded');
             this.setState({pastUsers: users});
+            alert('Past users you have messaged loaded');
            
         }).catch(error => {
 
@@ -89,108 +199,127 @@ class Inbox extends Component {
         });
     }
 
-    loadMessages(t, rec=""){
+    loadAllMessages(token){
+        // Get all of the messages
+        axios({
+            method: 'get',
+            url: '/load_all_messages/' + token
+        }).then(response => {
 
+            if ( response.data == undefined || response.data.length == 0 ){
+                alert('No past messages in inbox');
+                return;
+            }
 
-        // Get token and recipient
-        var token = localStorage.getItem('jwtToken');
-        var recipient = "";
-        if (rec == ""){
-            recipient = document.getElementById('recipient').value;
-        } else {
-            recipient = rec;
-        }
-         
-        console.log("RECIPIENT");
-        console.log(recipient);
+            let userMessages = new Map()
 
-        // Set states (claer the curent messages)
+            // Iterate through each UserMessage object (user + messages)
+            for ( var i = 0; i < response.data.length; i++ ){
+
+                // Get user and messages 
+                var user = response.data[i].user;
+                var msgs = response.data[i].messages;
+
+                // Append to array
+                userMessages.set(user, msgs);
+   
+            }
+
+            console.log("ALL USER MESSAGES");
+            console.log(userMessages);
+
+            this.setState({userMessages: userMessages});
+
+            // Display messages if props valid
+            if (this.props.location.state != undefined){
+                this.setState({recipient: this.props.location.state.recipient});
+                this.displayMessages(this.props.location.state.recipient);
+            }
+
+            alert('All past messages loaded');
+
+           
+        }).catch(error => {
+
+            // Failed to dislike review
+            alert('All past messages failed to load');
+
+        });
+    }
+
+    displayMessages(recipient){
+
+        //alert("Display messages with: " + recipient);
+
+        // Set states (clear the curent messages)
         let messages = document.querySelector('.messages');
         messages.innerHTML = "";
         this.setState({ messages: messages});
         this.setState({ recipient: recipient });
 
-        // Send GET request
-        axios({
-            method: 'get',
-            url: '/load_messages/' + token + '/' + recipient,
-        }).then(response => {
+        // Get all the messages with recipient
+        let msgs = this.state.userMessages.get(recipient);
 
-            if ( response.data == undefined || response.data.length == 0 ){
-                alert('No messages from ' + recipient);
-                // Adds to list of users
-                var u = this.state.pastUsers;
-                u.unshift(recipient);
-                this.setState({ pastUsers: u }); 
+        // Check if undefined meaning none
+        if ( msgs == undefined ){
+            alert("No messages with: " + recipient);
+            return;
+        }
 
-                return;
+        // Render all of the messages with recipients
+        for ( var i = 0; i < msgs.length; i++ ){
+            if (msgs[i].is_sender){
+                this.displayHTMLMessage(this.state.user + "-" + msgs[i].text, 'client', msgs[i].timestamp);
+            } else {
+                this.displayHTMLMessage(recipient + "-" + msgs[i].text, 'server', msgs[i].timestamp, recipient);
             }
+        }
 
-            alert('Msgs sucessfuly received from ' + recipient);
-
-            for ( var i = response.data.length-1; i >= 0; i-- ){
-                console.log(response.data[i]);
-                if (response.data[i].is_sender){
-                    this.createHTMLMessage(this.state.user + "-" + response.data[i].text, 'client');
-                } else {
-                    this.createHTMLMessage(recipient + "-" + response.data[i].text, 'server');
-                }
-            }
-           
-        }).catch(error => {
-
-            // Failed to dislike review
-            alert('Msgs unsuccessfuly received');
-
-        });
     }
 
-    createHTMLMessage(msg, source){
+
+    displayHTMLMessage(msg, source, timestamp="", recipient=""){
         // Parse the message into sender + msg
         var idx = msg.indexOf('-');
         var sender = msg.substring(0, idx);
         var parsedMsg = msg.substring(idx+1, msg.length);
 
-        console.log("msg: " + parsedMsg + "  source: " + source);
+        //console.log("msg: " + msg + "  source: " + source);
         // If source is server only add to messages if its from current recipient
         if (source == "server"){
-            console.log("server source");
-            // TODO: Check sender has previously sent (i.e in pastUsers)
-            var prev = this.state.pastUsers;
-            var senderIdx = prev.indexOf(sender);
-
-            // If previously sent, remove the occurence
-            if (senderIdx != -1){
-                // Remove from list
-                prev.splice(senderIdx, 1);
-            }
-
-            // Append to list
-            prev.unshift(sender);
-
-            // Update previous user list order
-            this.setState({ pastUsers: prev });
+            console.log("server source: " + msg);
 
             // Don't create HTML msg if sender not recipient
-            if (sender != this.state.recipient){
+            if (sender != recipient){
 
                 // TODO: add it to chat preview for that user
-
+                console.log("SENDER NOT RECIPIENT")
                 return;
             }
-
 
         }
 
         var li = document.createElement("li");
         var div = document.createElement("div");
+        var timeDiv = document.createElement("div");
         li.classList.add('inboxli');
         div.innerHTML += parsedMsg;
         div.className += "messageInstance " + source;
         li.appendChild(div);
-        let messages = this.state.messages;
+        li.appendChild(timeDiv);
+        let messages = document.querySelector('.messages');
         messages.appendChild(li);
         this.setState({ messages: messages });
+        if (source == 'server'){
+           ReactDOM.render(<TimeAgo style={{position: "relative", padding: "10px", left: "-225px", bottom: "30px"}}
+                                        datetime={(new Date(timestamp)).toString()}/>, timeDiv); 
+        } else {
+            ReactDOM.render(<TimeAgo style={{padding: "10px"}}
+                                        className={"float-right"}
+                                        datetime={(new Date(timestamp)).toString()}/>, timeDiv); 
+        }
+        
+
     }
 
     render() {
@@ -198,7 +327,7 @@ class Inbox extends Component {
         let that = this;
 
         let users = this.state.pastUsers.map(function (user) {
-            return <InboxUser userName={user} loadUserMessages={that.loadMessages} />
+            return <InboxUser userName={user} onUserChange={that.displayMessages} />
         });
 
         return (
@@ -213,7 +342,7 @@ class Inbox extends Component {
                       style={{ width: 300, marginLeft: 'auto', marginRight: 'auto'  }}
                       renderInput={(params) => <TextField {...params} label="Recipient" variant="outlined" />}
                     />
-                    <Button onClick={this.loadMessages} className="logInEntry" type="submit" variant="primary">Send Message</Button>
+                    <Button onClick={this.newMessageHandler} className="logInEntry" type="submit" variant="primary">New Message</Button>
                 </Jumbotron>
                 <section class="container">
                   <div class="left-half">
