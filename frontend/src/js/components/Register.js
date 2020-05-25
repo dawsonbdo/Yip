@@ -70,6 +70,11 @@ class Register extends Component {
             return;
         }
 
+        if(password.length < 8) {
+            this.setState({showPopup: 'Password must be atleast 8 characters!'});
+            return;
+        }
+
         this.setState({loading: true});
 
         // Send POST request with database User json

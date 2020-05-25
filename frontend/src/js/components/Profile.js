@@ -143,12 +143,12 @@ class Profile extends Component {
             data: form,
         }).then(response => {
 
-            this.setState({showPopup: true, popupMsg: "User successfully blocked"});
+            this.setState({ showPopup: true, popupMsg: "User successfully blocked" });
 
 
         }).catch(error => {
 
-            this.setState({showPopup: true, popupMsg: "Failed to block user"});
+            this.setState({ showPopup: true, popupMsg: "Failed to block user" });
 
         });
     }
@@ -466,12 +466,13 @@ class Profile extends Component {
         let actionButtons;
         if (!this.state.isOwner) {
             actionButtons = <Col>
-                <Link to={{
-                    pathname: '/inbox',
-                    state: {
-                        recipient: this.props.match.params.username
-                    }
-                }}><Button className="logInEntry" type="submit" variant="primary">Message</Button></Link>
+                {isLoggedIn(this) &&
+                    <Link to={{
+                        pathname: '/inbox',
+                        state: {
+                            recipient: this.props.match.params.username
+                        }
+                    }}><Button className="logInEntry" type="submit" variant="primary">Message</Button></Link>}
                 <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
                 <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
             </Col>;
@@ -496,16 +497,16 @@ class Profile extends Component {
                 </Toast>
 
                 <Toast style={{
-						position: 'fixed',
-						top: 110,
-						zIndex: 1,
-						left: '50%',
-						transform: 'translate(-50%, 0%)'
-					}} className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
-						<Toast.Header className="smallPopup">
-							<strong className="mx-auto">{this.state.popupMsg}</strong>
-						</Toast.Header>
-					</Toast>
+                    position: 'fixed',
+                    top: 110,
+                    zIndex: 1,
+                    left: '50%',
+                    transform: 'translate(-50%, 0%)'
+                }} className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
+                    <Toast.Header className="smallPopup">
+                        <strong className="mx-auto">{this.state.popupMsg}</strong>
+                    </Toast.Header>
+                </Toast>
 
                 <Row className="align-items-center">
                     <Col xs={8} className="text-center">
