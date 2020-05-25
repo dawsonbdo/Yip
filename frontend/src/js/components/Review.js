@@ -174,6 +174,7 @@ class Review extends Component {
 			if (!this.state.commentsListed) {
 
 				for (var i = 0; i < response.data.length; i++) {
+					console.log(response.data[i])
 					this.state.commentArray.push({
 						author: response.data[i].author_name,
 						text: response.data[i].text,
