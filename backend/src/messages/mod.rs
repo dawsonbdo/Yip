@@ -3,7 +3,7 @@ pub mod handlers;
 use crate::db;
 use crate::auth;
 extern crate priority_queue;
-use handlers::{Message, DisplayMessage, UserTimestamp};
+use handlers::{Message, DisplayMessage, UserTimestamp, UserMessage};
 use rocket_contrib::json::Json;
 
 use db::DbConn;
@@ -30,11 +30,38 @@ fn get_past_recipients(sender: String, connection: DbConn) -> Result<Json<Vec<Us
 		return Err(status::Conflict(Some("Invalid sender".to_string())));
 	}
 
-	// Get all messages where sender matches sender or recipient 
-	match handlers::all_user_messages(sender_uuid, &connection){
+	// Get all users that have been messages
+	match handlers::all_users_messaged(sender_uuid, &connection){
 		Ok(v) => Ok(Json(v)),
 		Err(e) => Err(status::Conflict(Some(e.to_string()))),
 	}
+}
+
+/** 
+ * Method that returns all messages a sender is involved in as vector of UserMessages
+ * @param sender: token of sender
+ * @param connection: database connection
+ *
+ * @return returns TBD
+ */
+#[get("/load_all_messages/<sender>")]
+fn load_all_messages(sender: String, connection: DbConn) -> Result<Json<Vec<UserMessage>>, status::Conflict<String>> {
+	
+	println!("Sender: {}", sender);
+
+	// Get uuid of sender
+	let sender_uuid = auth::get_uuid_from_token(&sender);
+
+	// Make sure uuids not nil
+	if sender_uuid.is_nil() {
+		return Err(status::Conflict(Some("Invalid sender or recipient".to_string())));
+	}
+
+	// Get all messages
+	match handlers::all_user_messages(sender_uuid, &connection) {
+		Ok(msgs) => Ok(Json(msgs)),
+		Err(e) => Err(status::Conflict(Some(e.to_string()))),
+	}	
 }
 
 /** 
@@ -113,5 +140,5 @@ fn create_message(message: Json<Message>, connection: DbConn) -> Result<status::
  * Mount the message routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_message, load_messages, get_past_recipients])  
+    rocket.mount("/", routes![create_message, load_messages, load_all_messages, get_past_recipients])  
 }

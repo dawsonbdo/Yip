@@ -133,7 +133,7 @@ export async function updateLoggedInUserAndWebSocket(page){
             // Adds message whenever received
             ws.onmessage = function(msg) { 
               
-              that.createHTMLMessage(msg.data, 'server');
+              that.newLiveMessage(msg.data, 'server');
               
             };
 
@@ -161,7 +161,7 @@ export async function updateLoggedInUserAndWebSocket(page){
                     var msg = that.state.user + "-" + inputElem.value;
 
                     // Create HTML message on local client
-                    that.createHTMLMessage(msg, 'client');
+                    that.newLiveMessage(msg, 'client', recipient);
 
                     // Send message to websocket server
                     ws.send(recipient + "-" + inputElem.value);

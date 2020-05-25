@@ -10,12 +10,14 @@ class InboxUser extends Component {
     constructor(props) {
         super(props);
 
+        // Binds button handler
         this.changeUser = this.changeUser.bind(this);
     }
 
     changeUser(){
         console.log("CLICKED: " + this.props.userName);
-        this.props.loadUserMessages("", this.props.userName);
+        //this.props.loadUserMessages("", this.props.userName);
+        this.props.onUserChange(this.props.userName);
     }
 
     render() {
