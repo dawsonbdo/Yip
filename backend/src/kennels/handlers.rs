@@ -156,6 +156,22 @@ pub fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgCo
 }
 
 /**
+ * Method that returns top five kennels by follower count
+ * @param id: uuid of user
+ * @param connection: database connection
+ *
+ * @return returns vector of all DbKennels
+ */
+pub fn top_five_kennels(connection: &PgConnection) -> QueryResult<Vec<DbKennel>> {
+
+    kennels::table
+             .order(kennels::columns::follower_count.desc())
+             .limit(5)
+             .load::<DbKennel>(&*connection)
+}
+
+
+/**
  * Method that gets returns all kennels that user has created
  * @param id: uuid of user
  * @param connection: database connection
