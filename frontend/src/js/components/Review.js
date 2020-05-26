@@ -143,7 +143,9 @@ class Review extends Component {
 
 				// Check that any images were returned cuz can be undefined
 				if (response.data.images != undefined) {
-					this.state.reviewImgs.push(response.data.images[0]);
+					for(var i = 0; i < response.data.images.size; i = i + 1 ) {
+						this.state.reviewImgs.push(response.data.images[i]);
+					}
 				}
 
 				console.log("Is Author: " + response.data.is_author);
@@ -508,6 +510,10 @@ class Review extends Component {
 			reportOpacity = { opacity: .6, cursor: 'pointer' };
 		}
 
+		// Loads all images into a variable to display 
+		let images = this.state.reviewImgs.map(function (image){
+			return <Image id="img" src={image} />
+		});
 
 		// ONLY DISPLAYS REVIEW CONTENTS WHEN EVERYTHING IS LOADED FROM BACKEND/DATABASE
 		let reviewContent;
@@ -592,7 +598,7 @@ class Review extends Component {
 						</Col>
 
 						<Col xs={5} className="reviewPicture text-center align">
-							<Image id="img" src={this.state.reviewImgs[0]} />
+							{images}
 						</Col>
 					</Row>
 					<Container className="pb-5" id="comments">
