@@ -365,6 +365,30 @@ fn like_review(input: Json<ReviewToken>, connection: DbConn) -> Result<status::A
 }
 
 /** 
+ * Method that returns vector of kennel reviews filtered by tag
+ * @param kennel_name: the name of the kennel that is queried
+ * @param token: the token of user logged in
+ * @param tag: the tag that reviews are filtered by
+ * @param connection: database connection
+ *
+ * @return returns JSON of the review or error status
+ */
+#[get("/get_kennel_reviews_filtered/<kennel_name>/<token>/<tag>")]
+fn get_kennel_reviews_filtered(kennel_name: String, token: String, tag: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
+
+	// Get all kennel reviews
+	match get_kennel_reviews(kennel_name, token, connection) {
+		Ok(reviews) => {
+			// Filter the reviews by tag
+			Ok(Json(reviews.into_inner().into_iter().filter(|rev| rev.tags.contains(&tag)).collect()))
+		},
+		Err(e) => Err(e),
+	}
+	
+}
+
+
+/** 
  * Method that returns vector of kennel reviews
  * @param kennel_name: the name of the kennel that is queried
  * @param token: the token of user logged in
@@ -417,18 +441,6 @@ fn get_kennel_reviews(kennel_name: String, token: String, connection: DbConn) ->
 		},
 		Err(e) => Err(status::NotFound(e.to_string())),
 	}
-
-
-
-	/*
-	// Prints out title/text/rating of each review in database
-	for v in &all_reviews {
-		for r in v.iter() {
-			println!("Author Name: {} Title: {} Time: {}", r.author, r.title, r.timestamp.to_string());
-		} 
-	}
-	*/
-
 	
 }
 
@@ -1010,5 +1022,5 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
  * Mount the review routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![load_reviews, list_reviews, create_review, edit_review, remove_review, get_review, get_kennel_reviews, get_user_bookmarked_reviews, like_review, dislike_review, bookmark_review, unbookmark_review, get_user_reviews, search_reviews])  
+    rocket.mount("/", routes![load_reviews, list_reviews, create_review, get_kennel_reviews_filtered, edit_review, remove_review, get_review, get_kennel_reviews, get_user_bookmarked_reviews, like_review, dislike_review, bookmark_review, unbookmark_review, get_user_reviews, search_reviews])  
 }
