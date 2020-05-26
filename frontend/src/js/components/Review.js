@@ -143,8 +143,8 @@ class Review extends Component {
 
 				// Check that any images were returned cuz can be undefined
 				if (response.data.images != undefined) {
-					for(var i = 0; i < response.data.images.size; i = i + 1 ) {
-						this.state.reviewImgs.push(response.data.images[i]);
+					for(var i = 0; i < response.data.images.length; i++){
+						this.setState({reviewImgs: this.state.reviewImgs.concat(response.data.images[i])});
 					}
 				}
 
@@ -512,7 +512,7 @@ class Review extends Component {
 
 		// Loads all images into a variable to display 
 		let images = this.state.reviewImgs.map(function (image){
-			return <Image id="img" src={image} />
+			return <Image id="img" className="reviewImgs" src={image} />
 		});
 
 		// ONLY DISPLAYS REVIEW CONTENTS WHEN EVERYTHING IS LOADED FROM BACKEND/DATABASE

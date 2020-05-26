@@ -58,7 +58,7 @@ class CreateReview extends Component {
 
   onDrop(picture) {
     this.setState({
-      pictures: this.state.pictures.concat(picture)
+      pictures: picture
     });
   }
 

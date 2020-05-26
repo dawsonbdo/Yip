@@ -108,6 +108,14 @@ body {
   max-height: 100%;
 }
 
+.reviewImgs {
+  padding-bottom: 25px;
+  padding-left: 25px;
+  width: 350px;
+  height: 350px;
+  object-fit: scale-down;
+}
+
 .reviewLeaveComment {
   padding-top: 30px;
 }
