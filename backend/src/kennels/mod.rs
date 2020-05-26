@@ -296,6 +296,24 @@ fn get_created_kennels(username: String, connection: DbConn) -> Result<Json<Vec<
 }
 
 /** 
+ * Method that returns the top 5 kennels based on followers
+ * @param token: token of logged in user
+ * @param connection: database connection
+ *
+ * @return returns JSON of the top 5 kennels
+ */
+#[get("/get_top_kennels")]
+fn get_top_kennels(connection: DbConn) -> Result<Json<Vec<DbKennel>>, status::NotFound<String>> {
+
+	match handlers::top_five_kennels(&connection) {
+		Ok(k) => Ok(Json(k)),
+		Err(e) => Err(status::NotFound(e.to_string()))
+	}
+	
+	
+}
+
+/** 
  * Method that returns a kennel from database given the name and token
  * @param name: name of kennel
  * @param token: user token
@@ -466,5 +484,5 @@ fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Acc
  * Mount the kennel routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![create_kennel, edit_kennel, transfer_ownership, list_kennels, follow_kennel, get_created_kennels, unfollow_kennel, get_kennel, get_followed_kennels, get_followed_kennels_username, search_kennels])  
+    rocket.mount("/", routes![create_kennel, edit_kennel, transfer_ownership, list_kennels, follow_kennel, get_top_kennels, get_created_kennels, unfollow_kennel, get_kennel, get_followed_kennels, get_followed_kennels_username, search_kennels])  
 }
