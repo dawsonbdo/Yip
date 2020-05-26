@@ -341,7 +341,7 @@ class Inbox extends Component {
         }).then(response => {
 
             if ( response.data == undefined || response.data.length == 0 ){
-                alert('No past users messaged ');
+                alert('Seen updated in db');
                 return;
             }
 
@@ -353,12 +353,12 @@ class Inbox extends Component {
 
             console.log(users);
             this.setState({pastUsers: users});
-            alert('Past users you have messaged loaded');
+            alert('Messages seen status updated in db');
            
         }).catch(error => {
 
             // Failed to dislike review
-            alert('Past messages failed to load');
+            alert('Seen update failed');
 
         });
 

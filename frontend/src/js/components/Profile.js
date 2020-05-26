@@ -47,6 +47,8 @@ class Profile extends Component {
             isOwner: false,
             followBtnText: "Follow",
             isFollowing: false,
+            isBlocking: false,
+            blockBtnText: "Block",
             loginPrompt: false,
             action: "",
             showPopup: false,
@@ -127,6 +129,19 @@ class Profile extends Component {
         if (!isLoggedIn(this)) {
             this.setState({ loginPrompt: true, action: "block" });
             return;
+        } else {
+            if (!this.state.isBlocking) {
+                this.setState({
+                    blockBtnText: "Unblock",
+                    isBlocking: true
+                });
+            }
+            else {
+                this.setState({
+                    blockBtnText: "Block",
+                    isBlocking: false
+                });
+            }
         }
 
         // Load user profile (get from URL)
@@ -136,21 +151,40 @@ class Profile extends Component {
 
         var form = followUserJson(username, token);
 
-        // Send POST request with user name to follow
-        axios({
-            method: 'post',
-            url: '/block_user',
-            data: form,
-        }).then(response => {
+        if (!this.state.isBlocking){
+            // Send POST request with user name to block
+            axios({
+                method: 'post',
+                url: '/block_user',
+                data: form,
+            }).then(response => {
 
-            this.setState({ showPopup: true, popupMsg: "User successfully blocked" });
+                this.setState({ showPopup: true, popupMsg: "User successfully blocked" });
 
 
-        }).catch(error => {
+            }).catch(error => {
 
-            this.setState({ showPopup: true, popupMsg: "Failed to block user" });
+                this.setState({ showPopup: true, popupMsg: "Failed to block user" });
 
-        });
+            });
+        } else {
+            // Send POST request with user name to block
+            axios({
+                method: 'post',
+                url: '/unblock_user',
+                data: form,
+            }).then(response => {
+
+                this.setState({ showPopup: true, popupMsg: "User successfully unblocked" });
+
+
+            }).catch(error => {
+
+                this.setState({ showPopup: true, popupMsg: "Failed to unblock user" });
+
+            });
+        }
+        
     }
 
     onDrop(picture) {
@@ -249,6 +283,12 @@ class Profile extends Component {
                 this.setState({
                     followBtnText: "Unfollow",
                     isFollowing: true
+                });
+            }
+            if (response.data.is_blocked) {
+                this.setState({
+                    blockBtnText: "Unblock",
+                    isBlocking: true
                 });
             }
 
@@ -474,7 +514,7 @@ class Profile extends Component {
                         }
                     }}><Button className="logInEntry" type="submit" variant="primary">Message</Button></Link>}
                 <Button onClick={this.followProfile} className="logInEntry" type="submit" variant="primary">{this.state.followBtnText}</Button>
-                <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">Block</Button>
+                <Button onClick={this.blockProfile} className="logInEntry" type="submit" variant="primary">{this.state.blockBtnText}</Button>
             </Col>;
         }
 
