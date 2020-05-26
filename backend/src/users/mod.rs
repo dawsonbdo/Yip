@@ -417,5 +417,5 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
  * Mount the user routes
  */
 pub fn mount(rocket: rocket::Rocket) -> rocket::Rocket {
-    rocket.mount("/", routes![login, register, recover_password, get_all_users, list_users, auth, get_user, get_followed_users, block_user, follow_user, unfollow_user, get_username])  
+    rocket.mount("/", routes![login, register, recover_password, get_all_users, list_users, auth, get_user, get_followed_users, block_user, unblock_user, follow_user, unfollow_user, get_username])  
 }
