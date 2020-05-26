@@ -31,7 +31,8 @@ class EditReview extends Component {
             checkedTags: [],
             redirect: null,
             validated: false,
-            loading: false
+            loading: false,
+            text: this.props.location.state.text.replace(/<br\s*[\/]?>/gi, "\n") // Replaces <br /> with \n for displaying
         };
         this.onDrop = this.onDrop.bind(this);
         this.updateReview = this.updateReview.bind(this);
@@ -199,7 +200,7 @@ class EditReview extends Component {
                                         <Form.Control.Feedback type="invalid">Review title required.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">
-                                        <Form.Control id="text" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" defaultValue={this.props.location.state.text} required />
+                                        <Form.Control id="text" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" defaultValue={this.state.text} required />
                                         <Form.Control.Feedback type="invalid">Review description required.</Form.Control.Feedback>
                                     </div>
                                     <div><Form>
