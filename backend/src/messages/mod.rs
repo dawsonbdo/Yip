@@ -8,6 +8,8 @@ use rocket_contrib::json::Json;
 
 use db::DbConn;
 
+use uuid::Uuid;
+
 use rocket::response::status;
 
 /** 
@@ -155,6 +157,16 @@ fn load_messages(sender: String, recipient: String, connection: DbConn) -> Resul
  */
 #[post("/create_message", data="<message>", rank=1)]
 fn create_message(message: Json<Message>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
+	
+	// Get uuid of sender and recipient
+	let sender_uuid = auth::get_uuid_from_token(&message.sender);
+	let recipient_uuid = super::users::handlers::get_uuid_from_username(&message.recipient, &connection);
+
+	// Check that recipient is not blocking sender
+	match super::users::handlers::get_block_relationship(recipient_uuid, sender_uuid, &connection){
+		Ok(u) => if u == 0 {()} else {return Err(status::Conflict(Some("User is blocked".to_string())))},
+		Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+	}
 	
 	// Attempt to insert message into database 
 	let successful_message = handlers::insert(message.into_inner(), &connection);

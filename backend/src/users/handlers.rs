@@ -51,7 +51,7 @@ pub fn to_display_user(user: DbUser, token: String, connection: &PgConnection) -
         sitewideban: user.sitewideban,
         is_owner: user.profile_uuid.eq(&profile_uuid),
         is_blocked: match get_block_relationship(profile_uuid, user.profile_uuid, connection) {
-                        Ok(_u) => true,
+                        Ok(u) => u == 1,
                         Err(_e) => false,
                     },
         is_followed: match get_follow_relationship(profile_uuid, user.profile_uuid, connection) {
@@ -87,13 +87,13 @@ pub fn get_follow_relationship(follower: Uuid, followee: Uuid, connection: &PgCo
  *
  * @return returns a result containing DbBlockUser if found, otherwise error
  */
-pub fn get_block_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<DbBlockUser>{
+pub fn get_block_relationship(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<usize>{
     
     // Filters block relationship table
     block_relationships::table
              .filter(block_relationships::blocker.eq(blocker))
              .filter(block_relationships::blockee.eq(blockee))
-             .get_result::<DbBlockUser>(&*connection)
+             .execute(connection)
 }
 
 /**
