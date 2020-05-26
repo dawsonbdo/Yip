@@ -115,6 +115,8 @@ class Login extends Component {
                   </div>
                   <div>
                     <Link to="/recoverpassword"><Button variant="link">Forgot Password?</Button></Link>
+                    <br />
+                    <Link to="/register"><Button variant="link">Don't have an account?</Button></Link>
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" type="submit" variant="primary">
