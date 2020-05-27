@@ -79,8 +79,6 @@ class EditReview extends Component {
     }
 
     onDrop(picture) {
-        alert("LOG");
-        console.log(picture);
         this.setState({
             pictures: picture
         });
@@ -120,9 +118,10 @@ class EditReview extends Component {
         const fd = new FormData();
         fd.append('review', JSON.stringify(form));
 
+
+        console.log("Picture file name for testing " + this.state.pictures);
         // Iterate through all pictures adding image/name to form
         for (var idx = 0; idx < this.state.pictures.length; idx++) { 
-          alert(this.state.pictures.length);
           // Append current image/name
           fd.append('image', this.state.pictures[idx]);
           fd.append('name', this.state.pictures[idx].name);
@@ -210,7 +209,7 @@ class EditReview extends Component {
                                         {tagCheckboxes}
                                     </Form></div>
                                     <div className="logInEntryContainer">
-                                        <ImageLoader defaultImages={this.state.pictures} withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
+                                        <ImageLoader defaultImages={this.state.pictures} singleImage={true} withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Button className="logInEntry" variant="primary" type="submit"><div>Update{loading}</div></Button>

@@ -95,7 +95,6 @@ class CreateReview extends Component {
     // Create form data for POST request and stringify json
     const fd = new FormData();
     fd.append('review', JSON.stringify(form));
-
     // Iterate through all pictures adding image/name to form
     for (var idx = 0; idx < this.state.pictures.length; idx++) {
 
@@ -190,7 +189,7 @@ class CreateReview extends Component {
                     {tagCheckboxes}
                   </Form></div>
                   <div className="logInEntryContainer">
-                    <ImageLoader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
+                    <ImageLoader withIcon={false} withPreview={true} singleImage={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" variant="primary" type="submit"><div>Post{loading}</div></Button>

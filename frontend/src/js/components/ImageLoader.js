@@ -22,6 +22,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FlipMove from 'react-flip-move';
 import UploadIcon from '../../assets/UploadIcon.svg';
+import axios from 'axios'
 
 const styles = {
   display: "flex",
@@ -49,13 +50,26 @@ class ImageLoader extends React.Component {
     this.onDropFile = this.onDropFile.bind(this);
     this.onUploadClick = this.onUploadClick.bind(this);
     this.triggerFileUpload = this.triggerFileUpload.bind(this);
-
-    this.setState({files: new Blob([this.props.defaultImages[0]], {type: 'image/jpg'})});
   }
 
   componentDidUpdate(prevProps, prevState, snapshot){
     if(prevState.files !== this.state.files){
       this.props.onChange(this.state.files, this.state.pictures);
+    }
+  }
+
+  componentDidMount() {
+    if (this.state.pictures.length > 0) {
+      var fileUrl = "/" + this.state.pictures[0];
+
+      axios({
+        method: 'get',
+        url: fileUrl
+      }).then(response => {
+        
+      }).catch(error => {
+
+      });
     }
   }
 
@@ -111,6 +125,9 @@ class ImageLoader extends React.Component {
 
       allFilePromises.push(this.readFile(file));
     }
+
+    allFilePromises.push(this.readFile(this.state.files[0]));
+
 
     this.setState({
       fileErrors

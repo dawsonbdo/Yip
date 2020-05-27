@@ -789,7 +789,7 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 					Err(e) => println!("ERROR: {}", e.to_string()),
 				};
 			}
-			*/
+			*/			
 
 			println!("EDIT 6");
 
