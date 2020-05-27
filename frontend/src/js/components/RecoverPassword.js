@@ -22,6 +22,7 @@ class RecoverPassword extends Component {
             validated: false,
             redirect: null,
             showPopup: false,
+            popupMsg: "",
             loading: false
         };
         this.recoverPassword = this.recoverPassword.bind(this);
@@ -43,8 +44,6 @@ class RecoverPassword extends Component {
             return;
         }
 
-        this.setState({ loading: true });
-
         // Get the email, username, and password
         var email = document.getElementById('email').value;
         var username = document.getElementById('username').value;
@@ -55,10 +54,16 @@ class RecoverPassword extends Component {
 
         // Check if passwords same
         if (password != confirmPassword) {
-            alert("Passwords don't match.");
+            this.setState({showPopup: true, popupMsg: "Passwords don't match!"});
             return;
-
         }
+
+        if (password.length < 8) {
+            this.setState({showPopup: true, popupMsg: "Password must be at least 8 characters!"});
+            return;
+        }
+
+        this.setState({ loading: true });
 
         // Send POST request with username, email, and password
         axios({
@@ -69,13 +74,13 @@ class RecoverPassword extends Component {
 
             // TODO: Redirect to login screen if successful
             this.setState({ redirect: "/login" });
-            alert("Password successfully reset.");
+            this.setState({ loading: false, showPopup: true, popupMsg: "Password successfully reset!" });
+            
 
         }).catch(error => {
 
             // Failed recover password
-            //alert("Incorrect Username or Email.");
-            this.setState({ loading: false, showPopup: true });
+            this.setState({ loading: false, showPopup: true, popupMsg: "Incorrect username or email." });
 
         })
     }
@@ -99,7 +104,7 @@ class RecoverPassword extends Component {
 
                             <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
                                 <Toast.Header className="smallPopup">
-                                    <strong className="mx-auto">Incorrect Username or Email!</strong>
+                                    <strong className="mx-auto">{this.state.popupMsg}</strong>
                                 </Toast.Header>
                             </Toast>
 
