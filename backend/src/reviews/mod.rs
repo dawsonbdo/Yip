@@ -738,11 +738,24 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 		Ok(r) => { 
 			// Attempt to insert pictures
 
+
 			// Iterate through files passed in, store on server in static/reviewpics/<filename>
 			for (i, img) in data.images.iter().enumerate() {
 
 				// Create file path using filename, create file with it, write the image
 				let file_path = format!("static/reviewpics/{}{}", user_uuid, &data.names[i]);
+
+
+				// Check that not already uploaded
+				let fp = format!("reviewpics/{}{}", user_uuid, &data.names[i]);
+				// TODO: Delete images of files that were removed from orig review
+				if images.contains(&fp){
+					println!("FILE ALREADY EXISTS IN REVIEW");
+				} else {
+					println!("NEW FILE: {}", &fp);
+				}
+
+
 				let mut buffer = File::create(file_path.clone()).unwrap();
 				
 				println!("EDIT 3");
@@ -768,19 +781,26 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 
 			println!("EDIT 4");
 
-			/*
+			
 			// TODO: Delete images of files that were removed from orig review
 			let imgs = match r.images {
-					Some(imgs) => imgs,
-					None => vec![]
-				};
+				Some(imgs) => imgs,
+				None => vec![]
+			};
+
+			/*
+			for img in &imgs{
+				println!("CURRENT IMG: {}", img);
+			}
+			*/
+
 			for img in images{
 				// Don't delete if in the list of new images
 				if imgs.contains(&img){
 					continue;
 				}
 				
-				println!("EDIT 5");
+				println!("EDIT 5: {}", img);
 
 				// Attempt to delete old img
 				let p = format!("static/{}", img);
@@ -789,7 +809,7 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 					Err(e) => println!("ERROR: {}", e.to_string()),
 				};
 			}
-			*/			
+						
 
 			println!("EDIT 6");
 
