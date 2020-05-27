@@ -35,6 +35,7 @@
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.1",
     "react-dom": "^16.13.1",
+    "react-flip-move": "^3.0.4",
     "react-router-dom": "^5.1.2",
     "regenerator-runtime": "^0.13.5",
     "timeago-react": "^3.0.0"
