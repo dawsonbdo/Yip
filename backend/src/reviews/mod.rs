@@ -751,6 +751,7 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 				// TODO: Delete images of files that were removed from orig review
 				if images.contains(&fp){
 					println!("FILE ALREADY EXISTS IN REVIEW");
+					continue;
 				} else {
 					println!("NEW FILE: {}", &fp);
 				}
