@@ -10,6 +10,8 @@ import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
+import KennelCard from './KennelCard';
+
 import { isLoggedIn, updateLoggedInState, updateLoggedInUser } from './BackendHelpers.js';
 
 import axios from 'axios'
@@ -22,7 +24,8 @@ class Home extends Component {
       loggedIn: false,
       reviewArray: [],
       reviewsListed: false,
-      user: ""
+      user: "",
+      kennelArray: []
     };
 
     this.resetAuthState = this.resetAuthState.bind(this);
@@ -83,6 +86,50 @@ class Home extends Component {
       alert('Failed to list reviews');
 
     });
+
+
+    // Load top 5 kennels
+    // Load reviews
+    axios({
+      method: 'get',
+      url: '/get_top_kennels'
+    }).then(response => {
+
+      let kennelArray = []
+
+      for ( var i = 0; i < response.data.length; i++ ){
+
+        var tagsStr = "";
+        // Make sure there are tags in the kennel to avoid error
+        if (response.data[i].tags != null) {
+          if (response.data[i].tags.length > 0) {
+              tagsStr = tagsStr + response.data[i].tags[0];
+          }
+          for (var j = 1; j < response.data[i].tags.length; j++) {
+              tagsStr = tagsStr + ", " + response.data[i].tags[j];
+          }
+        } else {
+          tagsStr = "None" // No tags, TODO: indicate it idk lol
+        }
+
+        kennelArray.push({
+            kennelName: response.data[i].kennel_name,
+            kennelRules: response.data[i].rules,
+            kennelTags: tagsStr,
+            followerCount: response.data[i].follower_count
+        });
+      }
+
+      // Used for loading logic
+      this.setState({ kennelArray: kennelArray });
+      
+
+    }).catch(error => {
+
+      // Review not found in database
+      alert('Failed to list reviews');
+
+    });
   }
 
 
@@ -98,6 +145,29 @@ class Home extends Component {
 
     let homeContent;
     let reviews;
+    /*
+    let kennels = this.state.kennelArray.map(function (kennel) {
+            return <KennelCard kennelName={kennel.kennelName} kennelRules={kennel.kennelRules} kennelTags={kennel.kennelTags} followerCount={kennel.followerCount} />
+        });
+      */
+    let kennels = this.state.kennelArray.map(function (kennel) {
+            return <li><a href={`/kennels-${kennel.kennelName}`}>{kennel.kennelName}</a></li>
+        });
+
+    /* PREVIOUS HOME PAGE -----------------------------------
+     
+    homeContent = <div>
+          <Jumbotron id="jumbotron" className="text-center">
+          <h1>{greeting}</h1>
+          <p>{homePageMessage}</p>
+          <p id="authstatus">
+          </p>
+          </Jumbotron>
+          {reviews}
+        </div>;  
+
+
+    // PREVIOUS HOME PAGE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 
     // Renders when reviews are loaded from backend
     if (this.state.reviewsListed) {
@@ -105,15 +175,30 @@ class Home extends Component {
         return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
           kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp}/>
       });
-      homeContent = <div>
-        <Jumbotron id="jumbotron" className="text-center">
+      homeContent = <div><div class="homereviews">
+        <div>
+          <Jumbotron id="jumbotron" className="text-center">
           <h1>{greeting}</h1>
           <p>{homePageMessage}</p>
           <p id="authstatus">
           </p>
-        </Jumbotron>
-        {reviews}
+          </Jumbotron>
+          {reviews}
+        </div>           
       </div>
+      <div class="homepanel">
+          <Jumbotron id="jumbotron" className="text-center">
+          <h1> Top Kennels </h1>    
+          </Jumbotron>    
+          <ul>
+          {kennels}
+          </ul>
+          <Jumbotron id="jumbotron" className="text-center">
+          <h1> New Kennels </h1>    
+          </Jumbotron>    
+      </div>
+      </div>;
+      
     } else {
       // Loading Symbol
       homeContent = <Row>

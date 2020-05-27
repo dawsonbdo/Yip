@@ -390,3 +390,15 @@ article {
   width: 80%;
   height: 55%;
 }
+
+/* Home page */
+.homereviews {
+  float: left;
+  width: 80%;
+  height: 100%;
+}
+.homepanel {
+  float: left;
+  width: 20%;
+  height: 100%;
+}
