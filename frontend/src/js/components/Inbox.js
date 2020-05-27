@@ -110,7 +110,14 @@ class Inbox extends Component {
 
         // Get current messages with sender
         let userMessages = this.state.userMessages;
-        let curMsgs = userMessages.get(sender);
+
+        // Get cur msgs depending on if sender or user
+        let curMsgs = [];
+        if ( sender == this.state.user ){
+            curMsgs = userMessages.get(recipient);
+        } else {
+            curMsgs = userMessages.get(sender);
+        }
 
         if ( curMsgs == undefined ){
             // No messages preivously between the user and person, new list
@@ -118,8 +125,16 @@ class Inbox extends Component {
         } else {
             // Previous messages, append to it
             curMsgs.push(msgObj);
-            userMessages.set(sender, curMsgs)
+
+            if ( sender == this.state.user ){
+                userMessages.set(recipient, curMsgs)
+            } else {
+                userMessages.set(sender, curMsgs)
+            }
         }
+
+        console.log("NEW LIVE MSG TEST");
+        console.log(userMessages);
 
         // Update state of messges
         this.setState({userMessages: userMessages});
@@ -145,8 +160,10 @@ class Inbox extends Component {
             this.setState({pastUsers: pastUsers});
 
             // If client not currently messaging sender, don't render the message
-            if ( !this.state.recipient != sender ){
+            if ( this.state.recipient != sender ){
                 // Set seen to false
+                console.log("CUR RECIPIENT: " + this.state.recipient);
+                console.log("SENDER: " + sender);
                 let userSeen = this.state.userSeen;
                 userSeen.set(sender, false);
                 this.setState({userSeen: userSeen});
@@ -274,6 +291,7 @@ class Inbox extends Component {
         // Print seen stuff
         console.log("SEEN LIST");
         console.log(this.state.userSeen);
+        console.log(this.state.userMessages.get(recipient));
 
         // Update seen
         this.updateSeen(recipient);
@@ -293,7 +311,8 @@ class Inbox extends Component {
         this.setState({ recipient: recipient });
 
         // Get all the messages with recipient
-        let msgs = this.state.userMessages.get(recipient);
+        let msgs = this.state.userMessages;
+        msgs = msgs.get(recipient);
 
         // Check if undefined meaning none
         if ( msgs == undefined ){
