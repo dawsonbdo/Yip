@@ -41,7 +41,7 @@ class ImageLoader extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      pictures: [...this.props.defaultImages],
+      pictures: this.props.defaultImages,
       files: [],
       fileErrors: [],
       dataURLs: []
@@ -59,18 +59,10 @@ class ImageLoader extends React.Component {
   }
 
   componentDidMount() {
-    if (this.state.pictures.length > 0) {
-      var fileUrl = "/" + this.state.pictures[0];
-
-      axios({
-        method: 'get',
-        url: fileUrl
-      }).then(response => {
-
-      }).catch(error => {
-
-      });
-    }
+     for(var i = 0; i < this.state.pictures.length; i++){
+       this.state.files.push(new File(["a"], this.state.pictures[i], {type: 'image/jpg'}));
+     }
+     this.props.onChange(this.state.files, this.state.pictures);
   }
 
   /*

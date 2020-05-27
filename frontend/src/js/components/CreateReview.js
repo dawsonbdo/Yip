@@ -50,7 +50,7 @@ class CreateReview extends Component {
       url: reqUrl
     }).then(response => {
       // Gets kennel id
-      console.log(response.data);
+      //console.log(response.data);
       this.setState({ kennelId: response.data.kennel_uuid, tags: response.data.tags });
     }).catch(error => {
       alert('Kennel does not exist in database');

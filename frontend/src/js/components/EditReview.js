@@ -120,11 +120,18 @@ class EditReview extends Component {
         fd.append('review', JSON.stringify(form));
 
 
+        //alert(this.state.pictures.length);
         // Iterate through all pictures adding image/name to form
         for (var idx = 0; idx < this.state.pictures.length; idx++) { 
+            //alert(this.state.pictures[idx].size);
           // Append current image/name
-          fd.append('image', "");
-          fd.append('name', this.state.pictures[idx].substring(47));
+          if(this.state.pictures[idx].size == 1){
+             fd.append('image', new File(["a"], "Empty", {type: 'image/jpg'}));
+             fd.append('name', this.state.pictures[idx].name.substring(47));
+          } else {
+            fd.append('image', this.state.pictures[idx]);
+            fd.append('name', this.state.pictures[idx].name);
+          }
         }
 
         for (var i = 0; i < this.state.checkedTags.length; i++) {
