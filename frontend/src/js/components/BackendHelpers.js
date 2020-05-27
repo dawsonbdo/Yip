@@ -126,7 +126,7 @@ export async function updateLoggedInUserAndWebSocket(page){
             //alert("CREATING SOCKET");
 
             // Create web socket
-            var ws = new WebSocket('ws://corgiyip.site:8001/' + response.data);
+            var ws = new WebSocket('ws://corgiyip.site/' + response.data);
 
             var that = page;
 
