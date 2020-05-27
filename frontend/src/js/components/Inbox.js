@@ -16,7 +16,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import TimeAgo from 'timeago-react'; // var TimeAgo = require('timeago-react');
 
-import { setAllUsers, isLoggedIn, updateLoggedInState, updateLoggedInUserAndWebSocket } from './BackendHelpers.js';
+import { setAllUsers, isLoggedIn, updateLoggedInState, updateLoggedInUserAndWebSocket, getDateTime } from './BackendHelpers.js';
 
 import axios from 'axios';
 
@@ -103,7 +103,10 @@ class Inbox extends Component {
         var parsedMsg = msg.substring(idx+1, msg.length);
 
         // Add message to list 
-        let msgObj = {is_sender: (source != 'server'), text: parsedMsg, timestamp: (new Date()).toString()};
+        let t = Date.UTC();
+
+        console.log(t);
+        let msgObj = {is_sender: (source != 'server'), text: parsedMsg, timestamp: t};
 
         // Get current messages with sender
         let userMessages = this.state.userMessages;
@@ -176,10 +179,12 @@ class Inbox extends Component {
             this.updateSeen(recipient);
         }
 
+        console.log('DISPLAY ATTEMPT');
+
         // Display the message
         this.displayHTMLMessage(msg, source, msgObj.timestamp, this.state.recipient);
 
-
+        console.log('DISPLAY GOOD');
     }
 
     loadPastUsers(token){
