@@ -12,7 +12,7 @@ import FormGroup from 'react-bootstrap/FormGroup';
 import corgiImage from '../../assets/corgi_shadow.png';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
-
+import { useHistory } from "react-router-dom";
 import axios from 'axios'
 
 // import Sidebar from './Sidebar';
@@ -41,6 +41,7 @@ class YipNavBar extends Component {
     this.logout = this.logout.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.stringEscape = this.stringEscape.bind(this);
   }
 
   logout(event) {
@@ -69,16 +70,24 @@ class YipNavBar extends Component {
     // Get user input from search bar
     var query = document.getElementById('searchBar').value;
 
-    // Ignore input that only contains whitespace
+    // Ignore input that only contains whitespace and \ input
     if (query.replace(/ /g, '') === "") {
       return;
     }
 
     query = encodeURIComponent(query);
 
+    console.log("URL QUERY: " + query);
+
     // Redirect to search results page with search type and query in url
     this.setState({ redirect: `/searchresults-${event}-${query}` });
 
+  }
+
+  // Replace escape chars
+  stringEscape(s) {
+    return s ? s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/\t/g,'\\t').replace(/\v/g,'\\v').replace(/'/g,"\\'").replace(/"/g,'\\"').replace(/[\x00-\x1F\x80-\x9F]/g,hex) : s;
+    function hex(c) { var v = '0'+c.charCodeAt(0).toString(16); return '\\x'+v.substr(v.length-2); }
   }
 
   handleSubmit(event) {
@@ -94,6 +103,8 @@ class YipNavBar extends Component {
     }
 
     query = encodeURIComponent(query);
+
+    alert("URL QUERY: " + query);
 
     // Redirect to search results page with search type and query in url
     this.setState({ redirect: `/searchresults-Reviews-${query}` });

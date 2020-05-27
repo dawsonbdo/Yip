@@ -50,6 +50,8 @@ class SearchResults extends Component {
 
     // Searches all kennels using query passed in
     searchKennels(query) {
+        query = encodeURIComponent(query);
+
         this.setState({ searchDisplay: false });
         axios({
             method: 'get',
@@ -57,6 +59,15 @@ class SearchResults extends Component {
         }).then(response => {
 
             console.log("KENNEL SEARCH QUERY: " + query);
+
+            // Check bad query result
+            if ( response.data.length > 4 ){
+                if ( response.data[0] == '<' && response.data[1] == 'd'
+                     && response.data[2] == 'i' && response.data[3] == 'v' ){
+                    this.setState({ searchDisplay: true, results: false });
+                return;
+                }
+            }
 
             // Iterate through kennels
             for (var i = 0; i < response.data.length; i++) {
@@ -100,6 +111,9 @@ class SearchResults extends Component {
 
     // Searches all reviews using query passed in
     searchReviews(query) {
+        query = encodeURIComponent(query);
+
+        
         this.setState({ searchDisplay: false });
         axios({
             method: 'get',
@@ -107,6 +121,15 @@ class SearchResults extends Component {
         }).then(response => {
 
             console.log("REVIEW SEARCH QUERY: " + query);
+
+            // Check bad query result
+            if ( response.data.length > 4 ){
+                if ( response.data[0] == '<' && response.data[1] == 'd'
+                     && response.data[2] == 'i' && response.data[3] == 'v' ){
+                    this.setState({ searchDisplay: true, results: false });
+                return;
+                }
+            }
 
             // Iterate through reviews
             for (var i = 0; i < response.data.length; i++) {
