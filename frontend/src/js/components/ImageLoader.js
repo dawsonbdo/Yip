@@ -66,7 +66,7 @@ class ImageLoader extends React.Component {
         method: 'get',
         url: fileUrl
       }).then(response => {
-        
+
       }).catch(error => {
 
       });
@@ -125,9 +125,6 @@ class ImageLoader extends React.Component {
 
       allFilePromises.push(this.readFile(file));
     }
-
-    allFilePromises.push(this.readFile(this.state.files[0]));
-
 
     this.setState({
       fileErrors
