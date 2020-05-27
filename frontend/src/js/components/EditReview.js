@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
-import ImageUploader from 'react-images-upload';
+import ImageLoader from './ImageLoader';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
@@ -25,7 +25,7 @@ class EditReview extends Component {
         super(props);
 
         this.state = {
-            pictures: [],
+            pictures: this.props.location.state.images,
             kennelId: null,
             tags: [],
             checkedTags: [],
@@ -79,8 +79,10 @@ class EditReview extends Component {
     }
 
     onDrop(picture) {
+        alert("LOG");
+        console.log(picture);
         this.setState({
-            pictures: this.state.pictures.concat(picture)
+            pictures: picture
         });
     }
 
@@ -119,12 +121,12 @@ class EditReview extends Component {
         fd.append('review', JSON.stringify(form));
 
         // Iterate through all pictures adding image/name to form
-        /*for (var idx = 0; idx < this.state.pictures.length; idx++) { TODO images
-    
+        for (var idx = 0; idx < this.state.pictures.length; idx++) { 
+          alert(this.state.pictures.length);
           // Append current image/name
           fd.append('image', this.state.pictures[idx]);
           fd.append('name', this.state.pictures[idx].name);
-        }*/
+        }
 
         for (var i = 0; i < this.state.checkedTags.length; i++) {
             if (this.state.checkedTags[i]) {
@@ -208,7 +210,7 @@ class EditReview extends Component {
                                         {tagCheckboxes}
                                     </Form></div>
                                     <div className="logInEntryContainer">
-                                        <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
+                                        <ImageLoader defaultImages={this.state.pictures} withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Button className="logInEntry" variant="primary" type="submit"><div>Update{loading}</div></Button>

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
-import ImageUploader from 'react-images-upload';
+//import ImageUploader from 'react-images-upload';
+import ImageLoader from './ImageLoader';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
@@ -189,7 +190,7 @@ class CreateReview extends Component {
                     {tagCheckboxes}
                   </Form></div>
                   <div className="logInEntryContainer">
-                    <ImageUploader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
+                    <ImageLoader withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" variant="primary" type="submit"><div>Post{loading}</div></Button>

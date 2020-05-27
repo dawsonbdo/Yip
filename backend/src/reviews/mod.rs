@@ -768,6 +768,7 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 
 			println!("EDIT 4");
 
+			/*
 			// TODO: Delete images of files that were removed from orig review
 			let imgs = match r.images {
 					Some(imgs) => imgs,
@@ -788,6 +789,7 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 					Err(e) => println!("ERROR: {}", e.to_string()),
 				};
 			}
+			*/
 
 			println!("EDIT 6");
 

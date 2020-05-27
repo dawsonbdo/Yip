@@ -12,7 +12,6 @@ import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import UserCard from './UserCard';
 import ReviewCard from './ReviewCard';
-import ImageUploader from 'react-images-upload';
 import corgiImage from '../../assets/corgi_shadow.png';
 import KennelCard from './KennelCard';
 import corgiPFP from '../../assets/corgi_pfp.png';

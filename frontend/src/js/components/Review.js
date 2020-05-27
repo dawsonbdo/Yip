@@ -143,6 +143,7 @@ class Review extends Component {
 
 				// Check that any images were returned cuz can be undefined
 				if (response.data.images != undefined) {
+					console.log("review image data" + response.data.images);
 					for(var i = 0; i < response.data.images.length; i++){
 						this.setState({reviewImgs: this.state.reviewImgs.concat(response.data.images[i])});
 					}
