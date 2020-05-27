@@ -22,8 +22,8 @@ class InboxUser extends Component {
 
     render() {
         let seen = this.props.userSeen.get(this.props.userName);
-        console.log("TESTTTT");
-        console.log(this.props.userSeen);
+        //console.log("TESTTTT");
+        //console.log(this.props.userSeen);
         let color = '#E5E5EA';
         if ( seen == undefined || seen == false ){
             color = '#4080ff';
