@@ -101,6 +101,9 @@ class CreateReview extends Component {
       // Append current image/name
       fd.append('image', this.state.pictures[idx]);
       fd.append('name', this.state.pictures[idx].name);
+
+      console.log("Create Image " + this.state.pictures[idx]);
+      console.log("Create Name " + this.state.pictures[idx].name);
     }
 
     for(var i = 0; i < this.state.checkedTags.length; i++) {
@@ -189,7 +192,7 @@ class CreateReview extends Component {
                     {tagCheckboxes}
                   </Form></div>
                   <div className="logInEntryContainer">
-                    <ImageLoader withIcon={false} withPreview={true} singleImage={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
+                    <ImageLoader withIcon={false} withPreview={true} singleImage={false} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" variant="primary" type="submit"><div>Post{loading}</div></Button>

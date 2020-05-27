@@ -26,6 +26,7 @@ class EditReview extends Component {
 
         this.state = {
             pictures: this.props.location.state.images,
+            files: [],
             kennelId: null,
             tags: [],
             checkedTags: [],
@@ -119,12 +120,11 @@ class EditReview extends Component {
         fd.append('review', JSON.stringify(form));
 
 
-        console.log("Picture file name for testing " + this.state.pictures);
         // Iterate through all pictures adding image/name to form
         for (var idx = 0; idx < this.state.pictures.length; idx++) { 
           // Append current image/name
-          fd.append('image', this.state.pictures[idx]);
-          fd.append('name', this.state.pictures[idx].name);
+          fd.append('image', "");
+          fd.append('name', this.state.pictures[idx].substring(47));
         }
 
         for (var i = 0; i < this.state.checkedTags.length; i++) {
@@ -209,7 +209,7 @@ class EditReview extends Component {
                                         {tagCheckboxes}
                                     </Form></div>
                                     <div className="logInEntryContainer">
-                                        <ImageLoader defaultImages={this.state.pictures} singleImage={true} withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
+                                        <ImageLoader defaultImages={this.state.pictures} singleImage={false} withIcon={false} withPreview={true} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                                     </div>
                                     <div className="logInEntryContainer">
                                         <Button className="logInEntry" variant="primary" type="submit"><div>Update{loading}</div></Button>
