@@ -167,7 +167,7 @@ pub fn websocket() -> () {
   println!("Server is ready at http://127.0.0.1:8000/");
 
   // Listen on an address
-  listen("127.0.0.1:8001", |out| { Connection { out: out, id: "".to_string() } }).unwrap()
+  listen("0.0.0.0:8001", |out| { Connection { out: out, id: "".to_string() } }).unwrap()
 
 }
 
