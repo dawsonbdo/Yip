@@ -8,6 +8,7 @@ import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
 import Spinner from 'react-bootstrap/Spinner';
+import Toast from 'react-bootstrap/Toast';
 import axios from 'axios';
 import { editKennelJson } from './BackendHelpers.js';
 
@@ -19,7 +20,8 @@ class EditKennel extends Component {
     this.state = {
       redirect: null,
       validated: false,
-      loading: false
+      loading: false,
+      showPopup: null
     };
 
     // Binds button handler
@@ -76,16 +78,15 @@ class EditKennel extends Component {
       url: '/edit_kennel',
       data: form
     }).then(response => {
-      // alert("kennel updated");
       this.setState({ redirect: `/kennel-${this.props.location.state.kennel_name}` });
 
     }).catch(error => {
 
-      alert('failed kennel update');
-      this.setState({ loading: false });
-
+      this.setState({
+        loading: false,
+        showPopup: 'failed kennel update'
+      });
     });
-
   }
 
   render() {
@@ -101,7 +102,11 @@ class EditKennel extends Component {
       return (
         <Container>
           <Row className="align-items-center">
-
+            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+              <Toast.Header className="smallPopup">
+                <strong className="mx-auto">{this.state.showPopup}</strong>
+              </Toast.Header>
+            </Toast>
             <Col className="text-center">
               <Link to="/"><img src={corgiImage} /></Link>
               <div className="logInForm">
@@ -134,7 +139,6 @@ class EditKennel extends Component {
                 </Form>
               </div>
             </Col>
-
           </Row>
         </Container>
       )

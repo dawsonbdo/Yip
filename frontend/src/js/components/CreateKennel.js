@@ -92,14 +92,15 @@ class CreateKennel extends Component {
       url: '/create_kennel',
       data: form
     }).then(response => {
-      //alert("kennel created");
+
       this.setState({ redirect: `/kennel-${title}` });
 
     }).catch(error => {
 
-      //alert('Kennel with that name already exists.');
-      this.setState({ showPopup: true });
-      this.setState({ loading: false });
+      this.setState({
+        loading: false,
+        showPopup: true
+      });
 
     });
 

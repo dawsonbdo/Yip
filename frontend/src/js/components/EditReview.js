@@ -9,6 +9,7 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import Spinner from 'react-bootstrap/Spinner';
+import Toast from 'react-bootstrap/Toast';
 import axios from 'axios';
 import { createReviewJson } from './BackendHelpers.js';
 
@@ -26,8 +27,10 @@ class EditReview extends Component {
             redirect: null,
             validated: false,
             loading: false,
-            text: this.props.location.state.text.replace(/<br\s*[\/]?>/gi, "\n") // Replaces <br /> with \n for displaying
+            text: this.props.location.state.text.replace(/<br\s*[\/]?>/gi, "\n"), // Replaces <br /> with \n for displaying
+            showPopup: null
         };
+
         this.onDrop = this.onDrop.bind(this);
         this.updateReview = this.updateReview.bind(this);
         this.handleCheck = this.handleCheck.bind(this);
@@ -68,7 +71,9 @@ class EditReview extends Component {
             this.setState({ checkedTags: this.state.checkedTags });
 
         }).catch(error => {
-            alert('Kennel does not exist in database');
+
+            this.setState({ showPopup: 'Kennel does not exist in database' });
+
         });
     }
 
@@ -113,10 +118,8 @@ class EditReview extends Component {
         fd.append('review', JSON.stringify(form));
 
 
-        //alert(this.state.pictures.length);
         // Iterate through all pictures adding image/name to form
         for (var idx = 0; idx < this.state.pictures.length; idx++) {
-            //alert(this.state.pictures[idx].size);
             // Append current image/name
             if (this.state.pictures[idx].size == 1) {
                 fd.append('image', new File(["a"], "Empty", { type: 'image/jpg' }));
@@ -146,8 +149,9 @@ class EditReview extends Component {
         }).catch(error => {
 
             // Failed to create review
-            alert('Review edit failed');
-            this.setState({ loading: false });
+            this.setState({ loading: false,
+                showPopup: 'Review edit failed'
+            });
 
         });
 
@@ -188,6 +192,11 @@ class EditReview extends Component {
             return (
                 <Container>
                     <Row className="align-items-center">
+                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+                                <Toast.Header className="smallPopup">
+                                    <strong className="mx-auto">{this.state.showPopup}</strong>
+                                </Toast.Header>
+                            </Toast>
                         <Col className="text-center">
                             <Link to="/"><img src={corgiImage} /></Link>
                             <div className="logInForm">

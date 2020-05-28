@@ -47,7 +47,8 @@ class Kennel extends Component {
             moderator: "",
             loginPrompt: false,
             loginPromptAction: "",
-            isFiltered: false
+            isFiltered: false,
+            showPopup: null
         }
 
         this.handleSelect = this.handleSelect.bind(this);
@@ -58,7 +59,7 @@ class Kennel extends Component {
 
     handleSelect(eventKey) {
 
-        if(this.state.isFiltered == true){
+        if (this.state.isFiltered == true) {
             this.defaultReviewGet();
         }
 
@@ -113,14 +114,11 @@ class Kennel extends Component {
                 data: form
             }).then(response => {
 
-                // Successful follow
-                //alert('Kennel has been followed successfully');
-
 
             }).catch(error => {
 
                 // Error for failed follow
-                //alert('Failed to follow kennel');
+                this.setState({ showPopup: 'Failed to follow kennel' })
 
             });
         }
@@ -131,14 +129,10 @@ class Kennel extends Component {
                 data: form
             }).then(response => {
 
-                // Successful follow
-                //alert('Kennel has been unfollowed successfully');
-
-
             }).catch(error => {
 
                 // Error for failed follow
-                //alert('Failed to unfollow kennel');
+                this.setState({ showPopup: 'Failed to unfollow kennel' })
 
             });
 
@@ -167,7 +161,6 @@ class Kennel extends Component {
             url: reqUrl
         }).then(response => {
 
-            // alert('Kennel info successfully grabbed from database!');
             console.log(response.data);
 
             // Updates kennel name
@@ -227,7 +220,6 @@ class Kennel extends Component {
             this.setState({ rulesStringProp: response.data.rules });
             this.setState({ tagsString: tagsStr });
             this.setState({ mutedString: mutedStr });
-            //this.setState({ bannedString: bannedStr });
             this.setState({ kennelInfoListed: true });
             this.setState({ isModerator: response.data.is_moderator });
             this.setState({ description: response.data.description });
@@ -235,7 +227,7 @@ class Kennel extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('Kennel does not exist in database');
+            this.setState({ showPopup: 'Kennel does not exist in database' })
 
         });
 
@@ -263,7 +255,7 @@ class Kennel extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('Review Report error');
+            this.setState({ showPopup: 'Review Report error' });
 
         });
 
@@ -292,7 +284,7 @@ class Kennel extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('Comment Report error');
+            this.setState({ showPopup: 'Comment Report error' })
 
         });
     }
@@ -312,8 +304,8 @@ class Kennel extends Component {
         }).then(response => {
 
             //Clear current reviews
-            this.setState({reviewArray: []});
-            this.setState({kennelReviewsListed: false});
+            this.setState({ reviewArray: [] });
+            this.setState({ kennelReviewsListed: false });
 
             // Iterate through reviews
             for (var i = 0; i < response.data.length; i++) {
@@ -330,14 +322,14 @@ class Kennel extends Component {
                     timestamp: response.data[i].timestamp
                 });
             }
-            
+
             this.setState({ kennelReviewsListed: true });
             this.setState({ showReviews: true, showRules: false, showTags: false, showReviewReports: false, showCommentReports: false });
             this.setState({ isFiltered: true });
 
         }).catch(error => {
             // Review not found in database
-            alert('Kennel does not exist/No reviews in kennel');
+            this.setState({ showPopup: 'Kennel does not exist/No reviews in kennel' });
 
         });
     }
@@ -360,7 +352,7 @@ class Kennel extends Component {
             if (!this.kennelReviewsListed) {
 
                 //Clear current reviews
-                this.setState({reviewArray: []});
+                this.setState({ reviewArray: [] });
 
                 for (var i = 0; i < response.data.length; i++) {
 
@@ -385,11 +377,11 @@ class Kennel extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('Kennel does not exist/No reviews in kennel');
+            this.setState({ showPopup: 'Kennel does not exist/No reviews in kennel' })
 
         });
     }
-    
+
 
     render() {
         // Used to pass function into mapping function
@@ -454,6 +446,12 @@ class Kennel extends Component {
 
                 <Row className="align-items-center">
                     <Col className="text-center">
+
+                        <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+                            <Toast.Header className="smallPopup">
+                                <strong className="mx-auto">{this.state.showPopup}</strong>
+                            </Toast.Header>
+                        </Toast>
                         <Jumbotron id="jumbotron" className="text-left">
                             <Row>
                                 <Col xs={7}>

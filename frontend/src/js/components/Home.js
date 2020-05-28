@@ -11,6 +11,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Attributes from './Attributes';
 import { Link } from 'react-router-dom';
+import Toast from 'react-bootstrap/Toast';
 
 import KennelCard from './KennelCard';
 
@@ -27,7 +28,8 @@ class Home extends Component {
       reviewArray: [],
       reviewsListed: false,
       user: "",
-      kennelArray: []
+      kennelArray: [],
+      showPopup: null
     };
 
     this.resetAuthState = this.resetAuthState.bind(this);
@@ -85,7 +87,7 @@ class Home extends Component {
     }).catch(error => {
 
       // Review not found in database
-      alert('Failed to list reviews');
+      this.setState({ showPopup: 'Failed to list reviews' });
 
     });
 
@@ -128,8 +130,8 @@ class Home extends Component {
 
     }).catch(error => {
 
-      // Review not found in database
-      alert('Failed to list reviews');
+      // Kennel not found in database
+      this.setState({ showPopup: 'Failed to list top kennels' });
 
     });
   }
@@ -179,16 +181,21 @@ class Home extends Component {
       });
       homeContent = <div>
         <div class="homereviews">
-            <Jumbotron id="jumbotron" className="text-center">
-              <h1>{greeting}</h1>
-              <p>{homePageMessage}</p>
-              <p id="authstatus">
-              </p>
-            </Jumbotron>
-            {reviews}
-            <div className="text-center">
-              <Link to="/attributes">Credit attributed for use of icons found here.</Link>
-            </div>
+          <Jumbotron id="jumbotron" className="text-center">
+            <h1>{greeting}</h1>
+            <p>{homePageMessage}</p>
+            <p id="authstatus">
+            </p>
+          </Jumbotron>
+          <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+            <Toast.Header className="smallPopup">
+              <strong className="mx-auto">{this.state.showPopup}</strong>
+            </Toast.Header>
+          </Toast>
+          {reviews}
+          <div className="text-center">
+            <Link to="/attributes">Credit attributed for use of icons found here.</Link>
+          </div>
         </div>
         <div class="homepanel">
           <Jumbotron id="jumbotron" className="text-center">
