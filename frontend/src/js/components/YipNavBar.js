@@ -60,8 +60,16 @@ class YipNavBar extends Component {
     // Get user input from search bar
     var query = document.getElementById('searchBar').value;
 
-    // Ignore input that only contains whitespace and \ input
-    if (query.replace(/ /g, '') === "") {
+    // Ignores invalid characters
+    var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/);
+    if (pattern.test(query)){
+      alert("ONE OR MORE INVALID CHARACTERS (TODO: REPLACE WITH TOAST)");
+      return;
+    }
+
+    // Ignores whitespace
+    if ( query.trim().length === 0 ) {
+      alert('INPUT IS BLANK (TODO: REPLACE WITH TOAST)');
       return;
     }
 
@@ -87,8 +95,16 @@ class YipNavBar extends Component {
     // Get user input from search bar
     var query = document.getElementById('searchBar').value;
 
-    // Ignore input that only contains whitespace
-    if (query.replace(/ /g, '') === "") {
+    // Ignores invalid characters
+    var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/);
+    if (pattern.test(query)){
+      alert("ONE OR MORE INVALID CHARACTERS (TODO: REPLACE WITH TOAST)");
+      return;
+    }
+
+    // Ignores whitespace
+    if ( query.trim().length === 0 ) {
+      alert('INPUT IS BLANK (TODO: REPLACE WITH TOAST)');
       return;
     }
 
