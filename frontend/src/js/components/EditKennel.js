@@ -9,7 +9,7 @@ import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
 import Spinner from 'react-bootstrap/Spinner';
 import axios from 'axios';
-import { createKennelJson, editKennelJson } from './BackendHelpers.js';
+import { editKennelJson } from './BackendHelpers.js';
 
 class EditKennel extends Component {
 
