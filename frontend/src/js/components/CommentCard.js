@@ -10,10 +10,8 @@ import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png';
 import reportIcon from '../../assets/report.png';
 import trashIcon from '../../assets/trash.png';
-
 import { likeDislikeCommentJson, updateLoggedInState, isLoggedIn } from './BackendHelpers.js';
-
-import axios from 'axios'
+import axios from 'axios';
 
 class CommentCard extends Component {
     constructor(props) {

@@ -1,25 +1,17 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 import PropTypes from 'prop-types';
-
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
-
 import homeIcon from '../../assets/home.png';
 import likeIcon from '../../assets/like.png';
 import dislikeIcon from '../../assets/dislike.png';
-import commentIcon from '../../assets/comment.png';
 import Toast from 'react-bootstrap/Toast';
-
-import axios from 'axios'
-
-import TimeAgo from 'timeago-react'; // var TimeAgo = require('timeago-react');
-
-
+import axios from 'axios';
+import TimeAgo from 'timeago-react'; 
 import { likeDislikeReviewJson, isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
 
 class ReviewCard extends Component {

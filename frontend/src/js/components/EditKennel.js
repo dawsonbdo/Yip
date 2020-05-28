@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
@@ -9,9 +8,7 @@ import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
 import Spinner from 'react-bootstrap/Spinner';
-
-import axios from 'axios'
-
+import axios from 'axios';
 import { createKennelJson, editKennelJson } from './BackendHelpers.js';
 
 class EditKennel extends Component {
