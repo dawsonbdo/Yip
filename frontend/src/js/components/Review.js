@@ -51,7 +51,9 @@ class Review extends Component {
 			isModerator: false,
 			isReported: false,
 			loading: false,
+			confirmLoading: false,
 			loginPrompt: false,
+			deletePrompt: false,
 			action: "",
 			showPopup: false,
 			popupMsg: ""
@@ -61,6 +63,7 @@ class Review extends Component {
 		this.postComment = this.postComment.bind(this);
 		this.likeReview = this.likeReview.bind(this);
 		this.dislikeReview = this.dislikeReview.bind(this);
+		this.deleteConfirmation = this.deleteConfirmation.bind(this);
 		this.deleteReview = this.deleteReview.bind(this);
 		this.bookmarkReview = this.bookmarkReview.bind(this);
 		this.getURL = this.getURL.bind(this);
@@ -74,7 +77,7 @@ class Review extends Component {
 	 */
 	rerenderOnCommentDelete(index) {
 		this.state.commentArray.splice(index, 1);
-		this.setState({showPopup: true, popupMsg: "Comment successfully removed"});
+		this.setState({ showPopup: true, popupMsg: "Comment successfully removed" });
 	}
 
 	/**
@@ -144,8 +147,8 @@ class Review extends Component {
 				// Check that any images were returned cuz can be undefined
 				if (response.data.images != undefined) {
 					console.log("Review Images (in Review.js)" + response.data.images);
-					for(var i = 0; i < response.data.images.length; i++){
-						this.setState({reviewImgs: this.state.reviewImgs.concat(response.data.images[i])});
+					for (var i = 0; i < response.data.images.length; i++) {
+						this.setState({ reviewImgs: this.state.reviewImgs.concat(response.data.images[i]) });
 					}
 				}
 
@@ -161,7 +164,7 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Review not found in database
-			this.setState({showPopup: true, popupMsg: "Error loading review"});
+			this.setState({ showPopup: true, popupMsg: "Error loading review" });
 
 		});
 
@@ -197,7 +200,7 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Review comments not found in database
-			this.setState({showPopup: true, popupMsg: "Error loading review comments"});
+			this.setState({ showPopup: true, popupMsg: "Error loading review comments" });
 
 		});
 	}
@@ -241,7 +244,7 @@ class Review extends Component {
 
 
 		}).catch(error => {
-			this.setState({showPopup: true, popupMsg: "Failed to bookmark review"});
+			this.setState({ showPopup: true, popupMsg: "Failed to bookmark review" });
 
 			// Revert preemptive frontend update
 			this.setState({ isBookmarked: !this.state.isBookmarked });
@@ -294,7 +297,7 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Failed to dislike review
-			this.setState({showPopup: true, popupMsg: "Failed to dislike review"});
+			this.setState({ showPopup: true, popupMsg: "Failed to dislike review" });
 
 		});
 	}
@@ -344,12 +347,17 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Failed to like review
-			this.setState({showPopup: true, popupMsg: "Failed to like review"});
+			this.setState({ showPopup: true, popupMsg: "Failed to like review" });
 
 		});
 	}
 
+	deleteConfirmation() {
+		this.setState({ deletePrompt: true });
+	}
+
 	deleteReview() {
+		this.setState({confirmLoading: true});
 
 		// Get review's id
 		var reviewId = this.props.match.params.id;
@@ -367,14 +375,13 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			this.setState({showPopup: true, popupMsg: "Review successfully removed"});
 			// TODO: handle re-rendering page when returning back
 			this.props.history.goBack();
 
 
 		}).catch(error => {
 
-			this.setState({showPopup: true, popupMsg: "Failed to delete review"});
+			this.setState({ showPopup: true, popupMsg: "Failed to delete review", confirmLoading: false });
 
 		});
 
@@ -432,7 +439,7 @@ class Review extends Component {
 			// Clears text field after successful post
 			document.getElementById('commentForm').reset();
 
-			this.setState({showPopup: true, popupMsg: "Comment successfully posted"});
+			this.setState({ showPopup: true, popupMsg: "Comment successfully posted" });
 
 			// Update state to cause rerender
 			this.setState({ commentArray: comments, loading: false });
@@ -440,7 +447,7 @@ class Review extends Component {
 		}).catch(error => {
 
 			// Failed to post comment
-			this.setState({showPopup: true, popupMsg: "Comment failed"});
+			this.setState({ showPopup: true, popupMsg: "Comment failed" });
 			this.setState({ loading: false });
 
 		});
@@ -454,13 +461,17 @@ class Review extends Component {
 		url.select();
 		document.execCommand('copy');
 		url.remove();
-		this.setState({showPopup: true, popupMsg: "Copied URL to clipboard"});
+		this.setState({ showPopup: true, popupMsg: "Copied URL to clipboard" });
 	}
 
 	render() {
 		let loading = <div></div>;
 		if (this.state.loading) {
 			loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+		}
+		let confirmLoading = <div></div>;
+		if (this.state.confirmLoading) {
+			confirmLoading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
 		}
 
 		// Gets the comments in their comment cards
@@ -512,7 +523,7 @@ class Review extends Component {
 		}
 
 		// Loads all images into a variable to display 
-		let images = this.state.reviewImgs.map(function (image){
+		let images = this.state.reviewImgs.map(function (image) {
 			return <Image id="img" className="reviewImgs" src={image} />
 		});
 
@@ -545,6 +556,23 @@ class Review extends Component {
 						</Toast.Header>
 					</Toast>
 
+					<Toast style={{
+						position: 'fixed',
+						top: '50%',
+						zIndex: 1,
+						left: '50%',
+						transform: 'translate(-50%, -50%)',
+						maxWidth: '1000'
+					}} className="mx-auto logInEntry" onClose={() => this.setState({ deletePrompt: false })} show={this.state.deletePrompt}>
+						<Toast.Header style={{ textAlign: 'center' }} className="logInLabel">
+							<h3 className="mx-auto largePopup">Are you sure you want to delete your review?</h3>
+						</Toast.Header>
+						<Toast.Body style={{ textAlign: 'center' }}>
+							<h6>This action can't be undone!</h6>
+							<Button className="logInEntry" onClick={this.deleteReview} variant="primary"><div>Confirm{confirmLoading}</div></Button>
+						</Toast.Body>
+					</Toast>
+
 					<Jumbotron id="jumbotron">
 						<Row>
 							<Col className="text-left">
@@ -556,7 +584,7 @@ class Review extends Component {
 
 								{/*If isAuthor of isModerator then render the deleteReview button*/}
 								{(this.state.isAuthor || this.state.isModerator) &&
-									<Image onClick={this.deleteReview} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
+									<Image onClick={this.deleteConfirmation} style={{ cursor: 'pointer' }} className="likePadding float-right" src={trashIcon} />
 								}
 								{/*If isAuthor then render the editReview button*/}
 								{this.state.isAuthor &&
