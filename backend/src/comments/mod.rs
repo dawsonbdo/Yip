@@ -318,8 +318,17 @@ fn create_comment(comment: Json<InputComment>, name: String, connection: DbConn)
 
 			//println!("USER: {} KENNEL: {}", user_uuid, kennel_id);
 
+			// Check that user not blocked by review author
+			let review_uuid = comment.review_uuid;
+			let review_author = super::reviews::handlers::get(review_uuid, &connection).unwrap().author;
+			let author_uuid = super::users::handlers::get_uuid_from_username(&review_author, &connection);
+			match super::users::handlers::get_block_relationship(author_uuid, user_uuid, &connection){
+				Ok(u) => if u == 1 {return Err(status::Conflict(Some("User is blocked by review author".to_string())))} else {()},
+				Err(e) => return Err(status::Conflict(Some(e.to_string()))),
+			};
+
 			match super::kennels::handlers::get_relationship_ban(kennel_id, user_uuid, &connection){
-				Ok(rel) => if rel == 1 {return Err(status::Conflict(Some("User is banned from kennel".to_string())));} else {()},
+				Ok(rel) => if rel == 1 {return Err(status::Conflict(Some("User is banned from kennel".to_string())))} else {()},
 				Err(e) => return Err(status::Conflict(Some(e.to_string()))),
 			};
 
