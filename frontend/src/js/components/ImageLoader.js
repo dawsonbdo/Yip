@@ -22,7 +22,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FlipMove from 'react-flip-move';
 import UploadIcon from '../../assets/UploadIcon.svg';
-import axios from 'axios'
 
 const styles = {
   display: "flex",
