@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
@@ -11,9 +10,7 @@ import { Redirect } from 'react-router-dom';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Toast from 'react-bootstrap/Toast';
-
-import axios from 'axios'
-
+import axios from 'axios';
 import { reportJson } from './BackendHelpers.js';
 
 class Profile extends Component {
@@ -43,7 +40,7 @@ class Profile extends Component {
         //     this.setState(() => ({ kennel }))
         //   })
         let msg;
-        if ( reviewState.is_comment ){
+        if (reviewState.is_comment) {
             msg = "Comment already reported!";
         } else {
             msg = "Review already reported!";

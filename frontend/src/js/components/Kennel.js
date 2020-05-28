@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-
-import Form from 'react-bootstrap/Form';
 import ReviewCard from './ReviewCard';
 import Message from './Message';
 import YipNavBar from './YipNavBar';
@@ -15,12 +12,9 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 import LoadingIcon from '../../assets/loadingIcon.gif';
 import TagCard from './TagCard';
 import RuleCard from './RuleCard';
-import { Redirect } from 'react-router-dom';
 import Nav from 'react-bootstrap/Nav';
 import Toast from 'react-bootstrap/Toast';
-
-import axios from 'axios'
-
+import axios from 'axios';
 import { followKennelJson, updateLoggedInState, isLoggedIn } from './BackendHelpers.js';
 
 class Kennel extends Component {
@@ -340,7 +334,7 @@ class Kennel extends Component {
         // Renders content for Reviews and Tags tabs
         const reviews = this.state.reviewArray.map(function (review) {
             return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
-                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp}/>
+                kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp} />
         });
         const tags = this.state.tagsArray.map(function (tag) {
             return <TagCard tag={tag} />

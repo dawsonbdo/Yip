@@ -121,17 +121,14 @@ fn tf_idf(reviews: Vec<DbReview>, query_words: Vec<&str>, _connection: &PgConnec
     		let (val, idx) = a;
     		searched_reviews.push(reviews::handlers::to_review(&reviews[idx]));
 
-    		println!("Review {}: {}", idx, val);
+    		//println!("Review {}: {}", idx, val);
     	} else {
     		break;
     	}
     	
     }
 
-    //jaro_dist("martha", "marhta");
-
     searched_reviews
-
 }
 
 /**
@@ -182,8 +179,8 @@ fn calc_tf_review(term: &str, review: &DbReview) -> f32{
         j_dist += jaro_dist(&t, term, 0.85);
 	}
 
-    println!("Jaro Score ({}): {}", term, j_dist);
-    println!("TF: {}", (term_count as f32) / (total_words as f32));
+    //println!("Jaro Score ({}): {}", term, j_dist);
+    //println!("TF: {}", (term_count as f32) / (total_words as f32));
 
 	//println!("Term Count: {} Total Words: {}", term_count, total_words);
     j_dist + (term_count as f32) / (total_words as f32)
@@ -199,8 +196,6 @@ fn calc_tf_review(term: &str, review: &DbReview) -> f32{
  * @return returns value
  */
 pub fn jaro_dist(str1: &str, str2: &str, margin: f32) -> f32 {
-
-    //println!("WTF");
 
     let s1 : Vec<char> = str1.to_string().chars().collect();
     let s2 : Vec<char> = str2.to_string().chars().collect();
@@ -237,7 +232,6 @@ pub fn jaro_dist(str1: &str, str2: &str, margin: f32) -> f32 {
 
     //println!("VALS: {} {} {} {}", m, t, s1.len(), s2.len());
 
-
     t = t/2.0;
 
     let d = (1 as f32/3 as f32) * ((m / s1.len() as f32 ) + (m / s2.len() as f32) + ((m-t) / m as f32));
@@ -252,10 +246,6 @@ pub fn jaro_dist(str1: &str, str2: &str, margin: f32) -> f32 {
         0.0
     }
     //println!("VALS: {} {} {} {}", m, t, s1.len(), s2.len());
-
-    
-
-  
 }
 
 /**
@@ -348,7 +338,7 @@ fn kennel_similarity(kennels: Vec<DbKennel>, query_words: Vec<&str>, connection:
             let (val, idx) = a;
             searched_kennels.push(kennels::handlers::to_display_kennel(&kennels[idx], "".to_string(), connection));
 
-            println!("Kennel {}: {}", idx, val);
+            //println!("Kennel {}: {}", idx, val);
         } else {
             break;
         }
@@ -410,7 +400,7 @@ fn calc_tf_kennel(term: &str, kennel: &DbKennel) -> f32{
         j_dist += jaro_dist(term, t, 0.8);
     }
 
-    println!("Term Count: {} Total Words: {}", term_count, total_words);
+    //println!("Term Count: {} Total Words: {}", term_count, total_words);
 
     // Return tf value
     j_dist + ((term_count as f32) / (total_words as f32))

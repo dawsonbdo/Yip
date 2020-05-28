@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 class InputTag extends React.Component {
   constructor() {
     super();
-    
+
     this.state = {
       tags: []
     };
@@ -11,9 +11,9 @@ class InputTag extends React.Component {
     this.removeTag = this.removeTag.bind(this);
     this.inputKeyDown = this.inputKeyDown.bind(this);
   }
-  
+
   removeTag(i) {
-    const newTags = [ ...this.state.tags ];
+    const newTags = [...this.state.tags];
     newTags.splice(i, 1);
     this.setState({ tags: newTags });
     this.props.onTagChange(newTags);
@@ -25,7 +25,7 @@ class InputTag extends React.Component {
       if (this.state.tags.find(tag => tag.toLowerCase() === val.toLowerCase())) {
         return;
       }
-      this.setState({ tags: [...this.state.tags, val]});
+      this.setState({ tags: [...this.state.tags, val] });
       this.props.onTagChange([...this.state.tags, val]);
 
       this.tagInput.value = null;
@@ -40,7 +40,7 @@ class InputTag extends React.Component {
     return (
       <div className="logInEntry">
         <ul className="input-tag__tags">
-          { tags.map((tag, i) => (
+          {tags.map((tag, i) => (
             <li className="logInEntry" key={tag}>
               {tag}
               <button type="button" onClick={() => { this.removeTag(i); }}>+</button>

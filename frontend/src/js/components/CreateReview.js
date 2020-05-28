@@ -1,24 +1,16 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
-//import ImageUploader from 'react-images-upload';
 import ImageLoader from './ImageLoader';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import corgiImage from '../../assets/corgi_shadow.png';
-import likeIcon from '../../assets/like.png';
-import dislikeIcon from '../../assets/dislike.png'
-import YipNavBar from "./YipNavBar";
 import Spinner from 'react-bootstrap/Spinner';
-
-import axios from 'axios'
-
-import { createUserJson, createReviewJson } from './BackendHelpers.js';
+import axios from 'axios';
+import { createReviewJson } from './BackendHelpers.js';
 
 class CreateReview extends Component {
 
@@ -80,7 +72,7 @@ class CreateReview extends Component {
       return;
     }
 
-    this.setState({loading: true});
+    this.setState({ loading: true });
 
     // TODO: Get UTC time or something standard instead of just local time
 
@@ -106,8 +98,8 @@ class CreateReview extends Component {
       console.log("Create Name " + this.state.pictures[idx].name);
     }
 
-    for(var i = 0; i < this.state.checkedTags.length; i++) {
-      if(this.state.checkedTags[i]) {
+    for (var i = 0; i < this.state.checkedTags.length; i++) {
+      if (this.state.checkedTags[i]) {
         fd.append('tag', this.state.tags[i]);
       }
     }
@@ -134,7 +126,7 @@ class CreateReview extends Component {
 
       // Failed to create review
       alert('Review creation failed');
-      this.setState({loading: false});
+      this.setState({ loading: false });
 
     });
 
@@ -143,13 +135,13 @@ class CreateReview extends Component {
 
   render() {
     let loading = <div></div>;
-        if(this.state.loading) {
-            loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
-        }
+    if (this.state.loading) {
+      loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+    }
 
     let selectTagsTitle;
-    if(this.state.tags.length > 0) {
-      selectTagsTitle = <h4 style={{paddingTop: '20'}}>Select Tags</h4>;
+    if (this.state.tags.length > 0) {
+      selectTagsTitle = <h4 style={{ paddingTop: '20' }}>Select Tags</h4>;
     }
 
     let tagCheckboxes = this.state.tags.map((tag, index) => (

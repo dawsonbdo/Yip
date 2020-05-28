@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
@@ -10,10 +9,7 @@ import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
 import Toast from 'react-bootstrap/Toast';
 import Spinner from 'react-bootstrap/Spinner';
-
-
-import axios from 'axios'
-
+import axios from 'axios';
 import { createUserJson } from './BackendHelpers.js';
 
 class Login extends Component {
@@ -70,18 +66,18 @@ class Login extends Component {
 
       // Redirect to home after successful login
       this.setState({ redirect: "/" });
-      
+
 
     }).catch(error => {
 
       // Error for failed login
-      this.setState({ failedLogin: true, showPopup: true, loading: false});
+      this.setState({ failedLogin: true, showPopup: true, loading: false });
     });
   }
 
   render() {
     let loading = <div></div>;
-    if(this.state.loading) {
+    if (this.state.loading) {
       loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
     }
 
@@ -96,11 +92,11 @@ class Login extends Component {
             <Col className="text-center">
               <Link to="/"><img src={corgiImage} /></Link>
 
-              <Toast className="mx-auto smallPopup" onClose={() => this.setState({showPopup: false})} show={this.state.showPopup} autohide>
-					        <Toast.Header className="smallPopup">
-						        <strong className="mx-auto">Username or Password incorrect!</strong>
-					        </Toast.Header>
-				      </Toast>
+              <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
+                <Toast.Header className="smallPopup">
+                  <strong className="mx-auto">Username or Password incorrect!</strong>
+                </Toast.Header>
+              </Toast>
 
               <div className="logInForm">
                 <h1 className="logInLabel">Log In</h1>

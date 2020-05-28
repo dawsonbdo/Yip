@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
@@ -9,10 +8,8 @@ import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
 import Spinner from 'react-bootstrap/Spinner';
-
-import axios from 'axios'
-
-import { createKennelJson, editKennelJson } from './BackendHelpers.js';
+import axios from 'axios';
+import { editKennelJson } from './BackendHelpers.js';
 
 class EditKennel extends Component {
 
@@ -38,7 +35,7 @@ class EditKennel extends Component {
     event.preventDefault();
     event.stopPropagation();
 
-    this.setState({loading: true});
+    this.setState({ loading: true });
 
     var token = localStorage.getItem('jwtToken');
 
@@ -85,7 +82,7 @@ class EditKennel extends Component {
     }).catch(error => {
 
       alert('failed kennel update');
-      this.setState({loading: false});
+      this.setState({ loading: false });
 
     });
 

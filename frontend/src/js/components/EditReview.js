@@ -7,17 +7,10 @@ import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import corgiImage from '../../assets/corgi_shadow.png';
-import likeIcon from '../../assets/like.png';
-import dislikeIcon from '../../assets/dislike.png'
-import YipNavBar from "./YipNavBar";
 import Spinner from 'react-bootstrap/Spinner';
-
-import axios from 'axios'
-
-import { createUserJson, createReviewJson } from './BackendHelpers.js';
+import axios from 'axios';
+import { createReviewJson } from './BackendHelpers.js';
 
 class EditReview extends Component {
 
@@ -103,7 +96,7 @@ class EditReview extends Component {
             return;
         }
 
-        this.setState({loading: true});
+        this.setState({ loading: true });
 
         // TODO: Get UTC time or something standard instead of just local time
 
@@ -122,16 +115,16 @@ class EditReview extends Component {
 
         //alert(this.state.pictures.length);
         // Iterate through all pictures adding image/name to form
-        for (var idx = 0; idx < this.state.pictures.length; idx++) { 
+        for (var idx = 0; idx < this.state.pictures.length; idx++) {
             //alert(this.state.pictures[idx].size);
-          // Append current image/name
-          if(this.state.pictures[idx].size == 1){
-             fd.append('image', new File(["a"], "Empty", {type: 'image/jpg'}));
-             fd.append('name', this.state.pictures[idx].name.substring(47));
-          } else {
-            fd.append('image', this.state.pictures[idx]);
-            fd.append('name', this.state.pictures[idx].name);
-          }
+            // Append current image/name
+            if (this.state.pictures[idx].size == 1) {
+                fd.append('image', new File(["a"], "Empty", { type: 'image/jpg' }));
+                fd.append('name', this.state.pictures[idx].name.substring(47));
+            } else {
+                fd.append('image', this.state.pictures[idx]);
+                fd.append('name', this.state.pictures[idx].name);
+            }
         }
 
         for (var i = 0; i < this.state.checkedTags.length; i++) {
@@ -154,7 +147,7 @@ class EditReview extends Component {
 
             // Failed to create review
             alert('Review edit failed');
-            this.setState({loading: false});
+            this.setState({ loading: false });
 
         });
 
@@ -170,7 +163,7 @@ class EditReview extends Component {
 
         let selectTagsTitle;
         if (this.state.tags.length > 0) {
-            selectTagsTitle = <h4 style={{paddingTop: '20'}}>Select Tags</h4>;
+            selectTagsTitle = <h4 style={{ paddingTop: '20' }}>Select Tags</h4>;
         }
 
         let tagCheckboxes = this.state.tags.map((tag, index) => (

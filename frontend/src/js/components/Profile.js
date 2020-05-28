@@ -16,9 +16,7 @@ import corgiImage from '../../assets/corgi_shadow.png';
 import KennelCard from './KennelCard';
 import corgiPFP from '../../assets/corgi_pfp.png';
 import Toast from 'react-bootstrap/Toast';
-
-import axios from 'axios'
-
+import axios from 'axios';
 import { updateLoggedInState, isLoggedIn, followUserJson } from './BackendHelpers.js';
 
 class Profile extends Component {
@@ -150,7 +148,7 @@ class Profile extends Component {
 
         var form = followUserJson(username, token);
 
-        if (!this.state.isBlocking){
+        if (!this.state.isBlocking) {
             // Send POST request with user name to block
             axios({
                 method: 'post',
@@ -183,7 +181,7 @@ class Profile extends Component {
 
             });
         }
-        
+
     }
 
     onDrop(picture) {

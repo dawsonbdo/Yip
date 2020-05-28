@@ -114,12 +114,6 @@ fn update_display_review_fields(profile_username: &str, uuid: Uuid, reviews: Vec
 			None => false,
 		};
 
-		/*match handlers::get_relationship_bookmark(r.review_uuid, uuid, connection){
-				Ok(u) => u != 0,
-				Err(_e) => false,
-			};
-		*/
-
 		reviews_updated.push(r);
 	}
 

@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
-
 import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
@@ -12,14 +9,7 @@ import FormGroup from 'react-bootstrap/FormGroup';
 import corgiImage from '../../assets/corgi_shadow.png';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
-import { useHistory } from "react-router-dom";
 import axios from 'axios'
-
-// import Sidebar from './Sidebar';
-// import Container from 'react-bootstrap/Container';
-// import Col from 'react-bootstrap/Col';
-// import Row from 'react-bootstrap/Row';
-
 import { isLoggedIn, updateLoggedInState, updateLoggedInUser } from './BackendHelpers.js';
 
 class YipNavBar extends Component {
@@ -48,7 +38,7 @@ class YipNavBar extends Component {
     localStorage.removeItem('jwtToken');
     updateLoggedInState(this);
 
-    if(this.props.fromHomePage) {
+    if (this.props.fromHomePage) {
       this.props.resetAuthHomePage();
     }
   }
@@ -86,8 +76,8 @@ class YipNavBar extends Component {
 
   // Replace escape chars
   stringEscape(s) {
-    return s ? s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/\t/g,'\\t').replace(/\v/g,'\\v').replace(/'/g,"\\'").replace(/"/g,'\\"').replace(/[\x00-\x1F\x80-\x9F]/g,hex) : s;
-    function hex(c) { var v = '0'+c.charCodeAt(0).toString(16); return '\\x'+v.substr(v.length-2); }
+    return s ? s.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\v/g, '\\v').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/[\x00-\x1F\x80-\x9F]/g, hex) : s;
+    function hex(c) { var v = '0' + c.charCodeAt(0).toString(16); return '\\x' + v.substr(v.length - 2); }
   }
 
   handleSubmit(event) {
@@ -127,43 +117,43 @@ class YipNavBar extends Component {
       //alert('Failed to get kennels');
     });
 
-   
+
 
   }
 
-  componentDidUpdate(){
-    if ( this.state.user != "" && !this.state.loadedUser ){
-      this.setState({loadedUser:true});
-       axios({
-      
-      method: 'get',
-      url: '/get_created_kennels/' + this.state.user,
+  componentDidUpdate() {
+    if (this.state.user != "" && !this.state.loadedUser) {
+      this.setState({ loadedUser: true });
+      axios({
+
+        method: 'get',
+        url: '/get_created_kennels/' + this.state.user,
       }).then(response => {
 
-      // alert('Users created kennels successfully grabbed from database!');
+        // alert('Users created kennels successfully grabbed from database!');
 
-      console.log("CREATED KENNELS");
+        console.log("CREATED KENNELS");
 
-      // Store created kennels in createdKennelArray
-      for (var i = 0; i < response.data.length; i++) {
+        // Store created kennels in createdKennelArray
+        for (var i = 0; i < response.data.length; i++) {
 
-        // Print kennels to console for now
-        console.log(response.data[i]);
+          // Print kennels to console for now
+          console.log(response.data[i]);
 
-        // Add kennel info to array for rendering kennel cards
-        this.state.createdKennelsArray.push(response.data[i].kennel_name);
-      }
+          // Add kennel info to array for rendering kennel cards
+          this.state.createdKennelsArray.push(response.data[i].kennel_name);
+        }
 
-      this.setState({ createdKennelsLoaded: true });
+        this.setState({ createdKennelsLoaded: true });
 
-    }).catch(error => {
+      }).catch(error => {
 
-      // Review not found in database
-      //alert('User has no created kennels');
+        // Review not found in database
+        //alert('User has no created kennels');
 
-    });
+      });
     }
-   
+
   }
 
   render() {
@@ -179,7 +169,6 @@ class YipNavBar extends Component {
         <DropdownButton id="dropdown-item-button" title={this.state.user} className="mr-2 float-left" variant="light">
           <Dropdown.Item href={`/user-${this.state.user}`}>View Profile</Dropdown.Item>
           <Dropdown.Item href="/createkennel">Create Kennel</Dropdown.Item>
-          <Dropdown.Item href="/inbox">Inbox</Dropdown.Item>
         </DropdownButton>
         <DropdownButton id="dropdown-item-button" title="Kennels" className="mr-2 float-left" variant="light">
           <Dropdown.Header>Followed</Dropdown.Header>
