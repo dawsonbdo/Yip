@@ -28,7 +28,8 @@ class Home extends Component {
       reviewArray: [],
       reviewsListed: false,
       user: "",
-      kennelArray: [],
+      kennelArrayTop: [],
+      kennelArrayNew: [],
       showPopup: null
     };
 
@@ -93,7 +94,6 @@ class Home extends Component {
 
 
     // Load top 5 kennels
-    // Load reviews
     axios({
       method: 'get',
       url: '/get_top_kennels'
@@ -125,7 +125,50 @@ class Home extends Component {
       }
 
       // Used for loading logic
-      this.setState({ kennelArray: kennelArray });
+      this.setState({ kennelArrayTop: kennelArray });
+
+
+    }).catch(error => {
+
+      // Kennel not found in database
+      this.setState({ showPopup: 'Failed to list top kennels' });
+
+    });
+
+
+    // Load newest 5 kennels
+    axios({
+      method: 'get',
+      url: '/get_new_kennels'
+    }).then(response => {
+
+      let kennelArray = []
+
+      for (var i = 0; i < response.data.length; i++) {
+
+        var tagsStr = "";
+        // Make sure there are tags in the kennel to avoid error
+        if (response.data[i].tags != null) {
+          if (response.data[i].tags.length > 0) {
+            tagsStr = tagsStr + response.data[i].tags[0];
+          }
+          for (var j = 1; j < response.data[i].tags.length; j++) {
+            tagsStr = tagsStr + ", " + response.data[i].tags[j];
+          }
+        } else {
+          tagsStr = "None" // No tags, TODO: indicate it idk lol
+        }
+
+        kennelArray.push({
+          kennelName: response.data[i].kennel_name,
+          kennelRules: response.data[i].rules,
+          kennelTags: tagsStr,
+          followerCount: response.data[i].follower_count
+        });
+      }
+
+      // Used for loading logic
+      this.setState({ kennelArrayNew: kennelArray });
 
 
     }).catch(error => {
@@ -154,9 +197,14 @@ class Home extends Component {
             return <KennelCard kennelName={kennel.kennelName} kennelRules={kennel.kennelRules} kennelTags={kennel.kennelTags} followerCount={kennel.followerCount} />
         });
       */
-    let kennels = this.state.kennelArray.map(function (kennel) {
+    let kennelsTop = this.state.kennelArrayTop.map(function (kennel) {
       return <li><Link to={`/kennel-${kennel.kennelName}`}>{kennel.kennelName}</Link></li>
     });
+
+    let kennelsNew = this.state.kennelArrayNew.map(function (kennel) {
+      return <li><Link to={`/kennel-${kennel.kennelName}`}>{kennel.kennelName}</Link></li>
+    });
+
 
     /* PREVIOUS HOME PAGE -----------------------------------
      
@@ -202,11 +250,14 @@ class Home extends Component {
             <h1> Top Kennels </h1>
           </Jumbotron>
           <ul>
-            {kennels}
+            {kennelsTop}
           </ul>
           <Jumbotron id="jumbotron" className="text-center">
             <h1> New Kennels </h1>
           </Jumbotron>
+          <ul>
+            {kennelsNew}
+          </ul>
         </div>
       </div>;
 

@@ -69,6 +69,7 @@ table! {
         rules -> Nullable<Varchar>,
         mod_uuid -> Uuid,
         description -> Varchar,
+        timestamp -> Timestamp,
     }
 }
 

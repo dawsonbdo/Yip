@@ -6,7 +6,37 @@ use crate::schema::kennel_follow_relationships;
 use crate::schema::kennel_bans;
 use crate::auth;
 use rocket::response::status;
+use chrono::NaiveDateTime;
 
+/**
+ * Converts a Kennel to an InsertKennel by calling functions on passed in values
+ * @param kennel: the Kennel object
+ * @param connection: the database connection
+ *
+ * @return returns InsertKennel object
+ */
+fn from_kennel_ins(kennel: Kennel, connection: &PgConnection) -> InsertKennel {
+    let uuid = get_kennel_uuid_from_name(kennel.kennel_name.clone(), connection);
+    let mod_id = get_kennel_mod_uuid_from_name(kennel.kennel_name.clone(), connection);
+
+    InsertKennel{
+        kennel_uuid: if uuid.is_nil() {Uuid::new_v4()} else {uuid}, // generate random uuid for kennel
+        kennel_name: kennel.kennel_name,
+        tags: if kennel.tags.iter().len() == 0 {None} else {Some(kennel.tags)},
+        follower_count: get_follower_count(uuid, connection),
+        muted_words: match kennel.muted_words{
+            Some(words) => Some(words),
+            None => {
+                println!("NONE");
+                None},
+        },
+        rules: if kennel.rules.eq("") {None} else {Some(kennel.rules.clone())},
+        mod_uuid: if mod_id.is_nil() {auth::get_uuid_from_token(&kennel.token)} else {mod_id},
+        description: kennel.description,
+    } 
+    
+    
+}
 
 /**
  * Converts a Kennel to an DbKennel by calling functions on passed in values
@@ -21,7 +51,7 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
 
     DbKennel{
         kennel_uuid: if uuid.is_nil() {Uuid::new_v4()} else {uuid}, // generate random uuid for kennel
-        kennel_name: kennel.kennel_name,
+        kennel_name: kennel.kennel_name.clone(),
         tags: if kennel.tags.iter().len() == 0 {None} else {Some(kennel.tags)},
         follower_count: get_follower_count(uuid, connection),
         muted_words: match kennel.muted_words{
@@ -33,7 +63,9 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
         rules: if kennel.rules.eq("") {None} else {Some(kennel.rules.clone())},
         mod_uuid: if mod_id.is_nil() {auth::get_uuid_from_token(&kennel.token)} else {mod_id},
         description: kennel.description,
+        timestamp: get_kennel_timestamp_from_name(kennel.kennel_name.clone(), connection).unwrap(),
     }
+    
 }
 
 /**
@@ -154,11 +186,26 @@ pub fn get_relationship(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgCo
 }
 
 /**
+ * Method that returns top five kennels by newness
+ * @param id: uuid of user
+ * @param connection: database connection
+ *
+ * @return returns vector of top 5 newest DbKennels
+ */
+pub fn new_five_kennels(connection: &PgConnection) -> QueryResult<Vec<DbKennel>> {
+
+    kennels::table
+             .order(kennels::columns::timestamp.desc())
+             .limit(5)
+             .load::<DbKennel>(&*connection)
+}
+
+/**
  * Method that returns top five kennels by follower count
  * @param id: uuid of user
  * @param connection: database connection
  *
- * @return returns vector of all DbKennels
+ * @return returns vector of top 5 most followed DbKennels
  */
 pub fn top_five_kennels(connection: &PgConnection) -> QueryResult<Vec<DbKennel>> {
 
@@ -262,6 +309,23 @@ pub fn get_kennel_uuid_from_name(kennel_name: String, connection: &PgConnection)
     match kennels::table.filter(kennels::kennel_name.eq(kennel_name)).get_result::<DbKennel>(&*connection) {
         Ok(k) => k.kennel_uuid,
         Err(_e) => Uuid::nil()
+    }
+
+}
+
+/**
+ * Method that returns timetsamp of a kennel given the name
+ * @param kennel_name: name of kennel
+ * @param connection: database connection
+ *
+ * @return returns timestamp if found
+ */
+pub fn get_kennel_timestamp_from_name(kennel_name: String, connection: &PgConnection) -> QueryResult<NaiveDateTime> {
+
+    // Searches kennel table for the uuid and gets the kennel
+    match kennels::table.filter(kennels::kennel_name.eq(kennel_name)).get_result::<DbKennel>(&*connection) {
+        Ok(k) => Ok(k.timestamp),
+        Err(e) => Err(e)
     }
 
 }
@@ -419,7 +483,7 @@ pub fn insert(kennel: Kennel, connection: &PgConnection) -> Result<Uuid, String>
 
     // Inserts kennel into database, returns uuid generated
     match diesel::insert_into(kennels::table)
-        .values(from_kennel(kennel, connection))
+        .values(from_kennel_ins(kennel, connection))
         .get_result::<DbKennel>(connection) {
             Ok(u) => Ok(u.kennel_uuid),
             Err(e) => Err(e.to_string()),
@@ -505,6 +569,21 @@ pub struct Kennel {
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
 #[changeset_options(treat_none_as_null="true")]
 #[table_name = "kennels"]
+pub struct InsertKennel {
+    pub kennel_uuid: Uuid,
+    pub tags: Option<Vec<String>>,
+    pub kennel_name: String,
+    pub follower_count: i32,
+    pub muted_words: Option<Vec<String>>,
+    pub rules: Option<String>,
+    pub mod_uuid: Uuid,
+    pub description: String,
+}
+
+// Struct represneting the fields of a kennel that is inserted into database
+#[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
+#[changeset_options(treat_none_as_null="true")]
+#[table_name = "kennels"]
 pub struct DbKennel {
     pub kennel_uuid: Uuid,
     pub tags: Option<Vec<String>>,
@@ -514,6 +593,7 @@ pub struct DbKennel {
     pub rules: Option<String>,
     pub mod_uuid: Uuid,
     pub description: String,
+    pub timestamp: NaiveDateTime,
 }
 
 // Struct represneting the fields of a kennel that is returned to frontend

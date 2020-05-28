@@ -23,7 +23,7 @@ class CreateKennel extends Component {
       validated: false,
       showPopup: false,
       loading: false,
-      tags: "wat"
+      tags: []
     };
 
     // Binds button handler
