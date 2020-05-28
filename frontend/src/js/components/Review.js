@@ -375,7 +375,6 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			this.setState({ showPopup: true, popupMsg: "Review successfully removed" });
 			// TODO: handle re-rendering page when returning back
 			this.props.history.goBack();
 
