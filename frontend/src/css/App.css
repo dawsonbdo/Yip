@@ -198,6 +198,10 @@ body {
     overflow-x: hidden;
 }
 
+.reviewTimeStamp {
+   padding-left: 25px;
+}
+
 .kennelBtns {
   padding-top: 22px;
 }
