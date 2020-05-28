@@ -9,6 +9,7 @@ import FormGroup from 'react-bootstrap/FormGroup';
 import corgiImage from '../../assets/corgi_shadow.png';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import Toast from 'react-bootstrap/Toast';
 import axios from 'axios'
 import { isLoggedIn, updateLoggedInState, updateLoggedInUser } from './BackendHelpers.js';
 
@@ -26,6 +27,7 @@ class YipNavBar extends Component {
       followedKennelsLoaded: false,
       createdKennelsLoaded: false,
       loadedUser: false,
+      showPopup: null
     };
 
     this.logout = this.logout.bind(this);
@@ -62,14 +64,15 @@ class YipNavBar extends Component {
 
     // Ignores invalid characters
     var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/);
-    if (pattern.test(query)){
-      alert("ONE OR MORE INVALID CHARACTERS (TODO: REPLACE WITH TOAST)");
+    if (pattern.test(query)) {
+      this.setState({ showPopup: 'ONE OR MORE INVALID CHARACTERS' });
       return;
     }
 
     // Ignores whitespace
-    if ( query.trim().length === 0 ) {
-      alert('INPUT IS BLANK (TODO: REPLACE WITH TOAST)');
+    if (query.trim().length === 0) {
+      this.setState({ showPopup: 'INPUT IS BLANK' });
+      //alert('anjfafaofiaiofao');
       return;
     }
 
@@ -97,14 +100,14 @@ class YipNavBar extends Component {
 
     // Ignores invalid characters
     var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/);
-    if (pattern.test(query)){
-      alert("ONE OR MORE INVALID CHARACTERS (TODO: REPLACE WITH TOAST)");
+    if (pattern.test(query)) {
+      this.setState({ showPopup: 'ONE OR MORE INVALID CHARACTERS' });
       return;
     }
 
     // Ignores whitespace
-    if ( query.trim().length === 0 ) {
-      alert('INPUT IS BLANK (TODO: REPLACE WITH TOAST)');
+    if (query.trim().length === 0) {
+      this.setState({ showPopup: 'INPUT IS BLANK' });
       return;
     }
 
@@ -132,9 +135,6 @@ class YipNavBar extends Component {
     }).catch(error => {
       //alert('Failed to get kennels');
     });
-
-
-
   }
 
   componentDidUpdate() {
@@ -208,18 +208,9 @@ class YipNavBar extends Component {
             <Link to="/"><img className="yipIcon" src={corgiImage} /></Link>
             {logBtn}
 
-            {/* <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
-              <Nav.Link href="#home">Home</Nav.Link>
-              <Nav.Link href="#link">Link</Nav.Link>
-            </Nav>
-          </Navbar.Collapse> */}
-            {/* <Button className="" variant="warning">Inbox</Button> */}
             <Form inline className="ml-auto float-right pt-3" onSubmit={this.handleSubmit}>
               <FormGroup>
                 <FormControl id="searchBar" type="text" placeholder="Search for Reviews or Kennels" />
-                {/* <Button type="submit" variant="warning">Search</Button> */}
               </FormGroup>
               <DropdownButton
                 alignRight
@@ -233,6 +224,11 @@ class YipNavBar extends Component {
                 <Dropdown.Item eventKey="Kennels">Kennels</Dropdown.Item>
               </DropdownButton>
             </Form>
+          <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+            <Toast.Header className="smallPopup">
+              <strong className="mx-auto">{this.state.showPopup}</strong>
+            </Toast.Header>
+          </Toast>
           </Navbar>
         </div>
       )

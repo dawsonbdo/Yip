@@ -9,6 +9,7 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import Spinner from 'react-bootstrap/Spinner';
+import Toast from 'react-bootstrap/Toast';
 import axios from 'axios';
 import { createReviewJson } from './BackendHelpers.js';
 
@@ -24,7 +25,8 @@ class CreateReview extends Component {
       checkedTags: [],
       redirect: null,
       validated: false,
-      loading: false
+      loading: false,
+      showPopup: null
     };
     this.onDrop = this.onDrop.bind(this);
     this.postReview = this.postReview.bind(this);
@@ -45,7 +47,7 @@ class CreateReview extends Component {
       //console.log(response.data);
       this.setState({ kennelId: response.data.kennel_uuid, tags: response.data.tags });
     }).catch(error => {
-      alert('Kennel does not exist in database');
+      this.setState({ showPopup: 'Kennel does not exist in database' });
     });
   }
 
@@ -125,8 +127,10 @@ class CreateReview extends Component {
     }).catch(error => {
 
       // Failed to create review
-      alert('Review creation failed');
-      this.setState({ loading: false });
+      this.setState({
+        showPopup: 'Review creation failed',
+        loading: false
+      });
 
     });
 
@@ -163,6 +167,11 @@ class CreateReview extends Component {
       return (
         <Container>
           <Row className="align-items-center">
+            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+              <Toast.Header className="smallPopup">
+                <strong className="mx-auto">{this.state.showPopup}</strong>
+              </Toast.Header>
+            </Toast>
             <Col className="text-center">
               <Link to="/"><img src={corgiImage} /></Link>
               <div className="logInForm">
@@ -179,10 +188,12 @@ class CreateReview extends Component {
                     <Form.Control id="text" className="logInEntry" size="lg" as="textarea" placeholder="Enter Review Description" required />
                     <Form.Control.Feedback type="invalid">Review description required.</Form.Control.Feedback>
                   </div>
-                  <div><Form>
-                    {selectTagsTitle}
-                    {tagCheckboxes}
-                  </Form></div>
+                  <div>
+                    <Form>
+                      {selectTagsTitle}
+                      {tagCheckboxes}
+                    </Form>
+                  </div>
                   <div className="logInEntryContainer">
                     <ImageLoader withIcon={false} withPreview={true} singleImage={false} buttonText='Upload Image' onChange={this.onDrop} imgExtension={['.jpg', '.png']} maxFileSize={5242880} label={'Max File Size: 5MB File Types: jpg, png'} />
                   </div>

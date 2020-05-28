@@ -11,6 +11,7 @@ import dislikeIcon from '../../assets/dislike.png';
 import reportIcon from '../../assets/report.png';
 import trashIcon from '../../assets/trash.png';
 import { likeDislikeCommentJson, updateLoggedInState, isLoggedIn } from './BackendHelpers.js';
+import Toast from 'react-bootstrap/Toast';
 import axios from 'axios';
 
 class CommentCard extends Component {
@@ -20,7 +21,8 @@ class CommentCard extends Component {
         this.state = {
             isLiked: false,
             isDisliked: false,
-            rating: 0
+            rating: 0,
+            showPopup: null
         }
 
         this.like = this.like.bind(this);
@@ -62,7 +64,7 @@ class CommentCard extends Component {
         }).catch(error => {
 
             // Failed to dislike review
-            alert('Comment removal failed');
+            this.setState( {showPopup: 'Deleting comment failed'} );
 
         });
 
@@ -109,12 +111,10 @@ class CommentCard extends Component {
             data: form
         }).then(response => {
 
-            //alert('Comment successfully liked');
-
         }).catch(error => {
 
             // Failed to dislike review
-            alert('Comment like failed');
+            this.setState( {showPopup: 'Comment like failed'} );
 
         });
     }
@@ -162,12 +162,10 @@ class CommentCard extends Component {
             data: form
         }).then(response => {
 
-            //alert('Comment successfully disliked!');
-
         }).catch(error => {
 
             // Failed to dislike review
-            alert('Comment dislike failed');
+            this.setState( {showPopup: 'Comment dislike failed'} );
 
         });
     }
@@ -200,6 +198,11 @@ class CommentCard extends Component {
                     <Col></Col>
 
                     <Col xs={10} className="text-center">
+                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+                                <Toast.Header className="smallPopup">
+                                    <strong className="mx-auto">{this.state.showPopup}</strong>
+                                </Toast.Header>
+                            </Toast>
                         <div className="logInForm">
                             <div className="logInLabel">
                                 <Container>

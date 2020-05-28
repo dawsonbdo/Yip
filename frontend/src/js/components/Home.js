@@ -153,7 +153,7 @@ class Home extends Component {
         });
       */
     let kennels = this.state.kennelArray.map(function (kennel) {
-      return <li><a href={`/kennels-${kennel.kennelName}`}>{kennel.kennelName}</a></li>
+      return <li><Link to={`/kennel-${kennel.kennelName}`}>{kennel.kennelName}</Link></li>
     });
 
     /* PREVIOUS HOME PAGE -----------------------------------
