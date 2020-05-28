@@ -218,8 +218,7 @@ class YipNavBar extends Component {
                 onSelect={this.handleSearch}
                 title="Search"
                 id="dropdown-menu-align-right"
-                variant="light"
-                type="submit">
+                variant="light">
                 <Dropdown.Item eventKey="Reviews">Reviews</Dropdown.Item>
                 <Dropdown.Item eventKey="Kennels">Kennels</Dropdown.Item>
               </DropdownButton>
