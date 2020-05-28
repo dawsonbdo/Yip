@@ -26,6 +26,7 @@ use super::super::comments::handlers::DbComment;
 /**
  * Method that converts a Review to InsertReview
  * @param review: the Review object
+ * @param connection: database connection
  *
  * @return returns a InsertReview
  */
@@ -90,13 +91,13 @@ pub fn to_review(review: &DbReview) -> DisplayReview {
  * @param profile_uuid: uuid of user
  * @param connection: database connection
  *
- * @retun returns result of either Accepted or BadRequest status
+ * @retun returns result of attempt to remove
  */
 pub fn unbookmark(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     
     // Prints the uuids received
-    println!("Review uuid: {}", review_uuid);
-    println!("Profile uuid: {}", profile_uuid);
+    //println!("Review uuid: {}", review_uuid);
+    //println!("Profile uuid: {}", profile_uuid);
 
     // Attempts to remove bookmark
     diesel::delete(bookmarks::table
@@ -111,13 +112,13 @@ pub fn unbookmark(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnecti
  * @param profile_uuid: uuid of user
  * @param connection: database connection
  *
- * @retun returns result of either Accepted or BadRequest status
+ * @retun returns result of attempt to remove
  */
 pub fn bookmark(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     
     // Prints the uuids received
-    println!("Review uuid: {}", review_uuid);
-    println!("Profile uuid: {}", profile_uuid);
+    //println!("Review uuid: {}", review_uuid);
+    //println!("Profile uuid: {}", profile_uuid);
     
     // Check that review exists
     match reviews::table.find(review_uuid).execute(connection){
@@ -302,7 +303,7 @@ pub fn calculate_rating(review_uuid: Uuid, connection: &PgConnection) -> i32 {
 
 
 /**
- * Method that returns rating of a review
+ * Method that returns hotness of a review
  * @param review_uuid: uuid of review
  * @param rating: rating of review
  * @param connection: database connection
@@ -369,13 +370,13 @@ pub fn update_review_rating(review_uuid: Uuid, connection: &PgConnection) -> Que
 pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
     
     // Prints the uuids received
-    println!("Review uuid: {}", review_uuid);
-    println!("Profile uuid: {}", profile_uuid);
+    //println!("Review uuid: {}", review_uuid);
+    //println!("Profile uuid: {}", profile_uuid);
     
     // Check if user already disliked kennel (delete dislike if already disliked)
     match get_relationship_dislike(review_uuid, profile_uuid, connection) {
         Ok(r) => if r != 0 {
-            println!("ALREADY DISLIKED");
+            //println!("ALREADY DISLIKED");
             // Attempt to delete from dislike table
             match delete_like_dislike(review_uuid, profile_uuid, false, connection){
                 Ok(u) => if u == 1 {return Ok(status::Accepted(None))} else {return Err(status::BadRequest(Some("failed to delete dislike".to_string())))},
@@ -416,14 +417,14 @@ pub fn dislike(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection)
 pub fn like(review_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> { //TODO this is not a handler and shouldn't return an HTTP status.
     
     // Prints the uuids received
-    println!("Review uuid: {}", review_uuid);
-    println!("Profile uuid: {}", profile_uuid);
+    //println!("Review uuid: {}", review_uuid);
+    //println!("Profile uuid: {}", profile_uuid);
     
     // Check if user already liked kennel 
     match get_relationship_like(review_uuid, profile_uuid, connection) {
         Ok(r) => if r != 0 {
             // Attempt to delete from like table
-            println!("ALREADY LIKED");
+            //println!("ALREADY LIKED");
             match delete_like_dislike(review_uuid, profile_uuid, true, connection){
                 Ok(u) => if u == 1 {return Ok(status::Accepted(None))} else {return Err(status::BadRequest(Some("failed to delete like".to_string())))},
                 Err(e) => return Err(status::BadRequest(Some(e.to_string()))),
@@ -564,7 +565,7 @@ pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> QueryResul
         rating: review.rating,
     };
 
-     diesel::update(reviews::table.find(id))
+    diesel::update(reviews::table.find(id))
         .set(&updated_rev)
         .get_result::<DbReview>(connection)
 }
