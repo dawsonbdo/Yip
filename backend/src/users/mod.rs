@@ -181,10 +181,10 @@ pub fn get_followed_users_names(username: &str, connection: &DbConn) -> Result<V
 	if !uuid.is_nil(){
 		match handlers::all_user_followees(uuid, connection) {
 			Ok(k) => Ok(k.iter().map(|followee| get_name(followee)).collect()),
-			Err(_e) => Err(status::NotFound(Some("No followed users".to_string())))
+			Err(_e) => Err(status::NotFound("No followed users".to_string()))
 		}
 	} else {
-		Err(status::NotFound(Some("User not found".to_string())))
+		Err(status::NotFound("User not found".to_string()))
 	}
 	
 }
