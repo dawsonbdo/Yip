@@ -468,7 +468,7 @@ class Kennel extends Component {
                                                     pathname: "/editkennel",
                                                     state: {
                                                         rules: this.state.rulesStringProp,
-                                                        tags: this.state.tagsString,
+                                                        tags: this.state.tagsArray,
                                                         mutedWords: this.state.mutedString,
                                                         kennel_name: this.state.kennel_name,
                                                         description: this.state.description

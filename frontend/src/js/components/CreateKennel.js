@@ -132,7 +132,7 @@ class CreateKennel extends Component {
 
               <div className="logInForm">
                 <h1 className="logInLabel">Create Kennel</h1>
-                <Form noValidate validated={this.state.validated} onSubmit={this.createKennel} className="logInEntryContainer">
+                <Form noValidate validated={this.state.validated} className="logInEntryContainer">
                   <div className="logInEntryContainer">
                     <Form.Label>Kennel Name</Form.Label>
                     <Form.Control id="title" className="logInEntry" type="text" required />
@@ -156,7 +156,7 @@ class CreateKennel extends Component {
                     <Form.Control id="mute" className="logInEntry" placeholder="Enter as comma separated list" type="text" />
                   </div>
                   <div className="logInEntryContainer">
-                    <Button className="logInEntry" type="submit" variant="primary"><div>Submit{loading}</div></Button>
+                    <Button className="logInEntry" onClick={this.createKennel} variant="primary"><div>Submit{loading}</div></Button>
                     <Button className="logInEntry" onClick={this.props.history.goBack} variant="primary">Cancel</Button>
                   </div>
                 </Form>

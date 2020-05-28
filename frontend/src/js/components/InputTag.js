@@ -8,8 +8,16 @@ class InputTag extends React.Component {
       tags: []
     };
 
+
     this.removeTag = this.removeTag.bind(this);
     this.inputKeyDown = this.inputKeyDown.bind(this);
+  }
+
+  componentDidMount(){
+    
+    if (this.props.tags != undefined){
+      this.setState({tags: this.props.tags});
+    }
   }
 
   removeTag(i) {

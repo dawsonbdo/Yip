@@ -10,6 +10,7 @@ import { Redirect } from 'react-router-dom';
 import Spinner from 'react-bootstrap/Spinner';
 import Toast from 'react-bootstrap/Toast';
 import axios from 'axios';
+import InputTag from './InputTag';
 import { editKennelJson } from './BackendHelpers.js';
 
 class EditKennel extends Component {
@@ -21,11 +22,22 @@ class EditKennel extends Component {
       redirect: null,
       validated: false,
       loading: false,
-      showPopup: null
+      showPopup: null,
+      tags: this.props.location.state.tags
     };
 
     // Binds button handler
     this.updateKennel = this.updateKennel.bind(this);
+  }
+
+  componentDidMount(){
+    this.setState({tags: this.props.location.state.tags})
+  }
+
+  updateTags(tags) {
+    console.log("UPDATE TAGS: ");
+    console.log(tags);
+    this.setState({ tags: tags });
   }
 
   /**
@@ -48,8 +60,7 @@ class EditKennel extends Component {
     var rules = document.getElementById('rules').value;
 
     // TODO: Parsing on the tags and muted words (comma separated)
-    var tagsStr = document.getElementById('tags').value;
-    var tags = tagsStr.split(", ");
+    var tags = this.state.tags;
 
     var mutedStr = document.getElementById('mute').value;
     var mutedWords;
@@ -111,7 +122,7 @@ class EditKennel extends Component {
               <Link to="/"><img src={corgiImage} /></Link>
               <div className="logInForm">
                 <h1 className="logInLabel">Edit Kennel</h1>
-                <Form noValidate validated={this.state.validated} onSubmit={this.updateKennel} className="logInEntryContainer">
+                <Form noValidate validated={this.state.validated} className="logInEntryContainer">
                   <div className="logInEntryContainer">
                     <Form.Label>Description</Form.Label>
                     <Form.Control id="description" className="logInEntry" defaultValue={this.props.location.state.description} type="text" as="textarea" />
@@ -122,8 +133,8 @@ class EditKennel extends Component {
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Tags</Form.Label>
-                    <Form.Control id="tags" className="logInEntry" defaultValue={this.props.location.state.tags} type="text" />
-                  </div>
+                    <InputTag tags={this.state.tags} onTagChange={this.updateTags.bind(this)} />
+                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Muted Words</Form.Label>
                     <Form.Control id="mute" className="logInEntry" defaultValue={this.props.location.state.mutedWords} type="text" />
@@ -133,7 +144,7 @@ class EditKennel extends Component {
                     <Form.Control id="bans" className="logInEntry" type="text" />
                   </div>
                   <div className="logInEntryContainer">
-                    <Button className="logInEntry" type="submit" variant="primary"><div>Save{loading}</div></Button>
+                    <Button className="logInEntry" onClick={this.updateKennel} variant="primary"><div>Save{loading}</div></Button>
                     <Button className="logInEntry" onClick={this.props.history.goBack} variant="primary">Cancel</Button>
                   </div>
                 </Form>
