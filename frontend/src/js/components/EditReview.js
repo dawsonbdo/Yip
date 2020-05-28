@@ -170,7 +170,7 @@ class EditReview extends Component {
 
         let selectTagsTitle;
         if (this.state.tags.length > 0) {
-            selectTagsTitle = <h4 className="mu-3">Select Tags</h4>;
+            selectTagsTitle = <h4 style={{paddingTop: '20'}}>Select Tags</h4>;
         }
 
         let tagCheckboxes = this.state.tags.map((tag, index) => (
