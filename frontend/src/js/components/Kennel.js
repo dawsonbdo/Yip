@@ -46,14 +46,21 @@ class Kennel extends Component {
             isModerator: false,
             moderator: "",
             loginPrompt: false,
-            loginPromptAction: ""
+            loginPromptAction: "",
+            isFiltered: false
         }
 
         this.handleSelect = this.handleSelect.bind(this);
         this.followKennel = this.followKennel.bind(this);
+        this.filterReviews = this.filterReviews.bind(this);
+        this.defaultReviewGet = this.defaultReviewGet.bind(this);
     }
 
     handleSelect(eventKey) {
+
+        if(this.state.isFiltered == true){
+            this.defaultReviewGet();
+        }
 
         if (eventKey == "reviews") {
             this.setState({ showReviews: true, showRules: false, showTags: false, showReviewReports: false, showCommentReports: false });
@@ -139,59 +146,20 @@ class Kennel extends Component {
     }
 
     componentDidMount() {
-
         updateLoggedInState(this);
 
         // Get kennel name from URL
         var kennelName = this.props.match.params.kennelName;
         var token = localStorage.getItem('jwtToken')
 
-        // Format URL to send in GET request
-        var reqUrl = "/get_kennel_reviews/" + kennelName + "/" + token;
-
-        // Send GET request with kennel name to get reviews in kennel
-        axios({
-            method: 'get',
-            url: reqUrl
-        }).then(response => {
-
-            // Iterate through reviews
-            if (!this.kennelReviewsListed) {
-
-                for (var i = 0; i < response.data.length; i++) {
-
-                    // Add review name, reviewer's username, review text to reviewArray
-                    this.state.reviewArray.push({
-                        title: response.data[i].title,
-                        author: response.data[i].author,
-                        text: response.data[i].text,
-                        kennel: response.data[i].kennel_name,
-                        rating: response.data[i].rating,
-                        id: response.data[i].review_uuid,
-                        isLiked: response.data[i].is_liked,
-                        isDisliked: response.data[i].is_disliked,
-                        timestamp: response.data[i].timestamp
-                    });
-
-                }
-                this.setState({ kennelReviewsListed: true });
-            }
-
-            // Renders reviews
-            this.forceUpdate();
-
-        }).catch(error => {
-
-            // Review not found in database
-            alert('Kennel does not exist/No reviews in kennel');
-
-        });
+        // Gets all default reviews with no tag filtering
+        this.defaultReviewGet();
 
         // Get token 
         var token = localStorage.getItem('jwtToken');
 
         // Format URL to send in GET request
-        reqUrl = "/get_kennel/" + kennelName + "/" + token;
+        var reqUrl = "/get_kennel/" + kennelName + "/" + token;
 
         // Send GET request with kennel name to get kennel information
         axios({
@@ -329,7 +297,103 @@ class Kennel extends Component {
         });
     }
 
+    // Makes a get request for all reviews with a given tag
+    filterReviews(tag) {
+        var kennelName = this.props.match.params.kennelName;
+        var token = localStorage.getItem('jwtToken')
+
+        // Format URL to send in GET request
+        var reqUrl = "/get_kennel_reviews_filtered/" + kennelName + "/" + token + "/" + tag;
+
+        // Send GET request with kennel name to get reviews in kennel
+        axios({
+            method: 'get',
+            url: reqUrl
+        }).then(response => {
+
+            //Clear current reviews
+            this.setState({reviewArray: []});
+            this.setState({kennelReviewsListed: false});
+
+            // Iterate through reviews
+            for (var i = 0; i < response.data.length; i++) {
+                // Add review name, reviewer's username, review text to reviewArray
+                this.state.reviewArray.push({
+                    title: response.data[i].title,
+                    author: response.data[i].author,
+                    text: response.data[i].text,
+                    kennel: response.data[i].kennel_name,
+                    rating: response.data[i].rating,
+                    id: response.data[i].review_uuid,
+                    isLiked: response.data[i].is_liked,
+                    isDisliked: response.data[i].is_disliked,
+                    timestamp: response.data[i].timestamp
+                });
+            }
+            
+            this.setState({ kennelReviewsListed: true });
+            this.setState({ showReviews: true, showRules: false, showTags: false, showReviewReports: false, showCommentReports: false });
+            this.setState({ isFiltered: true });
+
+        }).catch(error => {
+            // Review not found in database
+            alert('Kennel does not exist/No reviews in kennel');
+
+        });
+    }
+
+    // Makes a get request for all reviews (no tag filter set)
+    defaultReviewGet() {
+        var kennelName = this.props.match.params.kennelName;
+        var token = localStorage.getItem('jwtToken')
+
+        // Format URL to send in GET request
+        var reqUrl = "/get_kennel_reviews/" + kennelName + "/" + token;
+
+        // Send GET request with kennel name to get reviews in kennel
+        axios({
+            method: 'get',
+            url: reqUrl
+        }).then(response => {
+
+            // Iterate through reviews
+            if (!this.kennelReviewsListed) {
+
+                //Clear current reviews
+                this.setState({reviewArray: []});
+
+                for (var i = 0; i < response.data.length; i++) {
+
+                    // Add review name, reviewer's username, review text to reviewArray
+                    this.state.reviewArray.push({
+                        title: response.data[i].title,
+                        author: response.data[i].author,
+                        text: response.data[i].text,
+                        kennel: response.data[i].kennel_name,
+                        rating: response.data[i].rating,
+                        id: response.data[i].review_uuid,
+                        isLiked: response.data[i].is_liked,
+                        isDisliked: response.data[i].is_disliked,
+                        timestamp: response.data[i].timestamp
+                    });
+
+                }
+                this.setState({ kennelReviewsListed: true });
+                this.setState({ isFiltered: false });
+            }
+
+        }).catch(error => {
+
+            // Review not found in database
+            alert('Kennel does not exist/No reviews in kennel');
+
+        });
+    }
+    
+
     render() {
+        // Used to pass function into mapping function
+        var tempFunc = this.filterReviews;
 
         // Renders content for Reviews and Tags tabs
         const reviews = this.state.reviewArray.map(function (review) {
@@ -337,7 +401,9 @@ class Kennel extends Component {
                 kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp} />
         });
         const tags = this.state.tagsArray.map(function (tag) {
-            return <TagCard tag={tag} />
+            return <a onClick={() => tempFunc(tag)}>
+                <TagCard tag={tag} />
+            </a>
         });
         const rules = this.state.rulesArray.map(function (rule) {
             return <RuleCard rule={rule} />
