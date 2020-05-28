@@ -36,6 +36,7 @@ class Kennel extends Component {
             tagsArray: [],
             reportsReviewsArray: [],
             reportsCommentsArray: [],
+            mutedArray: [],
             rulesArray: [],
             rulesStringProp: "",
             tagsString: "",
@@ -196,6 +197,7 @@ class Kennel extends Component {
             var mutedStr = "";
             if (response.data.muted_words.length > 0) {
                 mutedStr = mutedStr + response.data.muted_words[0];
+                this.setState({mutedArray: response.data.muted_words});
             }
             for (var i = 1; i < response.data.muted_words.length; i++) {
 
@@ -469,7 +471,7 @@ class Kennel extends Component {
                                                     state: {
                                                         rules: this.state.rulesStringProp,
                                                         tags: this.state.tagsArray,
-                                                        mutedWords: this.state.mutedString,
+                                                        mutedWords: this.state.mutedArray,
                                                         kennel_name: this.state.kennel_name,
                                                         description: this.state.description
                                                     }

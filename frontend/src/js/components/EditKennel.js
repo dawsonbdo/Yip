@@ -23,7 +23,9 @@ class EditKennel extends Component {
       validated: false,
       loading: false,
       showPopup: null,
-      tags: this.props.location.state.tags
+      tags: this.props.location.state.tags,
+      mutes: this.props.location.state.mutedWords,
+      bans: []
     };
 
     // Binds button handler
@@ -39,6 +41,19 @@ class EditKennel extends Component {
     console.log(tags);
     this.setState({ tags: tags });
   }
+
+   updateMutes(mutes) {
+    console.log("UPDATE MUTES: ");
+    console.log(mutes);
+    this.setState({ mutes: mutes });
+  }
+
+  updateBans(bans) {
+    console.log("UPDATE BANS: ");
+    console.log(bans);
+    this.setState({ bans: bans });
+  }
+
 
   /**
    * Function handler for edit kennel submit button
@@ -61,25 +76,31 @@ class EditKennel extends Component {
 
     // TODO: Parsing on the tags and muted words (comma separated)
     var tags = this.state.tags;
+    var muted = this.state.mutes;
+    var bans = this.state.bans;
 
-    var mutedStr = document.getElementById('mute').value;
-    var mutedWords;
+    //var mutedStr = document.getElementById('mute').value;
+    //var mutedWords;
 
     var desc = document.getElementById('description').value;
     // Check muted words for whitespace
-    if (mutedStr === null || mutedStr.match(/^ *$/) !== null) {
+    
+    /*if (mutedStr === null || mutedStr.match(/^ *$/) !== null) {
       mutedWords = null;
 
     } else {
       mutedWords = mutedStr.split(", ");
     }
+    */
 
-    var banStr = document.getElementById('bans').value;
-    var bans = banStr.split(", ");
+    //var banStr = document.getElementById('bans').value;
+    //var bans = banStr.split(", ");
 
+    console.log("MUTED WORDS");
+    console.log(muted);
 
     // Create form to send
-    var form = editKennelJson(title, tags, mutedWords, rules, bans, token, desc);
+    var form = editKennelJson(title, tags, muted, rules, bans, token, desc);
 
     console.log(form);
 
@@ -137,11 +158,10 @@ class EditKennel extends Component {
                    </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Muted Words</Form.Label>
-                    <Form.Control id="mute" className="logInEntry" defaultValue={this.props.location.state.mutedWords} type="text" />
-                  </div>
+                    <InputTag tags={this.state.mutes} onTagChange={this.updateMutes.bind(this)} /></div>
                   <div className="logInEntryContainer">
                     <Form.Label>Banned Reviewers</Form.Label>
-                    <Form.Control id="bans" className="logInEntry" type="text" />
+                    <InputTag onTagChange={this.updateBans.bind(this)} />
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" onClick={this.updateKennel} variant="primary"><div>Save{loading}</div></Button>

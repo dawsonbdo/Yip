@@ -23,7 +23,8 @@ class CreateKennel extends Component {
       validated: false,
       showPopup: false,
       loading: false,
-      tags: []
+      tags: [],
+      mutes: []
     };
 
     // Binds button handler
@@ -34,6 +35,12 @@ class CreateKennel extends Component {
     console.log("UPDATE TAGS: ");
     console.log(tags);
     this.setState({ tags: tags });
+  }
+
+  updateMutes(mutes) {
+    console.log("UPDATE MUTES: ");
+    console.log(mutes);
+    this.setState({ mutes: mutes });
   }
 
   /**
@@ -70,11 +77,14 @@ class CreateKennel extends Component {
     //var tagsStr = document.getElementById('tags').value;
     //var tags = tagsStr.split(", ");
     var tags = this.state.tags;
+    var mutes = this.state.mutes;
 
-    var mutedStr = document.getElementById('mute').value;
-    var mutedWords;
+    //var mutedStr = document.getElementById('mute').value;
+    //var mutedWords;
 
     var desc = document.getElementById('description').value;
+    
+    /*
     // Check muted words for whitespace
     if (mutedStr === null || mutedStr.match(/^ *$/) !== null) {
       mutedWords = null;
@@ -82,9 +92,10 @@ class CreateKennel extends Component {
     } else {
       mutedWords = mutedStr.split(", ");
     }
+  */
 
     // Create form to send
-    var form = createKennelJson(title, tags, mutedWords, rules, token, desc);
+    var form = createKennelJson(title, tags, mutes, rules, token, desc);
 
     // Send POST request with kennel name and tags
     axios({
@@ -153,7 +164,7 @@ class CreateKennel extends Component {
                   </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Muted Words</Form.Label>
-                    <Form.Control id="mute" className="logInEntry" placeholder="Enter as comma separated list" type="text" />
+                    <InputTag onTagChange={this.updateMutes.bind(this)} />
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" onClick={this.createKennel} variant="primary"><div>Submit{loading}</div></Button>
