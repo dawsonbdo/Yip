@@ -395,9 +395,9 @@ class Kennel extends Component {
                 kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp} />
         });
         const tags = this.state.tagsArray.map(function (tag) {
-            return <a onClick={() => tempFunc(tag)}>
+            return <Link onClick={() => tempFunc(tag)}>
                 <TagCard tag={tag} />
-            </a>
+            </Link>
         });
         const rules = this.state.rulesArray.map(function (rule) {
             return <RuleCard rule={rule} />
