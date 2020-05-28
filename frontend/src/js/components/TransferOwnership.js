@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
@@ -8,16 +7,12 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
-import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Toast from 'react-bootstrap/Toast';
-
 import axios from 'axios'
-
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
-
-import { setAllUsers, reportJson } from './BackendHelpers.js';
+import { setAllUsers } from './BackendHelpers.js';
 
 class TransferOwnership extends Component {
 
@@ -89,7 +84,7 @@ class TransferOwnership extends Component {
         }).catch(error => {
 
             // Failed to dislike review
-             alert('Kennel transfer failed');
+            alert('Kennel transfer failed');
             //let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
             //this.setState({ redirect: redirectUrl });
             this.setState({ loading: false, showPopup: true });
@@ -126,14 +121,14 @@ class TransferOwnership extends Component {
                                     <div className="logInEntryContainer">
                                         <Form.Label>Select a new Moderator</Form.Label>
                                         <Autocomplete
-                                          id="username"
-                                          options={this.state.allUsers}
-                                          getOptionLabel={(option) => option.name}
-                                          style={{ width: 300, marginLeft: 'auto', marginRight: 'auto' }}
-                                          renderInput={(params) => <TextField {...params} label="Enter username here." variant="outlined" />}
+                                            id="username"
+                                            options={this.state.allUsers}
+                                            getOptionLabel={(option) => option.name}
+                                            style={{ width: 300, marginLeft: 'auto', marginRight: 'auto' }}
+                                            renderInput={(params) => <TextField {...params} label="Enter username here." variant="outlined" />}
                                         />
                                         {/*<Form.Control id="username" className="logInEntry" as="textarea" placeholder="Enter username here." required /> */}
-                                     
+
                                         <Form.Control.Feedback type="invalid">Username required.</Form.Control.Feedback>
                                     </div>
                                     <div className="logInEntryContainer">

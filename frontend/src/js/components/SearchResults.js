@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-
 import Jumbotron from "react-bootstrap/Jumbotron";
-import Button from 'react-bootstrap/Button';
 import ReviewCard from './ReviewCard';
 import YipNavBar from "./YipNavBar";
 import KennelCard from './KennelCard';
@@ -10,8 +8,7 @@ import LoadingIcon from '../../assets/loadingIcon.gif';
 import Image from 'react-bootstrap/Image';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-
-import axios from 'axios'
+import axios from 'axios';
 
 class SearchResults extends Component {
     constructor(props) {
@@ -35,7 +32,7 @@ class SearchResults extends Component {
     }
 
     componentDidMount() {
-        this.setState({query: decodeURIComponent(this.props.match.params.query)});
+        this.setState({ query: decodeURIComponent(this.props.match.params.query) });
         var query = decodeURIComponent(this.props.match.params.query);
 
         // Search kennels or reviews depending on what user selected
@@ -61,11 +58,11 @@ class SearchResults extends Component {
             console.log("KENNEL SEARCH QUERY: " + query);
 
             // Check bad query result
-            if ( response.data.length > 4 ){
-                if ( response.data[0] == '<' && response.data[1] == 'd'
-                     && response.data[2] == 'i' && response.data[3] == 'v' ){
+            if (response.data.length > 4) {
+                if (response.data[0] == '<' && response.data[1] == 'd'
+                    && response.data[2] == 'i' && response.data[3] == 'v') {
                     this.setState({ searchDisplay: true, results: false });
-                return;
+                    return;
                 }
             }
 
@@ -77,7 +74,7 @@ class SearchResults extends Component {
 
                 var tagsStr = "";
                 // Make sure there are tags in the kennel to avoid error
-                if (response.data[i].tags != null){
+                if (response.data[i].tags != null) {
                     if (response.data[i].tags.length > 0) {
                         tagsStr = tagsStr + response.data[i].tags[0];
                     }
@@ -113,7 +110,7 @@ class SearchResults extends Component {
     searchReviews(query) {
         query = encodeURIComponent(query);
 
-        
+
         this.setState({ searchDisplay: false });
         axios({
             method: 'get',
@@ -123,11 +120,11 @@ class SearchResults extends Component {
             console.log("REVIEW SEARCH QUERY: " + query);
 
             // Check bad query result
-            if ( response.data.length > 4 ){
-                if ( response.data[0] == '<' && response.data[1] == 'd'
-                     && response.data[2] == 'i' && response.data[3] == 'v' ){
+            if (response.data.length > 4) {
+                if (response.data[0] == '<' && response.data[1] == 'd'
+                    && response.data[2] == 'i' && response.data[3] == 'v') {
                     this.setState({ searchDisplay: true, results: false });
-                return;
+                    return;
                 }
             }
 
@@ -170,7 +167,7 @@ class SearchResults extends Component {
         if (this.props.match.params.searchType == "Reviews") {
             results = this.state.resultArray.map(function (result) {
                 return <ReviewCard reviewId={result.id} reviewName={result.title} reviewerName={result.author} reviewPreview={{ __html: result.text }}
-                    kennelName={result.kennel} rating={result.rating} isLiked={result.isLiked} isDisliked={result.isDisliked} timestamp={result.timestamp}/>
+                    kennelName={result.kennel} rating={result.rating} isLiked={result.isLiked} isDisliked={result.isDisliked} timestamp={result.timestamp} />
             });
         }
         else {

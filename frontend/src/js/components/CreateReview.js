@@ -72,7 +72,7 @@ class CreateReview extends Component {
       return;
     }
 
-    this.setState({loading: true});
+    this.setState({ loading: true });
 
     // TODO: Get UTC time or something standard instead of just local time
 
@@ -98,8 +98,8 @@ class CreateReview extends Component {
       console.log("Create Name " + this.state.pictures[idx].name);
     }
 
-    for(var i = 0; i < this.state.checkedTags.length; i++) {
-      if(this.state.checkedTags[i]) {
+    for (var i = 0; i < this.state.checkedTags.length; i++) {
+      if (this.state.checkedTags[i]) {
         fd.append('tag', this.state.tags[i]);
       }
     }
@@ -126,7 +126,7 @@ class CreateReview extends Component {
 
       // Failed to create review
       alert('Review creation failed');
-      this.setState({loading: false});
+      this.setState({ loading: false });
 
     });
 
@@ -135,13 +135,13 @@ class CreateReview extends Component {
 
   render() {
     let loading = <div></div>;
-        if(this.state.loading) {
-            loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
-        }
+    if (this.state.loading) {
+      loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
+    }
 
     let selectTagsTitle;
-    if(this.state.tags.length > 0) {
-      selectTagsTitle = <h4 style={{paddingTop: '20'}}>Select Tags</h4>;
+    if (this.state.tags.length > 0) {
+      selectTagsTitle = <h4 style={{ paddingTop: '20' }}>Select Tags</h4>;
     }
 
     let tagCheckboxes = this.state.tags.map((tag, index) => (

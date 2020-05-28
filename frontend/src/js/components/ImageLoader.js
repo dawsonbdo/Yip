@@ -51,17 +51,17 @@ class ImageLoader extends React.Component {
     this.triggerFileUpload = this.triggerFileUpload.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot){
-    if(prevState.files !== this.state.files){
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevState.files !== this.state.files) {
       this.props.onChange(this.state.files, this.state.pictures);
     }
   }
 
   componentDidMount() {
-     for(var i = 0; i < this.state.pictures.length; i++){
-       this.state.files.push(new File(["a"], this.state.pictures[i], {type: 'image/jpg'}));
-     }
-     this.props.onChange(this.state.files, this.state.pictures);
+    for (var i = 0; i < this.state.pictures.length; i++) {
+      this.state.files.push(new File(["a"], this.state.pictures[i], { type: 'image/jpg' }));
+    }
+    this.props.onChange(this.state.files, this.state.pictures);
   }
 
   /*
@@ -106,7 +106,7 @@ class ImageLoader extends React.Component {
         continue;
       }
       // Check for file size
-      if(file.size > this.props.maxFileSize) {
+      if (file.size > this.props.maxFileSize) {
         fileError = Object.assign(fileError, {
           type: ERROR.FILESIZE_TOO_LARGE
         });
@@ -121,19 +121,19 @@ class ImageLoader extends React.Component {
       fileErrors
     });
 
-    const {singleImage} = this.props;
+    const { singleImage } = this.props;
 
 
     Promise.all(allFilePromises).then(newFilesData => {
-      const dataURLs = singleImage?[]:this.state.pictures.slice();
-      const files = singleImage?[]:this.state.files.slice();
+      const dataURLs = singleImage ? [] : this.state.pictures.slice();
+      const files = singleImage ? [] : this.state.files.slice();
 
       newFilesData.forEach(newFileData => {
         dataURLs.push(newFileData.dataURL);
         files.push(newFileData.file);
       });
 
-      this.setState({pictures: dataURLs, files: files});
+      this.setState({ pictures: dataURLs, files: files });
     });
   }
 
@@ -154,7 +154,7 @@ class ImageLoader extends React.Component {
         // Add the file name to the data URL
         let dataURL = e.target.result;
         dataURL = dataURL.replace(";base64", `;name=${file.name};base64`);
-        resolve({file, dataURL});
+        resolve({ file, dataURL });
       };
 
       reader.readAsDataURL(file);
@@ -169,7 +169,7 @@ class ImageLoader extends React.Component {
     const filteredPictures = this.state.pictures.filter((e, index) => index !== removeIndex);
     const filteredFiles = this.state.files.filter((e, index) => index !== removeIndex);
 
-    this.setState({pictures: filteredPictures, files: filteredFiles}, () => {
+    this.setState({ pictures: filteredPictures, files: filteredFiles }, () => {
       this.props.onChange(this.state.files, this.state.pictures);
     });
   }
@@ -182,7 +182,7 @@ class ImageLoader extends React.Component {
     return fileErrors.map((fileError, index) => {
       return (
         <div className={'errorMessage ' + this.props.errorClass} key={index} style={this.props.errorStyle}>
-          * {fileError.name} {fileError.type === ERROR.FILESIZE_TOO_LARGE ? this.props.fileSizeError: this.props.fileTypeError}
+          * {fileError.name} {fileError.type === ERROR.FILESIZE_TOO_LARGE ? this.props.fileSizeError : this.props.fileTypeError}
         </div>
       );
     });
@@ -193,7 +193,7 @@ class ImageLoader extends React.Component {
    */
   renderIcon() {
     if (this.props.withIcon) {
-      return <img src={UploadIcon} className="uploadIcon"	alt="Upload Icon" />;
+      return <img src={UploadIcon} className="uploadIcon" alt="Upload Icon" />;
     }
   }
 
@@ -224,7 +224,7 @@ class ImageLoader extends React.Component {
       return (
         <div key={index} className="uploadPictureContainer">
           <div className="deleteImage" onClick={() => this.removeImage(picture)}>X</div>
-          <img src={picture} className="uploadPicture" alt="preview"/>
+          <img src={picture} className="uploadPicture" alt="preview" />
         </div>
       );
     });
@@ -238,7 +238,7 @@ class ImageLoader extends React.Component {
   }
 
   clearPictures() {
-    this.setState({pictures: []})
+    this.setState({ pictures: [] })
   }
 
   render() {
@@ -267,7 +267,7 @@ class ImageLoader extends React.Component {
             onClick={this.onUploadClick}
             accept={this.props.accept}
           />
-          { this.props.withPreview ? this.renderPreview() : null }
+          {this.props.withPreview ? this.renderPreview() : null}
         </div>
       </div>
     )
@@ -297,7 +297,7 @@ ImageLoader.defaultProps = {
   style: {},
   errorStyle: {},
   singleImage: false,
-  onChange: () => {},
+  onChange: () => { },
   defaultImages: []
 };
 

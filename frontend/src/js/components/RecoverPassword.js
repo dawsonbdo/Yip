@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
@@ -10,9 +9,7 @@ import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
 import Toast from 'react-bootstrap/Toast';
 import Spinner from 'react-bootstrap/Spinner';
-
 import axios from 'axios';
-
 import { createUserJson } from './BackendHelpers.js';
 
 class RecoverPassword extends Component {
@@ -54,12 +51,12 @@ class RecoverPassword extends Component {
 
         // Check if passwords same
         if (password != confirmPassword) {
-            this.setState({showPopup: true, popupMsg: "Passwords don't match!"});
+            this.setState({ showPopup: true, popupMsg: "Passwords don't match!" });
             return;
         }
 
         if (password.length < 8) {
-            this.setState({showPopup: true, popupMsg: "Password must be at least 8 characters!"});
+            this.setState({ showPopup: true, popupMsg: "Password must be at least 8 characters!" });
             return;
         }
 
@@ -75,7 +72,7 @@ class RecoverPassword extends Component {
             // TODO: Redirect to login screen if successful
             this.setState({ redirect: "/login" });
             this.setState({ loading: false, showPopup: true, popupMsg: "Password successfully reset!" });
-            
+
 
         }).catch(error => {
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Nav} from 'react-bootstrap';
+import { Nav } from 'react-bootstrap';
 import withRouter from 'react-router-dom';
 
 const Sidebar = (props) => {
@@ -8,7 +8,7 @@ const Sidebar = (props) => {
             activeKey="/home"
             onSelect={selectedKey => alert(`selected ${selectedKey}`)}
         >
-                <div className="sidebar-sticky"></div>
+            <div className="sidebar-sticky"></div>
             <Nav.Item>
                 <Nav.Link href="/home">Active</Nav.Link>
             </Nav.Item>
@@ -20,10 +20,10 @@ const Sidebar = (props) => {
             </Nav.Item>
             <Nav.Item>
                 <Nav.Link eventKey="disabled" disabled>
-                Disabled
+                    Disabled
                 </Nav.Link>
             </Nav.Item>
-            </Nav>
+        </Nav>
     );
 }
 

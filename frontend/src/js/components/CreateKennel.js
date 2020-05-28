@@ -30,10 +30,10 @@ class CreateKennel extends Component {
     this.createKennel = this.createKennel.bind(this);
   }
 
-  updateTags(tags){
-    console.log("UPDATE TAGS: " );
+  updateTags(tags) {
+    console.log("UPDATE TAGS: ");
     console.log(tags);
-    this.setState({tags: tags});
+    this.setState({ tags: tags });
   }
 
   /**
@@ -53,7 +53,7 @@ class CreateKennel extends Component {
       return;
     }
 
-    this.setState({loading: true});
+    this.setState({ loading: true });
 
     var token = localStorage.getItem('jwtToken');
 
@@ -99,7 +99,7 @@ class CreateKennel extends Component {
 
       //alert('Kennel with that name already exists.');
       this.setState({ showPopup: true });
-      this.setState({loading: false});
+      this.setState({ loading: false });
 
     });
 

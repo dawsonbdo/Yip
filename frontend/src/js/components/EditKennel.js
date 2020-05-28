@@ -35,7 +35,7 @@ class EditKennel extends Component {
     event.preventDefault();
     event.stopPropagation();
 
-    this.setState({loading: true});
+    this.setState({ loading: true });
 
     var token = localStorage.getItem('jwtToken');
 
@@ -82,7 +82,7 @@ class EditKennel extends Component {
     }).catch(error => {
 
       alert('failed kennel update');
-      this.setState({loading: false});
+      this.setState({ loading: false });
 
     });
 

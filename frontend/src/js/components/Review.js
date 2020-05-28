@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Row from 'react-bootstrap/Row';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -20,8 +19,7 @@ import trashIcon from '../../assets/trash.png';
 import editIcon from '../../assets/edit.png';
 import Spinner from 'react-bootstrap/Spinner';
 import Toast from 'react-bootstrap/Toast';
-
-import axios from 'axios'
+import axios from 'axios';
 
 import { reportJson, createCommentJson, likeDislikeReviewJson, deleteReviewJson, isLoggedIn, updateLoggedInState } from './BackendHelpers.js';
 
@@ -357,7 +355,7 @@ class Review extends Component {
 	}
 
 	deleteReview() {
-		this.setState({confirmLoading: true});
+		this.setState({ confirmLoading: true });
 
 		// Get review's id
 		var reviewId = this.props.match.params.id;

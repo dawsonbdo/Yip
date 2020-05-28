@@ -18,17 +18,17 @@ class UserCard extends Component {
                     <Col></Col>
                     <Col xs={5} className="text-center">
                         <a class="profileLink" href={`/user-${this.props.userName}`}>
-                        <div className="logInForm">
-                            <div className="userLabel">
-                                <Container>
-                                    <Row>
-                                        <Col>
-                                            <h4 className="text-center pt-2 pl-2"><a>{this.props.userName}</a></h4>
-                                        </Col>
-                                    </Row>
-                                </Container>
+                            <div className="logInForm">
+                                <div className="userLabel">
+                                    <Container>
+                                        <Row>
+                                            <Col>
+                                                <h4 className="text-center pt-2 pl-2"><a>{this.props.userName}</a></h4>
+                                            </Col>
+                                        </Row>
+                                    </Container>
+                                </div>
                             </div>
-                        </div>
                         </a>
                     </Col>
                     <Col></Col>

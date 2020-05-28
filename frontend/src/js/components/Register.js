@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -8,13 +7,9 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Toast from 'react-bootstrap/Toast';
 import Spinner from 'react-bootstrap/Spinner';
-
 import { Redirect } from 'react-router-dom';
-
 import corgi from '../../assets/corgi_shadow.png';
-
 import axios from 'axios';
-
 import { createUserJson } from './BackendHelpers.js';
 
 class Register extends Component {
@@ -60,22 +55,22 @@ class Register extends Component {
         var regex = /^[A-Za-z0-9_]+$/;
         var isValidUsername = regex.test(username);
         if (!isValidUsername) {
-            this.setState({showPopup: "Username can only contain letters, numbers, and underscores!"});
+            this.setState({ showPopup: "Username can only contain letters, numbers, and underscores!" });
             return;
         }
 
         // Check that passwords match
         if (password !== repassword) {
-            this.setState({showPopup: 'Passwords do not match!'});
+            this.setState({ showPopup: 'Passwords do not match!' });
             return;
         }
 
-        if(password.length < 8) {
-            this.setState({showPopup: 'Password must be at least 8 characters!'});
+        if (password.length < 8) {
+            this.setState({ showPopup: 'Password must be at least 8 characters!' });
             return;
         }
 
-        this.setState({loading: true});
+        this.setState({ loading: true });
 
         // Send POST request with database User json
         axios({
@@ -90,12 +85,12 @@ class Register extends Component {
             // Redirect to login after registering
             this.setState({ redirect: "/login" });
 
-            this.setState({showPopup: 'Account successfully created!'});
+            this.setState({ showPopup: 'Account successfully created!' });
 
         }).catch(error => {
 
             // Username or email already exist
-            this.setState({showPopup: 'Username or Email already registered!', loading: false});
+            this.setState({ showPopup: 'Username or Email already registered!', loading: false });
 
             // This is how to check if username is taken and/or email is taken
             console.log("User Taken: " + error.response.data.includes("username"));
@@ -105,7 +100,7 @@ class Register extends Component {
 
     render() {
         let loading = <div></div>;
-        if(this.state.loading) {
+        if (this.state.loading) {
             loading = <Spinner className="logInEntryContainer" animation="border" size="sm"></Spinner>;
         }
 
@@ -121,11 +116,11 @@ class Register extends Component {
                         <Col className="text-center">
                             <Link to="/"><img src={corgi}></img></Link>
 
-                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({showPopup: null})} show={this.state.showPopup} autohide>
+                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
                                 <Toast.Header className="smallPopup">
                                     <strong className="mx-auto">{this.state.showPopup}</strong>
                                 </Toast.Header>
-				            </Toast>
+                            </Toast>
 
                             <div className="logInForm">
                                 <h1 className="logInLabel"> Sign Up</h1>
