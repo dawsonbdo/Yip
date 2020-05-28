@@ -15,12 +15,12 @@ import EditReview from './components/EditReview';
 import CreateKennel from './components/CreateKennel';
 import SearchResults from './components/SearchResults';
 import Profile from './components/Profile';
-import Inbox from './components/Inbox';
 import Report from './components/Report';
 import TransferOwnership from './components/TransferOwnership';
+import Attributes from './components/Attributes';
 
 function App() {
-  
+
   return (
     <Router>
       <div className="App">
@@ -31,15 +31,15 @@ function App() {
           <Route path="/createreview" exact component={CreateReview} />
           <Route path="/recoverpassword" exact component={RecoverPassword} />
           <Route path="/review-:id" exact component={Review} />
-		  <Route path="/editkennel" exact component={EditKennel} />
-		  <Route path="/editreview" exact component={EditReview} />
-		  <Route path="/createkennel" exact component={CreateKennel} />
-		  <Route path="/searchresults-:searchType-:query" exact component={SearchResults} />
-		  <Route path="/user-:username" exact component={Profile} />
-		  <Route path="/inbox" exact component={Inbox} />
-		  <Route path="/kennel-:kennelName" component={Kennel} />
+          <Route path="/editkennel" exact component={EditKennel} />
+          <Route path="/editreview" exact component={EditReview} />
+          <Route path="/createkennel" exact component={CreateKennel} />
+          <Route path="/searchresults-:searchType-:query" exact component={SearchResults} />
+          <Route path="/user-:username" exact component={Profile} />
+          <Route path="/kennel-:kennelName" component={Kennel} />
           <Route path="/report" exact component={Report} />
-		  <Route path="/transferownership" exact component={TransferOwnership} />
+          <Route path="/transferownership" exact component={TransferOwnership} />
+          <Route path="/attributes" exact component={Attributes} />
         </Switch>
       </div>
     </Router>

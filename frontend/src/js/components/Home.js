@@ -9,6 +9,8 @@ import LoadingIcon from '../../assets/loadingIcon.gif';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import Attributes from './Attributes';
+import { Link } from 'react-router-dom';
 
 import KennelCard from './KennelCard';
 
@@ -97,32 +99,32 @@ class Home extends Component {
 
       let kennelArray = []
 
-      for ( var i = 0; i < response.data.length; i++ ){
+      for (var i = 0; i < response.data.length; i++) {
 
         var tagsStr = "";
         // Make sure there are tags in the kennel to avoid error
         if (response.data[i].tags != null) {
           if (response.data[i].tags.length > 0) {
-              tagsStr = tagsStr + response.data[i].tags[0];
+            tagsStr = tagsStr + response.data[i].tags[0];
           }
           for (var j = 1; j < response.data[i].tags.length; j++) {
-              tagsStr = tagsStr + ", " + response.data[i].tags[j];
+            tagsStr = tagsStr + ", " + response.data[i].tags[j];
           }
         } else {
           tagsStr = "None" // No tags, TODO: indicate it idk lol
         }
 
         kennelArray.push({
-            kennelName: response.data[i].kennel_name,
-            kennelRules: response.data[i].rules,
-            kennelTags: tagsStr,
-            followerCount: response.data[i].follower_count
+          kennelName: response.data[i].kennel_name,
+          kennelRules: response.data[i].rules,
+          kennelTags: tagsStr,
+          followerCount: response.data[i].follower_count
         });
       }
 
       // Used for loading logic
       this.setState({ kennelArray: kennelArray });
-      
+
 
     }).catch(error => {
 
@@ -151,8 +153,8 @@ class Home extends Component {
         });
       */
     let kennels = this.state.kennelArray.map(function (kennel) {
-            return <li><a href={`/kennels-${kennel.kennelName}`}>{kennel.kennelName}</a></li>
-        });
+      return <li><a href={`/kennels-${kennel.kennelName}`}>{kennel.kennelName}</a></li>
+    });
 
     /* PREVIOUS HOME PAGE -----------------------------------
      
@@ -173,32 +175,34 @@ class Home extends Component {
     if (this.state.reviewsListed) {
       reviews = this.state.reviewArray.map(function (review) {
         return <ReviewCard reviewId={review.id} reviewName={review.title} reviewerName={review.author} reviewPreview={{ __html: review.text }}
-          kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp}/>
+          kennelName={review.kennel} rating={review.rating} isLiked={review.isLiked} isDisliked={review.isDisliked} timestamp={review.timestamp} />
       });
-      homeContent = <div><div class="homereviews">
-        <div>
+      homeContent = <div>
+        <div class="homereviews">
+            <Jumbotron id="jumbotron" className="text-center">
+              <h1>{greeting}</h1>
+              <p>{homePageMessage}</p>
+              <p id="authstatus">
+              </p>
+            </Jumbotron>
+            {reviews}
+            <div className="text-center">
+              <Link to="/attributes">Credit attributed for use of icons found here.</Link>
+            </div>
+        </div>
+        <div class="homepanel">
           <Jumbotron id="jumbotron" className="text-center">
-          <h1>{greeting}</h1>
-          <p>{homePageMessage}</p>
-          <p id="authstatus">
-          </p>
+            <h1> Top Kennels </h1>
           </Jumbotron>
-          {reviews}
-        </div>           
-      </div>
-      <div class="homepanel">
-          <Jumbotron id="jumbotron" className="text-center">
-          <h1> Top Kennels </h1>    
-          </Jumbotron>    
           <ul>
-          {kennels}
+            {kennels}
           </ul>
           <Jumbotron id="jumbotron" className="text-center">
-          <h1> New Kennels </h1>    
-          </Jumbotron>    
-      </div>
+            <h1> New Kennels </h1>
+          </Jumbotron>
+        </div>
       </div>;
-      
+
     } else {
       // Loading Symbol
       homeContent = <Row>
