@@ -64,8 +64,8 @@ pub fn to_display_user(user: DbUser, token: String, connection: &PgConnection) -
 
 /**
  * Method that returns the row corresponding to follow/followee uuid if exists
- * @param blocker: the blockee uuid
- * @param blockee: the blockee uuid
+ * @param follower: the follower uuid
+ * @param followee: the followee uuid
  * @param connection: database connection
  *
  * @return returns a result containing DbBlockUser if found, otherwise error
@@ -117,7 +117,7 @@ fn to_display_follower(followee: &DbFollowUser, connection: &PgConnection) -> Di
  * @param id: Uuid of user
  * @param connection: database connection
  *
- * @return returns a vector of DbUsers
+ * @return returns a vector of DisplayFollowUsers
  */
 pub fn all_user_followees(id: Uuid, connection: &PgConnection) -> QueryResult<Vec<DisplayFollowUser>> {
     match reviewer_follow_relationships::table
@@ -210,11 +210,11 @@ pub fn username_email_linked(username: &str, email: &str, connection: &PgConnect
 }
 
 /**
- * Method that returns uuid of a user given their username
- * @param username: the username
+ * Method that returns username of a user given their uuid
+ * @param id: the Uuid
  * @param connection: database connection
  *
- * @return returns Uuid of User, nil if username does not exist in database
+ * @return returns username of User, err if uuid does not exist in database
  */
 pub fn get_username_from_uuid(id: Uuid, connection: &PgConnection) -> String {
     match users::table.find(id).select(users::username).get_result::<String>(connection){
@@ -262,8 +262,8 @@ pub fn get_user_from_uuid(id: Uuid, connection: &PgConnection) -> Result<DbUser,
  */
 pub fn unfollow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::Conflict<String>> {
     // Prints the information that was received
-    println!("Follower: {}", follower);
-    println!("Followee: {}", followee);
+    //println!("Follower: {}", follower);
+    //println!("Followee: {}", followee);
 
     // Deletes follow relationship from database, returns uuid generated
     match diesel::delete(reviewer_follow_relationships::table
@@ -287,8 +287,8 @@ pub fn unfollow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Re
  */
 pub fn follow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::Conflict<String>> {
     // Prints the information that was received
-    println!("Follower: {}", follower);
-    println!("Followee: {}", followee);
+    //println!("Follower: {}", follower);
+    //println!("Followee: {}", followee);
 
     // Creates object to be inserted to the follow kennel table
     let follow_user = FollowUser {
@@ -310,14 +310,15 @@ pub fn follow(follower: Uuid, followee: Uuid, connection: &PgConnection) -> Resu
  * Method for unblocking another user
  * @param blocker: the blocker
  * @param blockee: the blockee
+ * @param connection: db connection
  *
  * @return returns Uuid of User if created, otherwise String indicating
  * which unique fields are taken (email/username)
  */
 pub fn remove_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // Prints the information that was received
-    println!("Blocker: {}", blocker);
-    println!("Blockee: {}", blockee);
+    //println!("Blocker: {}", blocker);
+    //println!("Blockee: {}", blockee);
 
     // Attemps to remove from database
     diesel::delete(block_relationships::table
@@ -331,14 +332,15 @@ pub fn remove_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> 
  * Method for blocking another user
  * @param blocker: the blocker
  * @param blockee: the blockee
+ * @param connection: db connection
  *
  * @return returns Uuid of User if created, otherwise String indicating
  * which unique fields are taken (email/username)
  */
 pub fn insert_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     // Prints the information that was received
-    println!("Blocker: {}", blocker);
-    println!("Blockee: {}", blockee);
+    //println!("Blocker: {}", blocker);
+    //println!("Blockee: {}", blockee);
 
     // Creates object to be inserted to the follow kennel table
     let block_user = BlockUser {
@@ -362,9 +364,9 @@ pub fn insert_block(blocker: Uuid, blockee: Uuid, connection: &PgConnection) -> 
  */
 pub fn insert(user: User, connection: &PgConnection) -> Result<Uuid, String> {
     // Prints the User information that was received (register)
-    println!("Username: {}", user.username);
-    println!("Email: {}", user.email);
-    println!("Password: {}", user.password);
+    //println!("Username: {}", user.username);
+    //println!("Email: {}", user.email);
+    //println!("Password: {}", user.password);
 
     // Searches columns for user with username and email and gets User if found
     let username_search = users::table.filter(users::username.eq(user.username.clone())).load::<DbUser>(&*connection).expect("Error");
@@ -431,7 +433,7 @@ pub struct DisplayFollowUser {
     pub followee: String,
 }
 
-// Struct representing the fields of block relationship row that is inserted
+// Struct representing the fields of follow relationship row that is inserted
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
 #[table_name = "reviewer_follow_relationships"]
 pub struct FollowUser {
@@ -439,7 +441,7 @@ pub struct FollowUser {
     pub followee: Uuid,
 }
 
-// Struct representing the fields of block relationship row that is returned by DB
+// Struct representing the fields of follow relationship row that is returned by DB
 #[derive(Insertable, AsChangeset, Queryable, Serialize, Deserialize)]
 #[table_name = "reviewer_follow_relationships"]
 pub struct DbFollowUser {

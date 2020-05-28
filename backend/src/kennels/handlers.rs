@@ -75,8 +75,6 @@ pub fn ban_users(kennel_uuid: Uuid, users: Vec<Uuid>, connection: &PgConnection)
         );
     }
 
-
-
     // Inserts bans into database, returns uuid generated
     match diesel::insert_into(kennel_bans::table)
         .values(&bans)

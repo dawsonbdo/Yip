@@ -9,7 +9,7 @@ use rocket::response::status;
 
 use db::DbConn;
 
-// Struct with user name and token for blocking users
+// Struct with user name and token for blocking users (passed in as input in HTTPS requests)
 #[derive(Queryable, Serialize, Deserialize)]
 struct TokenUser {
     token: String,
@@ -98,7 +98,7 @@ fn follow_unfollow_helper(input: Json<TokenUser>, follow: bool, connection: DbCo
 
 /** 
  * Method that unfollows a user
- * @param kennel: JSON of the report
+ * @param kennel: JSON of a TokenUser (name + token)
  *
  * @return returns returns status indicating if unfollowed
  */
@@ -111,7 +111,7 @@ fn unfollow_user(follow: Json<TokenUser>, connection: DbConn) -> Result<status::
 
 /** 
  * Method that follows a user
- * @param kennel: JSON of the report
+ * @param kennel: JSON of a TokenUser (name + token)
  *
  * @return returns status indicating if followed
  */
@@ -124,7 +124,7 @@ fn follow_user(follow: Json<TokenUser>, connection: DbConn) -> Result<status::Ac
 
 /** 
  * Method that unblocks a user
- * @param kennel: JSON of the report
+ * @param kennel: JSON of a TokenUser (name + token)
  *
  * @return returns returns status indicating if unblocked
  */
@@ -141,7 +141,7 @@ fn unblock_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Ac
 
 /** 
  * Method that blocks a user
- * @param kennel: JSON of the report
+ * @param kennel: JSON of a TokenUser (name + token)
  *
  * @return returns returns status indicating if blocked
  */
@@ -157,6 +157,9 @@ fn block_user(block: Json<TokenUser>, connection: DbConn) -> Result<status::Acce
 
 /**
  * Helper method that returns name of a followee
+ * @param user: DisplayFollowUser obj from db
+ * 
+ * @return returns a String
  */
 fn get_name(user: &DisplayFollowUser) -> String {
 	user.followee.clone()
@@ -169,7 +172,7 @@ fn get_name(user: &DisplayFollowUser) -> String {
  *
  * @return returns vector of the users
  */
-pub fn get_followed_users_names(username: &str, connection: &DbConn) -> Result<Vec<String>, String> {
+pub fn get_followed_users_names(username: &str, connection: &DbConn) -> Result<Vec<String>, status::NotFound<String>> {
 
 	// Get uuid from user
 	let uuid = handlers::get_uuid_from_username(&username, connection);
@@ -178,10 +181,10 @@ pub fn get_followed_users_names(username: &str, connection: &DbConn) -> Result<V
 	if !uuid.is_nil(){
 		match handlers::all_user_followees(uuid, connection) {
 			Ok(k) => Ok(k.iter().map(|followee| get_name(followee)).collect()),
-			Err(_e) => Err("No followed users".to_string())
+			Err(_e) => Err(status::NotFound(Some("No followed users".to_string())))
 		}
 	} else {
-		Err("User not found".to_string())
+		Err(status::NotFound(Some("User not found".to_string())))
 	}
 	
 }
@@ -240,14 +243,13 @@ fn get_user(username: String, token: String, connection: DbConn) -> Result<Json<
  * Method that returns the username corresponding to token
  * @param token: the jwt used to verify if logged in
  *
- * @return returns a String indicating if logged in or not
+ * @return returns a String with username, "" if not logged in
  */
 #[get("/get_username/<token>")]
 fn get_username(token: String) -> String {
 
 	// Gets the username from token, "" if none
 	auth::get_user_from_token(&token)
-
 }
 
 /**
@@ -272,10 +274,10 @@ fn auth(token: String) -> String {
 }
 
 /**
- * Method that prints out all the users in database
+ * Method that returns a lis of names of every user in db
  * @param connection: database connection
  *
- * @return N/A
+ * @return returns a vector of strings with all names
  */
 #[get("/get_all_users", rank=1)]
 fn get_all_users(connection: DbConn) -> Result<Json<Vec<String>>, status::NotFound<String>> {
@@ -315,7 +317,7 @@ fn list_users(connection: DbConn) -> () {
 
 /** 
  * Method for handling password reset
- * @param user: the Json representation of a User
+ * @param user: the User object
  * @param connection: database connection
  *
  * @return returns a result with Accepted or Unauthorized status
@@ -333,7 +335,7 @@ fn recover_password(user: Json<User>, connection: DbConn) -> Result<status::Acce
 		let successful_change = handlers::update(id, &user.password, &connection);
 
 		// Prints whether login was successful (indicated by non nill uuid)
-		println!("Password reset {}", successful_change);
+		//println!("Password reset {}", successful_change);
 
 		// Returns true if successfully changed
 		if successful_change {
@@ -342,7 +344,7 @@ fn recover_password(user: Json<User>, connection: DbConn) -> Result<status::Acce
 	}
 
 	// Prints whether login was successful (indicated by non nill uuid)
-	println!("Password reset failed");
+	//println!("Password reset failed");
 
 	// Return false if unsucessful
 	Err(status::Unauthorized(None))
@@ -350,7 +352,7 @@ fn recover_password(user: Json<User>, connection: DbConn) -> Result<status::Acce
 
 /** 
  * Method to handle login request
- * @param user: the Json representation of a User
+ * @param user: the User object
  * @param connection: database connection
  *
  * @return returns a String with authentication token if successfully logged in, otherwise
@@ -381,7 +383,7 @@ fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unautho
 
 /**
  * Method to handle register request
- * @param user: the Json representation of a User
+ * @param user: the User object
  * @param connection: database connection
  *
  * @return returns a String with auth token if successful registration, otherwise an error
