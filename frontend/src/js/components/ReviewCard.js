@@ -39,7 +39,7 @@ class ReviewCard extends Component {
             rating: this.props.rating,
             isLiked: this.props.isLiked,
             isDisliked: this.props.isDisliked,
-            timestamp: this.props.timestamp
+            timestamp: (new Date(this.props.timestamp)).toString()
         })
 
         updateLoggedInState(this);
