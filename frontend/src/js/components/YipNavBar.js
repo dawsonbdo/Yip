@@ -72,7 +72,6 @@ class YipNavBar extends Component {
     // Ignores whitespace
     if (query.trim().length === 0) {
       this.setState({ showPopup: 'INPUT IS BLANK' });
-      //alert('anjfafaofiaiofao');
       return;
     }
 
@@ -113,7 +112,7 @@ class YipNavBar extends Component {
 
     query = encodeURIComponent(query);
 
-    alert("URL QUERY: " + query);
+    // alert("URL QUERY: " + query);
 
     // Redirect to search results page with search type and query in url
     this.setState({ redirect: `/searchresults-Reviews-${query}` });
@@ -133,7 +132,7 @@ class YipNavBar extends Component {
       this.setState({ followedKennelsLoaded: true });
 
     }).catch(error => {
-      //alert('Failed to get kennels');
+      this.setState({ showPopup: 'Failed to get kennels' })
     });
   }
 
@@ -145,8 +144,6 @@ class YipNavBar extends Component {
         method: 'get',
         url: '/get_created_kennels/' + this.state.user,
       }).then(response => {
-
-        // alert('Users created kennels successfully grabbed from database!');
 
         console.log("CREATED KENNELS");
 
@@ -165,7 +162,7 @@ class YipNavBar extends Component {
       }).catch(error => {
 
         // Review not found in database
-        //alert('User has no created kennels');
+        this.setState({ showPopup: 'User has no created kennels' });
 
       });
     }
@@ -223,11 +220,11 @@ class YipNavBar extends Component {
                 <Dropdown.Item eventKey="Kennels">Kennels</Dropdown.Item>
               </DropdownButton>
             </Form>
-          <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
-            <Toast.Header className="smallPopup">
-              <strong className="mx-auto">{this.state.showPopup}</strong>
-            </Toast.Header>
-          </Toast>
+            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+              <Toast.Header className="smallPopup">
+                <strong className="mx-auto">{this.state.showPopup}</strong>
+              </Toast.Header>
+            </Toast>
           </Navbar>
         </div>
       )

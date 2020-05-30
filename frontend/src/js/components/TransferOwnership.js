@@ -24,7 +24,7 @@ class TransferOwnership extends Component {
             validated: false,
             reviewFrom: {},
             loading: false,
-            showPopup: false,
+            showPopup: null,
             allUsers: []
         };
 
@@ -76,18 +76,17 @@ class TransferOwnership extends Component {
             url: '/transfer_ownership/' + username + '/' + token + '/' + kennel_name
         }).then(response => {
 
-            alert('Kennel ownership successfully transferred');
+            //alert('Kennel ownership successfully transferred');
+            this.setState({ loading: false, showPopup: 'Kennel ownership successfully transferred' });
 
             let redirectUrl = "/kennel-" + this.state.reviewFrom.kennel_name;
             this.setState({ redirect: redirectUrl });
 
         }).catch(error => {
 
-            // Failed to dislike review
-            alert('Kennel transfer failed');
             //let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
             //this.setState({ redirect: redirectUrl });
-            this.setState({ loading: false, showPopup: true });
+            this.setState({ loading: false, showPopup: 'User does not exist!' });
 
         });
     }
@@ -109,9 +108,9 @@ class TransferOwnership extends Component {
                         <Col className="text-center">
                             <Link to="/"><img src={corgiImage} /></Link>
 
-                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: false })} show={this.state.showPopup} autohide>
+                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
                                 <Toast.Header className="smallPopup">
-                                    <strong className="mx-auto">User does not exist!</strong>
+                                    <strong className="mx-auto">{this.state.showPopup}</strong>
                                 </Toast.Header>
                             </Toast>
 

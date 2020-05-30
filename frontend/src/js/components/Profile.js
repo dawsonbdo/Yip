@@ -95,11 +95,9 @@ class Profile extends Component {
                 data: form,
             }).then(response => {
 
-                //alert('User successfully followed');
-
             }).catch(error => {
 
-                alert('User failed to follow');
+                this.setState({ showPopup: true, popupMsg: 'User failed to follow' });
 
             });
         }
@@ -112,11 +110,9 @@ class Profile extends Component {
                 data: form,
             }).then(response => {
 
-                //alert('User successfully unfollowed');
-
             }).catch(error => {
 
-                alert('User failed to unfollow');
+                this.setState({ showPopup: true, popupMsg: 'User failed to unfollow' });
 
             });
         }
@@ -254,7 +250,7 @@ class Profile extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('No followed users');
+            this.setState({ showPopup: true, popupMsg: 'No followed users' });
 
         });
 
@@ -265,7 +261,6 @@ class Profile extends Component {
             url: '/get_user/' + username + '/' + token,
         }).then(response => {
 
-            //alert('User info successfully grabbed from database!');
 
             // TODO: Render user information
             console.log("USER");
@@ -294,7 +289,7 @@ class Profile extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('User info does not exist in database');
+            this.setState({ showPopup: true, popupMsg: 'User info does not exist in database' });
 
         });
 
@@ -303,8 +298,6 @@ class Profile extends Component {
             method: 'get',
             url: '/get_followed_kennels_username/' + username,
         }).then(response => {
-
-            //alert('Users followed kennels info successfully grabbed from database!');
 
             console.log("FOLLOWED KENNELS");
             console.log(response.data);
@@ -341,7 +334,7 @@ class Profile extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('User followed kennels does not exist in database');
+            this.setState({ showPopup: true, popupMsg: 'User info does not exist in database' });
 
         });
 
@@ -352,7 +345,6 @@ class Profile extends Component {
             url: '/get_user_reviews/' + username + '/' + token,
         }).then(response => {
 
-            //alert('Users posted reviews info successfully grabbed from database!');
 
             console.log("POSTED REVIEWS");
             console.log(response.data);
@@ -383,7 +375,7 @@ class Profile extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('User posted reviews does not exist in database');
+            this.setState({ showPopup: true, popupMsg: 'User info does not exist in database' });
 
         });
 
@@ -393,7 +385,6 @@ class Profile extends Component {
             url: '/get_user_bookmarked_reviews/' + username + '/' + token,
         }).then(response => {
 
-            // alert('Users bookmarked reviews info successfully grabbed from database!');
 
             console.log("BOOKMARKED REVIEWS");
             console.log(response.data);
@@ -424,7 +415,7 @@ class Profile extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('User has no bookmarked reviews');
+            this.setState({ showPopup: true, popupMsg: 'User has no bookmarked reviews' });
 
         });
 
@@ -433,7 +424,6 @@ class Profile extends Component {
             url: '/get_created_kennels/' + username,
         }).then(response => {
 
-            // alert('Users created kennels successfully grabbed from database!');
 
             console.log("CREATED KENNELS");
             console.log(response.data);
@@ -472,7 +462,7 @@ class Profile extends Component {
         }).catch(error => {
 
             // Review not found in database
-            alert('User has no created kennels');
+            this.setState({ showPopup: true, popupMsg: 'User has no created kennels' });
 
         });
 

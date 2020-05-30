@@ -25,6 +25,7 @@ class ReviewCard extends Component {
             isDisliked: false,
             loginPrompt: false,
             timestamp: "",
+            showPopup: null
         }
 
         // Binds button handler
@@ -33,8 +34,7 @@ class ReviewCard extends Component {
     }
 
     componentDidMount() {
-        //alert(this.props.reviewName)
-        //alert(this.props.rating)
+
         this.setState({
             rating: this.props.rating,
             isLiked: this.props.isLiked,
@@ -85,12 +85,10 @@ class ReviewCard extends Component {
             data: form
         }).then(response => {
 
-            //alert('Review successfully disliked!');
-
         }).catch(error => {
 
             // Failed to dislike review
-            alert('Review dislike failed');
+            this.setState({ showPopup: 'Review dislike failed' });
 
         });
     }
@@ -135,12 +133,10 @@ class ReviewCard extends Component {
             data: form
         }).then(response => {
 
-            //alert('Review successfully liked!');
-
         }).catch(error => {
 
             // Failed to like review
-            alert('Review like failed');
+            this.setState({ showPopup: 'Review like failed' });
 
         });
     }
@@ -179,6 +175,12 @@ class ReviewCard extends Component {
                                 <strong className="mr-auto">You must sign in to like/dislike reviews</strong>
                             </Toast.Header>
                             <Toast.Body>Click <a href="/login">here</a> to sign in</Toast.Body>
+                        </Toast>
+
+                        <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+                            <Toast.Header className="smallPopup">
+                                <strong className="mx-auto">{this.state.showPopup}</strong>
+                            </Toast.Header>
                         </Toast>
 
                         <div className="logInForm">

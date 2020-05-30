@@ -7,7 +7,6 @@ import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import corgiImage from '../../assets/corgi_shadow.png';
 import { Redirect } from 'react-router-dom';
-import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Toast from 'react-bootstrap/Toast';
 import axios from 'axios';
@@ -96,7 +95,6 @@ class Profile extends Component {
             data: form
         }).then(response => {
 
-            //alert('Review successfully reported!');
 
             let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
             this.setState({ redirect: redirectUrl });
@@ -104,7 +102,6 @@ class Profile extends Component {
         }).catch(error => {
 
             // Failed to dislike review
-            // alert('Review report failed');
             //let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
             //this.setState({ redirect: redirectUrl });
             this.setState({ loading: false, showPopup: true });

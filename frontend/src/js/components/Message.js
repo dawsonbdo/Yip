@@ -8,6 +8,7 @@ import Container from 'react-bootstrap/Container';
 import Image from 'react-bootstrap/Image';
 import trashIcon from '../../assets/trash.png';
 import { updateLoggedInState } from './BackendHelpers.js';
+import Toast from 'react-bootstrap/Toast';
 
 import axios from 'axios'
 
@@ -16,7 +17,8 @@ class Message extends Component {
         super(props);
 
         this.state = {
-            isRendered: true
+            isRendered: true,
+            showPopup: null
         }
 
         this.deleteReport = this.deleteReport.bind(this);
@@ -43,12 +45,11 @@ class Message extends Component {
             url: reqUrl
         }).then(response => {
 
-            //alert('Review successfully removed!');
             this.setState({ isRendered: false });
 
         }).catch(error => {
 
-            alert('Report removal failed');
+            this.setState({ showPopup: 'Report removal failed' });
 
         });
     }
@@ -65,6 +66,11 @@ class Message extends Component {
                             <Col></Col>
 
                             <Col xs={10} className="text-center">
+                                <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+                                    <Toast.Header className="smallPopup">
+                                        <strong className="mx-auto">{this.state.showPopup}</strong>
+                                    </Toast.Header>
+                                </Toast>
                                 <div className="logInForm">
                                     <div className="logInLabel">
                                         <Container>

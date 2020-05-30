@@ -100,7 +100,6 @@ class SearchResults extends Component {
         }).catch(error => {
 
             // Review not found in database
-            //alert('Failed to search kennels');
             this.setState({ searchDisplay: true, results: false });
 
         });
@@ -154,7 +153,6 @@ class SearchResults extends Component {
         }).catch(error => {
 
             // Review not found in database
-            //alert('Failed to search reviews');
             this.setState({ searchDisplay: true, results: false });
 
         });

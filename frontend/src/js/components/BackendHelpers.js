@@ -194,7 +194,7 @@ export async function updateLoggedInUserAndWebSocket(page) {
         }).catch(error => {
 
           // Failed to dislike review
-          alert('Msg unsuccessfuly sent to db');
+          // alert('Msg unsuccessfuly sent to db');
 
         });
 
@@ -224,10 +224,10 @@ export async function setAllUsers(page) {
     url: '/get_all_users'
   }).then(response => {
 
-    alert('All users receieved');
+    // alert('All users receieved');
 
     if (response.data == undefined || response.data.length == 0) {
-      alert('No past messages in inbox');
+      // alert('No past messages in inbox');
       return;
     }
 
@@ -246,7 +246,7 @@ export async function setAllUsers(page) {
   }).catch(error => {
 
     // Failed to dislike review
-    alert('Failed to load all users');
+    // alert('Failed to load all users');
 
   });
 }
