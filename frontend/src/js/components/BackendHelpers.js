@@ -128,7 +128,6 @@ export async function updateLoggedInUserAndWebSocket(page) {
     method: 'get',
     url: '/get_username/' + localStorage.getItem('jwtToken'),
   }).then((response) => {
-    //alert("CREATING SOCKET");
 
     // Create web socket
     var ws = new WebSocket('ws://corgiyip.site/' + response.data);
@@ -153,7 +152,6 @@ export async function updateLoggedInUserAndWebSocket(page) {
     inputElem.addEventListener('keypress', function (e) {
       var key = e.which || e.keyCode;
       if (key === 13) {
-        //alert("EMTER");
 
         // Get input and token and recipieint
         var inputElem = document.querySelector('.chatMessage');
@@ -182,12 +180,7 @@ export async function updateLoggedInUserAndWebSocket(page) {
           data: form
         }).then(response => {
 
-          //alert('Msg sucessfuly created in db');
-
         }).catch(error => {
-
-          // Failed to dislike review
-          // alert('Msg unsuccessfuly sent to db');
 
         });
 
@@ -198,7 +191,6 @@ export async function updateLoggedInUserAndWebSocket(page) {
         that.setState({ inputElem: inputElem });
       }
     });
-
 
     // Return username ("" if none)
     return response.data;
@@ -217,10 +209,7 @@ export async function setAllUsers(page) {
     url: '/get_all_users'
   }).then(response => {
 
-    // alert('All users receieved');
-
     if (response.data == undefined || response.data.length == 0) {
-      // alert('No past messages in inbox');
       return;
     }
 
@@ -236,9 +225,6 @@ export async function setAllUsers(page) {
 
 
   }).catch(error => {
-
-    // Failed to dislike review
-    // alert('Failed to load all users');
 
   });
 }
@@ -288,6 +274,3 @@ export function isLoggedIn(page) {
   return page.state.loggedIn;
 
 }
-
-// Function that formats a form to be sent in POST request
-// const formUrlEncoded = x => Object.keys(x).reduce((p, c) => p + `&${c}=${encodeURIComponent(x[c])}`, '')

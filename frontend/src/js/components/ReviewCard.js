@@ -37,11 +37,9 @@ class ReviewCard extends Component {
 
         var timestamp = this.props.timestamp;
 
-        timestamp = this.props.timestamp.replace(/-/g,'/');  // replaces all occurances of "-" with "/"
+        timestamp = this.props.timestamp.replace(/-/g, '/');  // replaces all occurances of "-" with "/"
 
         timestamp = timestamp.substring(0, 10) + " " + timestamp.substring(11, 19);
-
-        console.log("TIMESTAMP: " + timestamp);
 
         this.setState({
             rating: this.props.rating,

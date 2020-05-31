@@ -1,22 +1,6 @@
-
-
-
-
-
-
-
-
 // THIS IS A MODIFIED VERSION OF https://www.npmjs.com/package/react-images-upload
 // TO FIT THE PROJECTS NEEDS
 // ALL CREDIT GOES TO THE AUTHORS OF react-images-upload
-
-
-
-
-
-
-
-
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -63,17 +47,6 @@ class ImageLoader extends React.Component {
     }
     this.props.onChange(this.state.files, this.state.pictures);
   }
-
-  /*
-   Load image at the beggining if defaultImage prop exists
-   */
-  //componentWillReceiveProps(nextProps){
-  //    if (nextProps.defaultImages !== this.props.defaultImages) {
-  //        this.setState({
-  //            pictures: nextProps.defaultImages,
-  //        });
-  //    }
-  //}
 
   /*
 	 Check file extension (onDropFile)

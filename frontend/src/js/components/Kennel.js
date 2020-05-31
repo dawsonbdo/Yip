@@ -197,7 +197,7 @@ class Kennel extends Component {
             var mutedStr = "";
             if (response.data.muted_words.length > 0) {
                 mutedStr = mutedStr + response.data.muted_words[0];
-                this.setState({mutedArray: response.data.muted_words});
+                this.setState({ mutedArray: response.data.muted_words });
             }
             for (var i = 1; i < response.data.muted_words.length; i++) {
 
@@ -207,9 +207,9 @@ class Kennel extends Component {
             }
 
             // Iterate through bans
-            if(response.data.banned_users != null && response.data.banned_users.length > 0) {
-                this.setState({bansArray: response.data.banned_users});
-            } 
+            if (response.data.banned_users != null && response.data.banned_users.length > 0) {
+                this.setState({ bansArray: response.data.banned_users });
+            }
 
 
             this.setState({ rulesStringProp: response.data.rules });
@@ -363,14 +363,13 @@ class Kennel extends Component {
                     });
 
                 }
-                this.setState({ kennelReviewsListed: true });
-                this.setState({ isFiltered: false });
+                this.setState({ kennelReviewsListed: true, isFiltered: false });
             }
 
         }).catch(error => {
 
             // Review not found in database
-            this.setState({ showPopup: 'Kennel does not exist/No reviews in kennel' })
+            this.setState({ showPopup: 'Kennel does not exist or no reviews in kennel' })
 
         });
     }

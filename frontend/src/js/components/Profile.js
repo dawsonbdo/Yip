@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Row from 'react-bootstrap/Row';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -12,7 +11,6 @@ import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import UserCard from './UserCard';
 import ReviewCard from './ReviewCard';
-import corgiImage from '../../assets/corgi_shadow.png';
 import KennelCard from './KennelCard';
 import corgiPFP from '../../assets/corgi_pfp.png';
 import Toast from 'react-bootstrap/Toast';

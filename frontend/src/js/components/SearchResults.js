@@ -24,8 +24,10 @@ class SearchResults extends Component {
     }
 
     componentDidUpdate(prevProps) {
+
         // Checks if user was redirected to this page from another search results page
         if (prevProps.location.key != this.props.location.key) {
+
             // Resets component
             window.location.reload();
         }

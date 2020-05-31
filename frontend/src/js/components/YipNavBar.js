@@ -77,7 +77,6 @@ class YipNavBar extends Component {
 
     query = encodeURIComponent(query);
 
-
     // Redirect to search results page with search type and query in url
     this.setState({ redirect: `/searchresults-${event}-${query}` });
 
@@ -110,8 +109,6 @@ class YipNavBar extends Component {
     }
 
     query = encodeURIComponent(query);
-
-    // alert("URL QUERY: " + query);
 
     // Redirect to search results page with search type and query in url
     this.setState({ redirect: `/searchresults-Reviews-${query}` });
@@ -154,8 +151,6 @@ class YipNavBar extends Component {
         this.setState({ createdKennelsLoaded: true });
 
       }).catch(error => {
-
-        // Review not found in database
 
       });
     }

@@ -1,19 +1,13 @@
 import React, { Component } from 'react';
 
 import Jumbotron from "react-bootstrap/Jumbotron";
-import Button from 'react-bootstrap/Button';
 import ReviewCard from './ReviewCard';
 import YipNavBar from "./YipNavBar";
 import Image from 'react-bootstrap/Image';
 import LoadingIcon from '../../assets/loadingIcon.gif';
-import Container from 'react-bootstrap/Container';
-import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Attributes from './Attributes';
 import { Link } from 'react-router-dom';
 import Toast from 'react-bootstrap/Toast';
-
-import KennelCard from './KennelCard';
 
 import { isLoggedIn, updateLoggedInState, updateLoggedInUser } from './BackendHelpers.js';
 

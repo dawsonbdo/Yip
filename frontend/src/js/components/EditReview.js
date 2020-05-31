@@ -48,6 +48,7 @@ class EditReview extends Component {
             method: 'get',
             url: reqUrl
         }).then(response => {
+
             // Gets kennel id
             this.setState({ kennelId: response.data.kennel_uuid, tags: response.data.tags });
 
@@ -57,8 +58,10 @@ class EditReview extends Component {
 
             // Iterate over current existing tags
             for (var i = 0; i < this.props.location.state.tags.length; i++) {
+
                 // Check that tags still exist (in case moderator edited tags)
                 if (response.data.tags.indexOf(this.props.location.state.tags[i]) !== -1) {
+
                     // Index of current tag in kennel tags array
                     var idxOfTag = response.data.tags.indexOf(this.props.location.state.tags[i]);
 
@@ -72,7 +75,7 @@ class EditReview extends Component {
 
         }).catch(error => {
 
-            this.setState({ showPopup: 'Kennel does not exist in database' });
+            this.setState({ showPopup: 'Kennel does not exist' });
 
         });
     }
@@ -118,6 +121,7 @@ class EditReview extends Component {
 
         // Iterate through all pictures adding image/name to form
         for (var idx = 0; idx < this.state.pictures.length; idx++) {
+
             // Append current image/name
             if (this.state.pictures[idx].size == 1) {
                 fd.append('image', new File(["a"], "Empty", { type: 'image/jpg' }));
@@ -147,7 +151,8 @@ class EditReview extends Component {
         }).catch(error => {
 
             // Failed to create review
-            this.setState({ loading: false,
+            this.setState({
+                loading: false,
                 showPopup: 'Review edit failed'
             });
 
@@ -174,8 +179,6 @@ class EditReview extends Component {
                     type="checkbox"
                     id={tag}
                     label={`${tag}`}
-                    //onChange={this.handleCheck.bind(this, index)}
-                    //defaultChecked={this.state.checkedTags[index]}
                     onChange={this.handleCheck.bind(this, index)}
                     checked={this.state.checkedTags[index]}
                 />
@@ -190,11 +193,11 @@ class EditReview extends Component {
             return (
                 <Container>
                     <Row className="align-items-center">
-                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
-                                <Toast.Header className="smallPopup">
-                                    <strong className="mx-auto">{this.state.showPopup}</strong>
-                                </Toast.Header>
-                            </Toast>
+                        <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+                            <Toast.Header className="smallPopup">
+                                <strong className="mx-auto">{this.state.showPopup}</strong>
+                            </Toast.Header>
+                        </Toast>
                         <Col className="text-center">
                             <Link to="/"><img src={corgiImage} /></Link>
                             <div className="logInForm">

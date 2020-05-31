@@ -66,26 +66,10 @@ class CreateKennel extends Component {
 
     var rules = document.getElementById('rules').value;
 
-    // Uncomment if reverting to old tag form
-    //var tagsStr = document.getElementById('tags').value;
-    //var tags = tagsStr.split(", ");
     var tags = this.state.tags;
     var mutes = this.state.mutes;
 
-    //var mutedStr = document.getElementById('mute').value;
-    //var mutedWords;
-
     var desc = document.getElementById('description').value;
-    
-    /*
-    // Check muted words for whitespace
-    if (mutedStr === null || mutedStr.match(/^ *$/) !== null) {
-      mutedWords = null;
-
-    } else {
-      mutedWords = mutedStr.split(", ");
-    }
-  */
 
     // Create form to send
     var form = createKennelJson(title, tags, mutes, rules, token, desc);

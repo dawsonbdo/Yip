@@ -91,7 +91,7 @@ class Register extends Component {
 
             // Username or email already exist
             this.setState({ showPopup: 'Username or Email already registered!', loading: false });
-            
+
         });
     }
 
