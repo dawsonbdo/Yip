@@ -168,14 +168,25 @@ class Review extends Component {
 			url: reqUrl
 		}).then(response => {
 
+			var moment = require('moment');
+
 			// Fills in commentArray based on response data to render comment cards
 			if (!this.state.commentsListed) {
 
+				
+
 				for (var i = 0; i < response.data.length; i++) {
+					var timestamp = response.data[i].timestamp;
+
+			        timestamp = timestamp.substring(0, 10) + " " + timestamp.substring(11, 19);
+
+			        var gmtDateTime = moment.utc(timestamp, "YYYY-MM-DD HH:mm:ss")
+			        var local = gmtDateTime.local().format('YYYY-MM-DD HH:mm:ss');
+
 					this.state.commentArray.push({
 						author: response.data[i].author_name,
 						text: response.data[i].text,
-						time: response.data[i].timestamp,
+						time: local,
 						rating: response.data[i].rating,
 						commentId: response.data[i].comment_uuid,
 						isLiked: response.data[i].is_liked,
@@ -412,11 +423,21 @@ class Review extends Component {
 
 			let comments = this.state.commentArray;
 
+			var moment = require('moment');
+
+			var timestamp = response.data.timestamp;
+
+			timestamp = timestamp.substring(0, 10) + " " + timestamp.substring(11, 19);
+
+			var gmtDateTime = moment.utc(timestamp, "YYYY-MM-DD HH:mm:ss")
+			var local = gmtDateTime.local().format('YYYY-MM-DD HH:mm:ss');
+
+
 			// Updates page to display new comment
 			comments.unshift({
 				author: response.data.author_name,
 				text: response.data.text,
-				time: response.data.timestamp,
+				time: local,
 				rating: response.data.rating,
 				commentId: response.data.comment_uuid,
 				isLiked: response.data.is_liked,

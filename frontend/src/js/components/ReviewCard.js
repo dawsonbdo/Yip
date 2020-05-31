@@ -41,12 +41,8 @@ class ReviewCard extends Component {
 
         timestamp = timestamp.substring(0, 10) + " " + timestamp.substring(11, 19);
 
-        //console.log("BEFORE: " + timestamp);
-
         var gmtDateTime = moment.utc(timestamp, "YYYY-MM-DD HH:mm:ss")
         var local = gmtDateTime.local().format('YYYY-MM-DD HH:mm:ss');
-
-        //console.log("AFTER: " + local);
 
         this.setState({
             rating: this.props.rating,
