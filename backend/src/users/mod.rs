@@ -372,7 +372,7 @@ fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unautho
 	
 	// Return authentication token if successful login
 	if !successful_login.is_nil() {
-		match auth::create_token(successful_login, &username) {
+		match auth::create_token(successful_login, &handlers::get_username_from_uuid(successful_login, &connection)) {
 			Ok(t) => Ok(t), 
 			Err(e) => Err(status::Unauthorized(Some(e.to_string()))), 
 		}
