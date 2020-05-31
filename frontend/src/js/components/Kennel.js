@@ -162,8 +162,6 @@ class Kennel extends Component {
             url: reqUrl
         }).then(response => {
 
-            console.log(response.data);
-
             // Updates kennel name
             this.setState({
                 kennel_name: response.data.kennel_name,
@@ -245,7 +243,6 @@ class Kennel extends Component {
             method: 'get',
             url: reqUrl
         }).then(response => {
-            console.log(response.data);
 
             if (response.data.length > 0) {
                 this.state.reportsReviewsArray.push(response.data[0]);
@@ -272,7 +269,6 @@ class Kennel extends Component {
             method: 'get',
             url: reqUrl
         }).then(response => {
-            console.log(response.data);
 
             // Iterate through tags
             if (response.data.length > 0) {

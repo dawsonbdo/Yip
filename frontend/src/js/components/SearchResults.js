@@ -55,8 +55,6 @@ class SearchResults extends Component {
             url: '/search_kennels/' + query,
         }).then(response => {
 
-            console.log("KENNEL SEARCH QUERY: " + query);
-
             // Check bad query result
             if (response.data.length > 4) {
                 if (response.data[0] == '<' && response.data[1] == 'd'
@@ -69,9 +67,6 @@ class SearchResults extends Component {
             // Iterate through kennels
             for (var i = 0; i < response.data.length; i++) {
 
-                // Print kennels to console for now
-                console.log(response.data[i]);
-
                 var tagsStr = "";
                 // Make sure there are tags in the kennel to avoid error
                 if (response.data[i].tags != null) {
@@ -82,7 +77,7 @@ class SearchResults extends Component {
                         tagsStr = tagsStr + ", " + response.data[i].tags[j];
                     }
                 } else {
-                    tagsStr = "None" // No tags, TODO: indicate it idk lol
+                    tagsStr = "None" // No tags
                 }
 
                 // Add kennel info to array for rendering kennel cards
@@ -116,8 +111,6 @@ class SearchResults extends Component {
             url: '/search_reviews/' + query,
         }).then(response => {
 
-            console.log("REVIEW SEARCH QUERY: " + query);
-
             // Check bad query result
             if (response.data.length > 4) {
                 if (response.data[0] == '<' && response.data[1] == 'd'
@@ -129,9 +122,6 @@ class SearchResults extends Component {
 
             // Iterate through reviews
             for (var i = 0; i < response.data.length; i++) {
-
-                // Print reviews to console for now
-                console.log(response.data[i]);
 
                 // Adds review info to array for rendering review cards
                 this.state.resultArray.push({

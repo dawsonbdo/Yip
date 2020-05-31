@@ -32,14 +32,10 @@ class CreateKennel extends Component {
   }
 
   updateTags(tags) {
-    console.log("UPDATE TAGS: ");
-    console.log(tags);
     this.setState({ tags: tags });
   }
 
   updateMutes(mutes) {
-    console.log("UPDATE MUTES: ");
-    console.log(mutes);
     this.setState({ mutes: mutes });
   }
 
@@ -68,10 +64,7 @@ class CreateKennel extends Component {
     var title = document.getElementById('title').value;
     var rules = document.getElementById('rules').value;
 
-    // TODO: Parsing on the tags and muted words (comma separated)
-
     var rules = document.getElementById('rules').value;
-    console.log(rules);
 
     // Uncomment if reverting to old tag form
     //var tagsStr = document.getElementById('tags').value;

@@ -44,7 +44,6 @@ class CreateReview extends Component {
       url: reqUrl
     }).then(response => {
       // Gets kennel id
-      //console.log(response.data);
       this.setState({ kennelId: response.data.kennel_uuid, tags: response.data.tags });
     }).catch(error => {
       this.setState({ showPopup: 'Kennel does not exist in database' });
@@ -76,8 +75,6 @@ class CreateReview extends Component {
 
     this.setState({ loading: true });
 
-    // TODO: Get UTC time or something standard instead of just local time
-
     // Read information in forms
     var title = document.getElementById('title').value;
     var text = document.getElementById('text').value;
@@ -96,8 +93,6 @@ class CreateReview extends Component {
       fd.append('image', this.state.pictures[idx]);
       fd.append('name', this.state.pictures[idx].name);
 
-      console.log("Create Image " + this.state.pictures[idx]);
-      console.log("Create Name " + this.state.pictures[idx].name);
     }
 
     for (var i = 0; i < this.state.checkedTags.length; i++) {
@@ -105,14 +100,6 @@ class CreateReview extends Component {
         fd.append('tag', this.state.tags[i]);
       }
     }
-
-    // fd.append()
-
-    // TODO: add tags like this (IF NO TAGS, DONT APPEND ANYTHING TO FD)
-    // fd.append('tag', tags[i])
-    //
-    //
-    // ^^^^^^^^^^^^^^^^^^^^^^^
 
     // Send POST request with review multipart
     axios({

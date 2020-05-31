@@ -64,8 +64,6 @@ class Home extends Component {
       if (!this.state.reviewsListed) {
         for (var i = 0; i < response.data.length; i++) {
 
-          console.log(response.data[i]);
-
           // Add necessary review info for rendering review cards to reviewArray
           this.state.reviewArray.push({
             title: response.data[i].title,
@@ -113,7 +111,7 @@ class Home extends Component {
             tagsStr = tagsStr + ", " + response.data[i].tags[j];
           }
         } else {
-          tagsStr = "None" // No tags, TODO: indicate it idk lol
+          tagsStr = "None" // No tags
         }
 
         kennelArray.push({
@@ -156,7 +154,7 @@ class Home extends Component {
             tagsStr = tagsStr + ", " + response.data[i].tags[j];
           }
         } else {
-          tagsStr = "None" // No tags, TODO: indicate it idk lol
+          tagsStr = "None" // No tags
         }
 
         kennelArray.push({

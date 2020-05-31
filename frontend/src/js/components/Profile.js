@@ -237,10 +237,6 @@ class Profile extends Component {
             url: '/get_followed_users/' + username,
         }).then(response => {
 
-            // TODO: Render user information
-            console.log("FOLLOWED USER");
-            console.log(response.data);
-
             for (var i = 0; i < response.data.length; i++) {
                 this.state.followedUsersArray.push(response.data[i].followee);
             }
@@ -260,11 +256,6 @@ class Profile extends Component {
             method: 'get',
             url: '/get_user/' + username + '/' + token,
         }).then(response => {
-
-
-            // TODO: Render user information
-            console.log("USER");
-            console.log(response.data);
 
             this.setState({
                 username: response.data.username,
@@ -299,14 +290,9 @@ class Profile extends Component {
             url: '/get_followed_kennels_username/' + username,
         }).then(response => {
 
-            console.log("FOLLOWED KENNELS");
-            console.log(response.data);
 
             // Store followed kennels in kennelArray
             for (var i = 0; i < response.data.length; i++) {
-
-                // Print kennels to console for now
-                console.log(response.data[i]);
 
                 var tagsStr = "";
                 // Make sure there are tags in the kennel to avoid error
@@ -318,7 +304,7 @@ class Profile extends Component {
                         tagsStr = tagsStr + ", " + response.data[i].tags[j];
                     }
                 } else {
-                    tagsStr = "None" // No tags, TODO: indicate it idk lol
+                    tagsStr = "None" // No tags
                 }
 
                 // Add kennel info to array for rendering kennel cards
@@ -345,15 +331,8 @@ class Profile extends Component {
             url: '/get_user_reviews/' + username + '/' + token,
         }).then(response => {
 
-
-            console.log("POSTED REVIEWS");
-            console.log(response.data);
-
             // Iterate through reviews
             for (var i = 0; i < response.data.length; i++) {
-
-                // Print reviews to console for now
-                console.log(response.data[i]);
 
                 // Add review name, reviewer's username, review text to reviewArray
                 this.state.reviewArray.push({
@@ -385,15 +364,8 @@ class Profile extends Component {
             url: '/get_user_bookmarked_reviews/' + username + '/' + token,
         }).then(response => {
 
-
-            console.log("BOOKMARKED REVIEWS");
-            console.log(response.data);
-
             // Iterate through reviews
             for (var i = 0; i < response.data.length; i++) {
-
-                // Print reviews to console for now
-                console.log(response.data[i]);
 
                 // Add review name, reviewer's username, review text to reviewArray
                 this.state.bookmarkArray.push({
@@ -424,15 +396,8 @@ class Profile extends Component {
             url: '/get_created_kennels/' + username,
         }).then(response => {
 
-
-            console.log("CREATED KENNELS");
-            console.log(response.data);
-
             // Store created kennels in createdKennelArray
             for (var i = 0; i < response.data.length; i++) {
-
-                // Print kennels to console for now
-                console.log(response.data[i]);
 
                 var tagsStr = "";
                 // Make sure there are tags in the kennel to avoid error
@@ -444,7 +409,7 @@ class Profile extends Component {
                         tagsStr = tagsStr + ", " + response.data[i].tags[j];
                     }
                 } else {
-                    tagsStr = "None" // No tags, TODO: indicate it idk lol
+                    tagsStr = "None" // No tags
                 }
 
 

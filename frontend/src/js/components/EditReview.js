@@ -38,17 +38,17 @@ class EditReview extends Component {
 
     componentDidMount() {
         var kennelName = this.props.location.state.kennel_name;
-        // this.setState({ pictures: this.props.location.state.images }); TODO images
         var token = localStorage.getItem('jwtToken');
+
         // Format URL to send in GET request
         var reqUrl = "/get_kennel/" + kennelName + "/" + token;
+
         // Send GET request with kennel name to get kennel information
         axios({
             method: 'get',
             url: reqUrl
         }).then(response => {
             // Gets kennel id
-            console.log(response.data);
             this.setState({ kennelId: response.data.kennel_uuid, tags: response.data.tags });
 
             for (var i = 0; i < response.data.tags.length; i++) {
@@ -102,8 +102,6 @@ class EditReview extends Component {
         }
 
         this.setState({ loading: true });
-
-        // TODO: Get UTC time or something standard instead of just local time
 
         // Read information in forms
         var title = document.getElementById('title').value;
