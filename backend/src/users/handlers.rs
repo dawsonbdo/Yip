@@ -157,12 +157,12 @@ pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbUser>> {
 pub fn get(user: User, connection: &PgConnection) -> Uuid {
 
     // Prints the User information that was sent (login)
-    println!("Login: {}", user.email);
-    println!("Password: {}", user.password);
+    //println!("Login: {}", user.email);
+    //println!("Password: {}", user.password);
 
     // Searches columns for user with username and email and gets User if found
-    let username_search = users::table.filter(users::username.eq(user.username)).load::<DbUser>(&*connection).expect("Error");
-    let email_search = users::table.filter(users::email.eq(user.email)).load::<DbUser>(&*connection).expect("Error");
+    let username_search = users::table.filter(users::username.ilike(user.username)).load::<DbUser>(&*connection).expect("Error");
+    let email_search = users::table.filter(users::email.ilike(user.email)).load::<DbUser>(&*connection).expect("Error");
 
     // Checks if User with username was found
     if username_search.iter().len() > 0 {
@@ -369,8 +369,8 @@ pub fn insert(user: User, connection: &PgConnection) -> Result<Uuid, String> {
     //println!("Password: {}", user.password);
 
     // Searches columns for user with username and email and gets User if found
-    let username_search = users::table.filter(users::username.eq(user.username.clone())).load::<DbUser>(&*connection).expect("Error");
-    let email_search = users::table.filter(users::email.eq(user.email.clone())).load::<DbUser>(&*connection).expect("Error");
+    let username_search = users::table.filter(users::username.ilike(user.username.clone())).load::<DbUser>(&*connection).expect("Error");
+    let email_search = users::table.filter(users::email.ilike(user.email.clone())).load::<DbUser>(&*connection).expect("Error");
 
     // Creates vector for indicating missing fields
     let mut err_msg = "".to_string();

@@ -368,7 +368,7 @@ fn login(user: Json<User>, connection: DbConn) -> Result<String, status::Unautho
 	let successful_login = handlers::get(user.into_inner(), &connection);
 
 	// Prints whether login was successful (indicated by non nill uuid)
-	println!("Login {}", successful_login);
+	//println!("Login {}", successful_login);
 	
 	// Return authentication token if successful login
 	if !successful_login.is_nil() {
@@ -408,7 +408,7 @@ fn register(user: Json<User>, connection: DbConn) -> Result<String, status::Conf
 				 },
 		// Unsuccessful registration, return the error
 		Err(e) => {
-			println!("{}", e.to_string());
+			//println!("{}", e.to_string());
 			Err(status::Conflict(Some(e.to_string())))
 		}
 	}
