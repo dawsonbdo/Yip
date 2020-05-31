@@ -35,19 +35,24 @@ class ReviewCard extends Component {
 
     componentDidMount() {
 
-        var timestamp = this.props.timestamp;
+        var moment = require('moment');
 
-        timestamp = this.props.timestamp.replace(/-/g,'/');  // replaces all occurances of "-" with "/"
+        var timestamp = this.props.timestamp;
 
         timestamp = timestamp.substring(0, 10) + " " + timestamp.substring(11, 19);
 
-        console.log("TIMESTAMP: " + timestamp);
+        //console.log("BEFORE: " + timestamp);
+
+        var gmtDateTime = moment.utc(timestamp, "YYYY-MM-DD HH:mm:ss")
+        var local = gmtDateTime.local().format('YYYY-MM-DD HH:mm:ss');
+
+        //console.log("AFTER: " + local);
 
         this.setState({
             rating: this.props.rating,
             isLiked: this.props.isLiked,
             isDisliked: this.props.isDisliked,
-            timestamp: (new Date(timestamp)).toString()
+            timestamp: local
         })
 
         updateLoggedInState(this);
