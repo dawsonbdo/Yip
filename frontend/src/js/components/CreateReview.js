@@ -36,13 +36,16 @@ class CreateReview extends Component {
   componentDidMount() {
     var kennelName = this.props.location.state.kennel_name;
     var token = localStorage.getItem('jwtToken');
+
     // Format URL to send in GET request
     var reqUrl = "/get_kennel/" + kennelName + "/" + token;
+
     // Send GET request with kennel name to get kennel information
     axios({
       method: 'get',
       url: reqUrl
     }).then(response => {
+
       // Gets kennel id
       this.setState({ kennelId: response.data.kennel_uuid, tags: response.data.tags });
     }).catch(error => {

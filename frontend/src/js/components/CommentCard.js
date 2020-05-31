@@ -64,7 +64,7 @@ class CommentCard extends Component {
         }).catch(error => {
 
             // Failed to dislike review
-            this.setState( {showPopup: 'Deleting comment failed'} );
+            this.setState({ showPopup: 'Deleting comment failed' });
 
         });
 
@@ -73,6 +73,7 @@ class CommentCard extends Component {
     like() {
 
         if (this.props.loggedIn) {
+
             // If already liked removes like
             if (this.state.isLiked) {
                 this.setState({ isLiked: false, rating: this.state.rating - 1 });
@@ -113,7 +114,7 @@ class CommentCard extends Component {
         }).catch(error => {
 
             // Failed to dislike review
-            this.setState( {showPopup: 'Comment like failed'} );
+            this.setState({ showPopup: 'Comment like failed' });
 
         });
     }
@@ -163,7 +164,7 @@ class CommentCard extends Component {
         }).catch(error => {
 
             // Failed to dislike review
-            this.setState( {showPopup: 'Comment dislike failed'} );
+            this.setState({ showPopup: 'Comment dislike failed' });
 
         });
     }
@@ -196,11 +197,11 @@ class CommentCard extends Component {
                     <Col></Col>
 
                     <Col xs={10} className="text-center">
-                            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
-                                <Toast.Header className="smallPopup">
-                                    <strong className="mx-auto">{this.state.showPopup}</strong>
-                                </Toast.Header>
-                            </Toast>
+                        <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+                            <Toast.Header className="smallPopup">
+                                <strong className="mx-auto">{this.state.showPopup}</strong>
+                            </Toast.Header>
+                        </Toast>
                         <div className="logInForm">
                             <div className="logInLabel">
                                 <Container>

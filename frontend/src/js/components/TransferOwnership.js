@@ -33,13 +33,8 @@ class TransferOwnership extends Component {
     }
 
     componentDidMount() {
-        //const { handle } = this.props.match.params;
-        const reviewState = this.props.location.state;
 
-        // fetch(`localhost:8000/kennel-${handle}`)
-        //   .then((kennel) => {
-        //     this.setState(() => ({ kennel }))
-        //   })
+        const reviewState = this.props.location.state;
 
         // Load the usernames from db
         setAllUsers(this);
@@ -76,7 +71,6 @@ class TransferOwnership extends Component {
             url: '/transfer_ownership/' + username + '/' + token + '/' + kennel_name
         }).then(response => {
 
-            //alert('Kennel ownership successfully transferred');
             this.setState({ loading: false, showPopup: 'Kennel ownership successfully transferred' });
 
             let redirectUrl = "/kennel-" + this.state.reviewFrom.kennel_name;
@@ -84,8 +78,6 @@ class TransferOwnership extends Component {
 
         }).catch(error => {
 
-            //let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
-            //this.setState({ redirect: redirectUrl });
             this.setState({ loading: false, showPopup: 'User does not exist!' });
 
         });
@@ -126,7 +118,6 @@ class TransferOwnership extends Component {
                                             style={{ width: 300, marginLeft: 'auto', marginRight: 'auto' }}
                                             renderInput={(params) => <TextField {...params} label="Enter username here." variant="outlined" />}
                                         />
-                                        {/*<Form.Control id="username" className="logInEntry" as="textarea" placeholder="Enter username here." required /> */}
 
                                         <Form.Control.Feedback type="invalid">Username required.</Form.Control.Feedback>
                                     </div>

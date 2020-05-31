@@ -72,6 +72,7 @@ class Login extends Component {
 
       // Error for failed login
       this.setState({ failedLogin: true, showPopup: true, loading: false });
+
     });
   }
 

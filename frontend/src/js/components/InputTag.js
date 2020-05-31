@@ -13,10 +13,10 @@ class InputTag extends React.Component {
     this.inputKeyDown = this.inputKeyDown.bind(this);
   }
 
-  componentDidMount(){
-    
-    if (this.props.tags != undefined){
-      this.setState({tags: this.props.tags});
+  componentDidMount() {
+
+    if (this.props.tags != undefined) {
+      this.setState({ tags: this.props.tags });
     }
   }
 

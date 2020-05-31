@@ -32,17 +32,17 @@ class EditKennel extends Component {
     this.updateKennel = this.updateKennel.bind(this);
   }
 
-  componentDidMount(){
-    this.setState({tags: this.props.location.state.tags})
-    this.setState({mutes: this.props.location.state.mutedWords})
-    this.setState({bans: this.props.location.state.bans})
+  componentDidMount() {
+    this.setState({ tags: this.props.location.state.tags })
+    this.setState({ mutes: this.props.location.state.mutedWords })
+    this.setState({ bans: this.props.location.state.bans })
   }
 
   updateTags(tags) {
     this.setState({ tags: tags });
   }
 
-   updateMutes(mutes) {
+  updateMutes(mutes) {
     this.setState({ mutes: mutes });
   }
 
@@ -130,7 +130,7 @@ class EditKennel extends Component {
                   <div className="logInEntryContainer">
                     <Form.Label>Tags</Form.Label>
                     <InputTag tags={this.state.tags} onTagChange={this.updateTags.bind(this)} />
-                   </div>
+                  </div>
                   <div className="logInEntryContainer">
                     <Form.Label>Muted Words</Form.Label>
                     <InputTag tags={this.state.mutes} onTagChange={this.updateMutes.bind(this)} /></div>

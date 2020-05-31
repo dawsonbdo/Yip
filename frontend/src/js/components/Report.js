@@ -31,13 +31,9 @@ class Profile extends Component {
     }
 
     componentDidMount() {
-        //const { handle } = this.props.match.params;
+
         const reviewState = this.props.location.state;
 
-        // fetch(`localhost:8000/kennel-${handle}`)
-        //   .then((kennel) => {
-        //     this.setState(() => ({ kennel }))
-        //   })
         let msg;
         if (reviewState.is_comment) {
             msg = "Comment already reported!";
@@ -96,9 +92,6 @@ class Profile extends Component {
 
         }).catch(error => {
 
-            // Failed to dislike review
-            //let redirectUrl = "/review-" + this.state.reviewFrom.review_id;
-            //this.setState({ redirect: redirectUrl });
             this.setState({ loading: false, showPopup: true });
 
         });
