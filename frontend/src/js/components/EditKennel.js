@@ -25,7 +25,7 @@ class EditKennel extends Component {
       showPopup: null,
       tags: this.props.location.state.tags,
       mutes: this.props.location.state.mutedWords,
-      bans: []
+      bans: this.props.location.state.bans,
     };
 
     // Binds button handler
@@ -34,6 +34,8 @@ class EditKennel extends Component {
 
   componentDidMount(){
     this.setState({tags: this.props.location.state.tags})
+    this.setState({mutes: this.props.location.state.mutedWords})
+    this.setState({bans: this.props.location.state.bans})
   }
 
   updateTags(tags) {
@@ -134,7 +136,7 @@ class EditKennel extends Component {
                     <InputTag tags={this.state.mutes} onTagChange={this.updateMutes.bind(this)} /></div>
                   <div className="logInEntryContainer">
                     <Form.Label>Banned Reviewers</Form.Label>
-                    <InputTag onTagChange={this.updateBans.bind(this)} />
+                    <InputTag tags={this.state.bans} onTagChange={this.updateBans.bind(this)} />
                   </div>
                   <div className="logInEntryContainer">
                     <Button className="logInEntry" onClick={this.updateKennel} variant="primary"><div>Save{loading}</div></Button>

@@ -136,7 +136,7 @@ fn tf_idf(reviews: Vec<DbReview>, query_words: Vec<&str>, _connection: &PgConnec
  * @param term: the term that tf calculated for
  * @param review: the document that term frequency is calculated for
  *
- * @return returns the tf value
+ * @return returns the tf value + jaro distance
  */
 fn calc_tf_review(term: &str, review: &DbReview) -> f32{
 
@@ -200,6 +200,7 @@ pub fn jaro_dist(str1: &str, str2: &str, margin: f32) -> f32 {
     let s1 : Vec<char> = str1.to_string().chars().collect();
     let s2 : Vec<char> = str2.to_string().chars().collect();
 
+    // Calculate m value in jaro-distance equation
     let mut m = 0.0;
     for c in str1.to_string().chars(){
         if str2.contains(c){
@@ -207,6 +208,7 @@ pub fn jaro_dist(str1: &str, str2: &str, margin: f32) -> f32 {
         }
     }
 
+    // Calculate t value in jaro-distance equation
     let mut t = 0.0;
     if s1.len() > s2.len() {
 
@@ -234,12 +236,14 @@ pub fn jaro_dist(str1: &str, str2: &str, margin: f32) -> f32 {
 
     t = t/2.0;
 
+    // Calculate jaro distance value 
     let d = (1 as f32/3 as f32) * ((m / s1.len() as f32 ) + (m / s2.len() as f32) + ((m-t) / m as f32));
 
     //let t1 : String = s1.iter().collect();
     //let t2 : String = s2.iter().collect();
     //println!("JARO DIST ({}, {}): {}", t1, t2, d);
 
+    // Based on if within margin, return dist or 0
     if d > margin {
         d
     } else {

@@ -34,6 +34,7 @@ class Kennel extends Component {
             followBtnText: "Follow",
             reviewArray: [],
             tagsArray: [],
+            bansArray: [],
             reportsReviewsArray: [],
             reportsCommentsArray: [],
             mutedArray: [],
@@ -192,6 +193,7 @@ class Kennel extends Component {
                 this.state.tagsArray.push(response.data.tags[i]);
             }
 
+            // Iterate through muted words
             var mutedStr = "";
             if (response.data.muted_words.length > 0) {
                 mutedStr = mutedStr + response.data.muted_words[0];
@@ -204,18 +206,11 @@ class Kennel extends Component {
 
             }
 
-
-
-            /*var bannedStr = "";
-            if(response.data.bans.length > 0) {
-                bannedStr = bannedStr + response.data.bans[0];
+            // Iterate through bans
+            if(response.data.banned_users != null && response.data.banned_users.length > 0) {
+                this.setState({bansArray: response.data.banned_users});
             } 
-            for (var i = 1; i < response.data.muted_bans.length; i++) {
-                
-                // Build muted words string from array as prop for editkennel
-                bannedStr = bannedStr + ", " + response.data.bans[i];
-    
-            }*/
+
 
             this.setState({ rulesStringProp: response.data.rules });
             this.setState({ tagsString: tagsStr });
@@ -468,6 +463,7 @@ class Kennel extends Component {
                                                         rules: this.state.rulesStringProp,
                                                         tags: this.state.tagsArray,
                                                         mutedWords: this.state.mutedArray,
+                                                        bans: this.state.bansArray,
                                                         kennel_name: this.state.kennel_name,
                                                         description: this.state.description
                                                     }

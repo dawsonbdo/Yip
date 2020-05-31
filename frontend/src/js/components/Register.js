@@ -83,7 +83,7 @@ class Register extends Component {
             localStorage.setItem('jwtToken', response.data);
 
             // Redirect to home after registering
-            this.setState({ redirect: "/home" });
+            this.setState({ redirect: "/" });
 
             this.setState({ showPopup: 'Account successfully created!' });
 

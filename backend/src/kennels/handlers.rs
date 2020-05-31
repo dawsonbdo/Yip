@@ -160,9 +160,42 @@ pub fn to_display_kennel(kennel: &DbKennel, token: String, connection: &PgConnec
         },
         description: kennel.description.clone(),
         mod_name: mod_name,
+        banned_users: get_kennel_banned_users(kennel.kennel_uuid, connection),
     }
 
 }
+
+/**
+ * Method that returns banned users in a kennel
+ * @param kennel_uuid: uuid of kennel
+ * @param connection: database connection
+ *
+ * @return returns vector of banned users in kennel
+ */
+fn get_kennel_banned_users(kennel_uuid: Uuid, connection: &PgConnection) -> Option<Vec<String>> {
+
+    // Read table
+    let banned_users = kennel_bans::table
+             .filter(kennel_bans::kennel.eq(kennel_uuid))
+             .load::<DbKennelBan>(&*connection);
+
+    // If any banned users, convert to String vector
+    match banned_users {
+        Ok(u) => if u.len() == 0 {None} else {
+            let mut names : Vec<String> = vec![];
+
+            // Make string of the names
+            for user in &u {
+                let name = super::super::users::handlers::get_username_from_uuid(user.banned_reviewer, connection);
+                names.push(name);
+            }
+
+            Some(names)
+        },
+        Err(e) => None,
+    }
+}
+
 
 /**
  * Method that returns the row corresponding to profile/kennel uuid if exists
@@ -609,4 +642,5 @@ pub struct DisplayKennel {
     pub rules: String,
     pub description: String,
     pub mod_name: String,
+    pub banned_users: Option<Vec<String>>,
 }
