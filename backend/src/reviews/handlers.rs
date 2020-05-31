@@ -344,7 +344,7 @@ pub fn update_review_rating(review_uuid: Uuid, connection: &PgConnection) -> Que
     // Get new hotness
     let hotness = calculate_hotness(review_uuid, new_count, connection);
 
-    println!("Review Id: {} New Count: {} New Hotness: {}", review_uuid, new_count, hotness);
+    //println!("Review Id: {} New Count: {} New Hotness: {}", review_uuid, new_count, hotness);
 
     // Update hotness
     diesel::update(reviews::table.find(review_uuid))
@@ -552,7 +552,7 @@ pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> QueryResul
     let author_id = auth::get_uuid_from_token(&review.author[1..(review.author.len()-1)]);
 
     let updated_rev = InsertReview{
-        review_uuid: id, // generate random uuid for review if not already existent
+        review_uuid: id,
         kennel_uuid: kennel_id,
         title: (&review.title[1..(review.title.len()-1)]).to_string(),
         author: author_id,
@@ -575,11 +575,9 @@ pub fn update(id: Uuid, review: Review, connection: &PgConnection) -> QueryResul
  * @param id: uuid of the review
  * @param connection: database connection
  *
- * @return returns a result 
+ * @return returns a result with number of rows affected
  */
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
-    // TODO: Delete all the comments, and relationships ie likes/dislikes
-
     // Delete all reports on review
     diesel::delete(reports::table
              .filter(reports::review_id.eq(id)))

@@ -68,7 +68,7 @@ fn from_comment(comment: InputComment, connection: &PgConnection) -> InsertComme
  * Helper method that converts a DbComment to Display
  * @param comment: the DbComment
  *
- * @return returns a Display
+ * @return returns a DisplayComment
  */
 fn to_comment(comment: &DbComment) -> DisplayComment {
     DisplayComment{
@@ -76,11 +76,11 @@ fn to_comment(comment: &DbComment) -> DisplayComment {
         author_name: comment.author_name.clone(),
         timestamp: comment.timestamp.to_string(),
         text: comment.text.clone(),
-        is_author: false, // mod.rs handles this
-        rating: comment.rating, // TODO: Have this be up to date in db
-        is_liked: false, // handled in mod.rs
-        is_disliked: false, // handled in mod.rs
-        is_reported: false, // mod.rs
+        is_author: false, // set in mod.rs
+        rating: comment.rating, 
+        is_liked: false, // set in mod.rs
+        is_disliked: false, // set in mod.rs
+        is_reported: false, // set in mod.rs
     }
 }
 
@@ -133,7 +133,7 @@ pub fn update_comment_rating(comment_uuid: Uuid, connection: &PgConnection) -> Q
     // Get new rating
     let new_count = calculate_rating(comment_uuid, connection);
 
-    println!("Comment Id: {} New Count: {}", comment_uuid, new_count);
+    // println!("Comment Id: {} New Count: {}", comment_uuid, new_count);
 
     // Update comment rating
     diesel::update(comments::table.find(comment_uuid))
@@ -216,8 +216,8 @@ fn delete_like_dislike(comment_uuid: Uuid, profile_uuid: Uuid, like: bool, conne
 pub fn dislike(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
     
     // Prints the uuids received
-    println!("Comment uuid: {}", comment_uuid);
-    println!("Profile uuid: {}", profile_uuid);
+    //println!("Comment uuid: {}", comment_uuid);
+    //println!("Profile uuid: {}", profile_uuid);
 
     // Check if user already disliked kennel (delete dislike if already disliked)
     match get_relationship_dislike(comment_uuid, profile_uuid, connection) {
@@ -260,8 +260,8 @@ pub fn dislike(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection
 pub fn like(comment_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
     
     // Prints the uuids received
-    println!("Comment uuid: {}", comment_uuid);
-    println!("Profile uuid: {}", profile_uuid);
+    //println!("Comment uuid: {}", comment_uuid);
+    //println!("Profile uuid: {}", profile_uuid);
     
     // Check if user already liked kennel 
     match get_relationship_like(comment_uuid, profile_uuid, connection) {
@@ -319,11 +319,11 @@ pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbComment>> {
 }
 
 /**
- * Method that returns a DbComment given the uuid
+ * Method that returns a DisplayComment given the uuid
  * @param id: uuid of comment
  * @param connection: database connection
  *
- * @return returns a vector of DbComments
+ * @return returns a DisplayComment
  */
 pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DisplayComment> {
 
@@ -339,15 +339,15 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DisplayComment> {
 
 /**
  * Method that attempts to create a new comment in database
- * @param comment: the Comment object
+ * @param comment: the InputComment object
  * @param connection: database connection
  *
  * @return returns the DisplayComment of comment created
  */
 pub fn insert(comment: InputComment, connection: &PgConnection) -> Result<DisplayComment, String> {
     // Prints the Comment information that was received (register)
-    println!("Comment Text: {}", comment.text);
-    println!("Review ID: {}", comment.review_uuid);
+    //println!("Comment Text: {}", comment.text);
+    //println!("Review ID: {}", comment.review_uuid);
 
     // Inserts comment into database, returns uuid generated
     match diesel::insert_into(comments::table)
@@ -355,19 +355,6 @@ pub fn insert(comment: InputComment, connection: &PgConnection) -> Result<Displa
         .get_result::<DbComment>(connection) {
             Ok(c) => Ok(to_comment(&c)),
             Err(e) => Err(e.to_string()),
-        }
-}
-
-/**
- * TODO: Untested/maybe dont even need this feature
- * EDIT Comment: Method that updates a comment in database
- */
-pub fn update(id: Uuid, comment: InputComment, connection: &PgConnection) -> bool {
-    match diesel::update(comments::table.find(id))
-        .set(from_comment(comment, connection))
-        .get_result::<DbComment>(connection) {
-            Ok(_c) => return true,
-            Err(_e) => return false,
         }
 }
 

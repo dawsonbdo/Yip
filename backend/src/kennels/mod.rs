@@ -193,11 +193,13 @@ pub fn get_followed_kennels_names(username: &str, connection: &DbConn) -> Result
 }
 
 /** 
- * Method that returns a kennel from database given the name
- * @param name: name of kennel
+ * Method that transfers the owernship of a kennel
+ * @param username: name of user
+ * @param token: token of kennel owner
+ * @param kennel_name: name of kennel
  * @param connection: database connection
  *
- * @return returns JSON of the review or error status
+ * @return returns accepted or notfound status
  */
 #[post("/transfer_ownership/<username>/<token>/<kennel_name>")]
 fn transfer_ownership(username: String, token: String, kennel_name: String, connection: DbConn) -> Result<status::Accepted<String>, status::NotFound<String>> {
@@ -221,11 +223,11 @@ fn transfer_ownership(username: String, token: String, kennel_name: String, conn
 }
 
 /** 
- * Method that returns a kennel from database given the name
+ * Method that returns followed kennels from database given a username
  * @param name: name of kennel
  * @param connection: database connection
  *
- * @return returns JSON of the review or error status
+ * @return returns JSON of the kennels or error status
  */
 #[get("/get_followed_kennels_username/<username>")]
 fn get_followed_kennels_username(username: String, connection: DbConn) -> Result<Json<Vec<DbKennel>>, status::NotFound<String>> {
@@ -246,11 +248,11 @@ fn get_followed_kennels_username(username: String, connection: DbConn) -> Result
 }
 
 /** 
- * Method that returns a kennel from database given the name
- * @param name: name of kennel
+ * Method that returns followed kennels from database given a token
+ * @param token: token of user
  * @param connection: database connection
  *
- * @return returns JSON of the review or error status
+ * @return returns JSON of the kennels or error status
  */
 #[get("/get_followed_kennels/<token>")]
 fn get_followed_kennels(token: String, connection: DbConn) -> Result<Json<Vec<DbKennel>>, status::NotFound<String>> {
@@ -272,7 +274,7 @@ fn get_followed_kennels(token: String, connection: DbConn) -> Result<Json<Vec<Db
 
 /** 
  * Method that returns all kennels that were created by user
- * @param token: token of user
+ * @param username: username of user
  * @param connection: database connection
  *
  * @return returns JSON of the review or error status
@@ -297,7 +299,6 @@ fn get_created_kennels(username: String, connection: DbConn) -> Result<Json<Vec<
 
 /** 
  * Method that returns the top 5 kennels based on newness
- * @param token: token of logged in user
  * @param connection: database connection
  *
  * @return returns JSON of the newest 5 kennels
@@ -315,7 +316,6 @@ fn get_new_kennels(connection: DbConn) -> Result<Json<Vec<DbKennel>>, status::No
 
 /** 
  * Method that returns the top 5 kennels based on followers
- * @param token: token of logged in user
  * @param connection: database connection
  *
  * @return returns JSON of the top 5 kennels
@@ -374,11 +374,13 @@ fn list_kennels(connection: DbConn) -> () {
         .map(|kennel| Json(kennel));
         
 	// Prints out title/text/rating of each review in database
+	/*
 	for vec in all_kennels {
 		for k in vec.iter() {
 			println!("Name: {} Tags: {} Id: {}", k.kennel_name, k.tags.as_ref().unwrap()[0], k.kennel_uuid);
 		} 
 	}
+	*/
 
 }
 
@@ -398,7 +400,7 @@ fn unfollow_kennel(input: Json<KennelUser>, connection: DbConn) -> Result<status
 
 /** 
  * Handler method that follows a kennel
- * @param kennel: JSON of a KennelUser (name + token)
+ * @param input: JSON of a KennelUser (name + token)
  * @param connetion: database connection
  *
  * @return returns a result with status Accepted or BadRequest
@@ -422,7 +424,7 @@ fn follow_kennel(input: Json<KennelUser>, connection: DbConn) -> Result<status::
 fn edit_kennel(kennel: Json<KennelUpdate>, connection: DbConn) -> Result<status::Accepted<String>, status::Conflict<String>> {
 	
 	// Print kenne lstuf
-	println!("Kennel Name: {}", kennel.kennel_name);
+	//println!("Kennel Name: {}", kennel.kennel_name);
 
 	// Make sure valid user id 
 	let moderator = auth::get_uuid_from_token(&kennel.token);
@@ -445,7 +447,7 @@ fn edit_kennel(kennel: Json<KennelUpdate>, connection: DbConn) -> Result<status:
     	description: kennel.description.clone(),
 	};
 
-	println!("TAGS: {}", k.tags[0]);
+	//println!("TAGS: {}", k.tags[0]);
 
 	// Attempt to update kennel in database
 	let successful_edit = handlers::update(moderator, k, &connection);
@@ -458,8 +460,8 @@ fn edit_kennel(kennel: Json<KennelUpdate>, connection: DbConn) -> Result<status:
 	};
 
 	match kennel_ban_users(Json(ban), &connection){
-		Ok(_u) => println!("SUCCESSFUL BAN"),
-		Err(_e) => println!("FAILED BAN"),
+		Ok(_u) => (), //println!("SUCCESSFUL BAN"),
+		Err(_e) => (), //println!("FAILED BAN"),
 	};
 
 	// Check if successful insertion into database

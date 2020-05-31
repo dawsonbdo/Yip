@@ -22,7 +22,7 @@ use uuid::Uuid;
  * @param comments: the comment reports that are being updated
  * @param connection: database connection
  *
- * @return returns vector of DisplayComments with updated fields
+ * @return returns vector of CommentReports with updated fields
  */
 fn update_display_comment_fields(profile_username: &str, uuid: Uuid, comments: Vec<CommentReport>, connection: &DbConn) -> Vec<CommentReport> {
 
@@ -74,7 +74,7 @@ fn update_display_comment_fields(profile_username: &str, uuid: Uuid, comments: V
  * @param reviews: the reports that are being updated
  * @param connection: database connection
  *
- * @return returns vector of DisplayReviews with updated fields
+ * @return returns vector of ReviewReports with updated fields
  */
 fn update_display_report_fields(profile_username: &str, uuid: Uuid, reviews: Vec<ReviewReport>, connection: &DbConn) -> Vec<ReviewReport> {
 
@@ -150,7 +150,7 @@ fn list_reports(connection: DbConn) -> () {
 	// Prints out title/text/rating of each review in database
 	for vec in all_reports {
 		for r in vec.iter() {
-			println!("Kennel: {} Is Comment: {} Reason: {}", r.kennel, r.is_comment, r.reason);
+			//println!("Kennel: {} Is Comment: {} Reason: {}", r.kennel, r.is_comment, r.reason);
 		} 
 	}
 

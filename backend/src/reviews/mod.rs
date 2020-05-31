@@ -90,7 +90,7 @@ fn update_display_review_fields(profile_username: &str, uuid: Uuid, reviews: Vec
 
 	let mut reviews_updated : Vec<DisplayReview> = vec![];
 
-	// Set isAuthor, isLiked, isDisliked fields
+	// Set isAuthor, isLiked, isDisliked, etc fields
 	for mut r in reviews {
 		let ld_val = review_likes_dislikes.get(&r.review_uuid);
 		let b_val = review_bookmarks.get(&r.review_uuid);
@@ -160,7 +160,7 @@ fn list_reviews_helper(connection: &DbConn) -> Json<Vec<String>> {
 	// Prints out title/text/id of each review in database
 	for vec in all_reviews {
 		for r in vec.iter() {
-			println!("Title: {} Text: {} Id: {}", r.title, r.text, r.review_uuid);
+			//println!("Title: {} Text: {} Id: {}", r.title, r.text, r.review_uuid);
 			review_ids.push(r.review_uuid.hyphenated().to_string());
 		} 
 	}
@@ -449,7 +449,6 @@ fn get_kennel_reviews(kennel_name: String, token: String, connection: DbConn) ->
 #[get("/get_user_bookmarked_reviews/<username>/<token>")]
 fn get_user_bookmarked_reviews(username: String, token: String, connection: DbConn) -> Result<Json<Vec<DisplayReview>>, status::NotFound<String>> {
 
-
 	// Get uuid from username passed in
 	let uuid = users::handlers::get_uuid_from_username(&username, &connection);
 
@@ -566,7 +565,8 @@ fn get_review(id: String, token: String, connection: DbConn) -> Result<Json<Disp
 		Ok(mut r) => {
 			//println!("AUTHOR: {} PROFILE: {}", &r.author, &profile_username);
 			
-			r.is_author = profile_username.eq(&r.author); // set field of DisplayReview
+			// Set fields of review using token
+			r.is_author = profile_username.eq(&r.author); 
 			r.is_liked = match handlers::get_relationship_like(review_uuid, profile_uuid, &connection){
 				Ok(u) => u != 0,
 				Err(_e) => false,
@@ -653,11 +653,13 @@ fn remove_review(review: Json<ReviewToken>, connection: DbConn) -> Result<status
 }
 
 /** 
- * TODO: Not finished, look into handlers::DbReview::from_review()
- * @param review: Json with Review
+ * Method for updating a review in the database, editing.
+ * @param data: ReviewMultipart with all the review infromation
+ * @param review_uuid: uuid of review
+ * @param token: user token
  * @param connection: database connection
  *
- * @return returns TBD
+ * @return returns accepted or unauthorized status
  */
 #[post("/edit_review/<review_uuid>/<token>", data="<data>")]
 fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connection: DbConn) -> Result<status::Accepted<String>, status::Unauthorized<String>> {
@@ -693,8 +695,6 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 		paths.push(format!("reviewpics/{}{}", user_uuid, name));
 	}
 
-	println!("EDIT 1");
-
 	// Create review object in correct format
 	let review = review_creation_helper(review_obj, paths, data.tags);
 	
@@ -725,13 +725,9 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 		}
 	}
 
-	println!("EDIT 2");
-
 	// Attempt to update review in database
 	match handlers::update(rev_uuid, review, &connection){
 		Ok(r) => { 
-			// Attempt to insert pictures
-
 
 			// Iterate through files passed in, store on server in static/reviewpics/<filename>
 			for (i, img) in data.images.iter().enumerate() {
@@ -744,81 +740,54 @@ fn edit_review(data: ReviewMultipart, review_uuid: String, token: String, connec
 				let fp = format!("reviewpics/{}{}", user_uuid, &data.names[i]);
 				// TODO: Delete images of files that were removed from orig review
 				if images.contains(&fp){
-					println!("FILE ALREADY EXISTS IN REVIEW");
+					//println!("FILE ALREADY EXISTS IN REVIEW");
 					continue;
 				} else {
-					println!("NEW FILE: {}", &fp);
+					//println!("NEW FILE: {}", &fp);
 				}
 
 
 				let mut buffer = File::create(file_path.clone()).unwrap();
-				
-				println!("EDIT 3");
 
 				// Catch error
 				match buffer.write(&img){
 					Ok(w) => w,
-					Err(e) => {
-						// TODO: If error writing image to server, delete the review
-						/*
-						let del_review = ReviewToken {
-							review_uuid: r.review_uuid.hyphenated().to_string(),
-							token: token.clone(),
-						};
-
-						remove_review(Json(del_review), connection);
-						*/
-						return Err(status::Unauthorized(Some(e.to_string())))
-					},
+					Err(e) => return Err(status::Unauthorized(Some(e.to_string()))),
 				};
 					
 			}
-
-			println!("EDIT 4");
-
 			
-			// TODO: Delete images of files that were removed from orig review
+			// Delete images of files that were removed from orig review
 			let imgs = match r.images {
 				Some(imgs) => imgs,
 				None => vec![]
 			};
-
-			/*
-			for img in &imgs{
-				println!("CURRENT IMG: {}", img);
-			}
-			*/
 
 			for img in images{
 				// Don't delete if in the list of new images
 				if imgs.contains(&img){
 					continue;
 				}
-				
-				println!("EDIT 5: {}", img);
 
 				// Attempt to delete old img
 				let p = format!("static/{}", img);
 				match std::fs::remove_file(p){
 					Ok(_u) => (),
-					Err(e) => println!("ERROR: {}", e.to_string()),
+					Err(e) => (), //println!("ERROR: {}", e.to_string()),
 				};
 			}
-						
-
-			println!("EDIT 6");
 
 			Ok(status::Accepted(Some(rev_uuid.hyphenated().to_string())))
 		},
 		Err(e) => Err(status::Unauthorized(Some(e.to_string()))),
 	}
 	
-	
 }
 
 /** 
  * Method that creates a review
  * @param data: multipart data with the review contents/files uploaded
+ * @param token: token of user creating review
  * @param connection: database connection
  *
  * @return returns review uuid if successfuly created, otherwise conflict status
@@ -876,8 +845,7 @@ fn create_review(data: ReviewMultipart, token: String, connection: DbConn) -> Re
 	// Attempt to insert review into database
 	match handlers::insert(review, &connection){
 		Ok(r) => {
-				// Attempt to insert pictures
-
+	
 				// Iterate through files passed in, store on server in static/reviewpics/<filename>
 				for (i, img) in data.images.iter().enumerate() {
 
@@ -910,7 +878,6 @@ fn create_review(data: ReviewMultipart, token: String, connection: DbConn) -> Re
 
 }
 
-
 /** 
  * Method that prints out all reviews
  * @param connection: database connection
@@ -924,11 +891,20 @@ fn list_reviews(connection: DbConn) -> Json<Vec<String>> {
 	list_reviews_helper(&connection)
 }
 
+/**
+ * Method that calculates the hotness of a review personallized to a user
+ * @param hotness: hotness of review
+ * @param kennels: followed kennels of a user
+ * @param users: follower users of a user
+ * @param review: the DisplayReview
+ *
+ * @return returns an integer representing personalized hotness
+ */
 fn calc_personalized_hotness(hotness: i64, kennels: &Vec<String>, users: &Vec<String>, review: &DisplayReview) -> i64 {
 	let followed_kennel = if kennels.contains(&review.kennel_name) {1.0} else {0.0};
 	let followed_user = if users.contains(&review.author) {1.0} else {0.0};
 	
-	// Scale factor of hotness (TODO: adjust values probably)
+	// Scale factor of hotness (TODO: adjust values potentially)
 
 	// If review posted within past 12 hours by followed user, extra boost
 	let cur_time = Utc::now().naive_utc();
@@ -985,8 +961,6 @@ fn load_reviews(token: String, connection: DbConn) -> Result<Json<Vec<DisplayRev
 			Ok(k) => k,
 			Err(_e) => vec![], 
 		};
-		
-		
 
 	    // Sort reviews by personalized hotness (followed users/reviews) using pq 
 	    for r in reviews {

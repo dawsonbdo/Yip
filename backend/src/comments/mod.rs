@@ -168,6 +168,7 @@ fn like_comment(input: Json<CommentUser>, connection: DbConn) -> Result<status::
 /** 
  * Method that removes a comment from database if token matches author of comment
  * @param review: Json with uuid and token
+ * @param kennel_name: name of kennel
  * @param connection: database connection
  * 
  * @return returns accepted status if removed, other unauthorized
@@ -217,7 +218,12 @@ fn remove_comment(input: Json<CommentUser>, kennel_name: String, connection: DbC
 
 
 /**
- * Print out all comments of a review
+ * Method that returns all comments of a review
+ * @param review_uuid: uuid of review
+ * @param token: token of current user
+ * @param connection: database connection
+ *
+ * @return returns a vector of DisplayComments
  */
 #[get("/get_comments/<review_uuid>/<token>", rank=1)]
 fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Result<Json<Vec<DisplayComment>>, status::NotFound<String>> {
@@ -263,7 +269,12 @@ fn get_comments(review_uuid: String, token: String, connection: DbConn) -> Resul
 }
 
 /**
- * Method that returns a single comment given it ID
+ * Method that returns a single comment given token and its id
+ * @param comment_uuid: uuid of comment
+ * @param token: token of user
+ * @param connection: database connection
+ *
+ * @return returns a DisplayComment object
  */
 #[get("/get_comment/<comment_uuid>/<token>", rank=1)]
 fn get_comment(comment_uuid: String, token: String, connection: DbConn) -> Result<Json<DisplayComment>, status::NotFound<String>> {
@@ -295,8 +306,10 @@ fn get_comment(comment_uuid: String, token: String, connection: DbConn) -> Resul
 /** 
  * Method that creates a comment
  * @param comment: JSON of the comment
+ * @param name: name of kennel
+ * @param connection: database connection
  *
- * @return returns TBD
+ * @return returns a DisplayComment object if successful
  */
 #[post("/create_comment/<name>", data="<comment>", rank=1)]
 fn create_comment(comment: Json<InputComment>, name: String, connection: DbConn) -> Result<Json<DisplayComment>, status::Conflict<String>> {
@@ -306,8 +319,6 @@ fn create_comment(comment: Json<InputComment>, name: String, connection: DbConn)
 	if !auth::validate_token(comment.author_token.clone()) {
 		return Err(status::Conflict(Some("Invalid User".to_string())));
 	}
-
-	
 
 	// Get the muted words
 	let muted_words = match super::kennels::handlers::get_kennel_from_name(name.clone(), &connection){

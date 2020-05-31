@@ -26,9 +26,7 @@ fn from_kennel_ins(kennel: Kennel, connection: &PgConnection) -> InsertKennel {
         follower_count: get_follower_count(uuid, connection),
         muted_words: match kennel.muted_words{
             Some(words) => Some(words),
-            None => {
-                println!("NONE");
-                None},
+            None => None,
         },
         rules: if kennel.rules.eq("") {None} else {Some(kennel.rules.clone())},
         mod_uuid: if mod_id.is_nil() {auth::get_uuid_from_token(&kennel.token)} else {mod_id},
@@ -56,9 +54,7 @@ fn from_kennel(kennel: Kennel, connection: &PgConnection) -> DbKennel {
         follower_count: get_follower_count(uuid, connection),
         muted_words: match kennel.muted_words{
             Some(words) => Some(words),
-            None => {
-                println!("NONE");
-                None},
+            None => None,
         },
         rules: if kennel.rules.eq("") {None} else {Some(kennel.rules.clone())},
         mod_uuid: if mod_id.is_nil() {auth::get_uuid_from_token(&kennel.token)} else {mod_id},
@@ -314,7 +310,7 @@ pub fn get_kennel_uuid_from_name(kennel_name: String, connection: &PgConnection)
 }
 
 /**
- * Method that returns timetsamp of a kennel given the name
+ * Method that returns timestamp of a kennel given the name
  * @param kennel_name: name of kennel
  * @param connection: database connection
  *
@@ -371,7 +367,7 @@ pub fn update_kennel_owner(kennel_name: String, new_owner: Uuid, connection: &Pg
  * @param kennel_uuid: uuid of kennel
  * @param connection: database connection
  *
- * @return N/A
+ * @return size indicating if successful update of row
  */
 pub fn update_kennel_followers(kennel_uuid: Uuid, connection: &PgConnection) -> QueryResult<usize>{
 
@@ -381,7 +377,7 @@ pub fn update_kennel_followers(kennel_uuid: Uuid, connection: &PgConnection) -> 
     // Get new follower count
     let new_count = get_follower_count(kennel_uuid, connection);
 
-    println!("Kennel Id: {} New Count: {}", kennel_uuid, new_count);
+    //println!("Kennel Id: {} New Count: {}", kennel_uuid, new_count);
 
     // Make sure it was found
     diesel::update(kennels::table.find(kennel_uuid))
@@ -421,8 +417,8 @@ pub fn get_follower_count(kennel_uuid: Uuid, connection: &PgConnection) -> i32 {
 pub fn unfollow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
     
     // Prints the uuids received
-    println!("Kennel uuid: {}", kennel_uuid);
-    println!("Profile uuid: {}", profile_uuid);
+    //println!("Kennel uuid: {}", kennel_uuid);
+    //println!("Profile uuid: {}", profile_uuid);
     
     // Deletes kennel follow relationship from table
     match diesel::delete(kennel_follow_relationships::table
@@ -446,8 +442,8 @@ pub fn unfollow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection
 pub fn follow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) -> Result<status::Accepted<String>, status::BadRequest<String>> {
     
     // Prints the uuids received
-    println!("Kennel uuid: {}", kennel_uuid);
-    println!("Profile uuid: {}", profile_uuid);
+    //println!("Kennel uuid: {}", kennel_uuid);
+    //println!("Profile uuid: {}", profile_uuid);
     
     // Creates object to be inserted to the follow kennel table
     let follow_kennel = FollowKennel {
@@ -474,12 +470,15 @@ pub fn follow(kennel_uuid: Uuid, profile_uuid: Uuid, connection: &PgConnection) 
 pub fn insert(kennel: Kennel, connection: &PgConnection) -> Result<Uuid, String> {
     
     // Prints the Kennel information that was received 
+    /*
     println!("Name: {}", kennel.kennel_name);
 
     for i in 0..kennel.tags.iter().len(){
         println!("Tag ({}): {}", i, kennel.tags[i]);
     }
-    //println!("Mods: {}", kennel.mods[0]);
+    println!("Mods: {}", kennel.mods[0]);
+
+    */
 
     // Inserts kennel into database, returns uuid generated
     match diesel::insert_into(kennels::table)

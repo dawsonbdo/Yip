@@ -9,6 +9,7 @@ use crate::auth;
 /**
  * Method that converts a Report to InsertReport
  * @param report: the InputReport
+ * @param connection: database connection
  *
  * @return returns a InsertReport
  */
@@ -34,6 +35,7 @@ fn from_report(report: InputReport, connection: &PgConnection) -> InsertReport {
 /**
  * Method that converts a DbReport to DisplayReport
  * @param report: the DbReport
+ * @param connection: database connection
  *
  * @return returns a DisplayReport
  */
@@ -69,7 +71,7 @@ pub fn get_relationship_report(review_uuid: Uuid, profile_username: &str, connec
 }
 
 /**
- * Method that gets returns all reports by a user that are comments
+ * Method that returns all reports by a user that are comments
  * @param username: username of user
  * @param connection: database connection
  *
@@ -124,7 +126,11 @@ pub fn all(connection: &PgConnection) -> QueryResult<Vec<DbReport>> {
 }
 
 /**
- * LOAD REPORT: Method that returns a DbReport given the uuid
+ * Method that returns a DbReport given the uuid by reading database
+ * @param id: uuid of report
+ * @param connection: dataase connection
+ *
+ * @return returns the DbReport corresponding to uuid if found
  */
 pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbReport> {
 
@@ -133,12 +139,16 @@ pub fn get(id: Uuid, connection: &PgConnection) -> QueryResult<DbReport> {
 }
 
 /**
- * CREATE REPORT: Method that attempts to create a new report in database, returns URL? 
+ * Method that attempts to create a new report in database
+ * @param report: InputReport object
+ * @param connection: database connection
+ *
+ * @return returns a uuid of report if created, otherwise error message
  */
 pub fn insert(report: InputReport, connection: &PgConnection) -> Result<Uuid, String> {
     // Prints the Report information that was received (register)
-    println!("Reason: {}", report.reason);
-    println!("Is Comment: {}", report.is_comment);
+    //println!("Reason: {}", report.reason);
+    //println!("Is Comment: {}", report.is_comment);
 
     // Inserts report into database, returns uuid generated
     match diesel::insert_into(reports::table)
@@ -151,7 +161,12 @@ pub fn insert(report: InputReport, connection: &PgConnection) -> Result<Uuid, St
 }
 
 /**
- * EDIT Report: Method that updates a report in database
+ * Method that edits a report in database
+ * @param id: uuid of report
+ * @param report: InputReport object
+ * @param connection: database connection
+ *
+ * @return returns true if updated report, falsed otherwise
  */
 pub fn update(id: Uuid, report: InputReport, connection: &PgConnection) -> bool {
     match diesel::update(reports::table.find(id))
@@ -163,7 +178,11 @@ pub fn update(id: Uuid, report: InputReport, connection: &PgConnection) -> bool 
 }
 
 /**
- * DELETE Report: Method that removes a report in database
+ * Method that deletes a report from database
+ * @param id: uuid of report
+ * @param connection: database connection
+ *
+ * @return returns size (1 if deleted, 0 otherwise)
  */
 pub fn delete(id: Uuid, connection: &PgConnection) -> QueryResult<usize> {
     diesel::delete(reports::table.find(id))
