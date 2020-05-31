@@ -91,10 +91,7 @@ class Register extends Component {
 
             // Username or email already exist
             this.setState({ showPopup: 'Username or Email already registered!', loading: false });
-
-            // This is how to check if username is taken and/or email is taken
-            console.log("User Taken: " + error.response.data.includes("username"));
-            console.log("Email Taken: " + error.response.data.includes("email"));
+            
         });
     }
 

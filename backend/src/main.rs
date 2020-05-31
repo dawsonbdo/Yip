@@ -65,7 +65,7 @@ fn rocket() -> rocket::Rocket {
     rocket = reports::mount(rocket);
 
     // Return the Rocket
-    return rocket;
+    rocket
 }
 
 fn main() {

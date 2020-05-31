@@ -160,9 +160,6 @@ export async function updateLoggedInUserAndWebSocket(page) {
         var token = localStorage.getItem('jwtToken');
         var recipient = that.state.recipient;
 
-        console.log("RECIPIENT");
-        console.log(recipient);
-
         var msg = that.state.user + "-" + inputElem.value;
 
         // Create HTML message on local client
@@ -177,10 +174,6 @@ export async function updateLoggedInUserAndWebSocket(page) {
           recipient: recipient, //recipient username
           text: inputElem.value,
         };
-
-        console.log("FORM");
-        console.log(form);
-
 
         // Send POST request
         axios({
@@ -234,7 +227,6 @@ export async function setAllUsers(page) {
     var users = [];
 
     for (var i = 0; i < response.data.length; i++) {
-      console.log("TYPE " + (typeof response.data[i]));
       if (response.data[i] != page.state.user) {
         users.push({ name: response.data[i] });
       }

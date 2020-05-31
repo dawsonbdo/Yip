@@ -93,7 +93,6 @@ class CommentCard extends Component {
             return;
         }
 
-        // TODO: Get uuid of comment from a prop probably
         var commentId = this.props.commentId;
 
         // Get token
@@ -143,7 +142,6 @@ class CommentCard extends Component {
             return;
         }
 
-        // TODO: Get uuid of comment from a prop probably
         var commentId = this.props.commentId;
 
         // Get token

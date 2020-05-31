@@ -69,7 +69,7 @@ class RecoverPassword extends Component {
             data: form
         }).then(response => {
 
-            // TODO: Redirect to login screen if successful
+            // Redirect to login screen if successful
             this.setState({ redirect: "/login" });
             this.setState({ loading: false, showPopup: true, popupMsg: "Password successfully reset!" });
 

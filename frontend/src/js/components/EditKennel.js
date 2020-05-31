@@ -37,20 +37,14 @@ class EditKennel extends Component {
   }
 
   updateTags(tags) {
-    console.log("UPDATE TAGS: ");
-    console.log(tags);
     this.setState({ tags: tags });
   }
 
    updateMutes(mutes) {
-    console.log("UPDATE MUTES: ");
-    console.log(mutes);
     this.setState({ mutes: mutes });
   }
 
   updateBans(bans) {
-    console.log("UPDATE BANS: ");
-    console.log(bans);
     this.setState({ bans: bans });
   }
 
@@ -74,35 +68,14 @@ class EditKennel extends Component {
     // Parses form 
     var rules = document.getElementById('rules').value;
 
-    // TODO: Parsing on the tags and muted words (comma separated)
     var tags = this.state.tags;
     var muted = this.state.mutes;
     var bans = this.state.bans;
 
-    //var mutedStr = document.getElementById('mute').value;
-    //var mutedWords;
-
     var desc = document.getElementById('description').value;
-    // Check muted words for whitespace
-    
-    /*if (mutedStr === null || mutedStr.match(/^ *$/) !== null) {
-      mutedWords = null;
-
-    } else {
-      mutedWords = mutedStr.split(", ");
-    }
-    */
-
-    //var banStr = document.getElementById('bans').value;
-    //var bans = banStr.split(", ");
-
-    console.log("MUTED WORDS");
-    console.log(muted);
 
     // Create form to send
     var form = editKennelJson(title, tags, muted, rules, bans, token, desc);
-
-    console.log(form);
 
     // Send POST request with kennel name and tags
     axios({

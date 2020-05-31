@@ -77,7 +77,6 @@ class YipNavBar extends Component {
 
     query = encodeURIComponent(query);
 
-    console.log("URL QUERY: " + query);
 
     // Redirect to search results page with search type and query in url
     this.setState({ redirect: `/searchresults-${event}-${query}` });
@@ -145,13 +144,8 @@ class YipNavBar extends Component {
         url: '/get_created_kennels/' + this.state.user,
       }).then(response => {
 
-        console.log("CREATED KENNELS");
-
         // Store created kennels in createdKennelArray
         for (var i = 0; i < response.data.length; i++) {
-
-          // Print kennels to console for now
-          console.log(response.data[i]);
 
           // Add kennel info to array for rendering kennel cards
           this.state.createdKennelsArray.push(response.data[i].kennel_name);
@@ -204,6 +198,11 @@ class YipNavBar extends Component {
           <Navbar className="color-nav" expand="false" fixed="top">
             <Link to="/"><img className="yipIcon" src={corgiImage} /></Link>
             {logBtn}
+            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
+              <Toast.Header className="smallPopup">
+                <strong className="mx-auto">{this.state.showPopup}</strong>
+              </Toast.Header>
+            </Toast>
 
             <Form inline className="ml-auto float-right pt-3" onSubmit={this.handleSubmit}>
               <FormGroup>
@@ -220,11 +219,6 @@ class YipNavBar extends Component {
                 <Dropdown.Item eventKey="Kennels">Kennels</Dropdown.Item>
               </DropdownButton>
             </Form>
-            <Toast className="mx-auto smallPopup" onClose={() => this.setState({ showPopup: null })} show={this.state.showPopup} autohide>
-              <Toast.Header className="smallPopup">
-                <strong className="mx-auto">{this.state.showPopup}</strong>
-              </Toast.Header>
-            </Toast>
           </Navbar>
         </div>
       )

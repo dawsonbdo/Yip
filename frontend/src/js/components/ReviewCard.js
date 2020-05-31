@@ -39,7 +39,7 @@ class ReviewCard extends Component {
             rating: this.props.rating,
             isLiked: this.props.isLiked,
             isDisliked: this.props.isDisliked,
-            timestamp: this.props.timestamp
+            timestamp: (new Date(this.props.timestamp)).toString()
         })
 
         updateLoggedInState(this);
@@ -68,8 +68,7 @@ class ReviewCard extends Component {
             return;
         }
 
-        // TODO: Get uuid of review from url probably
-        //var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+        // Get uuid of review from url
         var reviewId = this.props.reviewId;
 
         // Get token
@@ -116,8 +115,7 @@ class ReviewCard extends Component {
             return;
         }
 
-        // TODO: Get uuid of review from url probably
-        //var reviewId = "92b516fd-775a-41d8-9462-df94840c9a5d";
+        // Get uuid of review from url
         var reviewId = this.props.reviewId;
 
         // Get token

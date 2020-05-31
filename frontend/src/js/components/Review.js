@@ -144,16 +144,10 @@ class Review extends Component {
 
 				// Check that any images were returned cuz can be undefined
 				if (response.data.images != undefined) {
-					console.log("Review Images (in Review.js)" + response.data.images);
 					for (var i = 0; i < response.data.images.length; i++) {
 						this.setState({ reviewImgs: this.state.reviewImgs.concat(response.data.images[i]) });
 					}
 				}
-
-				console.log("Is Author: " + response.data.is_author);
-				console.log("Is Moderator: " + response.data.is_moderator);
-				console.log("Is Liked: " + response.data.is_liked);
-				console.log("Is Disliked: " + response.data.is_disliked);
 
 				this.setState({ isAuthor: response.data.is_author });
 				this.setState({ isModerator: response.data.is_moderator });
@@ -178,7 +172,6 @@ class Review extends Component {
 			if (!this.state.commentsListed) {
 
 				for (var i = 0; i < response.data.length; i++) {
-					console.log(response.data[i])
 					this.state.commentArray.push({
 						author: response.data[i].author_name,
 						text: response.data[i].text,
@@ -238,8 +231,7 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			// TODO: Toast 'successful review'
-
+			this.setState({ showPopup: true, popupMsg: "Bookmarked review" });
 
 		}).catch(error => {
 			this.setState({ showPopup: true, popupMsg: "Failed to bookmark review" });
@@ -373,7 +365,7 @@ class Review extends Component {
 			data: form
 		}).then(response => {
 
-			// TODO: handle re-rendering page when returning back
+			// handle re-rendering page when returning back
 			this.props.history.goBack();
 
 
@@ -410,8 +402,6 @@ class Review extends Component {
 
 		// Create JSON obj of comment
 		var form = createCommentJson(reviewId, token, text);
-
-		console.log(form);
 
 		// Send POST request
 		axios({
