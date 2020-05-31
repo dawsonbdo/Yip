@@ -131,7 +131,7 @@ class YipNavBar extends Component {
       this.setState({ followedKennelsLoaded: true });
 
     }).catch(error => {
-      this.setState({ showPopup: 'Failed to get kennels' })
+
     });
   }
 
@@ -156,7 +156,6 @@ class YipNavBar extends Component {
       }).catch(error => {
 
         // Review not found in database
-        this.setState({ showPopup: 'User has no created kennels' });
 
       });
     }
