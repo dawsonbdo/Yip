@@ -489,8 +489,13 @@ fn create_kennel(kennel: Json<Kennel>, connection: DbConn) -> Result<status::Acc
 		return Err(status::Conflict(Some("Invalid user".to_string())))
 	}
 
+	let kennel = kennel.into_inner();
+	if(kennel.kennel_name.is_empty()){
+		return Err(status::Conflict(Some("Invalid kennel name: cannot be empty".to_string())))
+	}
+
 	// Attempt to insert kennel into database 
-	let successful_creation = handlers::insert(kennel.into_inner(), &connection);
+	let successful_creation = handlers::insert(kennel, &connection);
 	
 	// Check if successful insertion into database
 	match successful_creation {
