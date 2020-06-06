@@ -186,10 +186,10 @@ class CommentCard extends Component {
             dislikeIconOpacity = { opacity: .6, cursor: 'pointer' };
         }
         if (this.props.isReported) {
-            reportOpacity = { opacity: 1.0, cursor: 'pointer' };
+            reportOpacity = { opacity: 0.6, cursor: 'pointer' };
         }
         else {
-            reportOpacity = { opacity: .6, cursor: 'pointer' };
+            reportOpacity = { opacity: 1.0, cursor: 'pointer' };
         }
         return (
             <Container className="pb-5">

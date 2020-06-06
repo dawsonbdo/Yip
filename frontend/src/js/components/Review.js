@@ -525,10 +525,10 @@ class Review extends Component {
 		}
 
 		if (this.state.isReported) {
-			reportOpacity = { opacity: 1.0, cursor: 'pointer' };
+			reportOpacity = { opacity: .6, cursor: 'pointer' };
 		}
 		else {
-			reportOpacity = { opacity: .6, cursor: 'pointer' };
+			reportOpacity = { opacity: 1.0, cursor: 'pointer' };
 		}
 
 		// Loads all images into a variable to display 
