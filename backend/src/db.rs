@@ -14,7 +14,7 @@ pub fn init_pool() -> Pool {
 }
 
 fn database_url() -> String {
-    return "postgres://postgres:yipyipdb@yip.cdcryg67tbhj.us-east-2.rds.amazonaws.com".to_string();
+    return "postgres://postgres:yipyipdb@beforetesting-final2.cdcryg67tbhj.us-east-2.rds.amazonaws.com".to_string();
 }
 
 pub struct DbConn(pub r2d2::PooledConnection<ConnectionManager<PgConnection>>);
