@@ -29,12 +29,5 @@ RUN apt-get update \
 # Adds cargo to PATH
 ENV PATH=$PATH:/root/.cargo/bin
 
-# Setups up npm packages and diesel
-CMD cd frontend \
-    && npm i \
-    && cd ../backend \
-    && diesel setup \ 
-    && cd ..
-
 # Allows access to port 8000
 EXPOSE 8000
