@@ -1,3 +1,5 @@
+<h1>Look at README.pdf first!</h1>
+
 <h1>How to setup Yip for working locally on Mac OS / Ubuntu</h1>
 
 1. Get the nightly build for Rust here: https://www.rust-lang.org/tools/install. Do not use the default settings. Instead customize it and ensure that the Nightly build is set.
