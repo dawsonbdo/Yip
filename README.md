@@ -1,4 +1,4 @@
-<h1>How to setup Yip for working locally</h1>
+<h1>How to setup Yip for working locally on Mac OS / Ubuntu</h1>
 
 1. Get the nightly build for Rust here: https://www.rust-lang.org/tools/install. Do not use the default settings. Instead customize it and ensure that the Nightly build is set.
 2. Open the project and go into the frontend folder. Type 'npm i' in there to download project dependencies.
@@ -7,69 +7,13 @@
 <h3>Installing Postgresql and diesel</h3>
 
 1. Install PostgreSQL for your OS here: https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
-2. IF YOU'RE ON WINDOWS: Run the batch file here C:\Program Files\PostgreSQL\12\pg_env.bat or wherever you installed postgresql
-3. IF YOU'RE ON UBUNTU: Run this command 'sudo apt install libpq-dev libmysqlclient-dev'
+2. IF YOU'RE ON UBUNTU: Run this command 'sudo apt install libpq-dev libmysqlclient-dev'
 3. Run 'cargo install diesel_cli --no-default-features --features postgres' in the backend folder
 4. Run 'diesel setup' in the backend folder
 
-<h1>How to work on Frontend</h1>
+<h3>Building the Project </h3>
 
 1. Navigate to frontend folder
-2. Do work
-3. Run 'npm run build'
-4. That will update main.js for the backend to display
+3. Run 'npm run build
 5. Navigate to backend folder
 6. Run 'cargo build' and then 'cargo run'. Go to http://localhost:8000/.
-
-<h1>How to work on Backend</h1>
-
-1. Navigate to backend folder
-2. Do work
-3. Run 'cargo build' to compile
-4. Run 'cargo run'. Go to http://localhost:8000/.
-
-<h1>How to view database</h1>
-
-1. Open pgAdmin
-2. Navigate to the dashboard and "Add New Server"
-3. Enter whatever name
-4. Navigate to "Connection"
-5. Place this in the host name/address: yip.cdcryg67tbhj.us-east-2.rds.amazonaws.com
-6. Username: postgres
-7. Password: yipyipdb
-8. Hit "Save"
-9. On the File Browser to the left, navigate to the newly connected database
-10. Go to Databases -> postgres -> Schemas -> Tables
-11. Right click on any table and select "View/Edit Data" to view table contents.
-
-<h1>How to use Docker</h1>
-
-<h2>Installation</h2>
-
-1. Install Docker for your OS here: https://docs.docker.com/install/#supported-platforms 
-2. Note Docker Desktop is preferred as compatibility with Docker Toolbox has not been verified
-3. If on Windows, add the yip folder to File sharing: Docker Desktop settings -> Resources -> File Sharing
-
-<h2>Using VSCode remote container extension</h2>
-
-1. Install the VSCode Remote container extension
-2. Open the yip folder in vscode
-3. A popup should ask if you want to reopen the folder in the conatiner
-4. Reopen the folder in the container using the Dockerfile
-5. If there is no popup to reopen in the container, click on the green remote container icon in the bottom left of vscode and then select Reopen in container
-6. Make sure to reopen using the existing Dockerfile
-7. The first time the image will need to be built which may take a while
-
-<h2>Using the command line</h2>
-
-1. The image can be built by running 'docker build -t yip .' from the yip folder
-
-<h3>Running with the command line option 1</h3>
-
-1. The image can be run with 'docker run --network="host" -it yip /bin/bash'
-2. Run 'cargo build' and then 'cargo run'. Go to http://localhost:8000/. 
-
-<h3>Running with the command line option 2</h3>
-
-1. The image can be run with 'docker run -p 8000:8000 -it yip /bin/bash'
-2. Run 'cargo build' and then 'ROCKET_ENV=stage cargo run'. Go to http://0.0.0.0:8000.
