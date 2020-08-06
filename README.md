@@ -1,4 +1,4 @@
-<h1>Look at README.pdf first!</h1>
+<h1>Imported from GitLab Repository Here: https://gitlab.com/cse110-sp20/yip</h1>
 
 <h1>How to setup Yip for working locally on Mac OS / Ubuntu</h1>
 
