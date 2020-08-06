@@ -1,4 +1,5 @@
-<h1>Imported from GitLab Repository Here: https://gitlab.com/cse110-sp20/yip</h1>
+<h1>More About Yip</h1>
+Finding relevant information in common review sites such as Yelp or Amazon Reviewsis very difficult when what’s “relevant” varies between person to person. One personmay value wheelchair accessibility in a given location while another may valueemployee treatment. ​Yip​ allows for such niche information to be readily available to allusers in the form of review communities, or as we call them kennels. Each kennel actsas a beacon to attract all other like-minded individuals who share the same interest toshare their experiences and thoughts with a location, product, service, etc. in the form ofreviews. Any user can join a pre-existing kennel or make their own to start their owncommunity if one does not exist or if a pre-existing one does not live up to theirexpectations. Through this community-building ​Yip​ has or will have a kennel foreveryone.
 
 <h1>How to setup Yip for working locally on Mac OS / Ubuntu</h1>
 
