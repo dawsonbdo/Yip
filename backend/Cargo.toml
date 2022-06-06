@@ -24,7 +24,7 @@ multipart = { version = "0.16.1", default-features = false, features = ["server"
 json = "0.12.4"
 rustc-serialize = "0.3.24"
 radix-heap = "0.3.8"
-ordered-float = "1.0.2"
+ordered-float = "2.0.1"
 priority-queue = "0.7.0"
 ws = "0.9.1"
 
